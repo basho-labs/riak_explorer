@@ -21,10 +21,18 @@ Riak Explorer uses Erlang on the server side (to serve the REST API and to talk
 to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 [command-line tasks](http://www.ember-cli.com).
 
+#### Erlang
+
 1. [Install Erlang](http://docs.basho.com/riak/latest/ops/building/installing/erlang/)
     (you know the drill).
 
-2. (Optional) Install [nvm](https://github.com/creationix/nvm), the Node.js Version Manager.
+2. `make all` - Loads and compiles the dependencies (`riak_kv`, etc).
+
+#### Ember.js
+The Ember app lives in `priv/ember_riak_control`, and follows the standard
+[ember-cli folder layout conventions](http://www.ember-cli.com/#folder-layout).
+
+1. (Optional) Install [nvm](https://github.com/creationix/nvm), the Node.js Version Manager.
     The provided [install script](https://github.com/creationix/nvm#install-script)
     is easiest:
 
@@ -45,7 +53,7 @@ to Riak), and Ember.js on the client side. Ember itself uses Node.js for
     * `nvm install stable` - Install latest stable version
         of Node.js (`v0.12.2` at the moment)
 
-3. Use `npm` (Node.js Package Manager) to install the `ember-cli` package.
+2. Use `npm` (Node.js Package Manager) to install the `ember-cli` package.
     (If you did `nvm install stable` above, you now have `npm` installed.)
 
     ```
@@ -54,7 +62,7 @@ to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 
     (The `-g` flag means "install it globally")
 
-4. You can now run the Ember.js tests:
+3. You can now run the Ember.js tests:
 
     ```
     cd priv/ember_riak_control
