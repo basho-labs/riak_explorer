@@ -62,7 +62,13 @@ The Ember app lives in `priv/ember_riak_control`, and follows the standard
 
     (The `-g` flag means "install it globally")
 
-3. You can now run the Ember.js tests:
+3. Install the `phantomjs` package, for headless browser unit testing
+
+    ```
+    npm install -g phantomjs
+    ```
+
+4. You can now run the Ember.js tests:
 
     ```
     cd priv/ember_riak_control
