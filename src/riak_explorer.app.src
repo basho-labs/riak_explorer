@@ -1,0 +1,15 @@
+%% -*- erlang -*-
+{application, riak_explorer,
+ [
+  {description, "Riak development tool and admin GUI"},
+  {vsn, git},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  riak_core,
+                  riak_kv
+                 ]},
+  {mod, { re_app, []}},
+  {env, []}
+ ]}.
