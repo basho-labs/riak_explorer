@@ -15,3 +15,48 @@ See also: [Riak Control Design Discussion
 - [riak_cs_control](https://github.com/basho/riak_cs_control)
 - [RiakCS.net source code](https://github.com/basho/riak_cs_test_harness)
     (RiakCS.net itself is now defunct, but had nice CS-related features).
+
+## Developer Instructions
+Riak Explorer uses Erlang on the server side (to serve the REST API and to talk
+to Riak), and Ember.js on the client side. Ember itself uses Node.js for
+[command-line tasks](http://www.ember-cli.com).
+
+1. [Install Erlang](http://docs.basho.com/riak/latest/ops/building/installing/erlang/)
+    (you know the drill).
+
+2. (Optional) Install [nvm](https://github.com/creationix/nvm), the Node.js Version Manager.
+    The provided [install script](https://github.com/creationix/nvm#install-script)
+    is easiest:
+
+    ```
+    curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | bash
+    ```
+
+    (After installing via script above, either reopen your terminal or
+    `source ~/.bashrc`).
+
+    Using `nvm` is optional - you can install [Node.js](https://nodejs.org/)
+    directly from the website. However, much like with Ruby and `rvm`, it's
+    easier to upgrade and manage Node.js versions using this tool.
+
+    This enables you to:
+
+        * `nvm ls-remote` - View what Node.js versions are available to install
+        * `nvm install stable` - Install latest stable version
+            of Node.js (`v0.12.2` at the moment)
+
+3. Use `npm` (Node.js Package Manager) to install the `ember-cli` package.
+    (If you did `nvm install stable` above, you now have `npm` installed.)
+
+    ```
+    npm install -g ember-cli
+    ```
+
+    (The `-g` flag means "install it globally")
+
+4. You can now run the Ember.js tests:
+
+    ```
+    cd priv/ember_riak_control
+    ember test
+    ```
