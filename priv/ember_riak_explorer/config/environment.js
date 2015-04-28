@@ -2,7 +2,7 @@
 
 module.exports = function(environment) {
   var ENV = {
-    modulePrefix: 'ember-riak-control',
+    modulePrefix: 'ember-riak-explorer',
     environment: environment,
     baseURL: '/',
     locationType: 'auto',

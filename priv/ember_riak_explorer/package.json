@@ -1,7 +1,7 @@
 {
-  "name": "ember-riak-control",
+  "name": "ember-riak-explorer",
   "version": "0.0.0",
-  "description": "Small description for ember-riak-control goes here",
+  "description": "Small description for ember-riak-explorer goes here",
   "private": true,
   "directories": {
     "doc": "doc",

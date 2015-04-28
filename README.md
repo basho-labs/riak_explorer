@@ -29,7 +29,7 @@ to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 2. `make all` - Loads and compiles the dependencies (`riak_kv`, etc).
 
 #### Ember.js
-The Ember app lives in `priv/ember_riak_control`, and follows the standard
+The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
 [ember-cli folder layout conventions](http://www.ember-cli.com/#folder-layout).
 
 1. (Optional) Install [nvm](https://github.com/creationix/nvm), the Node.js Version Manager.
@@ -71,6 +71,6 @@ The Ember app lives in `priv/ember_riak_control`, and follows the standard
 4. You can now run the Ember.js tests:
 
     ```
-    cd priv/ember_riak_control
+    cd priv/ember_riak_explorer
     ember test
     ```
