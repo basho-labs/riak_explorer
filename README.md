@@ -2,9 +2,9 @@
 
 Riak dev-mode and admin GUI.
 
-Front-end GUI: likely in Ember.js (to be determined)
+*Front-end GUI:* Ember.js
 
-Back-end: Erlang serving a REST API.
+*Back-end:* Erlang + WebMachine serving a REST API.
 
 See also: [Riak Control Design Discussion
  doc](https://docs.google.com/document/d/1qcHyyEEL1jCAKrjNtmbIEcAFS3VAdLyoRK88FDy6o_0/edit#).
@@ -41,9 +41,9 @@ to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 
     This enables you to:
 
-        * `nvm ls-remote` - View what Node.js versions are available to install
-        * `nvm install stable` - Install latest stable version
-            of Node.js (`v0.12.2` at the moment)
+    * `nvm ls-remote` - View what Node.js versions are available to install
+    * `nvm install stable` - Install latest stable version
+        of Node.js (`v0.12.2` at the moment)
 
 3. Use `npm` (Node.js Package Manager) to install the `ember-cli` package.
     (If you did `nvm install stable` above, you now have `npm` installed.)
