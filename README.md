@@ -13,7 +13,9 @@ See also: [Riak Control Design Discussion
 
 Find and note the location of the Riak `bin` and `lib` directories. If installation was performed using [https://github.com/basho-labs/riak-app](https://github.com/basho-labs/riak-app), they are located in `/Applications/Riak.app/Contents/Resources/riak-2.1.0/bin` and `/Applications/Riak.app/Contents/Resources/riak-2.1.0/lib` respectively.
 
-1. Create a `configure.sh` file with the following environment variables:
+1. Download and extract [http://riak-tools.s3.amazonaws.com/riak_explorer210.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer210.tar.gz)
+
+2. Modify `configure.sh` file with the following environment variables:
 
     `configure.sh`
     ```
@@ -24,23 +26,13 @@ Find and note the location of the Riak `bin` and `lib` directories. If installat
     export RIAK_COOKIE=riak
     ```
 
-    Load it into your shell session with `source`
+3. Run the `run.sh` script
 
     ```
-    source configure.sh
+    ./run.sh
     ```
 
-2. Run the following to install the Riak Explorer erlang application
-
-    ```
-    make install
-    ```
-
-3. Start the backend and frontend applications (also restarts Riak)
-
-    ```
-    make start
-    ```
+4. Navigate to [http://localhost:8000/](http://localhost:8000/) to test
 
 ## Developer Instructions
 Riak Explorer uses Erlang on the server side (to serve the REST API and to talk

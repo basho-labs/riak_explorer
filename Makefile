@@ -84,4 +84,4 @@ deploy: package
 	mv dist riak_explorer
 	tar -zcvf riak_explorer210.tar.gz riak_explorer
 	mv riak_explorer dist
-	#s3cmd put --acl-public riak_explorer210.tar.gz s3://riak-tools/
+	s3cmd put --acl-public riak_explorer210.tar.gz s3://riak-tools/
