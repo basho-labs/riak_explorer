@@ -1,4 +1,4 @@
-%% @doc Test the document API in various ways.
+%% @doc Test helper functions.
 -module(ret).
 
 -compile(export_all).

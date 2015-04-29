@@ -1,4 +1,4 @@
-%% @doc Test the query API in various ways.
+%% @doc Test the API in various ways.
 -module(re_wm_explore_test).
 
 -compile(export_all).
