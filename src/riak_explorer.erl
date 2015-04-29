@@ -21,7 +21,8 @@
 -include("riak_explorer.hrl").
 -export([
   ping/0,
-  home/0]).
+  home/0,
+  list_types/0]).
 
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
@@ -37,11 +38,36 @@ home() ->
 ping() ->
   [{message, <<"pong">>}].
 
+list_types() ->
+  It = riak_core_bucket_type:iterator(),
+  List0 = [[{name, <<"default">>},{status, <<"active">>}]],
+  List1 = fetch_types(It, List0),
+  [{data, List1}].
+
 %%%===================================================================
 %%% Private
 %%%===================================================================
 
+fetch_types(It, Acc) ->
+    case riak_core_bucket_type:itr_done(It) of
+        true ->
+            riak_core_bucket_type:itr_close(It),
+            lists:reverse(Acc);
+        false ->
+            {Type, Props} = riak_core_bucket_type:itr_value(It),
+            ActiveStr = case proplists:get_value(active, Props, false) of
+                            true -> <<"active">>;
+                            false -> <<"not active">>
+                        end,
+            T = [{name, Type},{status, ActiveStr}],
+            fetch_types(riak_core_bucket_type:itr_next(It), [T | Acc])
+    end.
+
 -ifdef(TEST).
+
+home_test() ->
+    Expected = [{message, <<"riak_explorer api">>}],
+    ?assertEqual(Expected, home()).
 
 ping_test() ->
     Expected = [{message, <<"pong">>}],

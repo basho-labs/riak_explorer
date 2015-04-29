@@ -71,13 +71,17 @@ resource_exists(RD, Ctx=#ctx{resource=undefined}) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx=#ctx{resource="ping"}) ->
     {true, RD, Ctx};
+resource_exists(RD, Ctx=#ctx{resource="list-types"}) ->
+    {true, RD, Ctx};
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
 to_json(RD, Ctx=#ctx{resource=undefined}) ->
     {render_json(riak_explorer:home()), RD, Ctx};
 to_json(RD, Ctx=#ctx{resource="ping"}) ->
-    {render_json(riak_explorer:ping()), RD, Ctx}.
+    {render_json(riak_explorer:ping()), RD, Ctx};
+to_json(RD, Ctx=#ctx{resource="list-types"}) ->
+    {render_json(riak_explorer:list_types()), RD, Ctx}.
 
 %% ====================================================================
 %% Private
