@@ -3,6 +3,9 @@ deps
 *.o
 *.plt
 erl_crash.dump
+*.beam
+dist
+*.tar.gz
 ebin
 rel/example_project
 .concrete/DEV_MODE

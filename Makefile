@@ -46,7 +46,9 @@ start-backend: stop-riak start-riak wait-for-riak
 stop-backend:
 	$(RIAK_BIN)/riak escript $(shell pwd)/bin/riak_explorer -name $(RIAK_NODE) -setcookie $(RIAK_COOKIE) -stop
 package-backend: compile-backend
-	rm -rf dist/ebin/* && cp ebin/* dist/ebin/
+	-rm -rf dist/ebin/* 
+	-mkdir -p dist/ebin
+	cp ebin/* dist/ebin/
 cleantest-backend:
 	rm -rf .eunit/*
 install-test-backend:
@@ -62,7 +64,9 @@ reitest-backend: cleantest-backend
 start-frontend:
 	cd dist/web && python -m SimpleHTTPServer
 package-frontend: compile-frontend
-	rm -rf dist/web/* && cp -R priv/ember_riak_explorer/dist/* dist/web/
+	-rm -rf dist/web/*
+	-mkdir -p dist/web
+	cp -R priv/ember_riak_explorer/dist/* dist/web/
 deps-frontend:
 	cd priv/ember_riak_explorer && npm install && bower install
 compile-frontend: deps-frontend
@@ -76,5 +80,8 @@ itest-frontend:
 
 # Deployment
 deploy: package
-	tar -zcvf riak_explorer210.tar.gz $(shell pwd)/dist
-	#s3cmd put --acl-public build_dir/Riak210.dmg s3://riak-tools/
+	-rm *.tar.gz
+	mv dist riak_explorer
+	tar -zcvf riak_explorer210.tar.gz riak_explorer
+	mv riak_explorer dist
+	#s3cmd put --acl-public riak_explorer210.tar.gz s3://riak-tools/

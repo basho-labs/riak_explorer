@@ -28,7 +28,8 @@
     resource_forbidden/4, 
     forbidden/2, 
     to_json/2, 
-    resource_exists/2]).
+    resource_exists/2,
+    options/2]).
 -include("riak_explorer.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
@@ -82,6 +83,9 @@ to_json(RD, Ctx=#ctx{resource="ping"}) ->
     {render_json(riak_explorer:ping()), RD, Ctx};
 to_json(RD, Ctx=#ctx{resource="list-types"}) ->
     {render_json(riak_explorer:list_types()), RD, Ctx}.
+
+options(RD, CTX) ->
+    {[{"Access-Control-Allow-Origin", "*"}], RD, CTX}.
 
 %% ====================================================================
 %% Private
