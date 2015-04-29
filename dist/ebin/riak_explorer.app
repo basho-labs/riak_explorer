@@ -1,6 +1,6 @@
 {application,riak_explorer,
              [{description,"Riak development tool and admin GUI"},
-              {vsn,"abeae7e"},
+              {vsn,"4abdb27"},
               {registered,[]},
               {applications,[kernel,stdlib,riak_core,riak_kv]},
               {mod,{re_app,[]}},
