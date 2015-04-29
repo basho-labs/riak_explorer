@@ -6,15 +6,15 @@ RIAK_COOKIE ?= riak
 
 # Common
 all: deps-backend compile-backend
-compile: deps-backend compile-backend
-deps: deps-backend
+compile: deps-backend compile-backend compile-frontend
+deps: deps-backend deps-frontend
 clean: clean-backend
 distclean: clean-backend distclean-backend
 install: install-backend
 start: start-backend start-frontend
 package: package-backend package-frontend
-test: test-backend
-itest: itest-backend
+test: test-backend test-frontend
+itest: itest-backend itest-frontend
 
 # Riak
 stop-riak:
@@ -25,7 +25,7 @@ wait-for-riak:
 	$(RIAK_BIN)/riak-admin wait-for-service riak_kv
 
 # Backend
-compile-backend: deps
+compile-backend: deps-backend
 	$(REBAR) compile
 recompile-backend:
 	$(REBAR) compile skip_deps=true
@@ -34,7 +34,7 @@ deps-backend:
 clean-backend:
 	$(REBAR) clean
 	rm -rf build
-distclean-backend: clean
+distclean-backend: clean-backend
 	$(REBAR) delete-deps
 install-backend:
 	cp dist/ebin/* $(RIAK_LIB)/basho-patches/
@@ -58,5 +58,15 @@ reitest-backend: cleantest-backend
 # Frontend
 start-frontend:
 	cd dist/web && python -m SimpleHTTPServer
-package-frontend:
+package-frontend: compile-frontend
 	rm -rf dist/web/* && cp -R priv/ember_riak_explorer/dist/* dist/web/
+deps-frontend:
+	cd priv/ember_riak_explorer && npm install && bower install
+compile-frontend: deps-frontend
+	cd priv/ember_riak_explorer && ember build
+recompile-frontend:
+	cd priv/ember_riak_explorer && ember build
+test-frontend:
+	cd priv/ember_riak_explorer && ember test
+itest-frontend:
+	cd priv/ember_riak_explorer && ember server
