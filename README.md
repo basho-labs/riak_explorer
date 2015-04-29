@@ -82,6 +82,8 @@ The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
     * `nvm ls-remote` - View what Node.js versions are available to install
     * `nvm install stable` - Install latest stable version
         of Node.js (`v0.12.2` at the moment)
+    * `nvm alias default stable` - Tells `nvm` to use the stable version by
+        default (for all new terminal sessions)
 
 2. Use `npm` (Node.js Package Manager) to install the `ember-cli` package.
     (If you did `nvm install stable` above, you now have `npm` installed.)
