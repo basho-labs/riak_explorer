@@ -19,15 +19,32 @@
 %% -------------------------------------------------------------------
 -module(riak_explorer).
 -include("riak_explorer.hrl").
--export([ping/0]).
+-export([
+  ping/0,
+  home/0]).
+
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+-endif.
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
+home() ->
+  [{message, <<"riak_explorer api">>}].
+
 ping() ->
-  [{ping, <<"pong">>}].
+  [{message, <<"pong">>}].
 
 %%%===================================================================
 %%% Private
 %%%===================================================================
+
+-ifdef(TEST).
+
+ping_test() ->
+    Expected = [{message, <<"pong">>}],
+    ?assertEqual(Expected, ping()).
+
+-endif.

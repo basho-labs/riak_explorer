@@ -32,7 +32,7 @@
 -include("riak_explorer.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
--record(ctx, {}).
+-record(ctx, {resource}).
 
 %%%===================================================================
 %%% Callbacks
@@ -41,19 +41,25 @@
 init(_) ->
     {ok, #ctx{}}.
 
-allowed_methods(Req, S) ->
+allowed_methods(RD, Ctx) ->
     Methods = ['GET'],
-    {Methods, Req, S}.
+    {Methods, RD, Ctx}.
 
-content_types_provided(Req, S) ->
+content_types_provided(RD, Ctx) ->
     Types = [{"application/json", to_json}],
-    {Types, Req, S}.
+    {Types, RD, Ctx}.
 
-service_available(Req, S) ->
-    {true, Req, S}.
+service_available(RD, Ctx) ->
+    {
+        true,
+        RD,
+        Ctx#ctx{
+            resource = wrq:path_info(resource, RD)
+        }
+    }.
 
-is_authorized(ReqData, Ctx) ->
-    {true, ReqData, Ctx}.
+is_authorized(RD, Ctx) ->
+    {true, RD, Ctx}.
 
 resource_forbidden(RD, Ctx, _Permission, {_Resource, _Subresource}) ->
     {false, RD, Ctx}.
@@ -61,14 +67,22 @@ resource_forbidden(RD, Ctx, _Permission, {_Resource, _Subresource}) ->
 forbidden(RD, Ctx) ->
     {false, RD, Ctx}.
 
-to_json(Req, S) ->
-    Result = riak_explorer:ping(),
-    Body = mochijson2:encode(Result),
-    {Body, Req, S}.
+resource_exists(RD, Ctx=#ctx{resource=undefined}) ->
+    {true, RD, Ctx};
+resource_exists(RD, Ctx=#ctx{resource="ping"}) ->
+    {true, RD, Ctx};
+resource_exists(RD, Ctx) ->
+    {false, RD, Ctx}.
 
-resource_exists(RD, Context) ->
-    {true, RD, Context}.
+to_json(RD, Ctx=#ctx{resource=undefined}) ->
+    {render_json(riak_explorer:home()), RD, Ctx};
+to_json(RD, Ctx=#ctx{resource="ping"}) ->
+    {render_json(riak_explorer:ping()), RD, Ctx}.
 
 %% ====================================================================
 %% Private
 %% ====================================================================
+
+render_json(Data) ->
+    Body = mochijson2:encode(Data),
+    Body.

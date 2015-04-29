@@ -51,7 +51,9 @@ stop(_State) ->
 maybe_setup(false) ->
     ok;
 maybe_setup(true) ->
-    Routes = [{["explore"], re_wm_explore, []}],
+    Routes = [
+        {[?RE_BASE_ROUTE], re_wm_explore, []},
+        {[?RE_BASE_ROUTE, resource], re_wm_explore, []}],
     add_routes(Routes),
     ok.
 
