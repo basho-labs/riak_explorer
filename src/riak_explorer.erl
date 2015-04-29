@@ -40,7 +40,7 @@ ping() ->
 
 list_types() ->
   It = riak_core_bucket_type:iterator(),
-  List0 = [[{name, <<"default">>},{status, <<"active">>}]],
+  List0 = [[{name, <<"default">>},{props, [{active, true} | format_props(riak_core_bucket_props:defaults(), [])]}]],
   List1 = fetch_types(It, List0),
   [{data, List1}].
 
@@ -55,13 +55,32 @@ fetch_types(It, Acc) ->
             lists:reverse(Acc);
         false ->
             {Type, Props} = riak_core_bucket_type:itr_value(It),
-            ActiveStr = case proplists:get_value(active, Props, false) of
-                            true -> <<"active">>;
-                            false -> <<"not active">>
-                        end,
-            T = [{name, Type},{status, ActiveStr}],
+            T = [{name, Type},{props, format_props(Props, [])}],
             fetch_types(riak_core_bucket_type:itr_next(It), [T | Acc])
     end.
+
+format_props([], Acc) ->
+  lists:reverse(Acc);
+format_props([{Name, Val} | Rest], Acc) ->
+  format_props(Rest, [{Name, format_value(Val)} | Acc]).
+
+format_list([], Acc) ->
+  lists:reverse(Acc);
+format_list([Val | Rest], Acc) ->
+  format_list(Rest, [format_value(Val) | Acc]).
+
+format_value(Val) when is_list(Val) ->
+  format_list(Val, []);
+format_value(Val) when is_number(Val) ->
+  Val;
+format_value(Val) when is_binary(Val) ->
+  Val;
+format_value(true) ->
+  true;
+format_value(false) ->
+  false;
+format_value(Val) ->
+  list_to_binary(lists:flatten(io_lib:format("~p", [Val]))).
 
 -ifdef(TEST).
 

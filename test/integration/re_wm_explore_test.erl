@@ -25,27 +25,19 @@ re_wm_explore_test_() ->
 expected_data() ->
   [
    ?_assertEqual({ok, "200", home()}, ret:http(get, ret:url("/"))),
-   ?_assertEqual({ok, "200", ping()}, ret:http(get, ret:url("/ping"))),
-   fun() -> 
-    {Ok, Code, Payload} = ret:http(get, ret:url("/list-types")),
-    ?assertEqual(ok, Ok),
-    ?assertEqual("200", Code),
-    {_,[{<<"data">>, [{_,DefaultType} | _]}]} = mochijson2:decode(Payload),
-    Expected = [{<<"name">>,<<"default">>}, {<<"status">>,<<"active">>}],
-    ?assertEqual(Expected, DefaultType)
-    end
-      % assert_list_types(ret:http(get, ret:url("/list-types"))) end
+   ?_assertEqual({ok, "200", ping()}, ret:http(get, ret:url("/ping")))
   ].
 
 assert_list_types() ->
   {Ok, Code, Payload} = ret:http(get, ret:url("/list-types")),
   {_,[{<<"data">>, [{_,DefaultType} | _]}]} = mochijson2:decode(Payload),
-  Expected = [{<<"name">>,<<"default">>}, {<<"status">>,<<"active">>}],
-  
+  [DefaultName, {<<"props">>, _}] = DefaultType,
+  Expected = {<<"name">>,<<"default">>},
+
   [
    ?_assertEqual(ok, Ok),
    ?_assertEqual("200", Code),
-   ?_assertEqual(Expected, DefaultType)
+   ?_assertEqual(Expected, DefaultName)
   ].
 
 %%%%%%%%%%%%%%%%%%%%%%%%

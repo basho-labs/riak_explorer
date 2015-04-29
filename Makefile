@@ -13,6 +13,9 @@ distclean: clean-backend distclean-backend
 install: install-backend
 start: start-backend start-frontend
 package: package-backend package-frontend
+	cp -R bin dist/
+	cp configure.example.sh dist/configure.sh
+	cp run.sh dist/
 test: test-backend test-frontend
 itest: itest-backend itest-frontend
 
@@ -70,3 +73,8 @@ test-frontend:
 	cd priv/ember_riak_explorer && ember test
 itest-frontend:
 	cd priv/ember_riak_explorer && ember server
+
+# Deployment
+deploy: package
+	tar -zcvf riak_explorer210.tar.gz $(shell pwd)/dist
+	#s3cmd put --acl-public build_dir/Riak210.dmg s3://riak-tools/
