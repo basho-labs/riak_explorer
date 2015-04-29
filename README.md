@@ -9,12 +9,32 @@ Riak dev-mode and admin GUI.
 See also: [Riak Control Design Discussion
  doc](https://docs.google.com/document/d/1qcHyyEEL1jCAKrjNtmbIEcAFS3VAdLyoRK88FDy6o_0/edit#).
 
-#### Related Projects
-- [riak_control](https://github.com/basho/riak_control)
-- [rekon](https://github.com/basho/rekon) (old bucket / object explorer gui)
-- [riak_cs_control](https://github.com/basho/riak_cs_control)
-- [RiakCS.net source code](https://github.com/basho/riak_cs_test_harness)
-    (RiakCS.net itself is now defunct, but had nice CS-related features).
+## Installation
+
+Find and note the location of the Riak `bin` and `lib` directories. If installation was performed using [https://github.com/basho-labs/riak-app](https://github.com/basho-labs/riak-app), they are located in `/Applications/Riak.app/Contents/Resources/riak-2.1.0/bin` and `/Applications/Riak.app/Contents/Resources/riak-2.1.0/lib` respectively.
+
+1. Configure using the following environment variables:
+
+	```
+	export RIAK_LIB=/Applications/Riak.app/Contents/Resources/riak-2.1.0/lib
+	export RIAK_BIN=/Applications/Riak.app/Contents/Resources/riak-2.1.0/bin
+	export RIAK_NODE=riak@127.0.0.1
+	export RIAK_COOKIE=riak
+	```
+
+2. Run the following to install the Riak Explorer erlang application
+
+	```
+	make stop-riak
+	make install
+	make start-riak
+	```
+	
+3. Start the backend and frontend applications
+	
+	```
+	make start
+	```
 
 ## Developer Instructions
 Riak Explorer uses Erlang on the server side (to serve the REST API and to talk
@@ -26,7 +46,7 @@ to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 1. [Install Erlang](http://docs.basho.com/riak/latest/ops/building/installing/erlang/)
     (you know the drill).
 
-2. `make all` - Loads and compiles the dependencies (`riak_kv`, etc).
+2. `make` - Loads and compiles the dependencies (`riak_kv`, etc).
 
 #### Ember.js
 The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
@@ -74,3 +94,10 @@ The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
     cd priv/ember_riak_explorer
     ember test
     ```
+
+#### Related Projects
+- [riak_control](https://github.com/basho/riak_control)
+- [rekon](https://github.com/basho/rekon) (old bucket / object explorer gui)
+- [riak_cs_control](https://github.com/basho/riak_cs_control)
+- [RiakCS.net source code](https://github.com/basho/riak_cs_test_harness)
+    (RiakCS.net itself is now defunct, but had nice CS-related features).
