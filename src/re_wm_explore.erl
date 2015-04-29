@@ -28,8 +28,7 @@
     resource_forbidden/4, 
     forbidden/2, 
     to_json/2, 
-    resource_exists/2,
-    options/2]).
+    resource_exists/2]).
 -include("riak_explorer.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
@@ -78,19 +77,17 @@ resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
 to_json(RD, Ctx=#ctx{resource=undefined}) ->
-    {render_json(riak_explorer:home()), RD, Ctx};
+    render_json(riak_explorer:home(), RD, Ctx);
 to_json(RD, Ctx=#ctx{resource="ping"}) ->
-    {render_json(riak_explorer:ping()), RD, Ctx};
+    render_json(riak_explorer:ping(), RD, Ctx);
 to_json(RD, Ctx=#ctx{resource="list-types"}) ->
-    {render_json(riak_explorer:list_types()), RD, Ctx}.
-
-options(RD, CTX) ->
-    {[{"Access-Control-Allow-Origin", "*"}], RD, CTX}.
+    render_json(riak_explorer:list_types(), RD, Ctx).
 
 %% ====================================================================
 %% Private
 %% ====================================================================
 
-render_json(Data) ->
+render_json(Data, RD0, CTX) ->
     Body = mochijson2:encode(Data),
-    Body.
+    RD1 = wrq:set_resp_header("Access-Control-Allow-Origin", "*", RD0),
+    {Body, RD1, CTX}.
