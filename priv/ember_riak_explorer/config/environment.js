@@ -1,5 +1,9 @@
 /* jshint node: true */
 
+var explorerHost = 'http://localhost';
+var explorerPort = '8098';
+var explorerUrl = explorerHost + ':' + explorerPort;
+
 module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'ember-riak-explorer',
@@ -9,8 +13,8 @@ module.exports = function(environment) {
 
     EmberENV: {
         // Riak Explorer vars
-        explorerHost: 'http://localhost',
-        explorerPort: '10018',
+        explorerHost: explorerHost,
+        explorerPort: explorerPort,
 
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
@@ -25,6 +29,11 @@ module.exports = function(environment) {
 
 
     }
+  };
+
+  ENV.contentSecurityPolicy = {
+      'default-src': "'self' " + explorerUrl,
+      'connect-src': "'self' " + explorerUrl
   };
 
   if (environment === 'development') {
