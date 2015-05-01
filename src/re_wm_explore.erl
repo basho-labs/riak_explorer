@@ -87,7 +87,6 @@ to_json(RD, Ctx=#ctx{resource="list-types"}) ->
 %% Private
 %% ====================================================================
 
-render_json(Data, RD0, CTX) ->
+render_json(Data, RD, CTX) ->
     Body = mochijson2:encode(Data),
-    RD1 = wrq:set_resp_header("Access-Control-Allow-Origin", "*", RD0),
-    {Body, RD1, CTX}.
+    {Body, RD, CTX}.

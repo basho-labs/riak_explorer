@@ -4,12 +4,19 @@
   {description, "Riak development tool and admin GUI"},
   {vsn, git},
   {registered, []},
+  {modules, []},
   {applications, [
                   kernel,
                   stdlib,
-                  riak_core,
-                  riak_kv
+                  inets,
+                  crypto,
+                  mochiweb,
+                  webmachine
                  ]},
   {mod, { re_app, []}},
-  {env, []}
+  {env, [
+      {web_ip, "0.0.0.0"},
+      {web_port, 8080},
+      {target_node, 'riak@127.0.0.1'}
+  ]}
  ]}.

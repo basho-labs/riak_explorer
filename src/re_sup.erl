@@ -21,7 +21,7 @@
 -module(re_sup).
 -behaviour(supervisor).
 -include("riak_explorer.hrl").
--export([start_link/1]).
+-export([start_link/0]).
 -export([init/1]).
 
 
@@ -29,23 +29,17 @@
 %%% API
 %%%===================================================================
 
-start_link(Enabled) ->
-    supervisor:start_link({local, ?MODULE}, ?MODULE, [Enabled]).
+start_link() ->
+    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 
 %%%===================================================================
 %%% Callbacks
 %%%===================================================================
 
-init([false]) ->
-    %% Yokozuna is disabled, start a supervisor without any children.
-    {ok, {{one_for_one, 5, 10}, []}};
-
-init([_Enabled]) ->
-    Data = {re_data,
-              {re_data, start_link, []},
-              permanent, 5000, worker, [re_data]},
-
-    Children = [Data],
-
-    {ok, {{one_for_one, 5, 10}, Children}}.
+init([]) ->
+    Web = {webmachine_mochiweb,
+           {webmachine_mochiweb, start, [re_config:web_config()]},
+           permanent, 5000, worker, [mochiweb_socket_server]},
+    Processes = [Web],
+    {ok, { {one_for_one, 10, 10}, Processes} }.

@@ -1,31 +1,24 @@
 REBAR ?= $(shell pwd)/rebar
 RIAK_NODE ?= riak@127.0.0.1
 RIAK_COOKIE ?= riak
+BUILD_BASE ?= _build
+BUILD_DIR ?= $(BUILD_BASE)/riak_explorer
 
 .PHONY: deps
 
-# Common
 all: deps-backend compile-backend
 compile: deps-backend compile-backend compile-frontend
 deps: deps-backend deps-frontend
-clean: clean-backend
-distclean: clean-backend distclean-backend
-install: install-backend
-start: start-backend start-frontend
-package: package-backend package-frontend
-	cp -R bin dist/
-	cp configure.example.sh dist/configure.sh
-	cp run.sh dist/
+clean-package: 
+	rm -rf $(BUILD_BASE)
+	mkdir -p $(BUILD_DIR)
+package: clean-package package-backend package-frontend
+	cp start.sh $(BUILD_DIR)/
+	cp patch.sh $(BUILD_DIR)/
+	cp configure.example.sh $(BUILD_DIR)/configure.sh
+	cd $(BUILD_BASE)/ && tar -zcvf riak_explorer210.tar.gz riak_explorer
 test: test-backend test-frontend
-itest: itest-backend itest-frontend
-
-# Riak
-stop-riak:
-	-$(RIAK_BIN)/riak stop
-start-riak:
-	$(RIAK_BIN)/riak start
-wait-for-riak:
-	$(RIAK_BIN)/riak-admin wait-for-service riak_kv
+itest: itest-backend
 
 # Backend
 compile-backend: deps-backend
@@ -34,54 +27,31 @@ recompile-backend:
 	$(REBAR) compile skip_deps=true
 deps-backend:
 	$(REBAR) get-deps
-clean-backend:
-	$(REBAR) clean
-	rm -rf build
-distclean-backend: clean-backend
-	$(REBAR) delete-deps
-install-backend:
-	cp dist/ebin/* $(RIAK_LIB)/basho-patches/
-start-backend: stop-riak start-riak wait-for-riak
-	$(RIAK_BIN)/riak escript $(shell pwd)/bin/riak_explorer -name $(RIAK_NODE) -setcookie $(RIAK_COOKIE) -start
-stop-backend:
-	$(RIAK_BIN)/riak escript $(shell pwd)/bin/riak_explorer -name $(RIAK_NODE) -setcookie $(RIAK_COOKIE) -stop
 package-backend: compile-backend
-	-rm -rf dist/ebin/* 
-	-mkdir -p dist/ebin
-	cp ebin/* dist/ebin/
+	cp -R ebin $(BUILD_DIR)/
+	cp -R etc $(BUILD_DIR)/
+	mkdir -p $(BUILD_DIR)/deps/all
+	cp -R deps/*/ebin $(BUILD_DIR)/deps/all/
 cleantest-backend:
 	rm -rf .eunit/*
-install-test-backend:
-	cp ebin/* $(RIAK_LIB)/basho-patches/
 test-backend: cleantest-backend
 	$(REBAR)  skip_deps=true eunit
-itest-backend: recompile-backend cleantest-backend install-test-backend start-backend
+itest-backend: recompile-backend cleantest-backend
 	INTEGRATION_TEST=true $(REBAR) skip_deps=true eunit
 reitest-backend: cleantest-backend
 	INTEGRATION_TEST=true $(REBAR) skip_deps=true eunit
 
 # Frontend
-start-frontend:
-	cd dist/web && python -m SimpleHTTPServer
-package-frontend: compile-frontend
-	-rm -rf dist/web/*
-	-mkdir -p dist/web
-	cp -R priv/ember_riak_explorer/dist/* dist/web/
-deps-frontend:
-	cd priv/ember_riak_explorer && npm install && bower install
 compile-frontend: deps-frontend
 	cd priv/ember_riak_explorer && ember build
-recompile-frontend:
-	cd priv/ember_riak_explorer && ember build
+deps-frontend:
+	cd priv/ember_riak_explorer && npm install && bower install
+package-frontend: compile-frontend
+	mkdir -p $(BUILD_DIR)/priv/ember_riak_explorer/dist
+	cp -R priv/ember_riak_explorer/dist/* $(BUILD_DIR)/priv/ember_riak_explorer/dist/
 test-frontend:
 	cd priv/ember_riak_explorer && ember test
-itest-frontend:
-	cd priv/ember_riak_explorer && ember server
 
 # Deployment
 deploy: package
-	-rm *.tar.gz
-	mv dist riak_explorer
-	tar -zcvf riak_explorer210.tar.gz riak_explorer
-	mv riak_explorer dist
-	s3cmd put --acl-public riak_explorer210.tar.gz s3://riak-tools/
+	#cd $(BUILD_BASE)/ && s3cmd put --acl-public riak_explorer210.tar.gz s3://riak-tools/

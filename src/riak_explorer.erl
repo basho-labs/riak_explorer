@@ -20,6 +20,7 @@
 -module(riak_explorer).
 -include("riak_explorer.hrl").
 -export([
+  start/0,
   ping/0,
   home/0,
   list_types/0]).
@@ -32,6 +33,12 @@
 %%% API
 %%%===================================================================
 
+-spec start() -> ok.
+start() ->
+    _ = [ application:start(Dep) || Dep <- resolve_deps(riak_explorer),
+                                           not is_otp_base_app(Dep) ],
+    ok.
+
 home() ->
   [{message, <<"riak_explorer api">>}].
 
@@ -39,48 +46,46 @@ ping() ->
   [{message, <<"pong">>}].
 
 list_types() ->
-  It = riak_core_bucket_type:iterator(),
-  List0 = [[{name, <<"default">>},{props, [{active, true} | format_props(riak_core_bucket_props:defaults(), [])]}]],
-  List1 = fetch_types(It, List0),
-  [{data, List1}].
+  riak(re_riak_patch, list_types, []).
 
 %%%===================================================================
 %%% Private
 %%%===================================================================
 
-fetch_types(It, Acc) ->
-    case riak_core_bucket_type:itr_done(It) of
-        true ->
-            riak_core_bucket_type:itr_close(It),
-            lists:reverse(Acc);
-        false ->
-            {Type, Props} = riak_core_bucket_type:itr_value(It),
-            T = [{name, Type},{props, format_props(Props, [])}],
-            fetch_types(riak_core_bucket_type:itr_next(It), [T | Acc])
-    end.
+-spec dep_apps(atom()) -> [atom()].
+dep_apps(App) ->
+    application:load(App),
+    {ok, Apps} = application:get_key(App, applications),
+    Apps.
 
-format_props([], Acc) ->
-  lists:reverse(Acc);
-format_props([{Name, Val} | Rest], Acc) ->
-  format_props(Rest, [{Name, format_value(Val)} | Acc]).
+-spec all_deps(atom(), [atom()]) -> [atom()].
+all_deps(App, Deps) ->
+    [[ all_deps(Dep, [App|Deps]) || Dep <- dep_apps(App),
+                                           not lists:member(Dep, Deps)], App].
 
-format_list([], Acc) ->
-  lists:reverse(Acc);
-format_list([Val | Rest], Acc) ->
-  format_list(Rest, [format_value(Val) | Acc]).
+-spec resolve_deps(atom()) -> [atom()].
+resolve_deps(App) ->
+    DepList = all_deps(App, []),
+    {AppOrder, _} = lists:foldl(fun(A,{List,Set}) ->
+                                        case sets:is_element(A, Set) of
+                                            true ->
+                                                {List, Set};
+                                            false ->
+                                                {List ++ [A], sets:add_element(A, Set)}
+                                        end
+                                end,
+                                {[], sets:new()},
+                                lists:flatten(DepList)),
+    AppOrder.
 
-format_value(Val) when is_list(Val) ->
-  format_list(Val, []);
-format_value(Val) when is_number(Val) ->
-  Val;
-format_value(Val) when is_binary(Val) ->
-  Val;
-format_value(true) ->
-  true;
-format_value(false) ->
-  false;
-format_value(Val) ->
-  list_to_binary(lists:flatten(io_lib:format("~p", [Val]))).
+-spec is_otp_base_app(atom()) -> boolean().
+is_otp_base_app(kernel) -> true;
+is_otp_base_app(stdlib) -> true;
+is_otp_base_app(_) -> false.
+
+riak(M,F,A) ->
+  rpc:block_call(re_config:target_node(), M, F, A, 5000).
+
 
 -ifdef(TEST).
 
