@@ -6,8 +6,8 @@ BUILD_DIR ?= $(BUILD_BASE)/riak_explorer
 
 .PHONY: deps
 
-all: deps-backend compile-backend
-compile: deps-backend compile-backend compile-frontend
+all: compile
+compile: deps compile-backend compile-frontend
 deps: deps-backend deps-frontend
 clean-package: 
 	rm -rf $(BUILD_BASE)

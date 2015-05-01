@@ -1,8 +1,9 @@
 #!/bin/bash
+cd `dirname $0`
 
 source $(pwd)/configure.sh
 
-echo "Copying backend application files to basho-patches"
+echo "Copying patch files to basho-patches"
 cp $(pwd)/ebin/re_riak_patch* ${RIAK_LIB}/basho-patches/
 
 echo "Restarting Riak"

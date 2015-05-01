@@ -11,20 +11,20 @@
 fmt(S, Args) ->
     lists:flatten(io_lib:format(S, Args)).
 
-riak_host() ->
+re_host() ->
     case os:getenv("RIAK_HOST") of
         false -> "localhost";
         Host -> Host
     end.
 
-riak_port() ->
+re_port() ->
     case os:getenv("RIAK_PORT") of
-        false -> 8098;
+        false -> 8080;
         Port -> list_to_integer(Port)
     end.
 
 url(Path) ->
-    fmt("http://~s:~B/" ++ ?RE_BASE_ROUTE ++ "/~s", [riak_host(), riak_port(), Path]).
+    fmt("http://~s:~B/" ++ ?RE_BASE_ROUTE ++ "/~s", [re_host(), re_port(), Path]).
 
 ensure_ibrowse() ->
     case whereis(ibrowse) of

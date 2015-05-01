@@ -22,39 +22,63 @@ Find and note the location of the Riak `bin` and `lib` directories. If installat
     #!/bin/bash
     export RIAK_LIB=/Applications/Riak.app/Contents/Resources/riak-2.1.0/lib
     export RIAK_BIN=/Applications/Riak.app/Contents/Resources/riak-2.1.0/bin
-    export RIAK_NODE=riak@127.0.0.1
     export RIAK_COOKIE=riak
+    export RIAK_NODE=riak@127.0.0.1
+    export EXPLORER_NODE=explorer@127.0.0.1
     ```
 
-3. Run the `run.sh` script
+3. Run the `patch.sh` script
 
     ```
-    ./run.sh
+    ./patch.sh
     ```
 
-4. Navigate to [http://localhost:8000/](http://localhost:8000/) to test
+4. Run the `start.sh` script
+
+    ```
+    ./start.sh
+    ```
+
+5. Navigate to [http://localhost:8080/](http://localhost:8080/) to test
 
 ## Developer Instructions
 Riak Explorer uses Erlang on the server side (to serve the REST API and to talk
 to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 [command-line tasks](http://www.ember-cli.com).
 
+#### Full Stack
+
+1. `cp configure.example.sh configure.sh` - After copying this file, modify it with appropriate values for your environment.
+
+2. `./patch.sh` - Copies `re_riak_patch.beam` into the basho-patches directory, restarts Riak
+
+3. `./start.sh` - Start the application
+
 #### Erlang
 
-1. [Install Erlang](http://docs.basho.com/riak/latest/ops/building/installing/erlang/)
-    (you know the drill).
+1. `make compile-backend` - Loads and compiles the dependencies
 
-2. `make` - Loads and compiles the dependencies (`riak_kv`, etc).
+2. `make test-backend` - Recompiles `src` and executes unit tests
 
-3. `make test` - Recompiles `src` and executes unit tests
+3. `make itest-backend` - Recompiles `src`, executes integration tests (Have `./start.sh` running in another terminal)
 
-4. `make itest` - Recompiles `src`, reinstalls Riak Explorer beams, restarts Riak, starts Riak Explorer Erlang application, executes integration tests
+#####Environment
+
+* [Install Erlang](http://docs.basho.com/riak/latest/ops/building/installing/erlang/)
+* [Install Riak](http://docs.basho.com/riak/latest/ops/building/installing/)
 
 #### Ember.js
 The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
 [ember-cli folder layout conventions](http://www.ember-cli.com/#folder-layout).
 
-1. (Optional) Install [nvm](https://github.com/creationix/nvm), the Node.js Version Manager.
+1. `make compile-frontend` - Loads and compiles the dependencies (depends on `npm`, `ember-cli`, and `bower`)
+
+2. `make test-frontend` - Runs `ember test`
+
+
+#####Environment
+
+* (Optional) Install [nvm](https://github.com/creationix/nvm), the Node.js Version Manager.
     The provided [install script](https://github.com/creationix/nvm#install-script)
     is easiest:
 
@@ -77,7 +101,7 @@ The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
     * `nvm alias default stable` - Tells `nvm` to use the stable version by
         default (for all new terminal sessions)
 
-2. Use `npm` (Node.js Package Manager) to install the `ember-cli` package.
+* Use `npm` (Node.js Package Manager) to install the `ember-cli` package.
     (If you did `nvm install stable` above, you now have `npm` installed.)
 
     ```
@@ -86,17 +110,10 @@ The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
 
     (The `-g` flag means "install it globally")
 
-3. Install the `phantomjs` package, for headless browser unit testing
+* Install the `phantomjs` package, for headless browser unit testing
 
     ```
     npm install -g phantomjs
-    ```
-
-4. You can now run the Ember.js tests:
-
-    ```
-    cd priv/ember_riak_explorer
-    ember test
     ```
 
 #### Related Projects
