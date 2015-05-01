@@ -42,6 +42,8 @@ reitest-backend: cleantest-backend
 # Frontend
 compile-frontend: deps-frontend
 	cd priv/ember_riak_explorer && ember build
+recompile-frontend:
+	cd priv/ember_riak_explorer && ember build
 deps-frontend:
 	cd priv/ember_riak_explorer && npm install && bower install
 package-frontend: compile-frontend
@@ -52,4 +54,4 @@ test-frontend:
 
 # Deployment
 deploy: package
-	#cd $(BUILD_BASE)/ && s3cmd put --acl-public riak_explorer210.tar.gz s3://riak-tools/
+	cd $(BUILD_BASE) && s3cmd put --acl-public riak_explorer210.tar.gz s3://riak-tools/
