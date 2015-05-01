@@ -3,8 +3,7 @@ import Ember from 'ember';
 export default Ember.Route.extend({
     // Since this is a simple /explore/ping, we're going to inline the model
     model: function() {
-        var baseUrl = window.EmberENV.explorerHost + ':' + window.EmberENV.explorerPort;
-        var url = baseUrl + '/explore/ping';
+        var url = '/explore/ping';
         var serviceName = 'Riak Explorer';
 
         var pingResult = Ember.$.ajax({ url: url });  // returns a Promise obj
