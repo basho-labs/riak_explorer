@@ -48,15 +48,17 @@ to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 
 #### Full Stack
 
-1. `cp configure.example.sh configure.sh` - After copying this file, modify it with appropriate values for your environment.
+1. `make` - Loads and compiles all dependencies (depends on `erl`, `npm`, `ember-cli`, and `bower`)
 
-2. `./patch.sh` - Copies `re_riak_patch.beam` into the basho-patches directory, restarts Riak
+2. `cp configure.example.sh configure.sh` - After copying this file, modify it with appropriate values for your environment.
 
-3. `./start.sh` - Start the application
+3. `./patch.sh` - Copies `re_riak_patch.beam` into the basho-patches directory, restarts Riak
+
+4. `./start.sh` - Start the application
 
 #### Erlang
 
-1. `make compile-backend` - Loads and compiles the dependencies
+1. `make compile-backend` - Loads and compiles the webmachine app dependencies
 
 2. `make test-backend` - Recompiles `src` and executes unit tests
 
@@ -71,7 +73,7 @@ to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
 [ember-cli folder layout conventions](http://www.ember-cli.com/#folder-layout).
 
-1. `make compile-frontend` - Loads and compiles the dependencies (depends on `npm`, `ember-cli`, and `bower`)
+1. `make compile-frontend` - Loads and compiles the Ember.js app dependencies (depends on `npm`, `ember-cli`, and `bower`)
 
 2. `make test-frontend` - Runs `ember test`
 
