@@ -33,7 +33,7 @@ Find and note the location of the Riak `bin` and `lib` directories. If installat
     ./patch.sh
     ```
 
-4. Run the `start.sh` script (`<ctrl>-d, a, <return>` to exit)
+4. Run the `start.sh` script (`<ctrl>-c, a, <return>` to exit)
 
     ```
     ./start.sh
@@ -54,7 +54,7 @@ to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 
 3. `./patch.sh` - Copies `re_riak_patch.beam` into the basho-patches directory, restarts Riak
 
-4. `./start.sh` - Start the application (`<ctrl>-d, a, <return>` to exit)
+4. `./start.sh` - Start the application (`<ctrl>-c, a, <return>` to exit)
 
 #### Erlang
 
