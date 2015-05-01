@@ -4,7 +4,7 @@ deps
 *.plt
 erl_crash.dump
 *.beam
-dist
+_build
 *.tar.gz
 ebin
 rel/example_project

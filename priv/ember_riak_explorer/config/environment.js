@@ -1,7 +1,7 @@
 /* jshint node: true */
 
 var explorerHost = 'http://localhost';
-var explorerPort = '8098';
+var explorerPort = '8080';
 var explorerUrl = explorerHost + ':' + explorerPort;
 
 module.exports = function(environment) {

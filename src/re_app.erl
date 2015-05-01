@@ -27,38 +27,8 @@
 %%% Callbacks
 %%%===================================================================
 
-start(_StartType, _StartArgs) ->
-    % Enabled = ?RE_ENABLED,
-    Enabled = true,
-    case re_sup:start_link(Enabled) of
-        {ok, Pid} ->
-            maybe_setup(Enabled),
-            {ok, Pid};
-        Error ->
-            Error
-    end.
+start(_Type, _StartArgs) ->
+    re_sup:start_link().
 
 stop(_State) ->
     ok.
-
-%%%===================================================================
-%%% Private
-%%%===================================================================
-
-%% @private
-%%
-%% @doc Conditionally add routes to webmachine
-maybe_setup(false) ->
-    ok;
-maybe_setup(true) ->
-    Routes = [
-        {[?RE_BASE_ROUTE], re_wm_explore, []},
-        {[?RE_BASE_ROUTE, resource], re_wm_explore, []}],
-    add_routes(Routes),
-    ok.
-
-%% @private
-%%
-%% @doc Add list of webmachine routes to the router.
-add_routes(Routes) ->
-    [webmachine_router:add_route(R) || R <- Routes].
