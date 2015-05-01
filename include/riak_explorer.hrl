@@ -29,6 +29,7 @@
 %%%===================================================================
 
 -define(RE_BASE_ROUTE, "explore").
+-define(RE_RIAK_PROXY_ROUTE, "riak").
 -define(RE_APP_NAME, riak_explorer).
 -define(RE_SVC_NAME, riak_explorer).
 -define(RE_ENABLED, app_helper:get_env(?RE_APP_NAME, enabled, false)).

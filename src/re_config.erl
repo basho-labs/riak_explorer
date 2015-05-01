@@ -22,6 +22,7 @@
 -export([
     dispatch/0, 
     web_config/0,
+    url/0,
     target_node/0,
     web_root/0]).
 -include("riak_explorer.hrl").
@@ -31,6 +32,7 @@ dispatch() ->
     lists:flatten([
         {[?RE_BASE_ROUTE], re_wm_explore, []},
         {[?RE_BASE_ROUTE, resource], re_wm_explore, []},
+        {[?RE_RIAK_PROXY_ROUTE, node, '*'], re_wm_riak_proxy, []},
         {['*'], re_wm_static, [{root, filename:join([web_root()])}]}
     ]).
 
@@ -44,6 +46,15 @@ web_config() ->
         {log_dir, "priv/log"},
         {dispatch, dispatch()}
     ].
+
+url() ->
+    [
+        {ip, Ip},
+        {port, Port},
+        {log_dir, _},
+        {dispatch, _}
+    ] = web_config(),
+    "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/".
 
 target_node() ->
     {ok, App} = application:get_application(?MODULE),

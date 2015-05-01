@@ -35,6 +35,7 @@
 
 -spec start() -> ok.
 start() ->
+    _ = ibrowse:start(),
     _ = [ application:start(Dep) || Dep <- resolve_deps(riak_explorer),
                                            not is_otp_base_app(Dep) ],
     ok.
