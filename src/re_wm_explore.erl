@@ -71,7 +71,7 @@ resource_exists(RD, Ctx=#ctx{resource=undefined}) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx=#ctx{resource="ping"}) ->
     {true, RD, Ctx};
-resource_exists(RD, Ctx=#ctx{resource="list-types"}) ->
+resource_exists(RD, Ctx=#ctx{resource="bucket_types"}) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
@@ -80,7 +80,7 @@ to_json(RD, Ctx=#ctx{resource=undefined}) ->
     render_json(riak_explorer:home(), RD, Ctx);
 to_json(RD, Ctx=#ctx{resource="ping"}) ->
     render_json(riak_explorer:ping(), RD, Ctx);
-to_json(RD, Ctx=#ctx{resource="list-types"}) ->
+to_json(RD, Ctx=#ctx{resource="bucket_types"}) ->
     render_json(riak_explorer:list_types(), RD, Ctx).
 
 %% ====================================================================
