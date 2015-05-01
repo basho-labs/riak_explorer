@@ -1,6 +1,4 @@
 REBAR ?= $(shell pwd)/rebar
-RIAK_NODE ?= riak@127.0.0.1
-RIAK_COOKIE ?= riak
 BUILD_BASE ?= _build
 BUILD_DIR ?= $(BUILD_BASE)/riak_explorer
 
