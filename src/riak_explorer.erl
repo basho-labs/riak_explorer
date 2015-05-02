@@ -53,7 +53,7 @@ bucket_types() ->
 connected_nodes() ->
   % riak(re_riak_patch, connected_nodes, []).
   {ok, MyRing} = riak(riak_core_ring_manager, get_my_ring, []),
-  riak(riak_core_ring, all_members, [MyRing]).
+  [{connected_nodes, riak(riak_core_ring, all_members, [MyRing])}].
 
 
 %%%===================================================================
