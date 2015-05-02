@@ -17,16 +17,18 @@
 %% under the License.
 %%
 %% -------------------------------------------------------------------
+
 -module(re_riak_patch).
--include("riak_explorer.hrl").
 -export([
-  list_types/0]).
+  bucket_types/0]).
+
+-include("riak_explorer.hrl").
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-list_types() ->
+bucket_types() ->
   It = riak_core_bucket_type:iterator(),
   List0 = [[{name, <<"default">>},{props, [{active, true} | format_props(riak_core_bucket_props:defaults(), [])]}]],
   List1 = fetch_types(It, List0),

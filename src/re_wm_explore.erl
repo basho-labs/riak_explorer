@@ -19,20 +19,17 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_explore).
--export([
-    init/1, 
-    allowed_methods/2, 
-    content_types_provided/2, 
-    service_available/2, 
-    is_authorized/2, 
-    resource_forbidden/4, 
-    forbidden/2, 
-    to_json/2, 
-    resource_exists/2]).
--include("riak_explorer.hrl").
--include_lib("webmachine/include/webmachine.hrl").
+-export([init/1]).
+-export([service_available/2,
+         allowed_methods/2, 
+         content_types_provided/2,
+         resource_exists/2,
+         provide_content/2]).
 
--record(ctx, {resource}).
+-record(ctx, {resource, response=undefined}).
+
+-include_lib("webmachine/include/webmachine.hrl").
+-include("riak_explorer.hrl").
 
 %%%===================================================================
 %%% Callbacks
@@ -41,47 +38,35 @@
 init(_) ->
     {ok, #ctx{}}.
 
+service_available(RD, Ctx0) ->
+    Ctx1 = Ctx0#ctx{resource = wrq:path_info(resource, RD)},
+    {true, RD, Ctx1}.
+
 allowed_methods(RD, Ctx) ->
     Methods = ['GET'],
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
-    Types = [{"application/json", to_json}],
+    Types = [{"application/json", provide_content}],
     {Types, RD, Ctx}.
 
-service_available(RD, Ctx) ->
-    {
-        true,
-        RD,
-        Ctx#ctx{
-            resource = wrq:path_info(resource, RD)
-        }
-    }.
-
-is_authorized(RD, Ctx) ->
-    {true, RD, Ctx}.
-
-resource_forbidden(RD, Ctx, _Permission, {_Resource, _Subresource}) ->
-    {false, RD, Ctx}.
-
-forbidden(RD, Ctx) ->
-    {false, RD, Ctx}.
-
-resource_exists(RD, Ctx=#ctx{resource=undefined}) ->
-    {true, RD, Ctx};
-resource_exists(RD, Ctx=#ctx{resource="ping"}) ->
-    {true, RD, Ctx};
-resource_exists(RD, Ctx=#ctx{resource="bucket_types"}) ->
-    {true, RD, Ctx};
+resource_exists(RD, Ctx0=#ctx{resource=undefined}) ->
+    Ctx1 = Ctx0#ctx{response=riak_explorer:home()},
+    {true, RD, Ctx1};
+resource_exists(RD, Ctx0=#ctx{resource="ping"}) ->
+    Ctx1 = Ctx0#ctx{response=riak_explorer:ping()},
+    {true, RD, Ctx1};
+resource_exists(RD, Ctx0=#ctx{resource="bucket_types"}) ->
+    Ctx1 = Ctx0#ctx{response=riak_explorer:bucket_types()},
+    {true, RD, Ctx1};
+resource_exists(RD, Ctx0=#ctx{resource="connected_nodes"}) ->
+    Ctx1 = Ctx0#ctx{response=riak_explorer:connected_nodes()},
+    {true, RD, Ctx1};
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
-to_json(RD, Ctx=#ctx{resource=undefined}) ->
-    render_json(riak_explorer:home(), RD, Ctx);
-to_json(RD, Ctx=#ctx{resource="ping"}) ->
-    render_json(riak_explorer:ping(), RD, Ctx);
-to_json(RD, Ctx=#ctx{resource="bucket_types"}) ->
-    render_json(riak_explorer:list_types(), RD, Ctx).
+provide_content(RD, Ctx=#ctx{response=Response}) ->
+    render_json(Response, RD, Ctx).
 
 %% ====================================================================
 %% Private

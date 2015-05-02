@@ -19,13 +19,17 @@
 %% -------------------------------------------------------------------
 
 -module(re_config).
--export([
-    dispatch/0, 
-    web_config/0,
-    url/0,
-    target_node/0,
-    web_root/0]).
+-export([dispatch/0, 
+         web_config/0,
+         url/0,
+         target_node/0,
+         web_root/0]).
+
 -include("riak_explorer.hrl").
+
+%%%===================================================================
+%%% API
+%%%===================================================================
 
 -spec dispatch() -> [webmachine_dispatcher:route()].
 dispatch() ->
@@ -33,7 +37,7 @@ dispatch() ->
         {[?RE_BASE_ROUTE], re_wm_explore, []},
         {[?RE_BASE_ROUTE, resource], re_wm_explore, []},
         {[?RE_RIAK_PROXY_ROUTE, node, '*'], re_wm_riak_proxy, []},
-        {['*'], re_wm_static, [{root, filename:join([web_root()])}]}
+        {['*'], re_wm_static, [{web_root, web_root()}]}
     ]).
 
 web_config() ->

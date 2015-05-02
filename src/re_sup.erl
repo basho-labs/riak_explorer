@@ -20,9 +20,10 @@
 
 -module(re_sup).
 -behaviour(supervisor).
--include("riak_explorer.hrl").
 -export([start_link/0]).
 -export([init/1]).
+
+-include("riak_explorer.hrl").
 
 
 %%%===================================================================

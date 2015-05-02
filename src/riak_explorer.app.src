@@ -11,7 +11,8 @@
                   inets,
                   crypto,
                   mochiweb,
-                  webmachine
+                  webmachine,
+                  ibrowse
                  ]},
   {mod, { re_app, []}},
   {env, [

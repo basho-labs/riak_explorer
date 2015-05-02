@@ -1,111 +1,100 @@
-%% @author Bryan Fink <bryan@basho.com>
-%% @author Andy Gross <andy@basho.com>
-%% @author Justin Sheehy <justin@basho.com>
-%% @copyright 2008-2009 Basho Technologies, Inc.
+%% -------------------------------------------------------------------
+%%
+%% Copyright (c) 2012 Basho Technologies, Inc.  All Rights Reserved.
+%%
+%% This file is provided to you under the Apache License,
+%% Version 2.0 (the "License"); you may not use this file
+%% except in compliance with the License.  You may obtain
+%% a copy of the License at
+%%
+%%   http://www.apache.org/licenses/LICENSE-2.0
+%%
+%% Unless required by applicable law or agreed to in writing,
+%% software distributed under the License is distributed on an
+%% "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+%% KIND, either express or implied.  See the License for the
+%% specific language governing permissions and limitations
+%% under the License.
+%%
+%% -------------------------------------------------------------------
 
 -module(re_wm_static).
 -export([init/1]).
--export([allowed_methods/2,
-         resource_exists/2,
-         last_modified/2,
+-export([service_available/2,
+         allowed_methods/2,
          content_types_provided/2,
+         resource_exists/2,
          provide_content/2,
+         last_modified/2,
          generate_etag/2]).
 
--record(context, {root,response_body=undefined,metadata=[]}).
+-record(ctx, {web_root, resource, response=undefined, metadata=[]}).
 
 -include_lib("kernel/include/file.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
+-include("riak_explorer.hrl").
+
+%%%===================================================================
+%%% Callbacks
+%%%===================================================================
 
 init(ConfigProps) ->
-    {root, Root} = proplists:lookup(root, ConfigProps),
-    {ok, #context{root=Root}}.
+    {web_root, WebRoot} = proplists:lookup(web_root, ConfigProps),
+    {ok, #ctx{web_root=WebRoot}}.
+
+service_available(RD, Ctx0=#ctx{web_root=WebRoot}) ->
+    Resource0 = get_resource(WebRoot, wrq:disp_path(RD)),
+    {Resource1, Response} = get_response(filelib:is_regular(Resource0), WebRoot, Resource0),
+    Ctx1 = Ctx0#ctx{resource=Resource1, response=Response},
+    {true, RD, Ctx1}.
     
-allowed_methods(ReqData, Context) ->
-    {['HEAD', 'GET'], ReqData, Context}.
+allowed_methods(RD, Ctx) ->
+    {['HEAD', 'GET'], RD, Ctx}.
 
-file_path(_Context, []) ->
-    false;
-file_path(Context, Name) ->
-    RelName = case hd(Name) of
-        "/" -> tl(Name);
-        _ -> Name
-    end,
-    filename:join([Context#context.root, RelName]).
+content_types_provided(RD, Ctx0=#ctx{resource=Resource}) ->
+    CT = webmachine_util:guess_mime(Resource),
+    CTHeader = {'content-type', CT},
+    Ctx1 = Ctx0#ctx{metadata=[CTHeader|Ctx0#ctx.metadata]},
+    {[{CT, provide_content}], RD, Ctx1}.
 
-file_exists(Context, Name) ->
-    NamePath = file_path(Context, Name),
-    io:format("NamePath: ~p~n", [NamePath]),
-    case filelib:is_regular(NamePath) of 
-        true ->
-            {true, NamePath};
-        false ->
-            false
-    end.
+resource_exists(RD, Ctx) ->
+    {true, RD, Ctx}.
 
-resource_exists(ReqData, Context) ->
-    Path = path(ReqData),
-    case file_exists(Context, Path) of 
-        {true, _} ->
-            {true, ReqData, Context};
-        _ ->
-            case Path of
-                "p" -> {true, ReqData, Context};
-                _ -> {false, ReqData, Context}
-            end
-    end.
+provide_content(RD, Ctx=#ctx{response=Response}) ->
+    {Response, RD, Ctx}.
 
-maybe_fetch_object(Context, Path) ->
-    % if returns {true, NewContext} then NewContext has response_body
-    case Context#context.response_body of
-        undefined ->
-            case file_exists(Context, Path) of 
-                {true, FullPath} ->
-                    {ok, Value} = file:read_file(FullPath),
-                    {true, Context#context{response_body=Value}};
-                false ->
-                    {false, Context}
-            end;
-        _Body ->
-            {true, Context}
-    end.
+last_modified(RD, Ctx0=#ctx{resource=Resource}) ->
+    LM = filelib:last_modified(Resource),
+    LMHeader = {'last-modified', httpd_util:rfc1123_date(LM)},
+    Ctx1 = Ctx0#ctx{metadata=[LMHeader|Ctx0#ctx.metadata]},
+    {LM, RD, Ctx1}.
 
-content_types_provided(ReqData, Context) ->
-    CT = webmachine_util:guess_mime(path(ReqData)),
-    {[{CT, provide_content}], ReqData,
-     Context#context{metadata=[{'content-type', CT}|Context#context.metadata]}}.
+generate_etag(RD, Ctx0=#ctx{response=Response}) ->
+    ET = hash_body(Response),
+    ETHeader = {etag,ET},
+    Ctx1 = Ctx0#ctx{metadata=[ETHeader|Ctx0#ctx.metadata]},
+    {ET, RD, Ctx1}.
 
-provide_content(ReqData, Context) ->
-    case maybe_fetch_object(Context, path(ReqData)) of 
-        {true, NewContext} ->
-            Body = NewContext#context.response_body,
-            {Body, ReqData, Context};
-        {false, NewContext} ->
-            {error, ReqData, NewContext}
-    end.
+%% ====================================================================
+%% Private
+%% ====================================================================
 
-last_modified(ReqData, Context) ->
-    {true, FullPath} = file_exists(Context,
-                                   path(ReqData)),
-    LMod = filelib:last_modified(FullPath),
-    {LMod, ReqData, Context#context{metadata=[{'last-modified',
-                    httpd_util:rfc1123_date(LMod)}|Context#context.metadata]}}.
+get_resource(WebRoot, Path) ->
+    Name = resource_name(Path),
+    RelName = rel_resource_name(Name),
+    filename:join([WebRoot, RelName]).
+
+resource_name([]) -> ?RE_DEFAULT_INDEX;
+resource_name(P) -> P.
+
+rel_resource_name(["/"|T]) -> T;
+rel_resource_name(N) -> N.
+
+get_response(false, WebRoot, _) ->
+    Resource = get_resource(WebRoot, ?RE_DEFAULT_INDEX),
+    get_response(true, WebRoot, Resource);
+get_response(true, _, Resource) -> 
+    {ok, Response} = file:read_file(Resource),
+    {Resource, Response}.
 
 hash_body(Body) -> mochihex:to_hex(binary_to_list(crypto:hash(sha,Body))).
-
-generate_etag(ReqData, Context) ->
-    case maybe_fetch_object(Context, path(ReqData)) of
-        {true, BodyContext} ->
-            ETag = hash_body(BodyContext#context.response_body),
-            {ETag, ReqData,
-             BodyContext#context{metadata=[{etag,ETag}|
-                                           BodyContext#context.metadata]}};
-        _ ->
-            {undefined, ReqData, Context}
-    end.
-
-path(ReqData) ->
-    case wrq:disp_path(ReqData) of
-        [] -> "index.html";
-        P -> P
-    end.

@@ -17,13 +17,15 @@
 %% under the License.
 %%
 %% -------------------------------------------------------------------
+
 -module(riak_explorer).
+-export([start/0,
+         ping/0,
+         home/0,
+         bucket_types/0,
+         connected_nodes/0]).
+
 -include("riak_explorer.hrl").
--export([
-  start/0,
-  ping/0,
-  home/0,
-  list_types/0]).
 
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
@@ -35,7 +37,6 @@
 
 -spec start() -> ok.
 start() ->
-    _ = ibrowse:start(),
     _ = [ application:start(Dep) || Dep <- resolve_deps(riak_explorer),
                                            not is_otp_base_app(Dep) ],
     ok.
@@ -46,8 +47,14 @@ home() ->
 ping() ->
   [{message, <<"pong">>}].
 
-list_types() ->
-  riak(re_riak_patch, list_types, []).
+bucket_types() ->
+  riak(re_riak_patch, bucket_types, []).
+
+connected_nodes() ->
+  % riak(re_riak_patch, connected_nodes, []).
+  {ok, MyRing} = riak(riak_core_ring_manager, get_my_ring, []),
+  riak(riak_core_ring, all_members, [MyRing]).
+
 
 %%%===================================================================
 %%% Private

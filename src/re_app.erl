@@ -21,6 +21,7 @@
 -module(re_app).
 -behaviour(application).
 -export([start/2, stop/1]).
+
 -include("riak_explorer.hrl").
 
 %%%===================================================================

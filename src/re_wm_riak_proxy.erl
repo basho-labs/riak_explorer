@@ -19,28 +19,37 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_riak_proxy).
--export([init/1,
-         service_available/2]).
+-export([init/1]).
+-export([service_available/2]).
+
+-record(ctx, {}).
+
 -include_lib("webmachine/include/webmachine.hrl").
+-include("riak_explorer.hrl").
 
-init(Config) -> {ok, Config}.
+%%%===================================================================
+%%% Callbacks
+%%%===================================================================
 
-service_available(RP, C) ->
-    RiakPath = "http://" ++ wrq:path_info(node, RP) ++ "/",
+init(_) ->
+    {ok, #ctx{}}.
+
+service_available(RD, Ctx) ->
+    RiakPath = "http://" ++ wrq:path_info(node, RD) ++ "/",
 
     Path = lists:append(
              [RiakPath,
-              wrq:disp_path(RP),
-              case wrq:req_qs(RP) of
+              wrq:disp_path(RD),
+              case wrq:req_qs(RD) of
                   [] -> [];
                   Qs -> [$?|mochiweb_util:urlencode(Qs)]
               end]),
 
     %% translate webmachine details to ibrowse details
     Headers = clean_request_headers(
-                mochiweb_headers:to_list(wrq:req_headers(RP))),
-    Method = wm_to_ibrowse_method(wrq:method(RP)),
-    ReqBody = case wrq:req_body(RP) of
+                mochiweb_headers:to_list(wrq:req_headers(RD))),
+    Method = wm_to_ibrowse_method(wrq:method(RD)),
+    ReqBody = case wrq:req_body(RD) of
                   undefined -> [];
                   B -> B
               end,
@@ -53,14 +62,18 @@ service_available(RP, C) ->
             RespHeaders = fix_location(RiakHeaders, RiakPath),
             {{halt, list_to_integer(Status)},
              wrq:set_resp_headers(RespHeaders,
-                                  wrq:set_resp_body(RespBody, RP)),
-             C};
+                                  wrq:set_resp_body(RespBody, RD)),
+             Ctx};
         Reason ->
             io:format("Reason: ~p~n", [Reason]),
             io:format("RiakPath: ~p~n", [RiakPath]),
             io:format("Path: ~p~n", [Path]),
-            {false, RP, C}
+            {false, RD, Ctx}
     end.
+
+%% ====================================================================
+%% Private
+%% ====================================================================
 
 clean_request_headers(Headers) ->
     [{K,V} || {K,V} <- Headers,
@@ -75,5 +88,5 @@ fix_location([], _) -> [];
 fix_location([{"Location", RiakDataPath}|Rest], RiakPath) ->
     DataPath = lists:nthtail(length(RiakPath), RiakDataPath),
     [{"Location", re_config:url()++DataPath}|Rest];
-fix_location([H|T], C) ->
-    [H|fix_location(T, C)].
+fix_location([H|T], RiakPath) ->
+    [H|fix_location(T, RiakPath)].
