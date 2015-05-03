@@ -9,37 +9,15 @@ Riak dev-mode and admin GUI.
 See also: [Riak Control Design Discussion
  doc](https://docs.google.com/document/d/1qcHyyEEL1jCAKrjNtmbIEcAFS3VAdLyoRK88FDy6o_0/edit#).
 
-## Installation
-
-Find and note the location of the Riak `bin` and `lib` directories. If installation was performed using [https://github.com/basho-labs/riak-app](https://github.com/basho-labs/riak-app), they are located in `/Applications/Riak.app/Contents/Resources/riak-2.1.0/bin` and `/Applications/Riak.app/Contents/Resources/riak-2.1.0/lib` respectively.
+## Mac OSX Installation
 
 1. Download and extract [http://riak-tools.s3.amazonaws.com/riak_explorer210.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer210.tar.gz)
 
-2. Modify `configure.sh` file with the following environment variables:
+2. Verify settings in `etc/riak_explorer.conf`
 
-    `configure.sh`
-    ```
-    #!/bin/bash
-    export RIAK_LIB=/Applications/Riak.app/Contents/Resources/riak-2.1.0/lib
-    export RIAK_BIN=/Applications/Riak.app/Contents/Resources/riak-2.1.0/bin
-    export RIAK_COOKIE=riak
-    export RIAK_NODE=riak@127.0.0.1
-    export EXPLORER_NODE=explorer@127.0.0.1
-    ```
+4. `./bin/riak_explorer start|console|attach|stop` - Controls the riak_explorer Erlang applicaiton
 
-3. Run the `patch.sh` script
-
-    ```
-    ./patch.sh
-    ```
-
-4. Run the `start.sh` script (`<ctrl>-c, a, <return>` to exit)
-
-    ```
-    ./start.sh
-    ```
-
-5. Navigate to [http://localhost:8080/](http://localhost:8080/) to test
+4. Navigate to [http://localhost:9000/](http://localhost:9000/) to test
 
 ## Developer Instructions
 Riak Explorer uses Erlang on the server side (to serve the REST API and to talk
@@ -50,19 +28,21 @@ to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 
 1. `make` - Loads and compiles all dependencies (depends on `erl`, `npm`, `ember-cli`, and `bower`)
 
-2. `cp configure.example.sh configure.sh` - After copying this file, modify it with appropriate values for your environment.
+2. `make rel` - Performs release tasks, creates `rel/riak_explorer`
 
-3. `./patch.sh` - Copies `re_riak_patch.beam` into the basho-patches directory, restarts Riak
+3. `make stage` - Enables faster development cycles; Only needs to be run once to set up lib and static web symlinks
 
-4. `./start.sh` - Start the application (`<ctrl>-c, a, <return>` to exit)
+4. Verify settings in `rel/riak_explorer/etc/riak_explorer.conf`
+
+5. `./rel/riak_explorer/bin/riak_explorer start|console|attach|stop` - Controls the riak_explorer Erlang applicaiton
 
 #### Erlang
 
-1. `make compile-backend` - Loads and compiles the webmachine app dependencies
+1. `make compile-backend` | `make recompile-backend` - Loads and compiles the webmachine app dependencies
 
 2. `make test-backend` - Recompiles `src` and executes unit tests
 
-3. `make itest-backend` - Recompiles `src`, executes integration tests (Have `./start.sh` running in another terminal)
+3. `make itest-backend` - Recompiles `src`, executes integration tests (run `./rel/riak_explorer/bin/riak_explorer start` first)
 
 #####Environment
 
@@ -73,10 +53,9 @@ to Riak), and Ember.js on the client side. Ember itself uses Node.js for
 The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
 [ember-cli folder layout conventions](http://www.ember-cli.com/#folder-layout).
 
-1. `make compile-frontend` - Loads and compiles the Ember.js app dependencies (depends on `npm`, `ember-cli`, and `bower`)
+1. `make compile-frontend` | `make recompile-backend` - Loads and compiles the Ember.js app dependencies (depends on `npm`, `ember-cli`, and `bower`)
 
 2. `make test-frontend` - Runs `ember test`
-
 
 #####Environment
 

@@ -6,8 +6,9 @@ erl_crash.dump
 *.beam
 _build
 *.tar.gz
-ebin
-rel/example_project
+ebin/*.beam
+ebin/*.app
+rel/riak_explorer
 .concrete/DEV_MODE
 .rebar
 configure.sh

@@ -12,12 +12,12 @@
                   crypto,
                   mochiweb,
                   webmachine,
+                  lager,
                   ibrowse
                  ]},
   {mod, { re_app, []}},
   {env, [
-      {web_ip, "0.0.0.0"},
-      {web_port, 8080},
-      {target_node, 'riak@127.0.0.1'}
+      {listener, {"127.0.0.1", 9000}},
+      {riak_node, "riak@127.0.0.1"}
   ]}
  ]}.
