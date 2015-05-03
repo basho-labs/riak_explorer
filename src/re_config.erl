@@ -22,6 +22,7 @@
 -export([dispatch/0, 
          web_config/0,
          url/0,
+         url/2,
          target_node/0,
          web_root/0]).
 
@@ -40,32 +41,39 @@ dispatch() ->
         {['*'], re_wm_static, [{web_root, web_root()}]}
     ]).
 
+host_port() ->
+    case application:get_env(riak_explorer, host) of
+        {ok, {_, _} = HostPort} -> HostPort;
+        undefined -> {"0.0.0.0", 9000}
+    end.
+
 web_config() ->
-    {ok, App} = application:get_application(?MODULE),
-    {ok, Ip} = application:get_env(App, web_ip),
-    {ok, Port} = application:get_env(App, web_port),
-    [
+    {Ip, Port} = host_port(),
+    WebConfig0 = [
         {ip, Ip},
         {port, Port},
-        {log_dir, "priv/log"},
+        {nodelay, true},
+        {log_dir, "log"},
         {dispatch, dispatch()}
-    ].
+    ],
+    WebConfig1 = case application:get_env(riak_explorer, ssl) of
+        {ok, SSLOpts} -> 
+            WebConfig0 ++ [{ssl, true}, {ssl_opts, SSLOpts}];
+        undefined -> 
+            WebConfig0
+    end,
+    WebConfig1.
 
 url() ->
-    [
-        {ip, Ip},
-        {port, Port},
-        {log_dir, _},
-        {dispatch, _}
-    ] = web_config(),
+    {Ip, Port} = host_port(),
+    url(Ip, Port).
+
+url(Ip, Port) ->
     "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/".
 
 target_node() ->
-    {ok, App} = application:get_application(?MODULE),
-    {ok, TargetNode} = application:get_env(App, target_node),
-    TargetNode.
+    {ok, TargetNode} = application:get_env(riak_explorer, riak_node),
+    list_to_atom(TargetNode).
 
 web_root() ->
-    {ok, App} = application:get_application(?MODULE),
-    {ok, WebRoot} = application:get_env(App, web_root),
-    WebRoot.
+    "priv/ember_riak_explorer/dist".

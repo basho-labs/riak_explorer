@@ -12,14 +12,14 @@ fmt(S, Args) ->
     lists:flatten(io_lib:format(S, Args)).
 
 re_host() ->
-    case os:getenv("RIAK_HOST") of
+    case os:getenv("RE_HOST") of
         false -> "localhost";
         Host -> Host
     end.
 
 re_port() ->
-    case os:getenv("RIAK_PORT") of
-        false -> 8080;
+    case os:getenv("RE_PORT") of
+        false -> 9000;
         Port -> list_to_integer(Port)
     end.
 

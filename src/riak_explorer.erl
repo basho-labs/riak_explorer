@@ -19,11 +19,13 @@
 %% -------------------------------------------------------------------
 
 -module(riak_explorer).
--export([start/0,
-         ping/0,
+-export([ping/0,
          home/0,
          bucket_types/0,
-         connected_nodes/0]).
+         cluster_nodes/0,
+         cluster_http_listeners/0,
+         cluster_http_listeners/2,
+         node_http_listener/1]).
 
 -include("riak_explorer.hrl").
 
@@ -35,12 +37,6 @@
 %%% API
 %%%===================================================================
 
--spec start() -> ok.
-start() ->
-    _ = [ application:start(Dep) || Dep <- resolve_deps(riak_explorer),
-                                           not is_otp_base_app(Dep) ],
-    ok.
-
 home() ->
   [{message, <<"riak_explorer api">>}].
 
@@ -48,51 +44,34 @@ ping() ->
   [{message, <<"pong">>}].
 
 bucket_types() ->
-  riak(re_riak_patch, bucket_types, []).
+  remote(re_riak_patch, bucket_types, []).
 
-connected_nodes() ->
-  % riak(re_riak_patch, connected_nodes, []).
-  {ok, MyRing} = riak(riak_core_ring_manager, get_my_ring, []),
-  [{connected_nodes, riak(riak_core_ring, all_members, [MyRing])}].
+cluster_nodes() ->
+  {ok, MyRing} = remote(riak_core_ring_manager, get_my_ring, []),
+  [{cluster_nodes, remote(riak_core_ring, all_members, [MyRing])}].
 
+cluster_http_listeners() ->
+  [{cluster_nodes, ClusterNodes}] = cluster_nodes(),
+  [{cluster_http_listeners, cluster_http_listeners(ClusterNodes, [])}].
+
+cluster_http_listeners([], Acc) ->
+  lists:reverse(Acc);
+cluster_http_listeners([Node|Rest], Acc) ->
+  cluster_http_listeners(Rest, [node_http_listener(Node) | Acc]).
+
+node_http_listener(Node) ->
+  {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, http]),
+  list_to_binary(Ip ++ ":" ++ integer_to_list(Port)).
 
 %%%===================================================================
 %%% Private
 %%%===================================================================
 
--spec dep_apps(atom()) -> [atom()].
-dep_apps(App) ->
-    application:load(App),
-    {ok, Apps} = application:get_key(App, applications),
-    Apps.
+remote(N,M,F,A) ->
+  rpc:call(N, M, F, A, 5000).
 
--spec all_deps(atom(), [atom()]) -> [atom()].
-all_deps(App, Deps) ->
-    [[ all_deps(Dep, [App|Deps]) || Dep <- dep_apps(App),
-                                           not lists:member(Dep, Deps)], App].
-
--spec resolve_deps(atom()) -> [atom()].
-resolve_deps(App) ->
-    DepList = all_deps(App, []),
-    {AppOrder, _} = lists:foldl(fun(A,{List,Set}) ->
-                                        case sets:is_element(A, Set) of
-                                            true ->
-                                                {List, Set};
-                                            false ->
-                                                {List ++ [A], sets:add_element(A, Set)}
-                                        end
-                                end,
-                                {[], sets:new()},
-                                lists:flatten(DepList)),
-    AppOrder.
-
--spec is_otp_base_app(atom()) -> boolean().
-is_otp_base_app(kernel) -> true;
-is_otp_base_app(stdlib) -> true;
-is_otp_base_app(_) -> false.
-
-riak(M,F,A) ->
-  rpc:block_call(re_config:target_node(), M, F, A, 5000).
+remote(M,F,A) ->
+  remote(re_config:target_node(), M, F, A).
 
 
 -ifdef(TEST).

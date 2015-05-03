@@ -29,8 +29,8 @@ expected_data() ->
   ].
 
 assert_list_types() ->
-  {Ok, Code, Payload} = ret:http(get, ret:url("/list-types")),
-  {_,[{<<"data">>, [{_,DefaultType} | _]}]} = mochijson2:decode(Payload),
+  {Ok, Code, Payload} = ret:http(get, ret:url("/bucket_types")),
+  {_,[{<<"bucket_types">>, [{_,DefaultType} | _]}]} = mochijson2:decode(Payload),
   [DefaultName, {<<"props">>, _}] = DefaultType,
   Expected = {<<"name">>,<<"default">>},
 

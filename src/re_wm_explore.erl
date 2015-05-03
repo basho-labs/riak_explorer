@@ -59,8 +59,11 @@ resource_exists(RD, Ctx0=#ctx{resource="ping"}) ->
 resource_exists(RD, Ctx0=#ctx{resource="bucket_types"}) ->
     Ctx1 = Ctx0#ctx{response=riak_explorer:bucket_types()},
     {true, RD, Ctx1};
-resource_exists(RD, Ctx0=#ctx{resource="connected_nodes"}) ->
-    Ctx1 = Ctx0#ctx{response=riak_explorer:connected_nodes()},
+resource_exists(RD, Ctx0=#ctx{resource="cluster_nodes"}) ->
+    Ctx1 = Ctx0#ctx{response=riak_explorer:cluster_nodes()},
+    {true, RD, Ctx1};
+resource_exists(RD, Ctx0=#ctx{resource="cluster_http_listeners"}) ->
+    Ctx1 = Ctx0#ctx{response=riak_explorer:cluster_http_listeners()},
     {true, RD, Ctx1};
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
