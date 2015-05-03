@@ -19,6 +19,7 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_static).
+-export([routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
          allowed_methods/2,
@@ -33,6 +34,19 @@
 -include_lib("kernel/include/file.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
+
+%%%===================================================================
+%%% API
+%%%===================================================================
+
+routes() ->
+    [['*']].
+
+%% [/$]
+dispatch() ->
+    [Static] = routes(),
+
+    [{Static, ?MODULE, [{web_root, re_config:web_root()}]}].
 
 %%%===================================================================
 %%% Callbacks

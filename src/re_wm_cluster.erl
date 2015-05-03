@@ -18,7 +18,8 @@
 %%
 %% -------------------------------------------------------------------
 
--module(re_wm_explore).
+-module(re_wm_cluster).
+-export([routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
          allowed_methods/2, 
@@ -30,6 +31,28 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
+
+%%%===================================================================
+%%% API
+%%%===================================================================
+
+routes() ->
+    [Base] = re_wm_base:routes(),
+
+    Clusters    = Base ++ ["clusters"],
+    Cluster     = Clusters ++ [cluster],
+
+    [Clusters, Cluster].
+
+%% /explore/clusters/$/$resource
+%% /explore/clusters/$
+%% /explore/clusters
+dispatch() ->
+    [Clusters, Cluster] = routes(),
+
+    [{Cluster ++ [resource], ?MODULE, []},
+     {Cluster, ?MODULE, []},
+     {Clusters, ?MODULE, []}].
 
 %%%===================================================================
 %%% Callbacks

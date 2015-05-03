@@ -35,10 +35,21 @@
 -spec dispatch() -> [webmachine_dispatcher:route()].
 dispatch() ->
     lists:flatten([
-        {[?RE_BASE_ROUTE], re_wm_explore, []},
-        {[?RE_BASE_ROUTE, resource], re_wm_explore, []},
-        {[?RE_RIAK_PROXY_ROUTE, node, '*'], re_wm_riak_proxy, []},
-        {['*'], re_wm_static, [{web_root, web_root()}]}
+        re_wm_key:dispatch(),
+        re_wm_bucket:dispatch(),
+        re_wm_bucket_type:dispatch(),
+        
+        re_wm_index:dispatch(),
+        re_wm_schema:dispatch(),
+        re_wm_search:dispatch(),
+
+        re_wm_stats:dispatch(),
+        re_wm_node:dispatch(),
+        re_wm_cluster:dispatch(),
+        
+        re_wm_base:dispatch(),
+        re_wm_riak_proxy:dispatch(),
+        re_wm_static:dispatch()
     ]).
 
 host_port() ->
