@@ -148,8 +148,6 @@ Explaination:
     * `$*`: Wildcard with deep paths. Example: `assets/ember-riak-explorer.js` for the static route, or `ping` for the riak_proxy route
     * `$resource`: A list of valid `resources` for a given module can be found in `explore.resources`
 * `explore.resources`: A list of available operations or resources specific to the route; Example: `ping` for the `/explore` route.
-},
-```
 
 ## Developer Instructions
 Riak Explorer uses Erlang on the server side (to serve the REST API and to talk
