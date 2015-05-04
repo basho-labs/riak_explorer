@@ -22,9 +22,8 @@
 -export([ping/0,
          home/0,
          bucket_types/0,
-         cluster_nodes/0,
-         cluster_http_listeners/0,
-         cluster_http_listeners/2,
+         cluster_nodes/1,
+         cluster_http_listeners/1,
          node_http_listener/1]).
 
 -include("riak_explorer.hrl").
@@ -38,40 +37,50 @@
 %%%===================================================================
 
 home() ->
-  [{message, <<"riak_explorer api">>}].
+    [{message, <<"riak_explorer api">>}].
 
 ping() ->
-  [{message, <<"pong">>}].
+    [{message, <<"pong">>}].
 
 bucket_types() ->
-  remote(re_riak_patch, bucket_types, []).
+    remote(re_riak_patch, bucket_types, []).
 
-cluster_nodes() ->
-  {ok, MyRing} = remote(riak_core_ring_manager, get_my_ring, []),
-  [{cluster_nodes, remote(riak_core_ring, all_members, [MyRing])}].
+cluster_nodes(Cluster) ->
+    case Cluster of
+        "default" ->
+            {ok, MyRing} = remote(riak_core_ring_manager, get_my_ring, []), 
+            [{cluster_nodes, remote(riak_core_ring, all_members, [MyRing])}];
+        _ ->
+            [{cluster_nodes, []}]
+    end.
 
-cluster_http_listeners() ->
-  [{cluster_nodes, ClusterNodes}] = cluster_nodes(),
-  [{cluster_http_listeners, cluster_http_listeners(ClusterNodes, [])}].
+cluster_http_listeners(Cluster) ->
+    case Cluster of
+        "default" ->
+            [{cluster_nodes, ClusterNodes}] = cluster_nodes(Cluster),
+            [{cluster_http_listeners, cluster_http_listeners(ClusterNodes, [])}];
+        _ ->
+            [{cluster_http_listeners, []}]
+    end.
 
 cluster_http_listeners([], Acc) ->
-  lists:reverse(Acc);
+    lists:reverse(Acc);
 cluster_http_listeners([Node|Rest], Acc) ->
-  cluster_http_listeners(Rest, [node_http_listener(Node) | Acc]).
+    cluster_http_listeners(Rest, [node_http_listener(Node) | Acc]).
 
 node_http_listener(Node) ->
-  {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, http]),
-  list_to_binary(Ip ++ ":" ++ integer_to_list(Port)).
+    {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, http]),
+    list_to_binary(Ip ++ ":" ++ integer_to_list(Port)).
 
 %%%===================================================================
 %%% Private
 %%%===================================================================
 
 remote(N,M,F,A) ->
-  rpc:call(N, M, F, A, 5000).
+    rpc:call(N, M, F, A, 5000).
 
 remote(M,F,A) ->
-  remote(re_config:target_node(), M, F, A).
+    remote(re_config:target_node(), M, F, A).
 
 
 -ifdef(TEST).

@@ -19,6 +19,7 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_static).
+-export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
          allowed_methods/2,
@@ -35,11 +36,24 @@
 -include("riak_explorer.hrl").
 
 %%%===================================================================
+%%% API
+%%%===================================================================
+
+resources() -> 
+    [].
+
+routes() ->
+    Static = ['*'],
+    [Static].
+
+dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
+
+%%%===================================================================
 %%% Callbacks
 %%%===================================================================
 
-init(ConfigProps) ->
-    {web_root, WebRoot} = proplists:lookup(web_root, ConfigProps),
+init(_) ->
+    WebRoot = re_config:web_root(),
     {ok, #ctx{web_root=WebRoot}}.
 
 service_available(RD, Ctx0=#ctx{web_root=WebRoot}) ->

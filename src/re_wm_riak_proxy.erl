@@ -19,6 +19,7 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_riak_proxy).
+-export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2]).
 
@@ -26,6 +27,19 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
+
+%%%===================================================================
+%%% API
+%%%===================================================================
+
+resources() -> 
+    [].
+
+routes() ->
+    Proxy = [?RE_RIAK_PROXY_ROUTE, node, '*'],
+    [Proxy].
+
+dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
 %%%===================================================================
 %%% Callbacks
