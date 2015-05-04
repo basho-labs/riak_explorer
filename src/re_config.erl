@@ -19,7 +19,10 @@
 %% -------------------------------------------------------------------
 
 -module(re_config).
--export([dispatch/0, 
+-export([resources/0,
+         dispatch/0,
+         routes/0,
+         formatted_routes/0,
          web_config/0,
          url/0,
          url/2,
@@ -32,25 +35,61 @@
 %%% API
 %%%===================================================================
 
--spec dispatch() -> [webmachine_dispatcher:route()].
-dispatch() ->
-    lists:flatten([
-        re_wm_key:dispatch(),
-        re_wm_bucket:dispatch(),
-        re_wm_bucket_type:dispatch(),
-        
-        re_wm_index:dispatch(),
-        re_wm_schema:dispatch(),
-        re_wm_search:dispatch(),
+resources() ->
+    [
+        re_wm_key,
+        re_wm_bucket,
+        re_wm_bucket_type,
+        re_wm_index,
+        re_wm_schema,
+        re_wm_search,
+        re_wm_stats,
+        re_wm_node,
+        re_wm_cluster,
+        re_wm_base,
+        re_wm_riak_proxy,
+        re_wm_static
+    ].
 
-        re_wm_stats:dispatch(),
-        re_wm_node:dispatch(),
-        re_wm_cluster:dispatch(),
-        
-        re_wm_base:dispatch(),
-        re_wm_riak_proxy:dispatch(),
-        re_wm_static:dispatch()
-    ]).
+-spec dispatch() -> [webmachine_dispatcher:route()].
+dispatch() -> lists:flatten(dispatch(resources(), [])).
+
+dispatch([], Accum) ->
+    lists:reverse(Accum);
+dispatch([M | Rest], Accum) ->
+    dispatch(Rest, [M:dispatch() | Accum]).
+
+routes() -> routes(resources(), []).
+
+routes([], Accum) ->
+    lists:reverse(Accum);
+routes([M | Rest], Accum) ->
+    routes(Rest, [M:routes() | Accum]).
+
+formatted_routes() ->
+    [{<<"routes">>, formatted_routes(resources(), [])}].
+
+formatted_routes([], Accum) ->
+    lists:reverse(Accum);
+formatted_routes([M | Rest], Accum) ->
+    ModuleRoutes = [{handler, list_to_binary(atom_to_list(M))},
+                    {routes, format_routes(M:routes(), [])},
+                    {resources, M:resources()}],
+    formatted_routes(Rest, [ModuleRoutes | Accum]).
+
+
+
+format_routes([], Accum) -> 
+    lists:reverse(Accum);
+format_routes([Route | Rest], Accum) ->
+    format_routes(Rest, [format_route(Route, []) | Accum]).
+
+format_route([], Accum) -> 
+    list_to_binary(lists:flatten(Accum));
+format_route([Piece | Rest], Accum) when is_list(Piece) ->
+    format_route(Rest, Accum ++ "/" ++ Piece);
+format_route([Piece | Rest], Accum) when is_atom(Piece) ->
+    format_route(Rest, Accum ++ "/$" ++ atom_to_list(Piece)).
 
 host_port() ->
     case application:get_env(riak_explorer, host) of

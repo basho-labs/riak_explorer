@@ -19,7 +19,7 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_riak_proxy).
--export([routes/0, dispatch/0]).
+-export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2]).
 
@@ -32,16 +32,14 @@
 %%% API
 %%%===================================================================
 
+resources() -> 
+    [].
+
 routes() ->
     Proxy = [?RE_RIAK_PROXY_ROUTE, node, '*'],
-
     [Proxy].
 
-%% /riak[/$]
-dispatch() ->
-    [Proxy] = routes(),
-
-    [{Proxy, ?MODULE, []}].
+dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
 %%%===================================================================
 %%% Callbacks

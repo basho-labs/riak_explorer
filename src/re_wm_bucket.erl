@@ -19,7 +19,7 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_bucket).
--export([routes/0, dispatch/0]).
+-export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
          allowed_methods/2, 
@@ -32,27 +32,28 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
+-define(listBuckets(BucketType),
+    #ctx{bucket_type=BucketType, bucket=undefined}).
+-define(bucketInfo(BucketType, Bucket),
+    #ctx{bucket_type=BucketType, bucket=Bucket, resource=undefined}).
+-define(bucketResource(BucketType, Bucket, Resource),
+    #ctx{bucket_type=BucketType, bucket=Bucket, resource=Resource}).
+
 %%%===================================================================
 %%% API
 %%%===================================================================
 
+resources() -> 
+    [].
+
 routes() ->
-    [_, BucketType] = re_wm_bucket_type:routes(),
+    BucketType = lists:last(re_wm_bucket_type:routes()),
+    Buckets = BucketType ++ ["buckets"],
+    Bucket = Buckets ++ [bucket],
+    BucketResource = Bucket ++ [resource],
+    [Buckets, BucketResource, Bucket].
 
-    Buckets     = BucketType ++ ["buckets"],
-    Bucket      = Buckets ++ [bucket],
-
-    [Buckets, Bucket].
-
-%% /explore/bucket-types/$/buckets/$/$resource
-%% /explore/bucket-types/$/buckets/$
-%% /explore/bucket-types/$/buckets/
-dispatch() ->
-    [Buckets, Bucket] = routes(),
-
-    [{Bucket ++ [resource], ?MODULE, []},
-     {Bucket, ?MODULE, []},
-     {Buckets, ?MODULE, []}].
+dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
 %%%===================================================================
 %%% Callbacks
@@ -76,29 +77,21 @@ content_types_provided(RD, Ctx) ->
     Types = [{"application/json", provide_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx0=#ctx{bucket_type=BucketType, 
-                              bucket=undefined}) ->
-    Ctx1 = Ctx0#ctx{response=[{bucket_type, 
-                               list_to_binary(BucketType)}]},
-    {true, RD, Ctx1};
-resource_exists(RD, Ctx0=#ctx{bucket_type=BucketType, 
-                              bucket=Bucket,
-                              resource=undefined}) ->
-    Ctx1 = Ctx0#ctx{response=[{bucket_type, 
-                               list_to_binary(BucketType)},
-                              {bucket,
-                               list_to_binary(Bucket)}]},
-    {true, RD, Ctx1};
-resource_exists(RD, Ctx0=#ctx{bucket_type=BucketType, 
-                              bucket=Bucket,
-                              resource=Resource}) ->
-    Ctx1 = Ctx0#ctx{response=[{bucket_type, 
-                               list_to_binary(BucketType)},
-                              {bucket,
-                               list_to_binary(Bucket)},
-                              {resource,
-                               list_to_binary(Resource)}]},
-    {true, RD, Ctx1};
+resource_exists(RD, Ctx=?listBuckets(_BucketType)) ->
+    Response = [{buckets, []}],
+    {true, RD, Ctx#ctx{response=Response}};
+resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
+    Response = [{bucket, list_to_binary(Bucket)}],
+    {true, RD, Ctx#ctx{response=Response}};
+resource_exists(RD, Ctx=?bucketResource(BucketType, Bucket, Resource)) ->
+    RKey = list_to_atom(Resource),
+    case proplists:get_value(RKey, resources()) of
+        [M,F] -> 
+            Response = M:F(BucketType, Bucket),
+            {true, RD, Ctx#ctx{response=Response}};
+        _ -> 
+            {false, RD, Ctx}
+    end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 

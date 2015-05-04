@@ -19,7 +19,7 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_node).
--export([routes/0, dispatch/0]).
+-export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
          allowed_methods/2, 
@@ -27,32 +27,33 @@
          resource_exists/2,
          provide_content/2]).
 
--record(ctx, {resource, response=undefined}).
+-record(ctx, {cluster, node, resource, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
+
+-define(listNodes(Cluster),
+    #ctx{cluster=Cluster, node=undefined}).
+-define(nodeInfo(Cluster, Node),
+    #ctx{cluster=Cluster, node=Node, resource=undefined}).
+-define(nodeResource(Cluster, Node, Resource),
+    #ctx{cluster=Cluster, node=Node, resource=Resource}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
+resources() -> 
+    [].
+
 routes() ->
-    [_, Cluster] = re_wm_cluster:routes(),
+    Cluster = lists:last(re_wm_cluster:routes()),
+    Nodes = Cluster ++ ["nodes"],
+    Node = Nodes ++ [node],
+    NodeResource = Node ++ [resource],
+    [Nodes, NodeResource, Node].
 
-    Nodes       = Cluster ++ ["nodes"],
-    Node        = Nodes ++ [node],
-
-    [Nodes, Node].
-
-%% /explore/clusters/$/nodes/$/$resource
-%% /explore/clusters/$/nodes/$
-%% /explore/clusters/$/nodes
-dispatch() ->
-    [Nodes, Node] = routes(),
-
-    [{Node ++ [resource], ?MODULE, []},
-     {Node, ?MODULE, []},
-     {Nodes, ?MODULE, []}].
+dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
 %%%===================================================================
 %%% Callbacks
@@ -62,7 +63,10 @@ init(_) ->
     {ok, #ctx{}}.
 
 service_available(RD, Ctx0) ->
-    Ctx1 = Ctx0#ctx{resource = wrq:path_info(resource, RD)},
+    Ctx1 = Ctx0#ctx{
+        resource = wrq:path_info(resource, RD),
+        cluster = wrq:path_info(cluster, RD),
+        node = wrq:path_info(node, RD)},
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
@@ -73,23 +77,28 @@ content_types_provided(RD, Ctx) ->
     Types = [{"application/json", provide_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx0=#ctx{resource=undefined}) ->
-    Ctx1 = Ctx0#ctx{response=riak_explorer:home()},
-    {true, RD, Ctx1};
-resource_exists(RD, Ctx0=#ctx{resource="ping"}) ->
-    Ctx1 = Ctx0#ctx{response=riak_explorer:ping()},
-    {true, RD, Ctx1};
-resource_exists(RD, Ctx0=#ctx{resource="bucket_types"}) ->
-    Ctx1 = Ctx0#ctx{response=riak_explorer:bucket_types()},
-    {true, RD, Ctx1};
-resource_exists(RD, Ctx0=#ctx{resource="cluster_nodes"}) ->
-    Ctx1 = Ctx0#ctx{response=riak_explorer:cluster_nodes()},
-    {true, RD, Ctx1};
-resource_exists(RD, Ctx0=#ctx{resource="cluster_http_listeners"}) ->
-    Ctx1 = Ctx0#ctx{response=riak_explorer:cluster_http_listeners()},
-    {true, RD, Ctx1};
+resource_exists(RD, Ctx=?listNodes(Cluster)) ->
+    Response = riak_explorer:cluster_nodes(Cluster), %%TODO: augment to give more than just names, basically need config effective for each
+    {true, RD, Ctx#ctx{response=Response}};
+resource_exists(RD, Ctx=?nodeInfo(_Cluster, Node)) ->
+    Response = [{node, list_to_binary(Node)}],
+    {true, RD, Ctx#ctx{response=Response}};
+resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
+    RKey = list_to_atom(Resource),
+    case proplists:get_value(RKey, resources()) of
+        [M,F] -> 
+            Response = M:F(Cluster, Node),
+            {true, RD, Ctx#ctx{response=Response}};
+        _ -> 
+            {false, RD, Ctx}
+    end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
+
+%% TODO: get node configs for cluster
+% resource_exists(RD, Ctx0=#ctx{resource="cluster_http_listeners"}) ->
+%     Ctx1 = Ctx0#ctx{response=riak_explorer:cluster_http_listeners()},
+%     {true, RD, Ctx1};
 
 provide_content(RD, Ctx=#ctx{response=Response}) ->
     render_json(Response, RD, Ctx).

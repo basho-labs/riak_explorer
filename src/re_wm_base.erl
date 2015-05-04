@@ -19,7 +19,7 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_base).
--export([routes/0, dispatch/0]).
+-export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
          allowed_methods/2, 
@@ -32,22 +32,24 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
+-define(exploreInfo(),
+    #ctx{resource=undefined}).
+-define(exploreResource(Resource),
+    #ctx{resource=Resource}).
+
 %%%===================================================================
 %%% API
 %%%===================================================================
 
+resources() -> 
+    [{ping, [riak_explorer, ping]}].
+
 routes() ->
     Base = [?RE_BASE_ROUTE],
-    
-    [Base].
+    BaseResource = Base ++ [resource],
+    [BaseResource, Base].
 
-%% /explore/$resource
-%% /explore
-dispatch() ->
-    [Base] = routes(),
-
-    [{Base ++ [resource], ?MODULE, []},
-     {Base, ?MODULE, []}].
+dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
 %%%===================================================================
 %%% Callbacks
@@ -68,12 +70,18 @@ content_types_provided(RD, Ctx) ->
     Types = [{"application/json", provide_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx0=#ctx{resource=undefined}) ->
-    Ctx1 = Ctx0#ctx{response=riak_explorer:home()},
-    {true, RD, Ctx1};
-resource_exists(RD, Ctx0=#ctx{resource="ping"}) ->
-    Ctx1 = Ctx0#ctx{response=riak_explorer:ping()},
-    {true, RD, Ctx1};
+resource_exists(RD, Ctx=?exploreInfo()) ->
+    Response = re_config:formatted_routes(),
+    {true, RD, Ctx#ctx{response=Response}};
+resource_exists(RD, Ctx=?exploreResource(Resource)) ->
+    RKey = list_to_atom(Resource),
+    case proplists:get_value(RKey, resources()) of
+        [M,F] -> 
+            Response = M:F(),
+            {true, RD, Ctx#ctx{response=Response}};
+        _ -> 
+            {false, RD, Ctx}
+    end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 

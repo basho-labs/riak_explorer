@@ -19,7 +19,7 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_static).
--export([routes/0, dispatch/0]).
+-export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
          allowed_methods/2,
@@ -39,21 +39,21 @@
 %%% API
 %%%===================================================================
 
+resources() -> 
+    [].
+
 routes() ->
-    [['*']].
+    Static = ['*'],
+    [Static].
 
-%% [/$]
-dispatch() ->
-    [Static] = routes(),
-
-    [{Static, ?MODULE, [{web_root, re_config:web_root()}]}].
+dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
 %%%===================================================================
 %%% Callbacks
 %%%===================================================================
 
-init(ConfigProps) ->
-    {web_root, WebRoot} = proplists:lookup(web_root, ConfigProps),
+init(_) ->
+    WebRoot = re_config:web_root(),
     {ok, #ctx{web_root=WebRoot}}.
 
 service_available(RD, Ctx0=#ctx{web_root=WebRoot}) ->
