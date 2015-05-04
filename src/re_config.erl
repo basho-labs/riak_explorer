@@ -67,14 +67,16 @@ routes([M | Rest], Accum) ->
     routes(Rest, [M:routes() | Accum]).
 
 formatted_routes() ->
-    [{<<"routes">>, formatted_routes(resources(), [])}].
+    [{explore, formatted_routes(resources(), [])}].
 
 formatted_routes([], Accum) ->
-    lists:reverse(Accum);
+    %% Don't reverse the list; It makes more sense to the human eye to
+    %% see the least specific routes first.
+    Accum;
 formatted_routes([M | Rest], Accum) ->
     ModuleRoutes = [{handler, list_to_binary(atom_to_list(M))},
                     {routes, format_routes(M:routes(), [])},
-                    {resources, M:resources()}],
+                    {resources, proplists:get_keys(M:resources())}],
     formatted_routes(Rest, [ModuleRoutes | Accum]).
 
 

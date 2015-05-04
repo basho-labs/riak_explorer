@@ -19,6 +19,138 @@ See also: [Riak Control Design Discussion
 
 4. Navigate to [http://localhost:9000/](http://localhost:9000/) to test
 
+## Usage
+
+#### API
+
+In addition to the web interface, there is also an API exposed at [http://localhost:9000/explore](http://localhost:9000/explore). Here is the Json output from the `/explore` endpoint:
+
+```
+{
+   "explore":[
+      {
+         "handler":"re_wm_static",
+         "routes":[
+            "/$*"
+         ],
+         "resources":[]
+      },
+      {
+         "handler":"re_wm_riak_proxy",
+         "routes":[
+            "/riak/$node/$*"
+         ],
+         "resources":[]
+      },
+      {
+         "handler":"re_wm_base",
+         "routes":[
+            "/explore/$resource",
+            "/explore"
+         ],
+         "resources":[
+            "ping"
+         ]
+      },
+      {
+         "handler":"re_wm_cluster",
+         "routes":[
+            "/explore/clusters",
+            "/explore/clusters/$cluster/$resource",
+            "/explore/clusters/$cluster"
+         ],
+         "resources":[]
+      },
+      {
+         "handler":"re_wm_node",
+         "routes":[
+            "/explore/clusters/$cluster/nodes",
+            "/explore/clusters/$cluster/nodes/$node/$resource",
+            "/explore/clusters/$cluster/nodes/$node"
+         ],
+         "resources":[]
+      },
+      {
+         "handler":"re_wm_stats",
+         "routes":[
+            "/explore/clusters/$cluster/stats"
+         ],
+         "resources":[]
+      },
+      {
+         "handler":"re_wm_search",
+         "routes":[
+            "/explore/search/$resource",
+            "/explore/search"
+         ],
+         "resources":[]
+      },
+      {
+         "handler":"re_wm_schema",
+         "routes":[
+            "/explore/search/schemas",
+            "/explore/search/schemas/$schema/$resource",
+            "/explore/search/schemas/$schema"
+         ],
+         "resources":[]
+      },
+      {
+         "handler":"re_wm_index",
+         "routes":[
+            "/explore/search/indexes",
+            "/explore/search/indexes/$index/$resource",
+            "/explore/search/indexes/$index"
+         ],
+         "resources":[]
+      },
+      {
+         "handler":"re_wm_bucket_type",
+         "routes":[
+            "/explore/bucket_types",
+            "/explore/bucket_types/$bucket_type/$resource",
+            "/explore/bucket_types/$bucket_type"
+         ],
+         "resources":[]
+      },
+      {
+         "handler":"re_wm_bucket",
+         "routes":[
+            "/explore/bucket_types/$bucket_type/buckets",
+            "/explore/bucket_types/$bucket_type/buckets/$bucket/$resource",
+            "/explore/bucket_types/$bucket_type/buckets/$bucket"
+         ],
+         "resources":[]
+      },
+      {
+         "handler":"re_wm_key",
+         "routes":[
+            "/explore/bucket_types/$bucket_type/buckets/$bucket/keys",
+            "/explore/bucket_types/$bucket_type/buckets/$bucket/keys/$key/$resource",
+            "/explore/bucket_types/$bucket_type/buckets/$bucket/keys/$key"
+         ],
+         "resources":[]
+      }
+   ]
+}
+```
+
+Explaination:
+
+* `explore.handler`: This is the Erlang module responsible for serving routes.
+* `explore.routes`: List of existing routes. URI sections beginning with $ are variables that need to be specified
+    * `$cluster`: Specifying `default` will use the cluster that this riak_explorer is connected to.
+    * `$node`: Example: `riak@127.0.0.1`
+    * `$bucket_type`: Example: `default`
+    * `$bucket`: Example: `mybucket`
+    * `$key`: Example: `mykey`
+    * `$schema`: Example: `_yz_default`
+    * `$index`: Example: `myindex`
+    * `$*`: Wildcard with deep paths. Example: `assets/ember-riak-explorer.js` for the static route, or `ping` for the riak_proxy route
+    * `$resource`: A list of valid `resources` for a given module can be found in `explore.resources`
+* `explore.resources`: A list of available operations or resources specific to the route; Example: `ping` for the `/explore` route.
+},
+```
+
 ## Developer Instructions
 Riak Explorer uses Erlang on the server side (to serve the REST API and to talk
 to Riak), and Ember.js on the client side. Ember itself uses Node.js for
