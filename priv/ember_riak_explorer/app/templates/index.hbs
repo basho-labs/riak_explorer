@@ -1,1 +1,22 @@
-Explorer overview/dashboard will go here.
+<h3>Available nodes</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Node</th>
+            <th>Ping</th>
+            <th>Bucket Types</th>
+        </tr>
+    </thead>
+    <tbody>
+{{#each node in model.cluster_nodes}}
+        <tr>
+            <td>{{node}}</td>
+            <td><a class="btn btn-default btn-sm" href="#" role="button">Ping</a></td>
+            <td><a class="btn btn-primary btn-sm" href="#" role="button">Bucket Types</a></td>
+        </tr>
+{{else}}
+  No nodes detected.
+{{/each}}
+    </tbody>
+</table>
