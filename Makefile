@@ -25,8 +25,7 @@ relclean:
 stage: rel
 	$(foreach dep,$(wildcard deps/*), rm -rf rel/riak_explorer/lib/$(shell basename $(dep))-* && ln -sf $(abspath $(dep)) rel/riak_explorer/lib;)
 	$(foreach app,$(wildcard apps/*), rm -rf rel/riak_explorer/lib/$(shell basename $(app))-* && ln -sf $(abspath $(app)) rel/riak_explorer/lib;)
-	-rm -rf rel/riak_explorer/priv/ember_riak_explorer/dist
-	cd rel/riak_explorer/priv/ember_riak_explorer && ln -sf ../../../../priv/ember_riak_explorer/dist dist
+	rm -rf rel/riak_explorer/priv/ember_riak_explorer/dist && ln -sf $(abspath priv/ember_riak_explorer/dist) rel/riak_explorer/priv/ember_riak_explorer
 
 # Backend
 compile-backend: deps-backend
