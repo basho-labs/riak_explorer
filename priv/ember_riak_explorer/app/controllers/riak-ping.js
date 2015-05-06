@@ -1,5 +1,6 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-    pageTitle: 'Riak Explorer Ping'
+    queryParams: ['node_id'],
+    node_id: null
 });

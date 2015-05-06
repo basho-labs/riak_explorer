@@ -8,4 +8,5 @@ var Router = Ember.Router.extend({
 export default Router.map(function() {
   this.route('ping');
   this.route('bucket_types');
+  this.route('riak_ping');
 });
