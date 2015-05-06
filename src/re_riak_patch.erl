@@ -20,6 +20,7 @@
 
 -module(re_riak_patch).
 -export([
+  version/0,
   bucket_types/0]).
 
 -include("riak_explorer.hrl").
@@ -27,6 +28,9 @@
 %%%===================================================================
 %%% API
 %%%===================================================================
+
+%% Increment this when code changes
+version() -> 1.
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),

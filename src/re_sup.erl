@@ -39,8 +39,7 @@ start_link() ->
 %%%===================================================================
 
 init([]) ->
-    {Mod, Bin, File} = code:get_object_code(re_riak_patch),
-    rpc:call(re_config:target_node(), code, load_binary, [Mod, File, Bin]),
+    re_riak:load_patch(re_config:target_node()),
 
     Web = {webmachine_mochiweb,
            {webmachine_mochiweb, start, [re_config:web_config()]},
