@@ -21,6 +21,7 @@
 -module(riak_explorer).
 -export([ping/0,
          home/0,
+         routes/0,
          bucket_types/0,
          cluster_nodes/1,
          cluster_http_listeners/1,
@@ -41,6 +42,11 @@ home() ->
 
 ping() ->
     [{message, <<"pong">>}].
+
+routes() ->
+    re_config:formatted_routes().
+
+
 
 bucket_types() ->
     remote(re_riak_patch, bucket_types, []).

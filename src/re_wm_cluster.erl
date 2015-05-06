@@ -27,7 +27,7 @@
          resource_exists/2,
          provide_content/2]).
 
--record(ctx, {cluster, resource, response=undefined}).
+-record(ctx, {cluster, resource, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
@@ -73,34 +73,41 @@ allowed_methods(RD, Ctx) ->
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
-    Types = [{"application/json", provide_content}],
+    Types = [{"application/vnd.api+json", provide_content}],
     {Types, RD, Ctx}.
 
 resource_exists(RD, Ctx=?listClusters()) ->
     Response = [{clusters, [<<"default">>]}],
-    {true, RD, Ctx#ctx{response=Response}};
+    {true, RD, Ctx#ctx{id=list, response=Response}};
 resource_exists(RD, Ctx=?clusterInfo(Cluster)) ->
     Response = [{cluster, list_to_binary(Cluster)}],
-    {true, RD, Ctx#ctx{response=Response}};
+    {true, RD, Ctx#ctx{id=list_to_binary(Cluster), response=Response}};
 resource_exists(RD, Ctx=?clusterResource(Cluster, Resource)) ->
-    RKey = list_to_atom(Resource),
-    case proplists:get_value(RKey, resources()) of
+    Id = list_to_atom(Resource),
+    case proplists:get_value(Id, resources()) of
         [M,F] -> 
             Response = M:F(Cluster),
-            {true, RD, Ctx#ctx{response=Response}};
+            {true, RD, Ctx#ctx{id=Id, response=Response}};
         _ -> 
             {false, RD, Ctx}
     end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
-provide_content(RD, Ctx=#ctx{response=Response}) ->
-    render_json(Response, RD, Ctx).
+provide_content(RD, Ctx=#ctx{id=undefined}) ->
+    JDoc = re_wm_jsonapi:doc(null, re_wm_jsonapi:links(RD)),
+    render_json(JDoc, RD, Ctx);
+provide_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+    JRes = re_wm_jsonapi:res(type(), Id, Response, re_wm_jsonapi:links(RD)),
+    JDoc = re_wm_jsonapi:doc(JRes),
+    render_json(JDoc, RD, Ctx).
 
 %% ====================================================================
 %% Private
 %% ====================================================================
 
-render_json(Data, RD, CTX) ->
+type() -> <<"clusters">>.
+
+render_json(Data, RD, Ctx) ->
     Body = mochijson2:encode(Data),
-    {Body, RD, CTX}.
+    {Body, RD, Ctx}.

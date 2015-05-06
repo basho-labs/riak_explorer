@@ -23,6 +23,7 @@
          dispatch/0,
          routes/0,
          formatted_routes/0,
+         format_route/2,
          web_config/0,
          url/0,
          url/2,
@@ -43,7 +44,6 @@ resources() ->
         re_wm_index,
         re_wm_schema,
         re_wm_search,
-        re_wm_stats,
         re_wm_node,
         re_wm_cluster,
         re_wm_base,
@@ -67,7 +67,7 @@ routes([M | Rest], Accum) ->
     routes(Rest, [M:routes() | Accum]).
 
 formatted_routes() ->
-    [{explore, formatted_routes(resources(), [])}].
+    [{routes, formatted_routes(resources(), [])}].
 
 formatted_routes([], Accum) ->
     %% Don't reverse the list; It makes more sense to the human eye to
@@ -78,8 +78,6 @@ formatted_routes([M | Rest], Accum) ->
                     {routes, format_routes(M:routes(), [])},
                     {resources, proplists:get_keys(M:resources())}],
     formatted_routes(Rest, [ModuleRoutes | Accum]).
-
-
 
 format_routes([], Accum) -> 
     lists:reverse(Accum);
