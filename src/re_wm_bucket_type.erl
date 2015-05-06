@@ -87,7 +87,7 @@ resource_exists(RD, Ctx=?listBucketTypes(Node)) ->
 resource_exists(RD, Ctx=?bucketTypeInfo(_Node, BucketType)) ->
     Id = list_to_binary(BucketType),
     Response = [{bucket_types, [{id,Id}, {props, []}]}],
-    {true, RD, Ctx#ctx{id=Id, response=Response}};
+    {true, RD, Ctx#ctx{id=bucket_type, response=Response}};
 resource_exists(RD, Ctx=?bucketTypeResource(Node, BucketType, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
@@ -103,13 +103,18 @@ resource_exists(RD, Ctx) ->
 provide_content(RD, Ctx=#ctx{response=undefined}) ->
     JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], [], []),
     render_json(JDoc, RD, Ctx);
-provide_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
-    JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),
+provide_content(RD, Ctx=#ctx{id=Id, response=[{_, Objects}]}) ->
+    JRes = re_wm_jsonapi:res(RD, [], Objects, [], []),
     JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
     render_json(JDoc, RD, Ctx).
 
-provide_jsonapi_content(RD, Ctx) ->
-    provide_content(RD, Ctx#ctx{id=data}).
+provide_jsonapi_content(RD, Ctx=#ctx{response=undefined}) ->
+    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], [], []),
+    render_json(JDoc, RD, Ctx);
+provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
+    JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),
+    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
+    render_json(JDoc, RD, Ctx).
 
 %% ====================================================================
 %% Private

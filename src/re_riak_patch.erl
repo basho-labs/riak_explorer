@@ -30,13 +30,12 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 1.
+version() -> 2.
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
   List0 = [[{name, <<"default">>},{props, [{active, true} | format_props(riak_core_bucket_props:defaults(), [])]}]],
-  List1 = fetch_types(It, List0),
-  [{bucket_types, List1}].
+  fetch_types(It, List0).
 
 %%%===================================================================
 %%% Private

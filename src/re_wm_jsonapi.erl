@@ -52,6 +52,8 @@ convert_attributes([{name, Value}|Rest], Accum) ->
 convert_attributes([A|Rest], Accum) ->
     convert_attributes(Rest, [A | Accum]).
 
+self_link(RD, Name) when is_atom(Name) ->
+    self_link(RD, atom_to_list(Name));
 self_link(RD, Name) ->
     Self = list_to_binary(add_slash(wrq:path(RD)) ++ Name),
     [{self, Self}].

@@ -40,14 +40,15 @@ http_listener(Node) ->
 
 bucket_types(Node) ->
     load_patch(Node),
-    remote(Node, re_riak_patch, bucket_types, []).
+    List = remote(Node, re_riak_patch, bucket_types, []),
+    [{bucket_types, List}].
 
 nodes(Cluster) ->
     case Cluster of
         "default" ->
             {ok, MyRing} = remote(riak_core_ring_manager, get_my_ring, []), 
             Nodes = remote(riak_core_ring, all_members, [MyRing]),
-            WithIds = lists:map(fun(N) -> {id, N} end, Nodes),
+            WithIds = lists:map(fun(N) -> [{id, N}] end, Nodes),
             [{nodes, WithIds}];
         _ ->
             %%TODO: Connect to target_node, find route to MDC cluster(s), get nodes
