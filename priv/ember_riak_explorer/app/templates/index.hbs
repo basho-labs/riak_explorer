@@ -9,11 +9,11 @@
         </tr>
     </thead>
     <tbody>
-{{#each node_id in model.cluster_nodes}}
+{{#each node in model.nodes}}
         <tr>
-            <td>{{node_id}}</td>
-            <td>{{#link-to 'riak_ping' (query-params node_id=node_id) classNames='btn btn-sm btn-default' }}Ping{{/link-to}}</td>
-            <td>{{#link-to 'bucket_types' (query-params node_id=node_id) classNames='btn btn-sm btn-primary' }}Bucket Types{{/link-to}}</td>
+            <td>{{node.id}}</td>
+            <td>{{#link-to 'riak_ping' (query-params node_id=node.id) classNames='btn btn-sm btn-default' }}Ping{{/link-to}}</td>
+            <td>{{#link-to 'bucket_types' (query-params node_id=node.id) classNames='btn btn-sm btn-primary' }}Bucket Types{{/link-to}}</td>
         </tr>
 {{else}}
   No nodes detected.
