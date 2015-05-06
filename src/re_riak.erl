@@ -46,7 +46,9 @@ nodes(Cluster) ->
     case Cluster of
         "default" ->
             {ok, MyRing} = remote(riak_core_ring_manager, get_my_ring, []), 
-            [{nodes, remote(riak_core_ring, all_members, [MyRing])}];
+            Nodes = remote(riak_core_ring, all_members, [MyRing]),
+            WithIds = lists:map(fun(N) -> {id, N} end, Nodes),
+            [{nodes, WithIds}];
         _ ->
             %%TODO: Connect to target_node, find route to MDC cluster(s), get nodes
             [{nodes, []}]

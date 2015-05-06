@@ -41,6 +41,11 @@ start_link() ->
 init([]) ->
     re_riak:load_patch(re_config:target_node()),
 
+    case re_config:development_mode() of
+        true -> lager:warn("Development mode is enabled");
+        _ -> ok
+    end,
+
     Web = {webmachine_mochiweb,
            {webmachine_mochiweb, start, [re_config:web_config()]},
            permanent, 5000, worker, [mochiweb_socket_server]},

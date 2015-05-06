@@ -20,46 +20,66 @@
 
 -module(re_wm_jsonapi).
 
--export([links/1,links/2,
-         doc/1,doc/2,doc/3,doc/4,
-         res/2,res/3,res/4,res/5]).
+-export([convert_attributes/1, convert_attributes/2,
+         self_link/2,
+         links/1,
+         doc/6,
+         res/5]).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-links(RD) ->
-    Self = list_to_binary(wrq:path(RD)),
-    [{self, Self}].
-links(RD,Related) ->
-    Self = list_to_binary(wrq:path(RD)),
-    [{self, Self}, {related, list_to_binary(Related)}].
+doc(RD, DataName, Resource, Links0, Meta, Included) ->
+    Links1 = case proplists:is_defined(self, Links0) of
+        true -> Links0;
+        false -> links(RD) ++ Links0
+    end,
 
-doc(Resource) ->
-    doc(Resource, [], [], []).
-doc(Resource, Links) ->
-    doc(Resource, Links, [], []).
-doc(Resource, Links, Meta) ->
-    doc(Resource, Links, Meta, []).
-doc(Resource, Links, Meta, Included) ->
-    D0 = build_object([{data, Resource},
-                       {links, Links},
+    D0 = build_object([{DataName, Resource},
+                       {links, Links1},
                        {meta, Meta},
                        {included, Included}], []),
     D0.
 
-res(Type, Id) ->
-    res(Type, Id, [], [], []).
-res(Type, Id, Attributes) ->
-    res(Type, Id, Attributes, [], []).
-res(Type, Id, Attributes, Links) ->
-    res(Type, Id, Attributes, Links, []).
-res(Type, Id, Attributes, Links, Meta) ->
-    R0 = build_object([{type, Type},
-                       {id, Id}], []),
-    R1 = build_object([{links, Links},
-                       {meta, Meta}], []),
-    R0 ++ Attributes ++ R1.
+convert_attributes(Attributes) ->
+    convert_attributes(Attributes, []).
+
+convert_attributes([], Accum) ->
+    lists:reverse(Accum);
+convert_attributes([{name, Value}|Rest], Accum) ->
+    convert_attributes(Rest, [{id, Value} | Accum]);
+convert_attributes([A|Rest], Accum) ->
+    convert_attributes(Rest, [A | Accum]).
+
+self_link(RD, Name) ->
+    Self = list_to_binary(add_slash(wrq:path(RD)) ++ Name),
+    [{self, Self}].
+
+links(RD) ->
+    Self = list_to_binary(wrq:path(RD)),
+    [{self, Self}].
+
+res(RD, Type, [[{_,_}|_]|_]=List, Links, Meta) ->
+    lists:map(fun(R0) -> 
+        R1 = case proplists:is_defined(id, R0) of
+            true -> R0;
+            false -> convert_attributes(R0)
+        end,
+        Id = proplists:get_value(id, R1),
+        res(RD, Type, R1, self_link(RD, Id) ++ Links, Meta) end, List);
+
+res(_RD, Type, [{_,_}|_]=A0, Links, Meta) ->
+    A1 = case proplists:is_defined(id, A0) of
+        true -> A0;
+        false -> convert_attributes(A0)
+    end,
+
+    R0 = build_object([
+        {type, Type}], []),
+    R1 = build_object([{links, Links}, {meta, Meta}], []),
+
+    R0 ++ A1 ++ R1.
 
 %% ====================================================================
 %% Private
@@ -71,3 +91,9 @@ build_object([{_, []}|Rest], Accum) ->
     build_object(Rest, Accum);
 build_object([{Name, Value}|Rest], Accum) ->
     build_object(Rest, [{Name, Value} | Accum]).
+
+add_slash(Str) ->
+    case lists:last(Str) of
+        47 -> Str;
+        _ -> Str ++ "/"
+    end.

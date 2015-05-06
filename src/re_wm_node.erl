@@ -25,6 +25,7 @@
          allowed_methods/2, 
          content_types_provided/2,
          resource_exists/2,
+         provide_jsonapi_content/2,
          provide_content/2]).
 
 -record(ctx, {cluster, node, resource, id, response=undefined}).
@@ -47,11 +48,15 @@ resources() ->
     [].
 
 routes() ->
+    Base = lists:last(re_wm_base:routes()),
+    BaseNodes = Base ++ ["nodes"],
+    BaseNode = BaseNodes ++ [node],
+
     Cluster = lists:last(re_wm_cluster:routes()),
     Nodes = Cluster ++ ["nodes"],
     Node = Nodes ++ [node],
     NodeResource = Node ++ [resource],
-    [Nodes, NodeResource, Node].
+    [Nodes, NodeResource, Node, BaseNode].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -74,15 +79,17 @@ allowed_methods(RD, Ctx) ->
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
-    Types = [{"application/vnd.api+json", provide_content}],
+    Types = [{"application/json", provide_content},
+             {"application/vnd.api+json", provide_jsonapi_content}],
     {Types, RD, Ctx}.
 
 resource_exists(RD, Ctx=?listNodes(Cluster)) ->
     Response = re_riak:nodes(Cluster),
-    {true, RD, Ctx#ctx{id=list, response=Response}};
+    {true, RD, Ctx#ctx{id=nodes, response=Response}};
 resource_exists(RD, Ctx=?nodeInfo(_Cluster, Node)) ->
-    Response = [{node, list_to_binary(Node)}],
-    {true, RD, Ctx#ctx{id=list_to_binary(Node), response=Response}};
+    Id = list_to_binary(Node),
+    Response = [{nodes, [{id,Id}, {props, []}]}],
+    {true, RD, Ctx#ctx{id=Id, response=Response}};
 resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
@@ -95,24 +102,20 @@ resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
-%% TODO: get node configs for cluster
-% resource_exists(RD, Ctx0=#ctx{resource="cluster_http_listeners"}) ->
-%     Ctx1 = Ctx0#ctx{response=riak_explorer:cluster_http_listeners()},
-%     {true, RD, Ctx1};
-
-provide_content(RD, Ctx=#ctx{id=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(null, re_wm_jsonapi:links(RD)),
+provide_content(RD, Ctx=#ctx{response=undefined}) ->
+    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], [], []),
     render_json(JDoc, RD, Ctx);
-provide_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
-    JRes = re_wm_jsonapi:res(type(), Id, Response, re_wm_jsonapi:links(RD)),
-    JDoc = re_wm_jsonapi:doc(JRes),
+provide_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
+    JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),
+    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
     render_json(JDoc, RD, Ctx).
+
+provide_jsonapi_content(RD, Ctx) ->
+    provide_content(RD, Ctx#ctx{id=data}).
 
 %% ====================================================================
 %% Private
 %% ====================================================================
-
-type() -> <<"nodes">>.
 
 render_json(Data, RD, Ctx) ->
     Body = mochijson2:encode(Data),
