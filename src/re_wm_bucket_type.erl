@@ -27,17 +27,17 @@
          resource_exists/2,
          provide_content/2]).
 
--record(ctx, {bucket_type, resource, id, response=undefined}).
+-record(ctx, {node, bucket_type, resource, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
--define(listBucketTypes(),
-    #ctx{bucket_type=undefined}).
--define(bucketTypeInfo(BucketType),
-    #ctx{bucket_type=BucketType, resource=undefined}).
--define(bucketTypeResource(BucketType, Resource),
-    #ctx{bucket_type=BucketType, resource=Resource}).
+-define(listBucketTypes(Node),
+    #ctx{node=Node, bucket_type=undefined}).
+-define(bucketTypeInfo(Node, BucketType),
+    #ctx{node=Node, bucket_type=BucketType, resource=undefined}).
+-define(bucketTypeResource(Node, BucketType, Resource),
+    #ctx{node=Node, bucket_type=BucketType, resource=Resource}).
 
 %%%===================================================================
 %%% API
@@ -48,7 +48,9 @@ resources() ->
 
 routes() ->
     Base = lists:last(re_wm_base:routes()),
-    BucketTypes = Base ++ ["bucket_types"],
+    Nodes = Base ++ ["nodes"],
+    Node = Nodes ++ [node],
+    BucketTypes = Node ++ ["bucket_types"],
     BucketType = BucketTypes ++ [bucket_type],
     BucketTypeResource = BucketType ++ [resource],
     [BucketTypes, BucketTypeResource, BucketType].
@@ -65,7 +67,8 @@ init(_) ->
 service_available(RD, Ctx0) ->
     Ctx1 = Ctx0#ctx{
         resource = wrq:path_info(resource, RD),
-        bucket_type = wrq:path_info(bucket_type, RD)},
+        bucket_type = wrq:path_info(bucket_type, RD),
+        node = list_to_atom(wrq:path_info(node, RD))},
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
@@ -76,17 +79,17 @@ content_types_provided(RD, Ctx) ->
     Types = [{"application/vnd.api+json", provide_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx=?listBucketTypes()) ->
-    Response = riak_explorer:bucket_types(),
+resource_exists(RD, Ctx=?listBucketTypes(Node)) ->
+    Response = re_riak:bucket_types(Node),
     {true, RD, Ctx#ctx{id=list, response=Response}};
-resource_exists(RD, Ctx=?bucketTypeInfo(BucketType)) ->
+resource_exists(RD, Ctx=?bucketTypeInfo(_Node, BucketType)) ->
     Response = [{bucket_type, list_to_binary(BucketType)}],
     {true, RD, Ctx#ctx{id=list_to_binary(BucketType), response=Response}};
-resource_exists(RD, Ctx=?bucketTypeResource(BucketType, Resource)) ->
+resource_exists(RD, Ctx=?bucketTypeResource(Node, BucketType, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
         [M,F] -> 
-            Response = M:F(BucketType),
+            Response = M:F(Node, BucketType),
             {true, RD, Ctx#ctx{id=Id, response=Response}};
         _ -> 
             {false, RD, Ctx}

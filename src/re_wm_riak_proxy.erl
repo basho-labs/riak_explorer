@@ -49,7 +49,9 @@ init(_) ->
     {ok, #ctx{}}.
 
 service_available(RD, Ctx) ->
-    RiakPath = "http://" ++ wrq:path_info(node, RD) ++ "/",
+    Node = list_to_atom(wrq:path_info(node, RD)),
+    [{http_listener,Listener}] = re_riak:http_listener(Node),
+    RiakPath = "http://" ++ binary_to_list(Listener) ++ "/",
 
     Path = lists:append(
              [RiakPath,
@@ -70,19 +72,12 @@ service_available(RD, Ctx) ->
 
     case ibrowse:send_req(Path, Headers, Method, ReqBody) of
         {ok, Status, RiakHeaders, RespBody} ->
-            io:format("Status: ~p~n", [Status]),
-            io:format("RiakHeaders: ~p~n", [RiakHeaders]),
-            io:format("RespBody: ~p~n", [RespBody]),
             RespHeaders = fix_location(RiakHeaders, RiakPath),
             {{halt, list_to_integer(Status)},
              wrq:set_resp_headers(RespHeaders,
                                   wrq:set_resp_body(RespBody, RD)),
              Ctx};
-        Reason ->
-            io:format("Reason: ~p~n", [Reason]),
-            io:format("RiakPath: ~p~n", [RiakPath]),
-            io:format("Path: ~p~n", [Path]),
-            {false, RD, Ctx}
+        _ -> {false, RD, Ctx}
     end.
 
 %% ====================================================================

@@ -78,7 +78,7 @@ content_types_provided(RD, Ctx) ->
     {Types, RD, Ctx}.
 
 resource_exists(RD, Ctx=?listNodes(Cluster)) ->
-    Response = riak_explorer:cluster_nodes(Cluster), %%TODO: augment to give more than just names, basically need config effective for each
+    Response = re_riak:nodes(Cluster),
     {true, RD, Ctx#ctx{id=list, response=Response}};
 resource_exists(RD, Ctx=?nodeInfo(_Cluster, Node)) ->
     Response = [{node, list_to_binary(Node)}],
