@@ -81,7 +81,7 @@ formatted_routes([], Accum) ->
     %% see the least specific routes first.
     Accum;
 formatted_routes([M | Rest], Accum) ->
-    ModuleRoutes = [{handler, list_to_binary(atom_to_list(M))},
+    ModuleRoutes = [{id, list_to_binary(atom_to_list(M))},
                     {routes, format_routes(M:routes(), [])},
                     {resources, proplists:get_keys(M:resources())}],
     formatted_routes(Rest, [ModuleRoutes | Accum]).

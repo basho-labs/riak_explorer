@@ -27,26 +27,25 @@ In addition to the web interface, there is also an API exposed at [http://localh
 
 ```
 {
-   "data":{
-      "type":"explore",
+   "routes":{
       "id":"routes",
-      "routes":[
+      "handlers":[
          {
-            "handler":"re_wm_static",
+            "id":"re_wm_static",
             "routes":[
                "/$*"
             ],
             "resources":[]
          },
          {
-            "handler":"re_wm_riak_proxy",
+            "id":"re_wm_riak_proxy",
             "routes":[
                "/riak/$node/$*"
             ],
             "resources":[]
          },
          {
-            "handler":"re_wm_base",
+            "id":"re_wm_base",
             "routes":[
                "/explore/$resource",
                "/explore"
@@ -57,7 +56,7 @@ In addition to the web interface, there is also an API exposed at [http://localh
             ]
          },
          {
-            "handler":"re_wm_cluster",
+            "id":"re_wm_cluster",
             "routes":[
                "/explore/clusters",
                "/explore/clusters/$cluster/$resource",
@@ -66,71 +65,28 @@ In addition to the web interface, there is also an API exposed at [http://localh
             "resources":[]
          },
          {
-            "handler":"re_wm_node",
+            "id":"re_wm_node",
             "routes":[
                "/explore/clusters/$cluster/nodes",
                "/explore/clusters/$cluster/nodes/$node/$resource",
-               "/explore/clusters/$cluster/nodes/$node"
+               "/explore/clusters/$cluster/nodes/$node",
+               "/explore/nodes/$node"
             ],
             "resources":[]
          },
          {
-            "handler":"re_wm_search",
-            "routes":[
-               "/explore/search/$resource",
-               "/explore/search"
-            ],
-            "resources":[]
-         },
-         {
-            "handler":"re_wm_schema",
-            "routes":[
-               "/explore/search/schemas",
-               "/explore/search/schemas/$schema/$resource",
-               "/explore/search/schemas/$schema"
-            ],
-            "resources":[]
-         },
-         {
-            "handler":"re_wm_index",
-            "routes":[
-               "/explore/search/indexes",
-               "/explore/search/indexes/$index/$resource",
-               "/explore/search/indexes/$index"
-            ],
-            "resources":[]
-         },
-         {
-            "handler":"re_wm_bucket_type",
+            "id":"re_wm_bucket_type",
             "routes":[
                "/explore/nodes/$node/bucket_types",
                "/explore/nodes/$node/bucket_types/$bucket_type/$resource",
                "/explore/nodes/$node/bucket_types/$bucket_type"
             ],
             "resources":[]
-         },
-         {
-            "handler":"re_wm_bucket",
-            "routes":[
-               "/explore/nodes/$node/bucket_types/$bucket_type/buckets",
-               "/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/$resource",
-               "/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket"
-            ],
-            "resources":[]
-         },
-         {
-            "handler":"re_wm_key",
-            "routes":[
-               "/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/keys",
-               "/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/keys/$key/$resource",
-               "/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/keys/$key"
-            ],
-            "resources":[]
          }
-      ],
-      "links":{
-         "self":"/explore/routes"
-      }
+      ]
+   },
+   "links":{
+      "self":"/explore/routes"
    }
 }
 ```
