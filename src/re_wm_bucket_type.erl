@@ -25,6 +25,7 @@
          allowed_methods/2, 
          content_types_provided/2,
          resource_exists/2,
+         provide_jsonapi_content/2,
          provide_content/2]).
 
 -record(ctx, {node, bucket_type, resource, id, response=undefined}).
@@ -76,15 +77,17 @@ allowed_methods(RD, Ctx) ->
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
-    Types = [{"application/vnd.api+json", provide_content}],
+    Types = [{"application/json", provide_content},
+             {"application/vnd.api+json", provide_jsonapi_content}],
     {Types, RD, Ctx}.
 
 resource_exists(RD, Ctx=?listBucketTypes(Node)) ->
     Response = re_riak:bucket_types(Node),
-    {true, RD, Ctx#ctx{id=list, response=Response}};
+    {true, RD, Ctx#ctx{id=bucket_types, response=Response}};
 resource_exists(RD, Ctx=?bucketTypeInfo(_Node, BucketType)) ->
-    Response = [{bucket_type, list_to_binary(BucketType)}],
-    {true, RD, Ctx#ctx{id=list_to_binary(BucketType), response=Response}};
+    Id = list_to_binary(BucketType),
+    Response = [{bucket_types, [{id,Id}, {props, []}]}],
+    {true, RD, Ctx#ctx{id=Id, response=Response}};
 resource_exists(RD, Ctx=?bucketTypeResource(Node, BucketType, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
@@ -97,19 +100,20 @@ resource_exists(RD, Ctx=?bucketTypeResource(Node, BucketType, Resource)) ->
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
-provide_content(RD, Ctx=#ctx{id=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(null, re_wm_jsonapi:links(RD)),
+provide_content(RD, Ctx=#ctx{response=undefined}) ->
+    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], [], []),
     render_json(JDoc, RD, Ctx);
-provide_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
-    JRes = re_wm_jsonapi:res(type(), Id, Response, re_wm_jsonapi:links(RD)),
-    JDoc = re_wm_jsonapi:doc(JRes),
+provide_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
+    JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),
+    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
     render_json(JDoc, RD, Ctx).
+
+provide_jsonapi_content(RD, Ctx) ->
+    provide_content(RD, Ctx#ctx{id=data}).
 
 %% ====================================================================
 %% Private
 %% ====================================================================
-
-type() -> <<"bucket_types">>.
 
 render_json(Data, RD, Ctx) ->
     Body = mochijson2:encode(Data),

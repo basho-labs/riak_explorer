@@ -20,7 +20,6 @@
 
 -module(riak_explorer).
 -export([ping/0,
-         home/0,
          routes/0]).
 
 -include("riak_explorer.hrl").
@@ -33,14 +32,11 @@
 %%% API
 %%%===================================================================
 
-home() ->
-    [{message, <<"riak_explorer api">>}].
-
 ping() ->
-    [{message, <<"pong">>}].
+    [{explore, [{id,<<"ping">>}, {message, <<"pong">>}]}].
 
 routes() ->
-    re_config:formatted_routes().
+    [{explore, [{id,<<"routes">>}, {handlers, re_config:formatted_routes()}]}].
 
 %%%===================================================================
 %%% Private
@@ -48,10 +44,6 @@ routes() ->
 
 
 -ifdef(TEST).
-
-home_test() ->
-    Expected = [{message, <<"riak_explorer api">>}],
-    ?assertEqual(Expected, home()).
 
 ping_test() ->
     Expected = [{message, <<"pong">>}],

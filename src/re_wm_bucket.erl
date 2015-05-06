@@ -19,96 +19,98 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_bucket).
--export([resources/0, routes/0, dispatch/0]).
--export([init/1]).
--export([service_available/2,
-         allowed_methods/2, 
-         content_types_provided/2,
-         resource_exists/2,
-         provide_content/2]).
+% -export([resources/0, routes/0, dispatch/0]).
+% -export([init/1]).
+% -export([service_available/2,
+%          allowed_methods/2, 
+%          content_types_provided/2,
+%          resource_exists/2,
+%          provide_jsonapi_content/2,
+%          provide_content/2]).
 
--record(ctx, {bucket_type, bucket, resource, id, response=undefined}).
+% -record(ctx, {bucket_type, bucket, resource, id, response=undefined}).
 
--include_lib("webmachine/include/webmachine.hrl").
--include("riak_explorer.hrl").
+% -include_lib("webmachine/include/webmachine.hrl").
+% -include("riak_explorer.hrl").
 
--define(listBuckets(BucketType),
-    #ctx{bucket_type=BucketType, bucket=undefined}).
--define(bucketInfo(BucketType, Bucket),
-    #ctx{bucket_type=BucketType, bucket=Bucket, resource=undefined}).
--define(bucketResource(BucketType, Bucket, Resource),
-    #ctx{bucket_type=BucketType, bucket=Bucket, resource=Resource}).
+% -define(listBuckets(BucketType),
+%     #ctx{bucket_type=BucketType, bucket=undefined}).
+% -define(bucketInfo(BucketType, Bucket),
+%     #ctx{bucket_type=BucketType, bucket=Bucket, resource=undefined}).
+% -define(bucketResource(BucketType, Bucket, Resource),
+%     #ctx{bucket_type=BucketType, bucket=Bucket, resource=Resource}).
 
-%%%===================================================================
-%%% API
-%%%===================================================================
+% %%%===================================================================
+% %%% API
+% %%%===================================================================
 
-resources() -> 
-    [].
+% resources() -> 
+%     [].
 
-routes() ->
-    BucketType = lists:last(re_wm_bucket_type:routes()),
-    Buckets = BucketType ++ ["buckets"],
-    Bucket = Buckets ++ [bucket],
-    BucketResource = Bucket ++ [resource],
-    [Buckets, BucketResource, Bucket].
+% routes() ->
+%     BucketType = lists:last(re_wm_bucket_type:routes()),
+%     Buckets = BucketType ++ ["buckets"],
+%     Bucket = Buckets ++ [bucket],
+%     BucketResource = Bucket ++ [resource],
+%     [Buckets, BucketResource, Bucket].
 
-dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
+% dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
-%%%===================================================================
-%%% Callbacks
-%%%===================================================================
+% %%%===================================================================
+% %%% Callbacks
+% %%%===================================================================
 
-init(_) ->
-    {ok, #ctx{}}.
+% init(_) ->
+%     {ok, #ctx{}}.
 
-service_available(RD, Ctx0) ->
-    Ctx1 = Ctx0#ctx{
-        resource = wrq:path_info(resource, RD),
-        bucket_type = wrq:path_info(bucket_type, RD),
-        bucket = wrq:path_info(bucket, RD)},
-    {true, RD, Ctx1}.
+% service_available(RD, Ctx0) ->
+%     Ctx1 = Ctx0#ctx{
+%         resource = wrq:path_info(resource, RD),
+%         bucket_type = wrq:path_info(bucket_type, RD),
+%         bucket = wrq:path_info(bucket, RD)},
+%     {true, RD, Ctx1}.
 
-allowed_methods(RD, Ctx) ->
-    Methods = ['GET'],
-    {Methods, RD, Ctx}.
+% allowed_methods(RD, Ctx) ->
+%     Methods = ['GET'],
+%     {Methods, RD, Ctx}.
 
-content_types_provided(RD, Ctx) ->
-    Types = [{"application/vnd.api+json", provide_content}],
-    {Types, RD, Ctx}.
+% content_types_provided(RD, Ctx) ->
+%     Types = [{"application/json", provide_content},
+%             {"application/vnd.api+json", provide_jsonapi_content}],
+%     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx=?listBuckets(_BucketType)) ->
-    Response = [{buckets, []}],
-    {true, RD, Ctx#ctx{id=list, response=Response}};
-resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
-    Response = [{bucket, list_to_binary(Bucket)}],
-    {true, RD, Ctx#ctx{id=list_to_binary(Bucket), response=Response}};
-resource_exists(RD, Ctx=?bucketResource(BucketType, Bucket, Resource)) ->
-    Id = list_to_atom(Resource),
-    case proplists:get_value(Id, resources()) of
-        [M,F] -> 
-            Response = M:F(BucketType, Bucket),
-            {true, RD, Ctx#ctx{id=Id, response=Response}};
-        _ -> 
-            {false, RD, Ctx}
-    end;
-resource_exists(RD, Ctx) ->
-    {false, RD, Ctx}.
+% resource_exists(RD, Ctx=?listBuckets(_BucketType)) ->
+%     Response = [{buckets, []}],
+%     {true, RD, Ctx#ctx{id=list, response=Response}};
+% resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
+%     Response = [{bucket, list_to_binary(Bucket)}],
+%     {true, RD, Ctx#ctx{id=list_to_binary(Bucket), response=Response}};
+% resource_exists(RD, Ctx=?bucketResource(BucketType, Bucket, Resource)) ->
+%     Id = list_to_atom(Resource),
+%     case proplists:get_value(Id, resources()) of
+%         [M,F] -> 
+%             Response = M:F(BucketType, Bucket),
+%             {true, RD, Ctx#ctx{id=Id, response=Response}};
+%         _ -> 
+%             {false, RD, Ctx}
+%     end;
+% resource_exists(RD, Ctx) ->
+%     {false, RD, Ctx}.
 
-provide_content(RD, Ctx=#ctx{id=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(null, re_wm_jsonapi:links(RD)),
-    render_json(JDoc, RD, Ctx);
-provide_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
-    JRes = re_wm_jsonapi:res(type(), Id, Response, re_wm_jsonapi:links(RD)),
-    JDoc = re_wm_jsonapi:doc(JRes),
-    render_json(JDoc, RD, Ctx).
+% provide_jsonapi_content(RD, Ctx=#ctx{id=undefined}) ->
+%     JDoc = re_wm_jsonapi:doc(null, re_wm_jsonapi:links(RD)),
+%     render_json(JDoc, RD, Ctx);
+% provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+%     JRes = re_wm_jsonapi:res(type(), Id, Response, re_wm_jsonapi:links(RD)),
+%     JDoc = re_wm_jsonapi:doc(JRes),
+%     render_json(JDoc, RD, Ctx).
 
-%% ====================================================================
-%% Private
-%% ====================================================================
+% %% ====================================================================
+% %% Private
+% %% ====================================================================
 
-type() -> <<"buckets">>.
+% type() -> <<"buckets">>.
 
-render_json(Data, RD, Ctx) ->
-    Body = mochijson2:encode(Data),
-    {Body, RD, Ctx}.
+% render_json(Data, RD, Ctx) ->
+%     Body = mochijson2:encode(Data),
+%     {Body, RD, Ctx}.

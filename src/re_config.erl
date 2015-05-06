@@ -21,6 +21,7 @@
 -module(re_config).
 -export([resources/0,
          dispatch/0,
+         development_mode/0,
          routes/0,
          formatted_routes/0,
          format_route/2,
@@ -38,12 +39,12 @@
 
 resources() ->
     [
-        re_wm_key,
-        re_wm_bucket,
+        % re_wm_key,
+        % re_wm_bucket,
         re_wm_bucket_type,
-        re_wm_index,
-        re_wm_schema,
-        re_wm_search,
+        % re_wm_index,
+        % re_wm_schema,
+        % re_wm_search,
         re_wm_node,
         re_wm_cluster,
         re_wm_base,
@@ -53,6 +54,12 @@ resources() ->
 
 -spec dispatch() -> [webmachine_dispatcher:route()].
 dispatch() -> lists:flatten(dispatch(resources(), [])).
+
+development_mode() ->
+    case application:get_env(riak_explorer, development_mode) of
+        {ok, on} -> true;
+        _ -> false
+    end.
 
 dispatch([], Accum) ->
     lists:reverse(Accum);
@@ -67,7 +74,7 @@ routes([M | Rest], Accum) ->
     routes(Rest, [M:routes() | Accum]).
 
 formatted_routes() ->
-    [{routes, formatted_routes(resources(), [])}].
+    formatted_routes(resources(), []).
 
 formatted_routes([], Accum) ->
     %% Don't reverse the list; It makes more sense to the human eye to

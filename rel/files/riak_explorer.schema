@@ -12,6 +12,12 @@
   {default, "{{riak_node}}"}
 ]}.
 
+%% @doc When set to 'on', enables log output to syslog.
+{mapping, "development_mode", "riak_explorer.development_mode", [
+  {default, on},
+  {datatype, flag}
+]}.
+
 %% @doc Cookie for distributed node communication.  All nodes in the
 %% same cluster should use the same cookie or they will not be able to
 %% communicate.
