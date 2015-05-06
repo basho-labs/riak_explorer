@@ -22,7 +22,9 @@ rel: deps compile
 	$(REBAR) skip_deps=true generate $(OVERLAY_VARS)
 relclean:
 	rm -rf rel/riak_explorer
-stage: rel
+webrelclean:
+	rm -rf rel/riak_explorer/priv/ember_riak_explorer/dist
+stage: webrelclean rel
 	$(foreach dep,$(wildcard deps/*), rm -rf rel/riak_explorer/lib/$(shell basename $(dep))-* && ln -sf $(abspath $(dep)) rel/riak_explorer/lib;)
 	$(foreach app,$(wildcard apps/*), rm -rf rel/riak_explorer/lib/$(shell basename $(app))-* && ln -sf $(abspath $(app)) rel/riak_explorer/lib;)
 	rm -rf rel/riak_explorer/priv/ember_riak_explorer/dist && ln -sf $(abspath priv/ember_riak_explorer/dist) rel/riak_explorer/priv/ember_riak_explorer
