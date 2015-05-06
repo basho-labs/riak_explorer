@@ -101,7 +101,7 @@ resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
 provide_content(RD, Ctx=#ctx{response=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], [], []),
+    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
     render_json(JDoc, RD, Ctx);
 provide_content(RD, Ctx=#ctx{id=Id, response=[{_, Objects}]}) ->
     JRes = re_wm_jsonapi:res(RD, [], Objects, [], []),
@@ -109,7 +109,7 @@ provide_content(RD, Ctx=#ctx{id=Id, response=[{_, Objects}]}) ->
     render_json(JDoc, RD, Ctx).
 
 provide_jsonapi_content(RD, Ctx=#ctx{response=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], [], []),
+    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
     render_json(JDoc, RD, Ctx);
 provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
     JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),

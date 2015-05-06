@@ -23,6 +23,7 @@
 -export([convert_attributes/1, convert_attributes/2,
          self_link/2,
          links/1,
+         links/2,
          doc/6,
          res/5]).
 
@@ -61,6 +62,8 @@ self_link(RD, Name) ->
 links(RD) ->
     Self = list_to_binary(wrq:path(RD)),
     [{self, Self}].
+links(RD, Related) ->
+    links(RD) ++ [{rleated, list_to_binary(Related)}].
 
 res(RD, Type, [[{_,_}|_]|_]=List, Links, Meta) ->
     lists:map(fun(R0) -> 
