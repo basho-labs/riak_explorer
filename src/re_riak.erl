@@ -21,8 +21,10 @@
 -module(re_riak).
 
 -include("riak_explorer.hrl").
+-compile({no_auto_import,[nodes/1]}).
 -export([load_patch/1,
          http_listener/1,
+         cluster_bucket_types/1,
          bucket_types/1,
          nodes/1]).
 
@@ -37,6 +39,10 @@ load_patch(Node) ->
 http_listener(Node) ->
     {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, http]),
     [{http_listener, list_to_binary(Ip ++ ":" ++ integer_to_list(Port))}].
+
+cluster_bucket_types(Cluster) ->
+    Node = first_node(Cluster),
+    bucket_types(Node).
 
 bucket_types(Node) ->
     load_patch(Node),
@@ -58,6 +64,10 @@ nodes(Cluster) ->
 %%%===================================================================
 %%% Private
 %%%===================================================================
+
+first_node(Cluster) ->
+    [{nodes, [[{id, Node}]|_]}] = nodes(Cluster),
+    Node.
 
 maybe_load_patch(Node, false) ->
     lager:info("Loading re_riak_patch module into node[~p].", [Node]),

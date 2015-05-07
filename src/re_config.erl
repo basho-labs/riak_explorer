@@ -69,28 +69,8 @@ dispatch([M | Rest], Accum) ->
 
 routes() -> routes(resources(), []).
 
-routes([], Accum) ->
-    lists:reverse(Accum);
-routes([M | Rest], Accum) ->
-    routes(Rest, [M:routes() | Accum]).
-
 formatted_routes() ->
     formatted_routes(resources(), []).
-
-formatted_routes([], Accum) ->
-    %% Don't reverse the list; It makes more sense to the human eye to
-    %% see the least specific routes first.
-    Accum;
-formatted_routes([M | Rest], Accum) ->
-    ModuleRoutes = [{id, list_to_binary(atom_to_list(M))},
-                    {routes, format_routes(M:routes(), [])},
-                    {resources, proplists:get_keys(M:resources())}],
-    formatted_routes(Rest, [ModuleRoutes | Accum]).
-
-format_routes([], Accum) -> 
-    lists:reverse(Accum);
-format_routes([Route | Rest], Accum) ->
-    format_routes(Rest, [format_route(Route, []) | Accum]).
 
 format_route([], Accum) -> 
     list_to_binary(lists:flatten(Accum));
@@ -136,16 +116,29 @@ target_node() ->
 web_root() ->
     "priv/ember_riak_explorer/dist".
 
-% [{explore,[{platform_etc_dir,"./etc"},
-%            {host,{"127.0.0.1",9000}},
-%            {platform_bin_dir,"./bin"},
-%            {included_applications,[]},
-%            {riak_node,"riak@127.0.0.1"},
-%            {platform_log_dir,"./log"},
-%            {development_mode,true},
-%            {platform_lib_dir,"./lib"},
-%            {listener,{"127.0.0.1",9000}},
-%            {platform_data_dir,"./data"}]}]
+%%%===================================================================
+%%% Private
+%%%===================================================================
+
+routes([], Accum) ->
+    lists:reverse(Accum);
+routes([M | Rest], Accum) ->
+    routes(Rest, [M:routes() | Accum]).
+
+formatted_routes([], Accum) ->
+    %% Don't reverse the list; It makes more sense to the human eye to
+    %% see the least specific routes first.
+    Accum;
+formatted_routes([M | Rest], Accum) ->
+    ModuleRoutes = [{id, list_to_binary(atom_to_list(M))},
+                    {routes, format_routes(M:routes(), [])},
+                    {resources, proplists:get_keys(M:resources())}],
+    formatted_routes(Rest, [ModuleRoutes | Accum]).
+
+format_routes([], Accum) -> 
+    lists:reverse(Accum);
+format_routes([Route | Rest], Accum) ->
+    format_routes(Rest, [format_route(Route, []) | Accum]).
 
 props_to_bin([], Accum) -> lists:reverse(Accum);
 props_to_bin([{Name, {Host, Port}} | Rest], Accum) ->
