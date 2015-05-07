@@ -15,7 +15,7 @@ See also: [Riak Control Design Discussion
 
 2. Verify settings in `etc/riak_explorer.conf`
 
-4. `./bin/riak_explorer start|console|attach|stop` - Controls the riak_explorer Erlang applicaiton
+4. `./bin/riak_explorer start|console|attach|stop` - Controls the riak_explorer Erlang application
 
 4. Navigate to [http://localhost:9000/](http://localhost:9000/) to test
 
