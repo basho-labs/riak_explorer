@@ -1,1 +1,22 @@
-Bucket types list goes here
+<h3>Bucket Types ({{node_id}})</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Bucket Type</th>
+            <th>Active?</th>
+            <th>allow_mult</th>
+        </tr>
+    </thead>
+    <tbody>
+{{#each bt in model}}
+        <tr>
+            <td>{{bt.id}}</td>
+            <td>{{bt.props.active}}</td>
+            <td>{{bt.props.allow_mult}}</td>
+        </tr>
+{{else}}
+  No bucket types. Have you specified a node?
+{{/each}}
+    </tbody>
+</table>
