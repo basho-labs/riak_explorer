@@ -9,7 +9,7 @@ Riak dev-mode and admin GUI.
 See also: [Riak Control Design Discussion
  doc](https://docs.google.com/document/d/1qcHyyEEL1jCAKrjNtmbIEcAFS3VAdLyoRK88FDy6o_0/edit#).
 
-## Mac OSX Installation
+## Mac OS X Installation
 
 1. Download and extract [http://riak-tools.s3.amazonaws.com/riak_explorer210.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer210.tar.gz)
 
@@ -91,7 +91,7 @@ In addition to the web interface, there is also an API exposed at [http://localh
 }
 ```
 
-Explaination:
+Explanation:
 
 * `explore.handler`: This is the Erlang module responsible for serving routes.
 * `explore.routes`: List of existing routes. URI sections beginning with $ are variables that need to be specified
