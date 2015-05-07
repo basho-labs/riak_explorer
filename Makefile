@@ -8,6 +8,7 @@ OVERLAY_VARS    ?=
 
 all: compile
 compile: deps compile-backend compile-frontend
+recompile: recompile-backend recompile-frontend
 deps: deps-backend deps-frontend
 clean-package: 
 	-rm -rf $(BUILD_DIR)

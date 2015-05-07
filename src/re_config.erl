@@ -23,6 +23,7 @@
          dispatch/0,
          development_mode/0,
          routes/0,
+         props/0,
          formatted_routes/0,
          format_route/2,
          web_config/0,
@@ -56,10 +57,10 @@ resources() ->
 dispatch() -> lists:flatten(dispatch(resources(), [])).
 
 development_mode() ->
-    case application:get_env(riak_explorer, development_mode) of
-        {ok, on} -> true;
-        _ -> false
-    end.
+    application:get_env(riak_explorer, development_mode, true).
+
+props() ->
+    props_to_bin(application:get_all_env(riak_explorer), []).
 
 dispatch([], Accum) ->
     lists:reverse(Accum);
@@ -134,3 +135,24 @@ target_node() ->
 
 web_root() ->
     "priv/ember_riak_explorer/dist".
+
+% [{explore,[{platform_etc_dir,"./etc"},
+%            {host,{"127.0.0.1",9000}},
+%            {platform_bin_dir,"./bin"},
+%            {included_applications,[]},
+%            {riak_node,"riak@127.0.0.1"},
+%            {platform_log_dir,"./log"},
+%            {development_mode,true},
+%            {platform_lib_dir,"./lib"},
+%            {listener,{"127.0.0.1",9000}},
+%            {platform_data_dir,"./data"}]}]
+
+props_to_bin([], Accum) -> lists:reverse(Accum);
+props_to_bin([{Name, {Host, Port}} | Rest], Accum) ->
+    props_to_bin(Rest, [{Name, list_to_binary(url(Host, Port))} | Accum]);
+props_to_bin([{Name, []} | Rest], Accum) ->
+    props_to_bin(Rest, [{Name, []} | Accum]);
+props_to_bin([{Name, Value} | Rest], Accum) when is_list(Value) ->
+    props_to_bin(Rest, [{Name, list_to_binary(Value)} | Accum]);
+props_to_bin([{Name, Value} | Rest], Accum) ->
+    props_to_bin(Rest, [{Name, Value} | Accum]).

@@ -33,7 +33,6 @@
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
-
 %%%===================================================================
 %%% Callbacks
 %%%===================================================================
@@ -42,7 +41,7 @@ init([]) ->
     re_riak:load_patch(re_config:target_node()),
 
     case re_config:development_mode() of
-        true -> lager:warn("Development mode is enabled");
+        true -> lager:warning("Development mode is enabled");
         _ -> ok
     end,
 

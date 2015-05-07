@@ -20,7 +20,8 @@
 
 -module(riak_explorer).
 -export([ping/0,
-         routes/0]).
+         routes/0,
+         props/0]).
 
 -include("riak_explorer.hrl").
 
@@ -37,6 +38,9 @@ ping() ->
 
 routes() ->
     [{explore, [{id,<<"routes">>}, {handlers, re_config:formatted_routes()}]}].
+
+props() ->
+    [{explore, re_config:props()}].
 
 %%%===================================================================
 %%% Private
