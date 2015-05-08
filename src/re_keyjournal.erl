@@ -81,20 +81,24 @@ handle_list({Operation, Node, [BucketType]=Path}) ->
          FileName = filename:join([Dir, TimeStamp]),
          file:write_file(FileName, "", [write]),
          lager:info("list_buckets started for file: ~p at: ~p", [FileName, TimeStamp]),
-         write_loop(ReqId, FileName);
+         {ok, Device} = file:open(FileName, [append]),
+         write_loop(ReqId, Device);
       Error ->
          lager:error(atom_to_list(Operation) ++ " list failed for path: ~p with reason: ~p", [Path, Error])
    end.
 
-write_loop(ReqId, FileName) ->
+write_loop(ReqId, Device) ->
+   lager:info("in loop: ~p", [ReqId]),
     receive
         {ReqId, done} -> 
-            lager:info("list_buckets finished for file: ~p", [FileName]);
+            lager:info("list_buckets finished for file"),
+            file:close(Device);
         {ReqId, {error, Reason}} -> 
-            lager:error("list_buckets failed for file: ~p with reason: ~p", [FileName, Reason]);
+            lager:error("list_buckets failed for file with reason: ~p", [Reason]),
+            file:close(Device);
         {ReqId, {_, Res}} -> 
-            file:write_file(FileName, Res, [append]),
-            write_loop(FileName, ReqId)
+            io:fwrite(Device, Res ++ "~n", []),
+            write_loop(ReqId, Device)
     end.
 
 %%%===================================================================
@@ -109,8 +113,11 @@ timestamp_string() ->
 entries_from_file(File, Start, Rows) ->
    re_file_util:for_each_line_in_file(File,
       fun(Bucket, {C, S, E, Accum}) ->
+         lager:info("accum: ~p", [Accum]),
          case should_add_entry(C, S, E) of
-            true -> {C + 1, S, E, [list_to_binary(Bucket)|Accum]} ;
+            true -> 
+               B = re:replace(Bucket, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
+               {C + 1, S, E, [list_to_binary(B)|Accum]};
             _ -> {C + 1, S, E, Accum}
          end
       end, [read], {0, Start, Start+Rows,[]}).
