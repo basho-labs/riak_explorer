@@ -33,26 +33,19 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
--define(listBucketTypes(Node),
-    #ctx{cluster=undefined, node=Node, bucket_type=undefined}).
--define(bucketTypeInfo(Node, BucketType),
-    #ctx{cluster=undefined, node=Node, bucket_type=BucketType, resource=undefined}).
--define(bucketTypeResource(Node, BucketType, Resource),
-    #ctx{cluster=undefined, node=Node, bucket_type=BucketType, resource=Resource}).
-
--define(clusterListBucketTypes(Cluster),
-    #ctx{cluster=Cluster, node=undefined, bucket_type=undefined}).
--define(clusterBucketTypeInfo(Cluster, BucketType),
-    #ctx{cluster=Cluster, node=undefined, bucket_type=BucketType, resource=undefined}).
--define(clusterBucketTypeResource(Cluster, BucketType, Resource),
-    #ctx{cluster=Cluster, node=undefined, bucket_type=BucketType, resource=Resource}).
+-define(listBucketTypes(),
+    #ctx{bucket_type=undefined}).
+-define(bucketTypeInfo(BucketType),
+    #ctx{bucket_type=BucketType, resource=undefined}).
+-define(bucketTypeResource(BucketType, Resource),
+    #ctx{bucket_type=BucketType, resource=Resource}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
 resources() -> 
-    [].
+    [{clean_buckets, [re_riak, clean_buckets]}].
 
 routes() ->
     Base = lists:last(re_wm_base:routes()),
@@ -96,34 +89,26 @@ content_types_provided(RD, Ctx) ->
              {"application/vnd.api+json", provide_jsonapi_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx=?listBucketTypes(Node)) ->
-    Response = re_riak:bucket_types(list_to_atom(Node)),
+resource_exists(RD, Ctx=?listBucketTypes()) ->
+    Node = case Ctx of
+        #ctx{cluster=undefined, node=N} -> list_to_atom(N);
+        #ctx{cluster=C} -> re_riak:first_node(C)
+    end,
+    Response = re_riak:bucket_types(Node),
     {true, RD, Ctx#ctx{id=bucket_types, response=Response}};
-resource_exists(RD, Ctx=?bucketTypeInfo(_Node, BucketType)) ->
+resource_exists(RD, Ctx=?bucketTypeInfo(BucketType)) ->
     Id = list_to_binary(BucketType),
     Response = [{bucket_types, [{id,Id}, {props, []}]}],
     {true, RD, Ctx#ctx{id=bucket_type, response=Response}};
-resource_exists(RD, Ctx=?bucketTypeResource(Node, BucketType, Resource)) ->
+resource_exists(RD, Ctx=?bucketTypeResource(BucketType, Resource)) ->
+    Node = case Ctx of
+        #ctx{cluster=undefined, node=N} -> list_to_atom(N);
+        #ctx{cluster=C} -> re_riak:first_node(C)
+    end,
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
         [M,F] -> 
-            Response = M:F(list_to_atom(Node), BucketType),
-            {true, RD, Ctx#ctx{id=Id, response=Response}};
-        _ -> 
-            {false, RD, Ctx}
-    end;
-resource_exists(RD, Ctx=?clusterListBucketTypes(Cluster)) ->
-    Response = re_riak:cluster_bucket_types(Cluster),
-    {true, RD, Ctx#ctx{id=bucket_types, response=Response}};
-resource_exists(RD, Ctx=?clusterBucketTypeInfo(_Cluster, BucketType)) ->
-    Id = list_to_binary(BucketType),
-    Response = [{bucket_types, [{id,Id}, {props, []}]}],
-    {true, RD, Ctx#ctx{id=bucket_type, response=Response}};
-resource_exists(RD, Ctx=?clusterBucketTypeResource(Cluster, BucketType, Resource)) ->
-    Id = list_to_atom(Resource),
-    case proplists:get_value(Id, resources()) of
-        [M,F] -> 
-            Response = M:F(Cluster, BucketType),
+            Response = M:F(Node, BucketType),
             {true, RD, Ctx#ctx{id=Id, response=Response}};
         _ -> 
             {false, RD, Ctx}

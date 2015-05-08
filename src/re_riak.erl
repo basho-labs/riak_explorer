@@ -22,9 +22,13 @@
 
 -include("riak_explorer.hrl").
 -compile({no_auto_import,[nodes/1]}).
--export([load_patch/1,
+-export([client/1,
+         first_node/1,
+         list_buckets/2,
+         clean_buckets/2,
+         load_patch/1,
          http_listener/1,
-         cluster_bucket_types/1,
+         pb_listener/1,
          bucket_types/1,
          nodes/1]).
 
@@ -32,6 +36,31 @@
 %%% API
 %%%===================================================================
 
+client(Node) ->
+    {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, pb]),
+    {ok, Pid} = riakc_pb_socket:start_link(Ip, Port),
+    Pid.
+
+first_node(Cluster) ->
+    [{nodes, [[{id, Node}]|_]}] = nodes(Cluster),
+    Node.
+
+list_buckets(Node, BucketType) ->
+    case re_config:development_mode() of
+        true ->
+            re_keyjournal:read({buckets, Node, [BucketType]});
+        false ->
+            [{error, [{error_message, <<"development_mode not enabled.">>}]}]
+    end.
+
+clean_buckets(Node, BucketType) ->
+    case re_config:development_mode() of
+        true ->
+            re_keyjournal:clean({buckets, Node, [BucketType]});
+        false ->
+            [{error, [{error_message, <<"development_mode not enabled.">>}]}]
+    end.
+    
 load_patch(Node) ->
     IsLoaded = remote(Node, code, is_loaded, [re_riak_patch]),
     maybe_load_patch(Node, IsLoaded).
@@ -40,9 +69,9 @@ http_listener(Node) ->
     {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, http]),
     [{http_listener, list_to_binary(Ip ++ ":" ++ integer_to_list(Port))}].
 
-cluster_bucket_types(Cluster) ->
-    Node = first_node(Cluster),
-    bucket_types(Node).
+pb_listener(Node) ->
+    {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, pb]),
+    [{pb_listener, list_to_binary(Ip ++ ":" ++ integer_to_list(Port))}].
 
 bucket_types(Node) ->
     load_patch(Node),
@@ -64,10 +93,6 @@ nodes(Cluster) ->
 %%%===================================================================
 %%% Private
 %%%===================================================================
-
-first_node(Cluster) ->
-    [{nodes, [[{id, Node}]|_]}] = nodes(Cluster),
-    Node.
 
 maybe_load_patch(Node, false) ->
     lager:info("Loading re_riak_patch module into node[~p].", [Node]),

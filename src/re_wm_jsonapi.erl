@@ -56,7 +56,7 @@ convert_attributes([A|Rest], Accum) ->
 self_link(RD, Name) when is_atom(Name) ->
     self_link(RD, atom_to_list(Name));
 self_link(RD, Name) ->
-    Self = list_to_binary(add_slash(wrq:path(RD)) ++ Name),
+    Self = list_to_binary(re_file_util:add_slash(wrq:path(RD)) ++ Name),
     [{self, Self}].
 
 links(RD) ->
@@ -96,9 +96,3 @@ build_object([{_, []}|Rest], Accum) ->
     build_object(Rest, Accum);
 build_object([{Name, Value}|Rest], Accum) ->
     build_object(Rest, [{Name, Value} | Accum]).
-
-add_slash(Str) ->
-    case lists:last(Str) of
-        47 -> Str;
-        _ -> Str ++ "/"
-    end.
