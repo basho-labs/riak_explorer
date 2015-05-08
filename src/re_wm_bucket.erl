@@ -25,20 +25,23 @@
          allowed_methods/2, 
          content_types_provided/2,
          resource_exists/2,
+         delete_resource/2,
          provide_jsonapi_content/2,
          provide_content/2]).
 
--record(ctx, {cluster, node, bucket_type, bucket, resource, id, response=undefined}).
+-record(ctx, {method, cluster, node, bucket_type, bucket, resource, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
+-define(cleanBuckets(BucketType),
+    #ctx{method='DELETE', bucket_type=BucketType, bucket=undefined}).
 -define(listBuckets(BucketType),
-    #ctx{bucket_type=BucketType, bucket=undefined}).
+    #ctx{method='GET', bucket_type=BucketType, bucket=undefined}).
 -define(bucketInfo(BucketType, Bucket),
-    #ctx{bucket_type=BucketType, bucket=Bucket, resource=undefined}).
+    #ctx{method='GET', bucket_type=BucketType, bucket=Bucket, resource=undefined}).
 -define(bucketResource(BucketType, Bucket, Resource),
-    #ctx{bucket_type=BucketType, bucket=Bucket, resource=Resource}).
+    #ctx{method='GET', bucket_type=BucketType, bucket=Bucket, resource=Resource}).
 
 %%%===================================================================
 %%% API
@@ -82,11 +85,12 @@ service_available(RD, Ctx0) ->
         bucket_type = wrq:path_info(bucket_type, RD),
         bucket = wrq:path_info(bucket, RD),
         node = wrq:path_info(node, RD),
-        cluster = wrq:path_info(cluster, RD)},
+        cluster = wrq:path_info(cluster, RD),
+        method = wrq:method(RD)},
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
-    Methods = ['GET'],
+    Methods = ['GET', 'DELETE'],
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
@@ -94,11 +98,12 @@ content_types_provided(RD, Ctx) ->
              {"application/vnd.api+json", provide_jsonapi_content}],
     {Types, RD, Ctx}.
 
+resource_exists(RD, Ctx=?cleanBuckets(BucketType)) ->
+    Node = node_from_context(Ctx),
+    Succeeded = re_riak:clean_buckets(Node, BucketType),
+    {Succeeded, RD, Ctx};
 resource_exists(RD, Ctx=?listBuckets(BucketType)) ->
-    Node = case Ctx of
-        #ctx{cluster=undefined, node=N} -> list_to_atom(N);
-        #ctx{cluster=C} -> re_riak:first_node(C)
-    end,
+    Node = node_from_context(Ctx),
     Response = re_riak:list_buckets(Node, BucketType),
     {true, RD, Ctx#ctx{id=buckets, response=Response}};
 resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
@@ -106,10 +111,7 @@ resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
     Response = [{buckets, [{id,Id}, {props, []}]}],
     {true, RD, Ctx#ctx{id=bucket_type, response=Response}};
 resource_exists(RD, Ctx=?bucketResource(BucketType, Bucket, Resource)) ->
-    Node = case Ctx of
-        #ctx{cluster=undefined, node=N} -> list_to_atom(N);
-        #ctx{cluster=C} -> re_riak:first_node(C)
-    end,
+    Node = node_from_context(Ctx),
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
         [M,F] -> 
@@ -120,6 +122,9 @@ resource_exists(RD, Ctx=?bucketResource(BucketType, Bucket, Resource)) ->
     end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
+
+delete_resource(RD, Ctx) -> 
+    {true, RD, Ctx}.
 
 provide_content(RD, Ctx=#ctx{response=undefined}) ->
     JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
@@ -140,6 +145,12 @@ provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
 %% ====================================================================
 %% Private
 %% ====================================================================
+
+node_from_context(Ctx) ->
+    case Ctx of
+        #ctx{cluster=undefined, node=N} -> list_to_atom(N);
+        #ctx{cluster=C} -> re_riak:first_node(C)
+    end.
 
 render_json(Data, RD, Ctx) ->
     Body = mochijson2:encode(Data),

@@ -37,9 +37,9 @@ clean({Operation, Node, Path}) ->
       [File|_] -> 
          DirFile = filename:join([Dir, File]),
          file:delete(DirFile),
-         [{info, [{info_message, <<"Bucket list deleted.">>}]}];
+         true;
       [] ->
-         [{info, [{info_message, <<"No bucket lists to delete.">>}]}]
+         false
    end.
 
 read({Operation, Node, Path}) ->

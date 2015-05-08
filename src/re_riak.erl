@@ -57,8 +57,7 @@ clean_buckets(Node, BucketType) ->
     case re_config:development_mode() of
         true ->
             re_keyjournal:clean({buckets, Node, [BucketType]});
-        false ->
-            [{error, [{error_message, <<"development_mode not enabled.">>}]}]
+        false -> false
     end.
     
 load_patch(Node) ->
