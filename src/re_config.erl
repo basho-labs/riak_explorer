@@ -19,7 +19,8 @@
 %% -------------------------------------------------------------------
 
 -module(re_config).
--export([resources/0,
+-export([data_dir/0,
+         resources/0,
          dispatch/0,
          development_mode/0,
          routes/0,
@@ -38,10 +39,14 @@
 %%% API
 %%%===================================================================
 
+data_dir() ->
+    {ok, Dir} = application:get_env(riak_explorer, platform_data_dir),
+    Dir.
+
 resources() ->
     [
         % re_wm_key,
-        % re_wm_bucket,
+        re_wm_bucket,
         re_wm_bucket_type,
         % re_wm_index,
         % re_wm_schema,
