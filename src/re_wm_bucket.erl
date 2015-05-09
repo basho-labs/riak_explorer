@@ -29,7 +29,7 @@
          provide_jsonapi_content/2,
          provide_content/2]).
 
--record(ctx, {method, cluster, node, bucket_type, bucket, resource, id, response=undefined}).
+-record(ctx, {method, start, rows, cluster, node, bucket_type, bucket, resource, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
@@ -86,7 +86,9 @@ service_available(RD, Ctx0) ->
         bucket = wrq:path_info(bucket, RD),
         node = wrq:path_info(node, RD),
         cluster = wrq:path_info(cluster, RD),
-        method = wrq:method(RD)},
+        method = wrq:method(RD),
+        start = list_to_integer(wrq:get_qs_value("start","0",RD)),
+        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD))},
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
@@ -104,8 +106,11 @@ resource_exists(RD, Ctx=?cleanBuckets(BucketType)) ->
     {Succeeded, RD, Ctx};
 resource_exists(RD, Ctx=?listBuckets(BucketType)) ->
     Node = node_from_context(Ctx),
-    Response = re_riak:list_buckets(Node, BucketType),
-    {true, RD, Ctx#ctx{id=buckets, response=Response}};
+    case re_riak:list_buckets(Node, BucketType, Ctx#ctx.start, Ctx#ctx.rows) of
+        true -> {{halt, 202}, RD, Ctx};
+        false -> {{halt, 202}, RD, Ctx};
+        Response -> {true, RD, Ctx#ctx{id=buckets, response=Response}}
+    end;
 resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
     Id = list_to_binary(Bucket),
     Response = [{buckets, [{id,Id}, {props, []}]}],

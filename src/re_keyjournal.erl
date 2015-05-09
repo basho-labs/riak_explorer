@@ -52,8 +52,8 @@ read({Operation, Node, Path}, Start, Rows) ->
    case Files of
       [File|_] -> 
          DirFile = filename:join([Dir, File]),
-         {Count, _S, _E, Entries} = entries_from_file(DirFile, Start, Rows),
-         [{Operation, [{count, Count},{Operation, Entries}]}];
+         {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start, Rows),
+         [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(File)},{Operation, Entries}]}];
       [] ->
          write({Operation, Node, Path})
    end.
@@ -63,8 +63,8 @@ write({Operation, Node, BucketType}) ->
       undefined -> 
          Pid = spawn(?MODULE, handle_list, [{Operation, Node, BucketType}]),
          register(Operation, Pid),
-         [{info, [{info_message, <<"Bucket listing started.">>}]}];
-      _ -> [{error, [{error_message, <<"Bucket listing is still in progress, please check back later.">>}]}]
+         true;
+      _ -> false
    end.
 
 %%%===================================================================
@@ -112,16 +112,16 @@ timestamp_string() ->
 
 entries_from_file(File, Start, Rows) ->
    re_file_util:for_each_line_in_file(File,
-      fun(Bucket, {C, S, E, Accum}) ->
+      fun(Bucket, {T, RC, S, E, Accum}) ->
          lager:info("accum: ~p", [Accum]),
-         case should_add_entry(C, S, E) of
+         case should_add_entry(T, S, E) of
             true -> 
                B = re:replace(Bucket, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
-               {C + 1, S, E, [list_to_binary(B)|Accum]};
-            _ -> {C + 1, S, E, Accum}
+               {T + 1, RC + 1, S, E, [list_to_binary(B)|Accum]};
+            _ -> {T + 1, RC, S, E, Accum}
          end
-      end, [read], {0, Start, Start+Rows,[]}).
+      end, [read], {0, 0, Start, Start+Rows-1,[]}).
 
-should_add_entry(Count, _Start, Stop) when Count > Stop -> false;
-should_add_entry(Count, Start, _Stop) when Count >= Start -> true;
-should_add_entry(_Count, _Start, _Stop) -> false.
+should_add_entry(Total, _Start, Stop) when Total > Stop -> false;
+should_add_entry(Total, Start, _Stop) when Total >= Start -> true;
+should_add_entry(_Total, _Start, _Stop) -> false.

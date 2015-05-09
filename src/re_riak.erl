@@ -24,7 +24,7 @@
 -compile({no_auto_import,[nodes/1]}).
 -export([client/1,
          first_node/1,
-         list_buckets/2,
+         list_buckets/4,
          clean_buckets/2,
          load_patch/1,
          http_listener/1,
@@ -45,10 +45,10 @@ first_node(Cluster) ->
     [{nodes, [[{id, Node}]|_]}] = nodes(Cluster),
     Node.
 
-list_buckets(Node, BucketType) ->
+list_buckets(Node, BucketType, Start, Rows) ->
     case re_config:development_mode() of
         true ->
-            re_keyjournal:read({buckets, Node, [BucketType]});
+            re_keyjournal:read({buckets, Node, [BucketType]}, Start, Rows);
         false ->
             [{error, [{error_message, <<"development_mode not enabled.">>}]}]
     end.
