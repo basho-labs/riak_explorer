@@ -7,12 +7,13 @@ export default Ember.Route.extend({
         var serviceName = 'Riak Explorer';
 
         var pingResult = Ember.$.ajax({ url: url });  // returns a Promise obj
+        
         return pingResult.then(
             // Success
             function(data) {
                 return {
                     service: serviceName,
-                    pingResult: 'Available (' + data.message + ')'
+                    pingResult: 'Available (' + data.ping.message + ')'
                 };
             },
             // Error
