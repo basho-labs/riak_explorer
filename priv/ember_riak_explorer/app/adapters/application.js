@@ -8,15 +8,13 @@ export default DS.RESTAdapter.extend({
      @method buildURL
      @param {String} type
      @param {String} id
-     @param {String} node_id
+     @param {Object} query
      @return {String} url
     */
-    buildURL: function(type, id, node_id) {
+    buildURL: function(type, id, query) {
         var url = [];
         var host = Ember.get(this, 'host');
         var prefix = this.urlPrefix();
-
-        console.log('In buildURL, node_id: '+node_id);
 
         if (type) { url.push(this.pathForType(type)); }
 
@@ -25,7 +23,7 @@ export default DS.RESTAdapter.extend({
         // ids will be passed in through a query param
         if (id && !Ember.isArray(id)) { url.push(encodeURIComponent(id)); }
 
-        if (node_id) { url.unshift('nodes/' + node_id); }
+        if (query && query.node_id) { url.unshift('nodes/' + query.node_id); }
 
         if (prefix) { url.unshift(prefix); }
 
@@ -50,8 +48,7 @@ export default DS.RESTAdapter.extend({
       @return {Promise} promise
     */
     findQuery: function(store, type, query) {
-      var node_id = query.node_id;
-      var url = this.buildURL(type.typeKey, null, node_id);
+      var url = this.buildURL(type.typeKey, null, query);
 
       if (this.sortQueryParams) {
         query = this.sortQueryParams(query);

@@ -93,7 +93,9 @@ provide_content(RD, Ctx=#ctx{response=undefined}) ->
     render_json(JDoc, RD, Ctx);
 provide_content(RD, Ctx=#ctx{id=Id, response=[{_, Objects}]}) ->
     JRes = re_wm_jsonapi:res(RD, [], Objects, [], []),
+    lager:info("JRes: ~p", [JRes]),
     JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
+    lager:info("JDoc: ~p", [JDoc]),
     render_json(JDoc, RD, Ctx).
 
 provide_jsonapi_content(RD, Ctx=#ctx{response=undefined}) ->

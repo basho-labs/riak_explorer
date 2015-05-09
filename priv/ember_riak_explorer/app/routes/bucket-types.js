@@ -45,7 +45,9 @@ export default Ember.Route.extend({
     model: function(params) {
         // return testData();
 
-        var result = this.store.find('bucket_type', { node_id: params.node_id });
-        return result;
+        var bucketTypes = this.store.find('bucket_type', { node_id: params.node_id });
+        return {
+            bucketTypes: bucketTypes
+        };
     }
 });
