@@ -24,8 +24,10 @@
 -export([service_available/2,
          allowed_methods/2, 
          content_types_provided/2,
+         content_types_accepted/2,
          resource_exists/2,
          delete_resource/2,
+         accept_content/2,
          provide_jsonapi_content/2,
          provide_content/2]).
 
@@ -34,6 +36,8 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
+-define(putBuckets(BucketType),
+    #ctx{method='PUT', bucket_type=BucketType, bucket=undefined}).
 -define(cleanBuckets(BucketType),
     #ctx{method='DELETE', bucket_type=BucketType, bucket=undefined}).
 -define(listBuckets(BucketType),
@@ -92,7 +96,7 @@ service_available(RD, Ctx0) ->
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
-    Methods = ['GET', 'DELETE'],
+    Methods = ['GET', 'PUT', 'DELETE'],
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
@@ -100,6 +104,13 @@ content_types_provided(RD, Ctx) ->
              {"application/vnd.api+json", provide_jsonapi_content}],
     {Types, RD, Ctx}.
 
+content_types_accepted(RD, Ctx) ->
+    Types = [{"application/json", accept_content},
+             {"application/vnd.api+json", accept_content}],
+    {Types, RD, Ctx}.
+
+resource_exists(RD, Ctx=?putBuckets(_BucketType)) ->
+    {true, RD, Ctx};
 resource_exists(RD, Ctx=?cleanBuckets(BucketType)) ->
     Node = node_from_context(Ctx),
     Succeeded = re_riak:clean_buckets(Node, BucketType),
@@ -129,6 +140,13 @@ resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
 delete_resource(RD, Ctx) -> 
+    {true, RD, Ctx}.
+
+accept_content(RD, Ctx=?putBuckets(BucketType)) ->
+    Node = node_from_context(Ctx),
+    RawValue = wrq:req_body(RD),
+    {struct, [{<<"buckets">>, Buckets}]} = mochijson2:decode(RawValue),
+    re_riak:put_buckets(Node, BucketType, Buckets),
     {true, RD, Ctx}.
 
 provide_content(RD, Ctx=#ctx{response=undefined}) ->

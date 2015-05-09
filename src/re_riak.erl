@@ -26,6 +26,7 @@
          first_node/1,
          list_buckets/4,
          clean_buckets/2,
+         put_buckets/3,
          load_patch/1,
          http_listener/1,
          pb_listener/1,
@@ -50,15 +51,14 @@ list_buckets(Node, BucketType, Start, Rows) ->
         true ->
             re_keyjournal:read({buckets, Node, [BucketType]}, Start, Rows);
         false ->
-            [{error, [{error_message, <<"development_mode not enabled.">>}]}]
+            re_keyjournal:read_cache({buckets, Node, [BucketType]}, Start, Rows)
     end.
 
 clean_buckets(Node, BucketType) ->
-    case re_config:development_mode() of
-        true ->
-            re_keyjournal:clean({buckets, Node, [BucketType]});
-        false -> false
-    end.
+    re_keyjournal:clean({buckets, Node, [BucketType]}).
+
+put_buckets(Node, BucketType, Buckets) ->
+    re_keyjournal:write_cache({buckets, Node, [BucketType]}, Buckets).
     
 load_patch(Node) ->
     IsLoaded = remote(Node, code, is_loaded, [re_riak_patch]),

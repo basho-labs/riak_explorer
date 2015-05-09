@@ -21,7 +21,9 @@
 -module(re_keyjournal).
 -export([clean/1,
          read/3,
+         read_cache/3,
          write/1,
+         write_cache/2,
          handle_list/1]).
 
 -include("riak_explorer.hrl").
@@ -42,7 +44,13 @@ clean({Operation, Node, Path}) ->
          false
    end.
 
-read({Operation, Node, Path}, Start, Rows) ->
+read(Meta, Start, Rows) ->
+   case read_cache(Meta, Start, Rows) of
+      false -> write(Meta);
+      CacheData -> CacheData
+   end.
+
+read_cache({Operation, Node, Path}, Start, Rows) ->
    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Node)] ++ Path),
    {ok, Files} = file:list_dir(Dir),
    case Files of
@@ -50,18 +58,28 @@ read({Operation, Node, Path}, Start, Rows) ->
          DirFile = filename:join([Dir, File]),
          {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows),
          [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(File)},{Operation, Entries}]}];
-      [] ->
-         write({Operation, Node, Path})
+      [] -> false
    end.
 
-write({Operation, Node, BucketType}) ->
+write({Operation, Node, Path}) ->
    case whereis(Operation) of
       undefined -> 
-         Pid = spawn(?MODULE, handle_list, [{Operation, Node, BucketType}]),
+         Pid = spawn(?MODULE, handle_list, [{Operation, Node, Path}]),
          register(Operation, Pid),
          true;
       _ -> false
    end.
+
+write_cache({Operation, Node, Path}, Objects) ->
+   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Node)] ++ Path),
+   {ok, Files} = file:list_dir(Dir),
+   DirFile = case Files of
+      [File|_] -> filename:join([Dir, File]);
+      [] -> filename:join([Dir, timestamp_string()])
+   end,
+
+   {ok, Device} = file:open(DirFile, [append]),
+   update_cache(Objects, Device).
 
 %%%===================================================================
 %%% Callbacks
@@ -76,7 +94,7 @@ handle_list({Operation, Node, [BucketType]=Path}) ->
          TimeStamp = timestamp_string(),
          FileName = filename:join([Dir, TimeStamp]),
          file:write_file(FileName, "", [write]),
-         lager:info("list_buckets started for file: ~p at: ~p", [FileName, TimeStamp]),
+         lager:info("list started for file: ~p at: ~p", [FileName, TimeStamp]),
          {ok, Device} = file:open(FileName, [append]),
          write_loop(ReqId, Device);
       Error ->
@@ -87,10 +105,10 @@ write_loop(ReqId, Device) ->
    lager:info("in loop: ~p", [ReqId]),
     receive
         {ReqId, done} -> 
-            lager:info("list_buckets finished for file"),
+            lager:info("list finished for file"),
             file:close(Device);
         {ReqId, {error, Reason}} -> 
-            lager:error("list_buckets failed for file with reason: ~p", [Reason]),
+            lager:error("list failed for file with reason: ~p", [Reason]),
             file:close(Device);
         {ReqId, {_, Res}} -> 
             io:fwrite(Device, Res ++ "~n", []),
@@ -101,10 +119,15 @@ write_loop(ReqId, Device) ->
 %%% Private
 %%%===================================================================
 
+update_cache([], Device) ->
+   file:close(Device);
+update_cache([Object|Rest], Device) ->
+   io:fwrite(Device, binary_to_list(Object) ++ "~n", []),
+   update_cache(Rest, Device).
+   
 timestamp_string() ->
     {{Year,Month,Day},{Hour,Min,Sec}} = calendar:now_to_universal_time(now()),
-    lists:flatten(io_lib:fwrite("~4..0B~2.10.0B~2.10.0B~2B~2.10.0B~2.10.0B",
-        [Year, Month, Day, Hour, Min, Sec])).
+    lists:flatten(io_lib:fwrite("~4..0B~2.10.0B~2.10.0B~2.10.0B~2.10.0B~2.10.0B",[Year, Month, Day, Hour, Min, Sec])).
 
 entries_from_file(File, Start, Rows) ->
    re_file_util:for_each_line_in_file(File,
