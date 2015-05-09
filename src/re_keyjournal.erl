@@ -20,7 +20,7 @@
 
 -module(re_keyjournal).
 -export([clean/1,
-         read/1, read/2, read/3,
+         read/3,
          write/1,
          handle_list/1]).
 
@@ -42,17 +42,13 @@ clean({Operation, Node, Path}) ->
          false
    end.
 
-read({Operation, Node, Path}) ->
-   read({Operation, Node, Path}, 0, 1000).
-read({Operation, Node, Path}, Start) ->
-   read({Operation, Node, Path}, Start, 1000).
 read({Operation, Node, Path}, Start, Rows) ->
    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Node)] ++ Path),
    {ok, Files} = file:list_dir(Dir),
    case Files of
       [File|_] -> 
          DirFile = filename:join([Dir, File]),
-         {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start, Rows),
+         {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows),
          [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(File)},{Operation, Entries}]}];
       [] ->
          write({Operation, Node, Path})
