@@ -56,7 +56,7 @@ read_cache({Operation, Node, Path}, Start, Rows) ->
    case Files of
       [File|_] -> 
          DirFile = filename:join([Dir, File]),
-         {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows),
+         {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows - 1),
          [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(File)},{Operation, Entries}]}];
       [] -> false
    end.
@@ -79,30 +79,35 @@ write_cache({Operation, Node, Path}, Objects) ->
    end,
 
    {ok, Device} = file:open(DirFile, [append]),
-   update_cache(Objects, Device).
+   update_cache(Objects, Device),
+   file:close(Device).
 
 %%%===================================================================
 %%% Callbacks
 %%%===================================================================
 
-% handle_list({Operation, Node, [BucketType, Bucket]}) ->
-handle_list({Operation, Node, [BucketType]=Path}) ->
+handle_list({buckets, Node, [BucketType]}=Meta) ->
    C = re_riak:client(Node),
-   case riakc_pb_socket:stream_list_buckets(C, list_to_binary(BucketType)) of
-      {ok, ReqId} ->
-         Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Node)] ++ Path),
-         TimeStamp = timestamp_string(),
-         FileName = filename:join([Dir, TimeStamp]),
-         file:write_file(FileName, "", [write]),
-         lager:info("list started for file: ~p at: ~p", [FileName, TimeStamp]),
-         {ok, Device} = file:open(FileName, [append]),
-         write_loop(ReqId, Device);
-      Error ->
-         lager:error(atom_to_list(Operation) ++ " list failed for path: ~p with reason: ~p", [Path, Error])
-   end.
+   Stream = riakc_pb_socket:stream_list_buckets(C, list_to_binary(BucketType)),
+   handle_stream(Meta, Stream);
+handle_list({keys, Node, [BucketType, Bucket]}=Meta) ->
+   C = re_riak:client(Node),
+   B = {list_to_binary(BucketType), list_to_binary(Bucket)},
+   Stream = riakc_pb_socket:stream_list_keys(C, B),
+   handle_stream(Meta, Stream).
+
+handle_stream({Operation, Node, Path}, {ok, ReqId}) ->
+   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Node)] ++ Path),
+   TimeStamp = timestamp_string(),
+   FileName = filename:join([Dir, TimeStamp]),
+   file:write_file(FileName, "", [write]),
+   lager:info("list started for file: ~p at: ~p", [FileName, TimeStamp]),
+   {ok, Device} = file:open(FileName, [append]),
+   write_loop(ReqId, Device);
+handle_stream({Operation, _Node, Path}, Error) ->
+   lager:error(atom_to_list(Operation) ++ " list failed for path: ~p with reason: ~p", [Path, Error]).
 
 write_loop(ReqId, Device) ->
-   lager:info("in loop: ~p", [ReqId]),
     receive
         {ReqId, done} -> 
             lager:info("list finished for file"),
@@ -111,8 +116,11 @@ write_loop(ReqId, Device) ->
             lager:error("list failed for file with reason: ~p", [Reason]),
             file:close(Device);
         {ReqId, {_, Res}} -> 
-            io:fwrite(Device, Res ++ "~n", []),
-            write_loop(ReqId, Device)
+            Device1 = case Res of
+               "" -> Device;
+               Entries -> update_cache(Entries, Device)
+            end,
+            write_loop(ReqId, Device1)
     end.
 
 %%%===================================================================
@@ -120,7 +128,7 @@ write_loop(ReqId, Device) ->
 %%%===================================================================
 
 update_cache([], Device) ->
-   file:close(Device);
+   Device;
 update_cache([Object|Rest], Device) ->
    io:fwrite(Device, binary_to_list(Object) ++ "~n", []),
    update_cache(Rest, Device).
@@ -131,15 +139,14 @@ timestamp_string() ->
 
 entries_from_file(File, Start, Rows) ->
    re_file_util:for_each_line_in_file(File,
-      fun(Bucket, {T, RC, S, E, Accum}) ->
-         lager:info("accum: ~p", [Accum]),
+      fun(Entry, {T, RC, S, E, Accum}) ->
          case should_add_entry(T, S, E) of
             true -> 
-               B = re:replace(Bucket, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
+               B = re:replace(Entry, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
                {T + 1, RC + 1, S, E, [list_to_binary(B)|Accum]};
             _ -> {T + 1, RC, S, E, Accum}
          end
-      end, [read], {0, 0, Start, Start+Rows-1,[]}).
+      end, [read], {0, 0, Start, Start+Rows,[]}).
 
 should_add_entry(Total, _Start, Stop) when Total > Stop -> false;
 should_add_entry(Total, Start, _Stop) when Total >= Start -> true;

@@ -27,6 +27,9 @@
          list_buckets/4,
          clean_buckets/2,
          put_buckets/3,
+         list_keys/5,
+         clean_keys/3,
+         put_keys/4,
          load_patch/1,
          http_listener/1,
          pb_listener/1,
@@ -59,6 +62,20 @@ clean_buckets(Node, BucketType) ->
 
 put_buckets(Node, BucketType, Buckets) ->
     re_keyjournal:write_cache({buckets, Node, [BucketType]}, Buckets).
+
+list_keys(Node, BucketType, Bucket, Start, Rows) ->
+    case re_config:development_mode() of
+        true ->
+            re_keyjournal:read({keys, Node, [BucketType, Bucket]}, Start, Rows);
+        false ->
+            re_keyjournal:read_cache({keys, Node, [BucketType, Bucket]}, Start, Rows)
+    end.
+
+clean_keys(Node, BucketType, Bucket) ->
+    re_keyjournal:clean({keys, Node, [BucketType, Bucket]}).
+
+put_keys(Node, BucketType, Bucket, Keys) ->
+    re_keyjournal:write_cache({keys, Node, [BucketType, Bucket]}, Keys).
     
 load_patch(Node) ->
     IsLoaded = remote(Node, code, is_loaded, [re_riak_patch]),
