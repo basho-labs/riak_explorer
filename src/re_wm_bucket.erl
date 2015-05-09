@@ -125,7 +125,7 @@ resource_exists(RD, Ctx=?listBuckets(BucketType)) ->
 resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
     Id = list_to_binary(Bucket),
     Response = [{buckets, [{id,Id}, {props, []}]}],
-    {true, RD, Ctx#ctx{id=bucket_type, response=Response}};
+    {true, RD, Ctx#ctx{id=bucket, response=Response}};
 resource_exists(RD, Ctx=?bucketResource(BucketType, Bucket, Resource)) ->
     Node = node_from_context(Ctx),
     Id = list_to_atom(Resource),

@@ -45,7 +45,7 @@ data_dir() ->
 
 resources() ->
     [
-        % re_wm_key,
+        re_wm_key,
         re_wm_bucket,
         re_wm_bucket_type,
         % re_wm_index,
