@@ -1,0 +1,18 @@
+<h3>Riak Node Stats ({{model.node}})</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+{{#each stat in model.stats}}
+        <tr>
+            <td>{{stat.key}}</td>
+            <td>{{stat.value}}</td>
+        </tr>
+{{/each}}
+    </tbody>
+</table>
