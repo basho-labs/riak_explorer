@@ -86,7 +86,10 @@ service_available(RD, Ctx) ->
 
 clean_request_headers(Headers) ->
     [{K,V} || {K,V} <- Headers,
-              K /= 'Host', K /= 'Content-Length'].
+              K /= 'Host', 
+              K /= 'Content-Length', 
+              K /= 'X-Requested-With', 
+              K /= 'Referer'].
 
 wm_to_ibrowse_method(Method) when is_list(Method) ->
     list_to_atom(string:to_lower(Method));
