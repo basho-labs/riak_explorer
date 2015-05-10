@@ -125,25 +125,32 @@ web_root() ->
 %%% Private
 %%%===================================================================
 
+md5_hex(S) ->
+    list_to_binary(lists:flatten(
+       [io_lib:format("~.16b",[N]) || N <- binary_to_list(erlang:md5(S))])).
+
 routes([], Accum) ->
     lists:reverse(Accum);
 routes([M | Rest], Accum) ->
     routes(Rest, [M:routes() | Accum]).
 
 formatted_routes([], Accum) ->
-    %% Don't reverse the list; It makes more sense to the human eye to
-    %% see the least specific routes first.
     Accum;
 formatted_routes([M | Rest], Accum) ->
-    ModuleRoutes = [{id, list_to_binary(atom_to_list(M))},
-                    {routes, format_routes(M:routes(), [])},
-                    {resources, proplists:get_keys(M:resources())}],
-    formatted_routes(Rest, [ModuleRoutes | Accum]).
+    ModuleRoutes = format_routes({M, M:routes()}, []),
+    formatted_routes(Rest, Accum ++ ModuleRoutes).
 
-format_routes([], Accum) -> 
-    lists:reverse(Accum);
-format_routes([Route | Rest], Accum) ->
-    format_routes(Rest, [format_route(Route, []) | Accum]).
+format_routes({_,[]}, Accum) -> 
+    Accum;
+format_routes({M, [Route | Rest]}, Accum) ->
+    Path = format_route(Route, []),
+    Result0 = [{id, md5_hex(Path)},{links, [{self, Path}]}],
+    Result1 = case string:str(binary_to_list(Path), "$resource") of
+        I when I > 0 -> Result0 ++ [{resources, proplists:get_keys(M:resources())}];
+        _ -> Result0
+    end,
+
+    format_routes({M, Rest}, [Result1 | Accum]).
 
 props_to_bin([], Accum) -> lists:reverse(Accum);
 props_to_bin([{Name, {Host, Port}} | Rest], Accum) ->

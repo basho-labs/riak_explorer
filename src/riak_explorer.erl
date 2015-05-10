@@ -34,13 +34,13 @@
 %%%===================================================================
 
 ping() ->
-    [{explore, [{id,<<"ping">>}, {message, <<"pong">>}]}].
+    [{ping, [{id,<<"ping">>}, {message, <<"pong">>}]}].
 
 routes() ->
-    [{explore, [{id,<<"routes">>}, {handlers, re_config:formatted_routes()}]}].
+    [{routes, re_config:formatted_routes()}].
 
 props() ->
-    [{explore, re_config:props()}].
+    [{props, re_config:props()}].
 
 %%%===================================================================
 %%% Private

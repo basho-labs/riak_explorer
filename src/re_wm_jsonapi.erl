@@ -65,23 +65,26 @@ links(RD) ->
 links(RD, Related) ->
     links(RD) ++ [{rleated, list_to_binary(Related)}].
 
-res(RD, Type, [[{_,_}|_]|_]=List, Links, Meta) ->
+res(RD, Type, [[]], Links, Meta) -> 
+    res(RD, Type, [], Links, Meta);
+res(RD, Type, [[{_,_}|_]|_]=List, Links0, Meta) ->
     lists:map(fun(R0) -> 
         R1 = case proplists:is_defined(id, R0) of
             true -> R0;
             false -> convert_attributes(R0)
         end,
         Id = proplists:get_value(id, R1),
-        res(RD, Type, R1, self_link(RD, Id) ++ Links, Meta) end, List);
-
+        Links1 = maybe_add_self_link(RD, Id, R1, Links0),
+        res(RD, Type, R1, Links1, Meta) end, List);
+res(_RD, Type, [], Links, Meta) ->
+    build_object([{type, Type},{links, Links}, {meta, Meta}], []);
 res(_RD, Type, [{_,_}|_]=A0, Links, Meta) ->
     A1 = case proplists:is_defined(id, A0) of
         true -> A0;
         false -> convert_attributes(A0)
     end,
 
-    R0 = build_object([
-        {type, Type}], []),
+    R0 = build_object([{type, Type}], []),
     R1 = build_object([{links, Links}, {meta, Meta}], []),
 
     R0 ++ A1 ++ R1.
@@ -89,6 +92,16 @@ res(_RD, Type, [{_,_}|_]=A0, Links, Meta) ->
 %% ====================================================================
 %% Private
 %% ====================================================================
+
+maybe_add_self_link(RD, Id, R, L) ->
+    case proplists:is_defined(links, R) of
+        undefined -> 
+            case Id of
+                undefined -> L;
+                _ -> self_link(RD, Id) ++ L
+            end;
+        _ -> []
+    end.
 
 build_object([], Accum) ->
     lists:reverse(Accum);
