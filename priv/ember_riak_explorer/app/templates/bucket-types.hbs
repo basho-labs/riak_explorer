@@ -6,6 +6,7 @@
             <th>Bucket Type</th>
             <th>Active?</th>
             <th>allow_mult</th>
+            <th>Details</th>
         </tr>
     </thead>
     <tbody>
@@ -14,6 +15,7 @@
             <td>{{bt.id}}</td>
             <td>{{bt.props.active}}</td>
             <td>{{bt.props.allow_mult}}</td>
+            <td>{{#link-to 'bucket_type' (query-params node_id=model.node_id bucket_type_id=bt.id) classNames='btn btn-sm btn-primary' }}Details{{/link-to}}</td>
         </tr>
 {{else}}
   No bucket types. Have you specified a node?

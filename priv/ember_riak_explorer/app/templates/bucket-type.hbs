@@ -1,0 +1,18 @@
+<h3>Bucket Type Properties ({{model.bucketType}})</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+{{#each prop in model.props}}
+        <tr>
+            <td>{{prop.key}}</td>
+            <td>{{prop.value}}</td>
+        </tr>
+{{/each}}
+    </tbody>
+</table>
