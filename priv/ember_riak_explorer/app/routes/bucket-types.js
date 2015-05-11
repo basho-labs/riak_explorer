@@ -2,15 +2,15 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
     queryParams: {
-        node_id: {
+        cluster_id: {
             refreshModel: true
         }
     },
 
     model: function(params) {
-        var bucketTypes = this.store.find('bucket_type', { node_id: params.node_id });
+        var bucketTypes = this.store.find('bucket_type', { cluster_id: params.cluster_id });
         return {
-            node_id: params.node_id,
+            cluster_id: params.cluster_id,
             bucketTypes: bucketTypes
         };
     }

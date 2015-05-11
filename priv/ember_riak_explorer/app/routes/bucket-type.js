@@ -3,7 +3,7 @@ import objectToArray from '../utils/riak-util';
 
 export default Ember.Route.extend({
     queryParams: {
-        node_id: {
+        cluster_id: {
             refreshModel: true
         },
         bucket_type_id: {
@@ -12,7 +12,7 @@ export default Ember.Route.extend({
     },
 
     model: function(params) {
-        var propsUrl = '/riak/' + params.node_id + '/types/' + params.bucket_type_id + '/props' ;
+        var propsUrl = '/explore/clusters/' + params.cluster_id + '/bucket_types/' + params.bucket_type_id + '/props' ;
         var propsResult = Ember.$.ajax( propsUrl, { dataType: "json" } );
         return propsResult.then(
             function(data) {
