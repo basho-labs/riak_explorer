@@ -1,24 +1,30 @@
-<h3>Available nodes</h3>
+{{#each cluster in model}}
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Node</th>
-            <th>Ping</th>
-            <th>Bucket Types</th>
-            <th>Stats</th>
-        </tr>
-    </thead>
-    <tbody>
-{{#each node in model.nodes}}
-        <tr>
-            <td>{{node.id}}</td>
-            <td>{{#link-to 'riak_ping' (query-params node_id=node.id) classNames='btn btn-sm btn-default' }}Ping{{/link-to}}</td>
-            <td>{{#link-to 'bucket_types' (query-params node_id=node.id) classNames='btn btn-sm btn-primary' }}Bucket Types{{/link-to}}</td>
-            <td>{{#link-to 'node_stats' (query-params node_id=node.id) classNames='btn btn-sm btn-primary' }}Stats{{/link-to}}</td>
-        </tr>
+    <h3>Cluster: {{cluster.id}}</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Node</th>
+                <th>Ping</th>
+                <th>Bucket Types</th>
+                <th>Stats</th>
+            </tr>
+        </thead>
+        <tbody>
+    {{#each node in cluster.nodes}}
+            <tr>
+                <td>{{node.id}}</td>
+                <td>{{#link-to 'riak_ping' (query-params node_id=node.id) classNames='btn btn-sm btn-default' }}Ping{{/link-to}}</td>
+                <td>{{#link-to 'bucket_types' (query-params node_id=node.id) classNames='btn btn-sm btn-primary' }}Bucket Types{{/link-to}}</td>
+                <td>{{#link-to 'node_stats' (query-params node_id=node.id) classNames='btn btn-sm btn-primary' }}Stats{{/link-to}}</td>
+            </tr>
+    {{else}}
+      No nodes detected.
+    {{/each}}
+        </tbody>
+    </table>
+
 {{else}}
-  No nodes detected.
+    No clusters detected.
 {{/each}}
-    </tbody>
-</table>
