@@ -1,13 +1,41 @@
+<div class="container">
+
 {{#each cluster in model}}
-
-    <h3>Cluster: {{cluster.id}}</h3>
-
+    <div class="row">
+        <div class="col-md-12"><h3>Cluster: {{cluster.id}}</h3></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"><strong>Cluster Properties</strong></div>
+        <div class="col-md-10">
+            ...
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"><strong>Cluster Stats</strong></div>
+        <div class="col-md-10">
+            ...
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"><strong>Bucket Types</strong></div>
+        <div class="col-md-10">
+            {{#link-to 'bucket_types' (query-params cluster_id=cluster.id) classNames='btn btn-sm btn-primary' }}Bucket Types{{/link-to}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"><strong>Search Indexes</strong></div>
+        <div class="col-md-10">
+            indexes will go here
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Nodes</h3>
     <table class="table">
         <thead>
             <tr>
                 <th>Node</th>
                 <th>Ping</th>
-                <th>Bucket Types</th>
                 <th>Stats</th>
             </tr>
         </thead>
@@ -15,16 +43,18 @@
     {{#each node in cluster.nodes}}
             <tr>
                 <td>{{node.id}}</td>
-                <td>{{#link-to 'riak_ping' (query-params node_id=node.id) classNames='btn btn-sm btn-default' }}Ping{{/link-to}}</td>
-                <td>{{#link-to 'bucket_types' (query-params node_id=node.id) classNames='btn btn-sm btn-primary' }}Bucket Types{{/link-to}}</td>
-                <td>{{#link-to 'node_stats' (query-params node_id=node.id) classNames='btn btn-sm btn-primary' }}Stats{{/link-to}}</td>
+                <td>{{#link-to 'riak_ping' (query-params node_id=node.id) classNames='btn btn-sm btn-default' }}Node Ping{{/link-to}}</td>
+                <td>{{#link-to 'node_stats' (query-params node_id=node.id) classNames='btn btn-sm btn-primary' }}Node Stats{{/link-to}}</td>
             </tr>
     {{else}}
       No nodes detected.
     {{/each}}
         </tbody>
     </table>
-
+        </div>  <!-- <div class="col-md-12"> -->
+    </div>  <!-- <div class="row"> -->
 {{else}}
     No clusters detected.
 {{/each}}
+
+</div> <!-- /container div -->

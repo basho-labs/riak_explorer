@@ -1,4 +1,4 @@
-<h3>Bucket Types ({{node_id}})</h3>
+<h3>Bucket Types ({{cluster_id}} cluster)</h3>
 
 <table class="table">
     <thead>
@@ -15,7 +15,7 @@
             <td>{{bt.id}}</td>
             <td>{{bt.props.active}}</td>
             <td>{{bt.props.allow_mult}}</td>
-            <td>{{#link-to 'bucket_type' (query-params node_id=model.node_id bucket_type_id=bt.id) classNames='btn btn-sm btn-primary' }}Details{{/link-to}}</td>
+            <td>{{#link-to 'bucket_type' (query-params cluster_id=cluster_id bucket_type_id=bt.id) classNames='btn btn-sm btn-primary' }}Details{{/link-to}}</td>
         </tr>
 {{else}}
   No bucket types. Have you specified a node?

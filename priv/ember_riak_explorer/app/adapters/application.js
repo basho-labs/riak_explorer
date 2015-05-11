@@ -23,6 +23,8 @@ export default DS.RESTAdapter.extend({
         // ids will be passed in through a query param
         if (id && !Ember.isArray(id)) { url.push(encodeURIComponent(id)); }
 
+        if (query && query.cluster_id) { url.unshift('clusters/' + query.cluster_id); }
+
         if (query && query.node_id) { url.unshift('nodes/' + query.node_id); }
 
         if (prefix) { url.unshift(prefix); }
