@@ -23,6 +23,8 @@
 -include("riak_explorer.hrl").
 -compile({no_auto_import,[nodes/1]}).
 -export([client/1,
+         get_json/2,
+         put_json/3,
          first_node/1,
          list_buckets/4,
          clean_buckets/2,
@@ -44,6 +46,19 @@ client(Node) ->
     {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, pb]),
     {ok, Pid} = riakc_pb_socket:start_link(Ip, Port),
     Pid.
+
+get_json(Bucket, Key) ->
+    C = client(),
+    O = riakc_pb_socket:get(C, Bucket, Key),
+    RawData = riakc_obj:value(O),
+    mochijson2:decode(RawData).
+
+
+put_json(Bucket, Key, Data) ->
+    C = client(),
+    RawData = mochijson2:encode(Data),
+    O = riakc_obj:new(Bucket, Key, RawData, "application/json"),
+    riakc_pb_socket:get(C, O).
 
 first_node(Cluster) ->
     [{nodes, [[{id, Node}]|_]}] = nodes(Cluster),
