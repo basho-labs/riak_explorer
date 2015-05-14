@@ -21,7 +21,9 @@
 -module(riak_explorer).
 -export([ping/0,
          routes/0,
-         props/0]).
+         props/0,
+         jobs/0,
+         jobs_for_resource/2, jobs_for_resource/3]).
 
 -include("riak_explorer.hrl").
 
@@ -41,6 +43,24 @@ routes() ->
 
 props() ->
     [{props, re_config:props()}].
+
+jobs() ->
+    [{jobs, re_job_manager:get_jobs()}].
+
+jobs_for_resource(_Node, _BucketType) ->
+    Jobs = case re_job_manager:get(buckets) of
+        [{error, not_found}] -> [];
+        J -> [J]
+    end,
+    [{jobs, Jobs}].
+
+jobs_for_resource(_Node, _BucketType, _Bucket) ->
+    Jobs = case re_job_manager:get(keys) of
+        [{error, not_found}] -> [];
+        J -> [J]
+    end,
+    [{jobs, Jobs}].
+
 
 %%%===================================================================
 %%% Private

@@ -45,7 +45,8 @@
 resources() -> 
     [{ping, [riak_explorer, ping]},
      {routes, [riak_explorer, routes]},
-     {props, [riak_explorer, props]}].
+     {props, [riak_explorer, props]},
+     {jobs, [riak_explorer, jobs]}].
 
 routes() ->
     Base = [?RE_BASE_ROUTE],

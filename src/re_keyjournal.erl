@@ -61,12 +61,9 @@ read_cache({Operation, Node, Path}, Start, Rows) ->
       [] -> false
    end.
 
-write({Operation, Node, Path}) ->
-   case whereis(Operation) of
-      undefined -> 
-         Pid = spawn(?MODULE, handle_list, [{Operation, Node, Path}]),
-         register(Operation, Pid),
-         true;
+write({Operation, _, _}=Meta) ->
+   case re_job_manager:create(Operation, {?MODULE, handle_list, [Meta]}) of
+      ok -> true;
       _ -> false
    end.
 
@@ -96,31 +93,36 @@ handle_list({keys, Node, [BucketType, Bucket]}=Meta) ->
    Stream = riakc_pb_socket:stream_list_keys(C, B),
    handle_stream(Meta, Stream).
 
-handle_stream({Operation, Node, Path}, {ok, ReqId}) ->
+handle_stream({Operation, Node, Path}=Meta, {ok, ReqId}) ->
    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Node)] ++ Path),
    TimeStamp = timestamp_string(),
    FileName = filename:join([Dir, TimeStamp]),
    file:write_file(FileName, "", [write]),
    lager:info("list started for file: ~p at: ~p", [FileName, TimeStamp]),
    {ok, Device} = file:open(FileName, [append]),
-   write_loop(ReqId, Device);
+   write_loop(Meta, ReqId, Device, 0);
 handle_stream({Operation, _Node, Path}, Error) ->
    lager:error(atom_to_list(Operation) ++ " list failed for path: ~p with reason: ~p", [Path, Error]).
 
-write_loop(ReqId, Device) ->
+write_loop({Operation, _,_}=Meta, ReqId, Device, Count) ->
     receive
         {ReqId, done} -> 
+            re_job_manager:finish(Operation),
             lager:info("list finished for file"),
             file:close(Device);
         {ReqId, {error, Reason}} -> 
+            re_job_manager:error(Operation, [{error, Reason}]),
             lager:error("list failed for file with reason: ~p", [Reason]),
             file:close(Device);
         {ReqId, {_, Res}} -> 
+            Count1 = Count + length(Res),
             Device1 = case Res of
                "" -> Device;
-               Entries -> update_cache(Entries, Device)
+               Entries -> 
+                  re_job_manager:set_meta(Operation, [{count, Count1}]),
+                  update_cache(Entries, Device)
             end,
-            write_loop(ReqId, Device1)
+            write_loop(Meta, ReqId, Device1, Count1)
     end.
 
 %%%===================================================================

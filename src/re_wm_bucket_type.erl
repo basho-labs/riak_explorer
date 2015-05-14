@@ -45,7 +45,7 @@
 %%%===================================================================
 
 resources() -> 
-    [].
+    [{jobs, [riak_explorer, jobs_for_resource]}].
 
 routes() ->
     Base = lists:last(re_wm_base:routes()),

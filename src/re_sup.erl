@@ -48,5 +48,8 @@ init([]) ->
     Web = {webmachine_mochiweb,
            {webmachine_mochiweb, start, [re_config:web_config()]},
            permanent, 5000, worker, [mochiweb_socket_server]},
-    Processes = [Web],
+    JobManager = {re_job_manager,
+           {re_job_manager, start_link, []},
+           permanent, 5000, worker, [re_job_manager]},
+    Processes = [Web, JobManager],
     {ok, { {one_for_one, 10, 10}, Processes} }.

@@ -37,11 +37,10 @@ doc(RD, DataName, Resource, Links0, Meta, Included) ->
         false -> links(RD) ++ Links0
     end,
 
-    D0 = build_object([{DataName, Resource},
-                       {links, Links1},
+    D0 = build_object([{links, Links1},
                        {meta, Meta},
                        {included, Included}], []),
-    D0.
+    [{DataName, Resource} | D0].
 
 convert_attributes(Attributes) ->
     convert_attributes(Attributes, []).

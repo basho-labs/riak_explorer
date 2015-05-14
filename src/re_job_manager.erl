@@ -22,8 +22,8 @@
 -behaviour(gen_server).
 
 -export([start_link/0]).
--export([alloc/0, free/1]).
--export([init/1, handle_call/3, handle_cast/2]).
+-export([create/2, get_jobs/0, get/1, set_meta/2, error/2, finish/1]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
 -include("riak_explorer.hrl").
 
@@ -49,8 +49,6 @@ get(Id) ->
 set_meta(Id, Meta) ->
     gen_server:cast(?MODULE, {set_meta, Id, Meta}).
 
-% cancel(Id) ->
-
 error(Id, Meta) ->
     gen_server:cast(?MODULE, {error, Id, Meta}).
 
@@ -62,61 +60,68 @@ finish(Id) ->
 %%%===================================================================
 
 init(_Args) ->
-    {ok, channels()}.
+    process_flag(trap_exit, true),
+    {ok, #state{}}.
 
-handle_call({create, Id, {M, F, A}}, _From, State#state{jobs=Jobs}) ->
+handle_call({create, Id, {M, F, A}}, _From, State=#state{jobs=Jobs}) ->
+    lager:info("Creating job: ~p, {~p, ~p, ~p}. Existing Jobs: ~p.", [Id, M, F, A, Jobs]),
     case proplists:get_value(Id, Jobs) of
-        J#job{status=in_progress} -> 
-            {reply, {error, already_started}, State};
+        #job{status=in_progress} -> 
+            {reply, [{error, already_started}], State};
         _ ->
             Pid = spawn(M, F, A),
             J = #job{pid=Pid, status=in_progress, meta=[]},
-            {reply, ok, State#state{jobs=put_job(Id, Jobs, J, [])}};
+            {reply, ok, State#state{jobs=put_job(Id, Jobs, J, [])}}
+    end;
+
+handle_call({get_jobs}, _From, State=#state{jobs=Jobs}) ->
+    R = lists:map(fun({Id, #job{status=S,meta=M}}) -> [{id, Id},{status, S},{meta, M}] end, Jobs),
+    {reply, R, State};
+
+handle_call({get_info, Id}, _From, State=#state{jobs=Jobs}) ->
+    case proplists:get_value(Id, Jobs) of
+        J=#job{} -> 
+            {reply, [{id, Id}, {status, J#job.status}, {meta, J#job.meta}], State};
         _ ->
+            {reply, [{error, not_found}], State}
     end.
 
-% handle_call({get_info, Id}, _From, State#state{jobs=Jobs}) ->
-%     case proplists:get_value(Id, Jobs) of
-%         J -> 
-%             {reply, {J#job.status, J#job.meta}, State};
-%         _ ->
-%             {reply, {error, not_found}, State};
-%     end.
-
-handle_call({get_info, Id}, _From, State#state{jobs=Jobs}) ->
+handle_cast({set_meta, Id, Meta}, State=#state{jobs=Jobs}) ->
     case proplists:get_value(Id, Jobs) of
-        J -> 
-            {reply, {J#job.status, J#job.meta}, State};
+        J=#job{} -> 
+            {noreply, State#state{
+                jobs=put_job(Id, Jobs, J#job{meta=Meta}, [])}};
         _ ->
-            {reply, {error, not_found}, State};
-    end.
+            {noreply, State}
+    end;
 
-handle_cast({set_meta, Id, Meta}, State#state{jobs=Jobs}) ->
+handle_cast({error, Id, Meta}, State=#state{jobs=Jobs}) ->
     case proplists:get_value(Id, Jobs) of
-        J -> 
-            {noreply, State#{
-                jobs=put_job(Id, Jobs, J#job{meta=Meta}, [])}}.
+        J=#job{} -> 
+            {noreply, State#state{
+                jobs=put_job(Id, Jobs, J#job{status=error, meta=Meta}, [])}};
+        _ ->
+            {noreply, State}
+    end;
+
+handle_cast({finish, Id}, State=#state{jobs=Jobs}) ->
+    case proplists:get_value(Id, Jobs) of
+        J=#job{} -> 
+            {noreply, State#state{
+                jobs=put_job(Id, Jobs, J#job{status=done}, [])}};
         _ ->
             {noreply, State}
     end.
 
-handle_cast({error, Id, Meta}, State#state{jobs=Jobs}) ->
-    case proplists:get_value(Id, Jobs) of
-        J -> 
-            {noreply, State#{
-                jobs=put_job(Id, Jobs, J#job{status=error, meta=Meta}, [])}}.
-        _ ->
-            {noreply, State}
-    end.
+handle_info({'EXIT', _Pid, _Reason}, State) ->
+    {noreply, State}.
 
-handle_cast({finish, Id}, State#state{jobs=Jobs}) ->
-    case proplists:get_value(Id, Jobs) of
-        J -> 
-            {noreply, State#{
-                jobs=put_job(Id, Jobs, J#job{status=done}, [])}}.
-        _ ->
-            {noreply, State}
-    end.
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+terminate(Reason, _State) ->
+    lager:error("Job manager terminated, reason: ~p", [Reason]),
+    ok.
 
 %%%===================================================================
 %%% Private
@@ -124,10 +129,14 @@ handle_cast({finish, Id}, State#state{jobs=Jobs}) ->
 
 put_job(Id, [], Job, Accum) ->
     case proplists:is_defined(Id, Accum) of
-        true -> lists:reverse(Accum);
-        false -> lists:reverse([{Id, Job}|Accum])
+        true -> 
+            lager:info("Accum: ~p, not adding ~p", [Accum, Id]),
+            lists:reverse(Accum);
+        false -> 
+            lager:info("Accum: ~p, adding ~p", [Accum, Id]),
+            lists:reverse([{Id, Job}|Accum])
     end;
 put_job(Id, [{Id, _}|Rest], Job, Accum) ->
-    update_job(Id, Rest, Job, [{Id, Job}|Accum]);
-put_job(_, [{Id, Job}|Rest], _, Accum) ->
-    update_job(Id, Rest, Job, [{Id, Job}]).
+    put_job(Id, Rest, Job, [{Id, Job}|Accum]);
+put_job(Id, [Old|Rest], Job, Accum) ->
+    put_job(Id, Rest, Job, [Old|Accum]).
