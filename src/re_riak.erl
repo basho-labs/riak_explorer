@@ -23,6 +23,8 @@
 -include("riak_explorer.hrl").
 -compile({no_auto_import,[nodes/1]}).
 -export([client/1,
+         get_json/3,
+         put_json/4,
          first_node/1,
          list_buckets/4,
          clean_buckets/2,
@@ -45,9 +47,23 @@ client(Node) ->
     {ok, Pid} = riakc_pb_socket:start_link(Ip, Port),
     Pid.
 
+get_json(Node, Bucket, Key) ->
+    C = client(Node),
+    O = riakc_pb_socket:get(C, Bucket, Key),
+    RawData = riakc_obj:value(O),
+    mochijson2:decode(RawData).
+
+put_json(Node, Bucket, Key, Data) ->
+    C = client(Node),
+    RawData = mochijson2:encode(Data),
+    O = riakc_obj:new(Bucket, Key, RawData, "application/json"),
+    riakc_pb_socket:get(C, O).
+
 first_node(Cluster) ->
-    [{nodes, [[{id, Node}]|_]}] = nodes(Cluster),
-    Node.
+    case nodes(Cluster) of
+        [{nodes, [[{id, Node}]|_]}] -> Node;
+        [{nodes, []}] -> [{error, no_nodes}]
+    end.
 
 list_buckets(Node, BucketType, Start, Rows) ->
     case re_config:development_mode() of
@@ -102,11 +118,11 @@ nodes(Cluster) ->
                     Nodes = remote(riak_core_ring, all_members, [MyRing]),
                     WithIds = lists:map(fun(N) -> [{id, N}] end, Nodes),
                     [{nodes, WithIds}];
-                _ -> [{nodes, [[]]}]
+                _ -> [{nodes, []}]
             end;
         _ ->
             %%TODO: Connect to target_node, find route to MDC cluster(s), get nodes
-            [{nodes, [[]]}]
+            [{nodes, []}]
     end.
 
 %%%===================================================================

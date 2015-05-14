@@ -36,6 +36,8 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
+-define(noNode(),
+    #ctx{node=[{error, no_nodes}]}).
 -define(putBuckets(BucketType),
     #ctx{method='PUT', bucket_type=BucketType, bucket=undefined}).
 -define(cleanBuckets(BucketType),
@@ -52,7 +54,7 @@
 %%%===================================================================
 
 resources() -> 
-    [].
+    [{jobs, [riak_explorer, jobs_for_resource]}].
 
 routes() ->
     Base = lists:last(re_wm_base:routes()),
@@ -93,7 +95,8 @@ service_available(RD, Ctx0) ->
         method = wrq:method(RD),
         start = list_to_integer(wrq:get_qs_value("start","0",RD)),
         rows = list_to_integer(wrq:get_qs_value("rows","1000",RD))},
-    {true, RD, Ctx1}.
+
+    {true, RD, Ctx1#ctx{node = node_from_context(Ctx1)}}.
 
 allowed_methods(RD, Ctx) ->
     Methods = ['GET', 'PUT', 'DELETE'],
@@ -109,17 +112,20 @@ content_types_accepted(RD, Ctx) ->
              {"application/vnd.api+json", accept_content}],
     {Types, RD, Ctx}.
 
+resource_exists(RD, Ctx=?noNode()) ->
+    {false, RD, Ctx};
 resource_exists(RD, Ctx=?putBuckets(_BucketType)) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx=?cleanBuckets(BucketType)) ->
-    Node = node_from_context(Ctx),
+    Node = Ctx#ctx.node,
     Succeeded = re_riak:clean_buckets(Node, BucketType),
     {Succeeded, RD, Ctx};
 resource_exists(RD, Ctx=?listBuckets(BucketType)) ->
-    Node = node_from_context(Ctx),
+    Node = Ctx#ctx.node,
+    JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "buckets") - 1) ++ "jobs",
     case re_riak:list_buckets(Node, BucketType, Ctx#ctx.start, Ctx#ctx.rows) of
-        true -> {{halt, 202}, RD, Ctx};
-        false -> {{halt, 202}, RD, Ctx};
+        true -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
+        false -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
         Response -> {true, RD, Ctx#ctx{id=buckets, response=Response}}
     end;
 resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
@@ -127,11 +133,11 @@ resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
     Response = [{buckets, [{id,Id}, {props, []}]}],
     {true, RD, Ctx#ctx{id=bucket, response=Response}};
 resource_exists(RD, Ctx=?bucketResource(BucketType, Bucket, Resource)) ->
-    Node = node_from_context(Ctx),
+    Node = Ctx#ctx.node,
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
         [M,F] -> 
-            Response = M:F(list_to_atom(Node), BucketType, Bucket),
+            Response = M:F(Node, BucketType, Bucket),
             {true, RD, Ctx#ctx{id=Id, response=Response}};
         _ -> 
             {false, RD, Ctx}
@@ -143,7 +149,7 @@ delete_resource(RD, Ctx) ->
     {true, RD, Ctx}.
 
 accept_content(RD, Ctx=?putBuckets(BucketType)) ->
-    Node = node_from_context(Ctx),
+    Node = Ctx#ctx.node,
     RawValue = wrq:req_body(RD),
     {struct, [{<<"buckets">>, Buckets}]} = mochijson2:decode(RawValue),
     re_riak:put_buckets(Node, BucketType, Buckets),

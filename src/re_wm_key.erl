@@ -86,7 +86,7 @@ service_available(RD, Ctx0) ->
         method = wrq:method(RD),
         start = list_to_integer(wrq:get_qs_value("start","0",RD)),
         rows = list_to_integer(wrq:get_qs_value("rows","1000",RD))},
-    {true, RD, Ctx1}.
+    {true, RD, Ctx1#ctx{node = node_from_context(Ctx1)}}.
 
 allowed_methods(RD, Ctx) ->
     Methods = ['GET', 'PUT', 'DELETE'],
@@ -105,14 +105,15 @@ content_types_accepted(RD, Ctx) ->
 resource_exists(RD, Ctx=?putKeys(_BucketType, _Bucket)) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx=?cleanKeys(BucketType, Bucket)) ->
-    Node = node_from_context(Ctx),
+    Node = Ctx#ctx.node,
     Succeeded = re_riak:clean_keys(Node, BucketType, Bucket),
     {Succeeded, RD, Ctx};
 resource_exists(RD, Ctx=?listKeys(BucketType, Bucket)) ->
-    Node = node_from_context(Ctx),
+    Node = Ctx#ctx.node,
+    JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "keys") - 1) ++ "jobs",
     case re_riak:list_keys(Node, BucketType, Bucket, Ctx#ctx.start, Ctx#ctx.rows) of
-        true -> {{halt, 202}, RD, Ctx};
-        false -> {{halt, 202}, RD, Ctx};
+        true -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
+        false -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
         Response -> {true, RD, Ctx#ctx{id=keys, response=Response}}
     end;
 resource_exists(RD, Ctx=?keyInfo(_BucketType, _Bucket, Key)) ->
@@ -120,11 +121,11 @@ resource_exists(RD, Ctx=?keyInfo(_BucketType, _Bucket, Key)) ->
     Response = [{keys, [{id,Id}, {props, []}]}],
     {true, RD, Ctx#ctx{id=key, response=Response}};
 resource_exists(RD, Ctx=?keyResource(BucketType, Bucket, Key, Resource)) ->
-    Node = node_from_context(Ctx),
+    Node = Ctx#ctx.node,
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
         [M,F] -> 
-            Response = M:F(list_to_atom(Node), BucketType, Bucket, Key),
+            Response = M:F(Node, BucketType, Bucket, Key),
             {true, RD, Ctx#ctx{id=Id, response=Response}};
         _ -> 
             {false, RD, Ctx}
@@ -136,7 +137,7 @@ delete_resource(RD, Ctx) ->
     {true, RD, Ctx}.
 
 accept_content(RD, Ctx=?putKeys(BucketType, Bucket)) ->
-    Node = node_from_context(Ctx),
+    Node = Ctx#ctx.node,
     RawValue = wrq:req_body(RD),
     {struct, [{<<"keys">>, Keys}]} = mochijson2:decode(RawValue),
     re_riak:put_keys(Node, BucketType, Bucket, Keys),
