@@ -9,7 +9,7 @@ export default Ember.Route.extend({
     },
 
     model: function(params) {
-        var propsUrl = '/riak/' + params.node_id + '/stats' ;
+        var propsUrl = '/riak/nodes/' + params.node_id + '/stats' ;
         var propsResult = Ember.$.ajax( propsUrl, { dataType: "json" } );
         return propsResult.then(
             function(data) {

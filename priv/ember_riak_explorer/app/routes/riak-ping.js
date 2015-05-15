@@ -8,7 +8,7 @@ export default Ember.Route.extend({
     },
 
     model: function(params) {
-        var url = '/riak/' + params.node_id + '/ping' ;
+        var url = '/riak/nodes/' + params.node_id + '/ping' ;
 
         var result = Ember.$.ajax({ url: url });  // returns a Promise obj
         return result.then(

@@ -122,7 +122,7 @@ nodes(Cluster) ->
             end;
         _ ->
             %%TODO: Connect to target_node, find route to MDC cluster(s), get nodes
-            [{nodes, []}]
+            [{error, not_found}]
     end.
 
 %%%===================================================================

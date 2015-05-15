@@ -23,7 +23,7 @@
 -export([init/1]).
 -export([service_available/2]).
 
--record(ctx, {}).
+-record(ctx, {cluster, node}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
@@ -36,8 +36,9 @@ resources() ->
     [].
 
 routes() ->
-    Proxy = [?RE_RIAK_PROXY_ROUTE, node, '*'],
-    [Proxy].
+    CProxy = [?RE_RIAK_PROXY_ROUTE, "clusters", cluster, '*'],
+    Proxy = [?RE_RIAK_PROXY_ROUTE, "nodes", node, '*'],
+    [CProxy, Proxy].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -48,8 +49,14 @@ dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 init(_) ->
     {ok, #ctx{}}.
 
-service_available(RD, Ctx) ->
-    Node = list_to_atom(wrq:path_info(node, RD)),
+service_available(RD, Ctx0) ->
+    Ctx1 = Ctx0#ctx{
+        node = wrq:path_info(node, RD),
+        cluster = wrq:path_info(cluster, RD)},
+
+    Node = node_from_context(Ctx1),
+    Ctx2 = Ctx1#ctx{node=Node},
+
     [{http_listener,Listener}] = re_riak:http_listener(Node),
     RiakPath = "http://" ++ binary_to_list(Listener) ++ "/",
 
@@ -76,13 +83,19 @@ service_available(RD, Ctx) ->
             {{halt, list_to_integer(Status)},
              wrq:set_resp_headers(RespHeaders,
                                   wrq:set_resp_body(RespBody, RD)),
-             Ctx};
-        _ -> {false, RD, Ctx}
+             Ctx2};
+        _ -> {false, RD, Ctx2}
     end.
 
 %% ====================================================================
 %% Private
 %% ====================================================================
+
+node_from_context(Ctx) ->
+    case Ctx of
+        #ctx{cluster=undefined, node=N} -> list_to_atom(N);
+        #ctx{cluster=C} -> re_riak:first_node(C)
+    end.
 
 clean_request_headers(Headers) ->
     [{K,V} || {K,V} <- Headers,

@@ -85,7 +85,12 @@ content_types_provided(RD, Ctx) ->
 
 resource_exists(RD, Ctx=?listNodes(Cluster)) ->
     Response = re_riak:nodes(Cluster),
-    {true, RD, Ctx#ctx{id=nodes, response=Response}};
+    case Response of 
+        [{error, not_found}] ->
+            {false, RD, Ctx};
+        _ -> 
+            {true, RD, Ctx#ctx{id=nodes, response=Response}}
+    end;
 resource_exists(RD, Ctx=?nodeInfo(_Cluster, Node)) ->
     Id = list_to_binary(Node),
     Response = [{nodes, [{id,Id}, {props, []}]}],
