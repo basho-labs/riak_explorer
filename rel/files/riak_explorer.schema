@@ -2,27 +2,27 @@
 
 %% @doc listen port and IP address
 {mapping, "listener", "riak_explorer.host", [
-  {default, {"127.0.0.1" , 9000 }},
+  {default, {"{{riak_explorer_ip}}" , {{riak_explorer_port}} }},
   {datatype, ip},
   {validators, ["valid_host"]}
 ]}.
 
 {mapping, "clusters.default.riak_node", "riak_explorer.clusters", [
-  {default, "riak@127.0.0.1"}
+  {default, "{{cluster_riak_node}}"}
 ]}.
 
 {mapping, "clusters.default.development_mode", "riak_explorer.clusters", [
-  {default, on},
+  {default, {{cluster_development_mode}} },
   {datatype, flag}
 ]}.
 
 {mapping, "clusters.$name.riak_node", "riak_explorer.clusters", [
-  {default, "riak@127.0.0.1"},
+  {default, "{{cluster_riak_node}}"},
   hidden
 ]}.
 
 {mapping, "clusters.$name.development_mode", "riak_explorer.clusters", [
-  {default, on},
+  {default, {{cluster_development_mode}} },
   {datatype, flag},
   hidden
 ]}.
@@ -70,31 +70,31 @@
 %% @doc Platform-specific installation paths
 {mapping, "platform_bin_dir", "riak_explorer.platform_bin_dir", [
   {datatype, directory},
-  {default, "./bin"}
+  {default, "{{platform_bin_dir}}"}
 ]}.
 
 %% @see platform_bin_dir
 {mapping, "platform_data_dir", "riak_explorer.platform_data_dir", [
   {datatype, directory},
-  {default, "./data"}
+  {default, "{{platform_data_dir}}"}
 ]}.
 
 %% @see platform_bin_dir
 {mapping, "platform_etc_dir", "riak_explorer.platform_etc_dir", [
   {datatype, directory},
-  {default, "./etc"}
+  {default, "{{platform_etc_dir}}"}
 ]}.
 
 %% @see platform_bin_dir
 {mapping, "platform_lib_dir", "riak_explorer.platform_lib_dir", [
   {datatype, directory},
-  {default, "./lib"}
+  {default, "{{platform_lib_dir}}"}
 ]}.
 
 %% @see platform_bin_dir
 {mapping, "platform_log_dir", "riak_explorer.platform_log_dir", [
   {datatype, directory},
-  {default, "./log"}
+  {default, "{{platform_log_dir}}"}
 ]}.
 
 %% @doc Where to emit the default log messages (typically at 'info'
@@ -104,7 +104,7 @@
 %% console: to standard output (seen when using `riak attach-direct`)
 %%    both: log.console.file and standard out.
 {mapping, "log.console", "lager.handlers", [
-  {default, file },
+  {default, {{console_log_default}} },
   {datatype, {enum, [off, file, console, both]}}
 ]}.
 
@@ -224,7 +224,7 @@
      case cuttlefish:conf_get("log.crash", Conf) of
          false -> undefined;
          _ ->
-             cuttlefish:conf_get("log.crash.file", Conf, "./log/crash.log")
+             cuttlefish:conf_get("log.crash.file", Conf, "{{platform_log_dir}}/crash.log")
      end
  end}.
 
