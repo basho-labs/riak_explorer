@@ -38,7 +38,7 @@ start_link() ->
 %%%===================================================================
 
 init([]) ->
-    re_riak:load_patch(re_config:target_node()),
+    re_riak:load_patch(re_config:riak_node()),
 
     case re_config:development_mode() of
         true -> lager:warning("Development mode is enabled");

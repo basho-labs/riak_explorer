@@ -36,6 +36,7 @@
          http_listener/1,
          pb_listener/1,
          bucket_types/1,
+         clusters/0,
          nodes/1,
          node_exists/2]).
 
@@ -112,19 +113,20 @@ bucket_types(Node) ->
     List = remote(Node, re_riak_patch, bucket_types, []),
     [{bucket_types, List}].
 
+clusters() ->
+    Clusters = re_config:clusters(),
+    Mapped = lists:map(fun({C, _}) -> [{id,C}, {riak_node, re_config:riak_node(C)}, {development_mode, re_config:development_mode(C)}] end, Clusters),
+    [{clusters, Mapped}].
+
 nodes(Cluster) ->
-    case Cluster of
-        "default" ->
-            case remote(riak_core_ring_manager, get_my_ring, []) of
-                {ok, MyRing} ->
-                    Nodes = remote(riak_core_ring, all_members, [MyRing]),
-                    WithIds = lists:map(fun(N) -> [{id, N}] end, Nodes),
-                    [{nodes, WithIds}];
-                _ -> [{nodes, []}]
-            end;
-        _ ->
-            %%TODO: Connect to target_node, find route to MDC cluster(s), get nodes
-            [{error, not_found}]
+    RiakNode = re_config:riak_node(list_to_atom(Cluster)),
+
+    case remote(RiakNode, riak_core_ring_manager, get_my_ring, []) of
+        {ok, MyRing} ->
+            Nodes = remote(RiakNode, riak_core_ring, all_members, [MyRing]),
+            WithIds = lists:map(fun(N) -> [{id, N}] end, Nodes),
+            [{nodes, WithIds}];
+        _ -> [{nodes, []}]
     end.
 
 node_exists(Cluster, Node) ->
@@ -160,5 +162,5 @@ maybe_load_patch(Node, _) ->
 remote(N,M,F,A) ->
     rpc:call(N, M, F, A, 60000).
 
-remote(M,F,A) ->
-    remote(re_config:target_node(), M, F, A).
+% remote(M,F,A) ->
+%     remote(re_config:riak_node(), M, F, A).

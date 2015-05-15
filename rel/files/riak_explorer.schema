@@ -7,16 +7,44 @@
   {validators, ["valid_host"]}
 ]}.
 
-%% @doc Riak node name for communication
-{mapping, "riak_node", "riak_explorer.riak_node", [
-  {default, "{{riak_node}}"}
+{mapping, "clusters.default.riak_node", "riak_explorer.clusters", [
+  {default, "{{cluster_riak_node}}"}
 ]}.
 
-%% @doc When set to 'on', enables log output to syslog.
-{mapping, "development_mode", "riak_explorer.development_mode", [
-  {default, on},
+{mapping, "clusters.default.development_mode", "riak_explorer.clusters", [
+  {default, {{cluster_development_mode}} },
   {datatype, flag}
 ]}.
+
+{mapping, "clusters.$name.riak_node", "riak_explorer.clusters", [
+  {default, "{{cluster_riak_node}}"},
+  hidden
+]}.
+
+{mapping, "clusters.$name.development_mode", "riak_explorer.clusters", [
+  {default, {{cluster_development_mode}} },
+  {datatype, flag},
+  hidden
+]}.
+
+{translation,
+ "riak_explorer.clusters",
+ fun(Conf, _Schema) ->
+  lists:filtermap(fun({Path, Value}) -> 
+    case Path of
+      ["clusters",Cluster, "riak_node"] ->
+        ClusterConfig = 
+          {list_to_atom(Cluster), 
+            [{riak_node, Value}, 
+             {development_mode, cuttlefish:conf_get(["clusters", Cluster, "development_mode"], Conf)}
+            ]
+          },
+        {true, ClusterConfig}; 
+      _ -> false 
+    end
+  end, Conf)
+ end
+}.
 
 %% @doc Cookie for distributed node communication.  All nodes in the
 %% same cluster should use the same cookie or they will not be able to
