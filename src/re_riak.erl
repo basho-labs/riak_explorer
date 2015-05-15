@@ -36,7 +36,8 @@
          http_listener/1,
          pb_listener/1,
          bucket_types/1,
-         nodes/1]).
+         nodes/1,
+         node_exists/2]).
 
 %%%===================================================================
 %%% API
@@ -62,7 +63,8 @@ put_json(Node, Bucket, Key, Data) ->
 first_node(Cluster) ->
     case nodes(Cluster) of
         [{nodes, [[{id, Node}]|_]}] -> Node;
-        [{nodes, []}] -> [{error, no_nodes}]
+        [{nodes, []}] -> [{error, no_nodes}];
+        [{error, not_found}] -> [{error, no_nodes}]
     end.
 
 list_buckets(Node, BucketType, Start, Rows) ->
@@ -124,6 +126,19 @@ nodes(Cluster) ->
             %%TODO: Connect to target_node, find route to MDC cluster(s), get nodes
             [{error, not_found}]
     end.
+
+node_exists(Cluster, Node) ->
+    Filter = lists:filter(fun(X) -> 
+        case X of 
+            {error, not_found} -> false; 
+            [{id, Node}] -> true;
+            _ -> false
+        end end, nodes(Cluster)),
+    case length(Filter) of
+        N when N > 0 -> true;
+        _ -> false
+    end.
+
 
 %%%===================================================================
 %%% Private

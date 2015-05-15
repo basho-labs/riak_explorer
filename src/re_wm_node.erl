@@ -91,10 +91,15 @@ resource_exists(RD, Ctx=?listNodes(Cluster)) ->
         _ -> 
             {true, RD, Ctx#ctx{id=nodes, response=Response}}
     end;
-resource_exists(RD, Ctx=?nodeInfo(_Cluster, Node)) ->
-    Id = list_to_binary(Node),
-    Response = [{nodes, [{id,Id}, {props, []}]}],
-    {true, RD, Ctx#ctx{id=node, response=Response}};
+resource_exists(RD, Ctx=?nodeInfo(Cluster, Node)) ->
+    case re_riak:node_exists(Cluster, Node) of
+        true ->
+            Id = list_to_binary(Node),
+            Response = [{nodes, [{id,Id}, {props, []}]}],
+            {true, RD, Ctx#ctx{id=node, response=Response}};
+        false ->
+            {false, RD, Ctx}
+    end;
 resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
