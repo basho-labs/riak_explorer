@@ -79,7 +79,7 @@ content_types_provided(RD, Ctx) ->
     {Types, RD, Ctx}.
 
 resource_exists(RD, Ctx=?listClusters()) ->
-    Response = [{clusters, [[{id,<<"default">>}, {props, []}]]}],
+    Response = re_riak:clusters(),
     {true, RD, Ctx#ctx{id=clusters, response=Response}};
 resource_exists(RD, Ctx=?clusterInfo(Cluster)) ->
     Id = list_to_binary(Cluster),

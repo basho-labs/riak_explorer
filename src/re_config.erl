@@ -23,6 +23,7 @@
          resources/0,
          dispatch/0,
          development_mode/0,
+         development_mode/1,
          routes/0,
          props/0,
          formatted_routes/0,
@@ -30,7 +31,9 @@
          web_config/0,
          url/0,
          url/2,
-         target_node/0,
+         clusters/0,
+         cluster/1,
+         riak_node/0, riak_node/1,
          web_root/0]).
 
 -include("riak_explorer.hrl").
@@ -62,7 +65,10 @@ resources() ->
 dispatch() -> lists:flatten(dispatch(resources(), [])).
 
 development_mode() ->
-    application:get_env(riak_explorer, development_mode, true).
+    proplists:get_value(development_mode, cluster(default)).
+
+development_mode(Cluster) ->
+    proplists:get_value(development_mode, cluster(Cluster)).
 
 props() ->
     props_to_bin(application:get_all_env(riak_explorer), []).
@@ -114,9 +120,18 @@ url() ->
 url(Ip, Port) ->
     "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/".
 
-target_node() ->
-    {ok, TargetNode} = application:get_env(riak_explorer, riak_node),
-    list_to_atom(TargetNode).
+clusters() ->
+    {ok, Clusters} = application:get_env(riak_explorer, clusters),
+    Clusters.
+
+cluster(Cluster) ->
+    proplists:get_value(Cluster, clusters()).
+
+riak_node() ->
+    riak_node(default).
+
+riak_node(Cluster) ->
+    list_to_atom(proplists:get_value(riak_node, cluster(Cluster))).
 
 web_root() ->
     "priv/ember_riak_explorer/dist".

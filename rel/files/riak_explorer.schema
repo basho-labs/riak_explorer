@@ -2,21 +2,49 @@
 
 %% @doc listen port and IP address
 {mapping, "listener", "riak_explorer.host", [
-  {default, {"{{riak_explorer_ip}}" , {{riak_explorer_port}} }},
+  {default, {"127.0.0.1" , 9000 }},
   {datatype, ip},
   {validators, ["valid_host"]}
 ]}.
 
-%% @doc Riak node name for communication
-{mapping, "riak_node", "riak_explorer.riak_node", [
-  {default, "{{riak_node}}"}
+{mapping, "clusters.default.riak_node", "riak_explorer.clusters", [
+  {default, "riak@127.0.0.1"}
 ]}.
 
-%% @doc When set to 'on', enables log output to syslog.
-{mapping, "development_mode", "riak_explorer.development_mode", [
+{mapping, "clusters.default.development_mode", "riak_explorer.clusters", [
   {default, on},
   {datatype, flag}
 ]}.
+
+{mapping, "clusters.$name.riak_node", "riak_explorer.clusters", [
+  {default, "riak@127.0.0.1"},
+  hidden
+]}.
+
+{mapping, "clusters.$name.development_mode", "riak_explorer.clusters", [
+  {default, on},
+  {datatype, flag},
+  hidden
+]}.
+
+{translation,
+ "riak_explorer.clusters",
+ fun(Conf, _Schema) ->
+  lists:filtermap(fun({Path, Value}) -> 
+    case Path of
+      ["clusters",Cluster, "riak_node"] ->
+        ClusterConfig = 
+          {list_to_atom(Cluster), 
+            [{riak_node, Value}, 
+             {development_mode, cuttlefish:conf_get(["clusters", Cluster, "development_mode"], Conf)}
+            ]
+          },
+        {true, ClusterConfig}; 
+      _ -> false 
+    end
+  end, Conf)
+ end
+}.
 
 %% @doc Cookie for distributed node communication.  All nodes in the
 %% same cluster should use the same cookie or they will not be able to
@@ -42,31 +70,31 @@
 %% @doc Platform-specific installation paths
 {mapping, "platform_bin_dir", "riak_explorer.platform_bin_dir", [
   {datatype, directory},
-  {default, "{{platform_bin_dir}}"}
+  {default, "./bin"}
 ]}.
 
 %% @see platform_bin_dir
 {mapping, "platform_data_dir", "riak_explorer.platform_data_dir", [
   {datatype, directory},
-  {default, "{{platform_data_dir}}"}
+  {default, "./data"}
 ]}.
 
 %% @see platform_bin_dir
 {mapping, "platform_etc_dir", "riak_explorer.platform_etc_dir", [
   {datatype, directory},
-  {default, "{{platform_etc_dir}}"}
+  {default, "./etc"}
 ]}.
 
 %% @see platform_bin_dir
 {mapping, "platform_lib_dir", "riak_explorer.platform_lib_dir", [
   {datatype, directory},
-  {default, "{{platform_lib_dir}}"}
+  {default, "./lib"}
 ]}.
 
 %% @see platform_bin_dir
 {mapping, "platform_log_dir", "riak_explorer.platform_log_dir", [
   {datatype, directory},
-  {default, "{{platform_log_dir}}"}
+  {default, "./log"}
 ]}.
 
 %% @doc Where to emit the default log messages (typically at 'info'
@@ -76,7 +104,7 @@
 %% console: to standard output (seen when using `riak attach-direct`)
 %%    both: log.console.file and standard out.
 {mapping, "log.console", "lager.handlers", [
-  {default, {{console_log_default}} },
+  {default, file },
   {datatype, {enum, [off, file, console, both]}}
 ]}.
 
@@ -196,7 +224,7 @@
      case cuttlefish:conf_get("log.crash", Conf) of
          false -> undefined;
          _ ->
-             cuttlefish:conf_get("log.crash.file", Conf, "{{platform_log_dir}}/crash.log")
+             cuttlefish:conf_get("log.crash.file", Conf, "./log/crash.log")
      end
  end}.
 
