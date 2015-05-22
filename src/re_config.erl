@@ -172,6 +172,8 @@ props_to_bin([{Name, {Host, Port}} | Rest], Accum) ->
     props_to_bin(Rest, [{Name, list_to_binary(url(Host, Port))} | Accum]);
 props_to_bin([{Name, []} | Rest], Accum) ->
     props_to_bin(Rest, [{Name, []} | Accum]);
+props_to_bin([{Name, [{_, _} | _]=Nested} | Rest], Accum) ->
+    props_to_bin(Rest, [{Name, props_to_bin(Nested, [])} | Accum]);
 props_to_bin([{Name, Value} | Rest], Accum) when is_list(Value) ->
     props_to_bin(Rest, [{Name, list_to_binary(Value)} | Accum]);
 props_to_bin([{Name, Value} | Rest], Accum) ->
