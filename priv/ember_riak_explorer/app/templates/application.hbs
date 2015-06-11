@@ -20,10 +20,22 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
-      <ul class="nav nav-sidebar">
-        {{#link-to 'index' tagName='li'}}<a href="/">Riak Nodes</a>{{/link-to}}
-        {{#link-to 'explorer_api' tagName='li'}}<a href="/ping">Explorer API</a>{{/link-to}}
-      </ul>
+        <ul class="nav nav-sidebar">
+          {{#link-to 'index' tagName='li'}}<a href="/">Clusters</a>
+          {{/link-to}}
+
+          {{#each cluster in model}}
+              {{#link-to 'cluster' tagName='li'}}
+                  {{#link-to 'cluster' (query-params cluster_id=cluster.id)}}
+                      &nbsp;&nbsp;{{cluster.id}}
+                      {{#if cluster.development_mode}}<strong>(Dev mode)</strong>{{/if}}
+                  {{/link-to}}
+              {{/link-to}}
+          {{/each}}
+
+          {{#link-to 'explorer_api' tagName='li'}}<a href="/ping">Explorer API</a>{{/link-to}}
+        </ul>
+
     </div>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
       {{outlet}}

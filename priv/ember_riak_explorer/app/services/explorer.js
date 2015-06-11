@@ -33,6 +33,35 @@ function getNodes(cluster_id) {
 }
 
 export default Ember.Service.extend({
+    availableIn: ['controllers', 'routes'],
+
+    // Return the details for a single cluster
+    getCluster: function(cluster_id, include_nodes) {
+        var url = '/explore/clusters/'+ cluster_id;
+        var result = Ember.$.ajax({ url: url });  // returns a Promise obj
+        var nodes;
+        if(include_nodes) {
+            nodes = getNodes(cluster_id);
+        }
+        return result.then(
+            // Success
+            function(data) {
+                var cluster = {
+                    id: data.cluster.id,
+                    props: data.cluster.props,
+                    nodes: nodes
+                };
+
+                return new Ember.RSVP.hash(cluster);
+            },
+            // Error
+            function(error) {
+                console.log('Error fetching cluster: ' + error);
+                return {};
+            }
+        );
+    },
+
     // Return all clusters that Explorer knows about
     getClusters: getClusters,
 
