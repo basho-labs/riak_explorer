@@ -62,7 +62,7 @@ links(RD) ->
     Self = list_to_binary(wrq:path(RD)),
     [{self, Self}].
 links(RD, Related) ->
-    links(RD) ++ [{rleated, list_to_binary(Related)}].
+    links(RD) ++ [{related, list_to_binary(Related)}].
 
 res(RD, Type, [[]], Links, Meta) -> 
     res(RD, Type, [], Links, Meta);
