@@ -1,34 +1,32 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-12"><h3>Cluster: {{model.id}}</h3></div>
+        <div class="col-md-12"><h3>Cluster: {{model.cluster.id}}</h3></div>
     </div>
-    <div class="row">
-        <div class="col-md-2"><strong>Cluster Properties</strong></div>
-        <div class="col-md-10">
-            ...
+        <div class="row">
+            <div class="col-md-12">
+                Status:
+                <strong>
+                {{#if model.cluster.props.development_mode}}
+                Development Mode
+                {{else}}
+                Production Mode
+                {{/if}}
+                </strong>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-2"><strong>Cluster Stats</strong></div>
-        <div class="col-md-10">
-            ...
+        <div class="row">
+            <div class="col-md-12"><h4>Explore</h4></div>
         </div>
-    </div>
     <div class="row">
-        <div class="col-md-2"><strong>Bucket Types</strong></div>
-        <div class="col-md-10">
-            {{#link-to 'bucket_types' (query-params cluster_id=model.id) classNames='btn btn-sm btn-primary' }}Bucket Types{{/link-to}}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-2"><strong>Search Indexes</strong></div>
-        <div class="col-md-10">
-            indexes will go here
+        <div class="col-md-12">
+            <h5>Bucket Types</h5>
+            {{#bucket-types cluster_id=model.cluster.id
+                bucket_types=model.bucket_types}}{{/bucket-types}}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            <h3>Nodes</h3>
+            <h4>Nodes</h4>
     <table class="table">
         <thead>
             <tr>
@@ -38,7 +36,7 @@
             </tr>
         </thead>
         <tbody>
-    {{#each node in model.nodes}}
+    {{#each node in model.cluster.nodes}}
       {{riak-node node=node}}
     {{else}}
       No nodes detected.

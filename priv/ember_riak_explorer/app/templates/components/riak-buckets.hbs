@@ -1,0 +1,25 @@
+<table class="table">
+<tbody>
+{{#each bucket_name in buckets}}
+    <tr>
+        <td>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">{{bucket_name}}</div>
+                <div class="col-md-6">
+                    <strong>Actions:</strong>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                </div>
+            </div>
+        </div>
+        </td>
+    </tr>
+{{else}}
+    No buckets found.
+{{/each}}
+</tbody>
+</table>
