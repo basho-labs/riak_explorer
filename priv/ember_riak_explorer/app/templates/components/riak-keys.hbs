@@ -1,17 +1,14 @@
 <table class="table">
 <tbody>
-{{#each bucket_id in buckets}}
+{{#each key in keys}}
     <tr>
         <td>
         <div class="container">
             <div class="row">
-                <div class="col-md-6">{{bucket_id}}</div>
+                <div class="col-md-6">{{key}}</div>
                 <div class="col-md-6">
                     <strong>Actions:</strong>
-                    {{#link-to 'key_list' (query-params cluster_id=cluster_id
-                            bucket_type_id=bucket_type_id bucket_id=bucket_id) 
-                            classNames='btn btn-xs btn-danger' }}
-                        Key List{{/link-to}}
+
                 </div>
             </div>
             <div class="row">
@@ -22,7 +19,7 @@
         </td>
     </tr>
 {{else}}
-    No buckets found.
+    No keys found.
 {{/each}}
 </tbody>
 </table>

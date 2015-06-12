@@ -1,0 +1,33 @@
+<h4>Key List</h4>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-7">
+            <strong>Bucket Type:</strong>
+            {{model.bucket_type_id}}
+        </div>
+            <div class="col-md-7">
+                <strong>Bucket:</strong>
+                {{model.bucket_id}}
+            </div>
+        <div class="col-md-5">
+            <strong>Cluster:</strong>
+            {{model.cluster_id}}
+        </div>
+    </div>
+</div>
+
+<div class="container" style="margin-top: 2em;">
+    Displaying
+    <strong>{{model.key_list.count}}</strong>
+    keys out of
+    <strong>{{model.key_list.total}}</strong>
+    total.
+</div>
+
+<div class="container" style="padding-top: 2em;">
+    {{#riak-keys cluster_id=model.cluster_id
+        bucket_type_id=model.bucket_type_id bucket_id=model.bucket_id
+        keys=model.key_list.keys}}
+    {{/riak-keys}}
+</div>
