@@ -1,0 +1,28 @@
+<h4>Bucket List</h4>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-7">
+            <strong>Bucket Type:</strong>
+            {{model.bucket_type_id}}
+        </div>
+        <div class="col-md-5">
+            <strong>Cluster:</strong>
+            {{model.cluster_id}}
+        </div>
+    </div>
+</div>
+
+<div class="container" style="margin-top: 2em;">
+    Displaying
+    <strong>{{model.bucket_list.count}}</strong>
+    buckets out of
+    <strong>{{model.bucket_list.total}}</strong>
+    total.
+</div>
+
+<div class="container" style="padding-top: 2em;">
+    {{#riak-buckets cluster_id=model.cluster_id
+        bucket_type_id=model.bucket_type_id buckets=model.bucket_list.buckets}}
+    {{/riak-buckets}}
+</div>

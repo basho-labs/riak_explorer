@@ -16,9 +16,7 @@ export default Ember.Route.extend({
         var propsResult = Ember.$.ajax( propsUrl, { dataType: "json" } );
         return propsResult.then(
             function(data) {
-                console.log(data);
                 var propsArray = objectToArray(data.props);
-                console.log(propsArray);
                 return {
                     bucketType: params.bucket_type_id,
                     props: propsArray
