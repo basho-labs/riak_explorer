@@ -12,7 +12,7 @@ export default Ember.Route.extend({
             cluster: this.explorer.getCluster(params.cluster_id, true),
             bucket_types: this.store.find('bucket_type', { cluster_id: params.cluster_id }),
         };
-
+        
         return new Ember.RSVP.hash(cluster);
     }
 });

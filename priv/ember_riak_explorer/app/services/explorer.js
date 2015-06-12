@@ -57,14 +57,22 @@ export default Ember.Service.extend({
         var result = Ember.$.ajax({ url: url });  // returns a Promise obj
         var nodes;
         var indexes;
+        var clusterUrl;
         if(include_nodes) {
             nodes = getNodes(cluster_id);
-            // Since we have the nodes, might as well grab indexes
+
+            // Since we have the nodes, might as well grab indexes etc
             indexes = nodes.then(function(nodes) {
                 if(!nodes) {
                     return [];
                 }
                 return getIndexes(nodes[0].id);
+            });
+            clusterUrl = nodes.then(function(nodes) {
+                if(!nodes) {
+                    return null;
+                }
+                return '/riak/nodes/'+nodes[0].id;
             });
         }
         return result.then(
@@ -74,7 +82,8 @@ export default Ember.Service.extend({
                     id: data.cluster.id,
                     props: data.cluster.props,
                     nodes: nodes,
-                    indexes: indexes
+                    indexes: indexes,
+                    cluster_proxy_url: clusterUrl
                 };
 
                 return new Ember.RSVP.hash(cluster);
@@ -107,5 +116,11 @@ export default Ember.Service.extend({
                 })
             );
         });
+    },
+
+    getClusterProxyUrl: function(cluster_id) {
+        var nodes = getNodes(cluster_id);
+        var node_id = nodes[0].id;
+        return '/riak/nodes/' + node_id;
     }
 });

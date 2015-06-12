@@ -10,7 +10,9 @@
 {{#each index in indexes}}
     <tr>
         <td>{{index.name}}</td>
-        <td>{{index.schema}}</td>
+        <td>
+            <a href="{{cluster_proxy_url}}/search/schema/{{index.schema}}">{{index.schema}}</a>
+        </td>
         <td>{{index.n_val}}</td>
     </tr>
 {{else}}
