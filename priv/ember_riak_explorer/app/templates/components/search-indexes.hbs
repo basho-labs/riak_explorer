@@ -1,0 +1,20 @@
+<table class="table">
+<thead>
+    <tr>
+        <th>Index Name</th>
+        <th>Schema</th>
+        <th>n_val</th>
+    </tr>
+</thead>
+<tbody>
+{{#each index in indexes}}
+    <tr>
+        <td>{{index.name}}</td>
+        <td>{{index.schema}}</td>
+        <td>{{index.n_val}}</td>
+    </tr>
+{{else}}
+    No indexes found.
+{{/each}}
+</tbody>
+</table>

@@ -2,26 +2,36 @@
     <div class="row">
         <div class="col-md-12"><h3>Cluster: {{model.cluster.id}}</h3></div>
     </div>
-        <div class="row">
-            <div class="col-md-12">
-                Status:
-                <strong>
-                {{#if model.cluster.props.development_mode}}
-                Development Mode
-                {{else}}
-                Production Mode
-                {{/if}}
-                </strong>
-            </div>
+    <div class="row">
+        <div class="col-md-12">
+            Status:
+            <strong>
+            {{#if model.cluster.props.development_mode}}
+            Development Mode
+            {{else}}
+            Production Mode
+            {{/if}}
+            </strong>
         </div>
-        <div class="row">
-            <div class="col-md-12"><h4>Explore</h4></div>
-        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12"><h4>Explore</h4></div>
+    </div>
     <div class="row">
         <div class="col-md-12">
             <h5>Bucket Types</h5>
             {{#bucket-types cluster_id=model.cluster.id
                 bucket_types=model.bucket_types}}{{/bucket-types}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12"><h4>Search</h4></div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h5>Search Indexes</h5>
+            {{#search-indexes cluster_id=model.cluster.id
+                indexes=model.cluster.indexes}}{{/search-indexes}}
         </div>
     </div>
     <div class="row">
