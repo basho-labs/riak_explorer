@@ -14,7 +14,7 @@ function parseHeaderString(headerString) {
     }
     var headerLines = headerString.split("\r\n");
     var header;
-    
+
     for (var i = 0; i < headerLines.length; i++) {
         header = headerLines[i];
         // Can't use split() here because it does the wrong thing
@@ -178,7 +178,8 @@ export default Ember.Service.extend({
                 cluster_id: cluster_id,
                 bucket_type_id: bucket_type_id,
                 bucket_id: bucket_id,
-                object_key: object_key
+                object_key: object_key,
+                url: url
             });
         });
 

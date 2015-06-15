@@ -8,23 +8,37 @@
 <br />
 <div class="container">
     <div class="row">
-        <div class="col-md-4">
-            <strong>in Cluster:</strong>
-            {{model.cluster_id}}
+        <div class="col-md-1">
         </div>
-        <div class="col-md-4">
-            <strong>Type:</strong>
-            {{model.bucket_type_id}}
+        <div class="col-md-11">
+            in
+            <b>{{model.cluster_id}}</b> cluster
+            /
+            <b>{{model.bucket_type_id}}</b> bucket type
+            /
+            <b>{{model.bucket_id}}</b> bucket
         </div>
-        <div class="col-md-4">
-            <strong>Bucket:</strong>
-            {{model.bucket_id}}
-        </div>
-
     </div>
 </div>
-
-<table class="table" style="margin-top: 3em;">
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-4">
+            Loaded: {{model.headers.date}}
+        </div>
+        <div class="col-md-4">
+            Deleted:
+            {{#if model.headers.x-riak-deleted}}
+            <strong>Yes</strong>
+            {{else}}
+            No
+            {{/if}}
+        </div>
+    </div>
+</div>
+<table class="table" style="margin-top: 2em;">
     <thead>
         <tr>
             <th>Header</th>
@@ -33,16 +47,8 @@
     </thead>
     <tbody>
         <tr>
-            <td>Content-Type:</td>
-            <td>{{model.headers.content-type}}</td>
-        </tr>
-        <tr>
             <td>ETag:</td>
             <td>{{model.headers.etag}}</td>
-        </tr>
-        <tr>
-            <td>Last-Modified:</td>
-            <td>{{model.headers.last-modified}}</td>
         </tr>
         <tr>
             <td>Causal Context:</td>
@@ -50,3 +56,23 @@
         </tr>
     </tbody>
 </table>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <strong>Contents</strong>
+            <a href="{{model.url}}" class="btn btn-xs btn-primary">View raw</a>
+        </div>
+        <div class="col-md-4">
+            Content Type: <b>{{model.headers.content-type}}</b>
+        </div>
+        <div class="col-md-4">
+            Last Modified: <b>{{model.headers.last-modified}}</b>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+
+        </div>
+    </div>
+</div>
