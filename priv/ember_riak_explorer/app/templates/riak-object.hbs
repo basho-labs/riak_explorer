@@ -1,0 +1,52 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <strong>{{model.object_key}}</strong>
+        </div>
+    </div>
+</div>
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <strong>in Cluster:</strong>
+            {{model.cluster_id}}
+        </div>
+        <div class="col-md-4">
+            <strong>Type:</strong>
+            {{model.bucket_type_id}}
+        </div>
+        <div class="col-md-4">
+            <strong>Bucket:</strong>
+            {{model.bucket_id}}
+        </div>
+
+    </div>
+</div>
+
+<table class="table" style="margin-top: 3em;">
+    <thead>
+        <tr>
+            <th>Header</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Content-Type:</td>
+            <td>{{model.headers.content-type}}</td>
+        </tr>
+        <tr>
+            <td>ETag:</td>
+            <td>{{model.headers.etag}}</td>
+        </tr>
+        <tr>
+            <td>Last-Modified:</td>
+            <td>{{model.headers.last-modified}}</td>
+        </tr>
+        <tr>
+            <td>Causal Context:</td>
+            <td>{{model.headers.x-riak-vclock}}</td>
+        </tr>
+    </tbody>
+</table>

@@ -12,7 +12,8 @@ export default Ember.Route.extend({
     },
 
     model: function(params) {
-        var propsUrl = '/riak/clusters/' + params.cluster_id + '/types/' + params.bucket_type_id + '/props' ;
+        var propsUrl = '/riak/clusters/' + params.cluster_id + '/types/' +
+            params.bucket_type_id + '/props' ;
         var propsResult = Ember.$.ajax( propsUrl, { dataType: "json" } );
         return propsResult.then(
             function(data) {

@@ -5,7 +5,13 @@
         <td>
         <div class="container">
             <div class="row">
-                <div class="col-md-6">{{key}}</div>
+                <div class="col-md-6">
+                    {{#link-to 'riak-object'
+                        (query-params cluster_id=cluster_id
+                            bucket_type_id=bucket_type_id bucket_id=bucket_id
+                            object_key=key)}}
+                        {{key}}{{/link-to}}
+                </div>
                 <div class="col-md-6">
                     <strong>Actions:</strong>
 

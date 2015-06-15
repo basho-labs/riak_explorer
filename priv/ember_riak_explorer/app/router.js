@@ -13,4 +13,5 @@ export default Router.map(function() {
   this.route('riak_ping');
   this.route('node_stats');
   this.route('cluster');
+  this.route('riak-object');
 });

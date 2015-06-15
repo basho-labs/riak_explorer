@@ -1,5 +1,34 @@
 import Ember from 'ember';
 
+/**
+* XmlHttpRequest's getAllResponseHeaders() method returns a string of response
+* headers according to the format described here:
+* http://www.w3.org/TR/XMLHttpRequest/#the-getallresponseheaders-method
+*
+* Which we then have to parse. Like savages.
+*/
+function parseHeaderString(headerString) {
+    var headers = {};
+    if (!headerString) {
+      return headers;
+    }
+    var headerLines = headerString.split("\r\n");
+    var header;
+    
+    for (var i = 0; i < headerLines.length; i++) {
+        header = headerLines[i];
+        // Can't use split() here because it does the wrong thing
+        // if the header value has the string ": " in it.
+        var index = header.indexOf(': ');
+        if (index > 0) {
+          var key = header.substring(0, index).toLowerCase();
+          var val = header.substring(index + 2);
+          headers[key] = val;
+        }
+    }
+    return headers;
+}
+
 function getClusters() {
     var url = '/explore/clusters/';
     var result = Ember.$.ajax({ url: url });  // returns a Promise obj
@@ -14,6 +43,13 @@ function getClusters() {
             return [];
         }
     );
+}
+
+function getClusterProxyUrl(cluster_id) {
+    var nodes = getNodes(cluster_id);
+    return nodes.then(function(nodes) {
+        return '/riak/nodes/' + nodes[0].id;
+    });
 }
 
 function getIndexes(node_id) {
@@ -118,9 +154,33 @@ export default Ember.Service.extend({
         });
     },
 
-    getClusterProxyUrl: function(cluster_id) {
-        var nodes = getNodes(cluster_id);
-        var node_id = nodes[0].id;
-        return '/riak/nodes/' + node_id;
+    getClusterProxyUrl: getClusterProxyUrl,
+
+    getRiakObjectHeader: function(cluster_id, bucket_type_id, bucket_id, object_key) {
+        var url = getClusterProxyUrl(cluster_id).then(function(proxyUrl) {
+            return proxyUrl + '/types/' + bucket_type_id + '/buckets/' +
+               bucket_id + '/keys/' + object_key;
+        });
+
+        var request = url.then(function(objUrl) {
+            return Ember.$.ajax({
+                type: "HEAD",
+                async: true,
+                url: objUrl
+            }).then(function(message, text, jqXHR) {
+                return parseHeaderString(jqXHR.getAllResponseHeaders());
+            });
+        });
+        return request.then(function(r) {
+            console.log("r: %O", r);
+            return new Ember.RSVP.hash({
+                headers: request,
+                cluster_id: cluster_id,
+                bucket_type_id: bucket_type_id,
+                bucket_id: bucket_id,
+                object_key: object_key
+            });
+        });
+
     }
 });
