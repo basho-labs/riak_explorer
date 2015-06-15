@@ -12,11 +12,20 @@
         </div>
         <div class="col-md-11">
             in
-            <b>{{model.cluster_id}}</b> cluster
+            {{#link-to 'cluster' (query-params cluster_id=cluster_id)
+                    classNames='btn btn-xs btn-primary'}}
+                {{bucket_type_id}}{{/link-to}} cluster
             /
-            <b>{{model.bucket_type_id}}</b> bucket type
+            {{#link-to 'bucket_list' (query-params cluster_id=cluster_id
+                    bucket_type_id=bucket_type_id)
+                    classNames='btn btn-xs btn-danger'}}
+                {{bucket_type_id}}{{/link-to}} bucket type
             /
-            <b>{{model.bucket_id}}</b> bucket
+            {{#link-to 'key_list' (query-params cluster_id=cluster_id
+                    bucket_type_id=bucket_type_id bucket_id=bucket_id)
+                    classNames='btn btn-xs btn-danger'}}
+                {{bucket_id}}{{/link-to}} bucket
+
         </div>
     </div>
 </div>
