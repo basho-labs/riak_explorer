@@ -171,8 +171,7 @@ export default Ember.Service.extend({
                 return parseHeaderString(jqXHR.getAllResponseHeaders());
             });
         });
-        return request.then(function(r) {
-            console.log("r: %O", r);
+        return request.then(function(request) {
             return new Ember.RSVP.hash({
                 headers: request,
                 cluster_id: cluster_id,
