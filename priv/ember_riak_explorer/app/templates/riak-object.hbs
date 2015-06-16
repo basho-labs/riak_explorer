@@ -35,11 +35,11 @@
         <div class="col-md-1">
         </div>
         <div class="col-md-4">
-            Loaded: {{model.headers.date}}
+            Loaded: {{model.obj.headers.date}}
         </div>
         <div class="col-md-4">
             Deleted:
-            {{#if model.headers.x-riak-deleted}}
+            {{#if model.obj.headers.x-riak-deleted}}
             <strong>Yes</strong>
             {{else}}
             No
@@ -57,31 +57,30 @@
     <tbody>
         <tr>
             <td>ETag:</td>
-            <td>{{model.headers.etag}}</td>
+            <td>{{model.obj.headers.etag}}</td>
         </tr>
         <tr>
             <td>Causal Context:</td>
-            <td>{{model.headers.x-riak-vclock}}</td>
+            <td>{{model.obj.headers.x-riak-vclock}}</td>
         </tr>
     </tbody>
 </table>
 
+<h4>Contents</h4>
 <div class="container">
     <div class="row">
-        <div class="col-md-4">
-            <strong>Contents</strong>
+        <div class="col-md-2">
             <a href="{{model.url}}" class="btn btn-xs btn-primary">View raw</a>
         </div>
-        <div class="col-md-4">
-            Content Type: <b>{{model.headers.content-type}}</b>
+        <div class="col-md-5">
+            Content Type: <b>{{model.obj.headers.content-type}}</b>
         </div>
-        <div class="col-md-4">
-            Last Modified: <b>{{model.headers.last-modified}}</b>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-
+        <div class="col-md-5">
+            Last Modified: <b>{{model.obj.headers.last-modified}}</b>
         </div>
     </div>
 </div>
+<br />
+{{#if model.obj.contents}}
+<pre><code>{{model.obj.contents}}</code></pre>
+{{/if}}

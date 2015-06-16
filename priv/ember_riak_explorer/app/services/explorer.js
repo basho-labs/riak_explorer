@@ -1,5 +1,17 @@
 import Ember from 'ember';
 
+function displayContentsForType(headers, contents) {
+    var contentType = headers['content-type'];
+    var displayContents;
+    // Determine whether this is browser-displayable contents
+    if(contentType.indexOf('text') === 0 ||
+        contentType === 'application/json' ||
+        contentType === 'application/xml') {
+        displayContents = contents;
+    }
+    return displayContents;
+}
+
 /**
 * XmlHttpRequest's getAllResponseHeaders() method returns a string of response
 * headers according to the format described here:
@@ -174,6 +186,40 @@ export default Ember.Service.extend({
         return request.then(function(request) {
             return new Ember.RSVP.hash({
                 headers: request,
+                cluster_id: cluster_id,
+                bucket_type_id: bucket_type_id,
+                bucket_id: bucket_id,
+                object_key: object_key,
+                url: url
+            });
+        });
+
+    },
+
+    getRiakObject: function(cluster_id, bucket_type_id, bucket_id, object_key) {
+        var url = getClusterProxyUrl(cluster_id).then(function(proxyUrl) {
+            return proxyUrl + '/types/' + bucket_type_id + '/buckets/' +
+               bucket_id + '/keys/' + object_key;
+        });
+
+        var request = url.then(function(objUrl) {
+            return Ember.$.ajax({
+                type: "GET",
+                async: true,
+                url: objUrl
+            }).then(function(data, text, jqXHR) {
+                var headers = parseHeaderString(jqXHR.getAllResponseHeaders());
+                var contents = displayContentsForType(headers, jqXHR.responseText);
+
+                return {
+                    headers: headers,
+                    contents: contents
+                };
+            });
+        });
+        return request.then(function(request) {
+            return new Ember.RSVP.hash({
+                obj: request,
                 cluster_id: cluster_id,
                 bucket_type_id: bucket_type_id,
                 bucket_id: bucket_id,

@@ -17,7 +17,7 @@ export default Ember.Route.extend({
     },
 
     model: function(params) {
-        return this.explorer.getRiakObjectHeader(params.cluster_id,
+        return this.explorer.getRiakObject(params.cluster_id,
             params.bucket_type_id, params.bucket_id, params.object_key);
     }
 });
