@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 function displayContentsForType(headers, contents) {
-    var contentType = headers['content-type'];
+    var contentType = headers.other['content-type'];
     var displayContents;
     // Determine whether this is browser-displayable contents
     if(contentType.indexOf('text') === 0 ||
@@ -20,25 +20,47 @@ function displayContentsForType(headers, contents) {
 * Which we then have to parse. Like savages.
 */
 function parseHeaderString(headerString) {
-    var headers = {};
+    var other_headers = {};
+    var indexes = [];
+    var custom = [];
+
     if (!headerString) {
-      return headers;
+      return {
+          custom: [],     // x-riak-meta-*
+          indexes: [],    // x-riak-index-*
+          other: {}       // everything else
+      };
     }
     var headerLines = headerString.split("\r\n");
-    var header;
 
     for (var i = 0; i < headerLines.length; i++) {
-        header = headerLines[i];
+        var headerLine = headerLines[i];
+
         // Can't use split() here because it does the wrong thing
         // if the header value has the string ": " in it.
-        var index = header.indexOf(': ');
+        var index = headerLine.indexOf(': ');
         if (index > 0) {
-          var key = header.substring(0, index).toLowerCase();
-          var val = header.substring(index + 2);
-          headers[key] = val;
+          var key = headerLine.substring(0, index).toLowerCase();
+          var val = headerLine.substring(index + 2);
+          var header = {
+              key: key,
+              value: val
+          };
+
+          if(key.indexOf('x-riak-meta') === 0) {
+              custom.push(header);
+          } else if(key.indexOf('x-riak-index') === 0) {
+              indexes.push(header);
+          } else {
+              other_headers[key] = val;
+          }
         }
     }
-    return headers;
+    return {
+        other: other_headers,
+        indexes: indexes,
+        custom: custom
+    };
 }
 
 function getClusters() {
