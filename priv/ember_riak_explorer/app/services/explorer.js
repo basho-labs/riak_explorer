@@ -6,7 +6,8 @@ function displayContentsForType(headers, contents) {
     // Determine whether this is browser-displayable contents
     if(contentType.indexOf('text') === 0 ||
         contentType === 'application/json' ||
-        contentType === 'application/xml') {
+        contentType === 'application/xml' ||
+        contentType === 'multipart/mixed') {
         displayContents = contents;
     }
     return displayContents;
@@ -60,6 +61,16 @@ function parseHeaderString(headerString) {
         other: other_headers,
         indexes: indexes,
         custom: custom
+    };
+}
+
+function parseObjectFromAjax(headerString, responseText) {
+    var headers = parseHeaderString(headerString);
+    var contents = displayContentsForType(headers, responseText);
+
+    return {
+        headers: headers,
+        contents: contents
     };
 }
 
@@ -190,34 +201,6 @@ export default Ember.Service.extend({
 
     getClusterProxyUrl: getClusterProxyUrl,
 
-    getRiakObjectHeader: function(cluster_id, bucket_type_id, bucket_id, object_key) {
-        var url = getClusterProxyUrl(cluster_id).then(function(proxyUrl) {
-            return proxyUrl + '/types/' + bucket_type_id + '/buckets/' +
-               bucket_id + '/keys/' + object_key;
-        });
-
-        var request = url.then(function(objUrl) {
-            return Ember.$.ajax({
-                type: "HEAD",
-                async: true,
-                url: objUrl
-            }).then(function(message, text, jqXHR) {
-                return parseHeaderString(jqXHR.getAllResponseHeaders());
-            });
-        });
-        return request.then(function(request) {
-            return new Ember.RSVP.hash({
-                headers: request,
-                cluster_id: cluster_id,
-                bucket_type_id: bucket_type_id,
-                bucket_id: bucket_id,
-                object_key: object_key,
-                url: url
-            });
-        });
-
-    },
-
     getRiakObject: function(cluster_id, bucket_type_id, bucket_id, object_key) {
         var url = getClusterProxyUrl(cluster_id).then(function(proxyUrl) {
             return proxyUrl + '/types/' + bucket_type_id + '/buckets/' +
@@ -225,25 +208,37 @@ export default Ember.Service.extend({
         });
 
         var request = url.then(function(objUrl) {
-            return Ember.$.ajax({
-                type: "GET",
-                async: true,
-                url: objUrl
-            }).then(function(data, text, jqXHR) {
-                var headers = parseHeaderString(jqXHR.getAllResponseHeaders());
-                var contents = displayContentsForType(headers, jqXHR.responseText);
+            var req = new Ember.RSVP.Promise(function(resolve, reject) {
+                Ember.$.ajax({
+                    type: "GET",
+                    url: objUrl
+                }).then(
+                    function(data, textStatus, jqXHR) {
+                        var headerString = jqXHR.getAllResponseHeaders();
+                        resolve(parseObjectFromAjax(headerString, jqXHR.responseText));
+                    },
+                    function(jqXHR, textStatus) {
+                        if(jqXHR.status === 300) {
+                            // Handle 300 Multiple Choices case for siblings
+                            var headerString = jqXHR.getAllResponseHeaders();
+                            resolve(parseObjectFromAjax(headerString, jqXHR.responseText));
+                        } else {
+                            reject(textStatus);
+                        }
+                    }
+                );
+            });
 
-                return {
-                    headers: headers,
-                    contents: contents
-                };
+            return req.catch(function(error) {
+                console.log('Error fetching riak object: %O', error);
             });
         });
+
         return request.then(function(request) {
             return new Ember.RSVP.hash({
                 obj: request,
                 cluster_id: cluster_id,
-                bucket_type_id: bucket_type_id,
+                sbucket_type_id: bucket_type_id,
                 bucket_id: bucket_id,
                 object_key: object_key,
                 url: url

@@ -15,4 +15,8 @@ App = Ember.Application.extend({
 
 loadInitializers(App, config.modulePrefix);
 
+Ember.RSVP.configure('onerror', function(e) {
+  console.log('Error encountered: %O', e);
+});
+
 export default App;
