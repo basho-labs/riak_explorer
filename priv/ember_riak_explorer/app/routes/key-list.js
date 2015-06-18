@@ -19,13 +19,29 @@ export default Ember.Route.extend({
             params.bucket_id + '/keys' ;
 
         var result = Ember.$.ajax( url, { dataType: "json" } );
+        var store = this.store;
+
         return result.then(
             function(data) {
+                var bucket = store.createRecord('bucket', {
+                    name: params.bucket_id,
+                    clusterId: params.cluster_id,
+                    bucketTypeId: params.bucket_type_id
+                });
+                var keyList = data.keys.keys.map(function(key) {
+                    return store.createRecord('riak-object', {
+                        key: key,
+                        bucket: bucket
+                    });
+                });
+
                 return {
                     cluster_id: params.cluster_id,
                     bucket_type_id: params.bucket_type_id,
                     bucket_id: params.bucket_id,
-                    key_list: data.keys
+                    key_list: keyList,
+                    count: data.keys.count,
+                    total: data.keys.total
                 };
             }
         );

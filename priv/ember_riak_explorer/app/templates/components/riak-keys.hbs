@@ -1,22 +1,17 @@
 <table class="table">
 <tbody>
-{{#each key in keys}}
+{{#each obj in keys}}
     <tr>
         <td>
         <div class="container">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     {{#link-to 'riak-object'
-                        (query-params cluster_id=cluster_id
-                            bucket_type_id=bucket_type_id bucket_id=bucket_id
-                            object_key=key)}}
-                        {{key}}{{/link-to}}
-                </div>
-                <div class="col-md-6">
-                    <strong>Actions:</strong>
-                    {{delete-object action="deleteObject" cluster_id=cluster_id
-                        bucket_type_id=bucket_type_id bucket_id=bucket_id
-                        object_key=key}}
+                        (query-params cluster_id=obj.bucket.clusterId
+                            bucket_type_id=obj.bucket.bucketTypeId
+                            bucket_id=obj.bucket.name
+                            object_key=obj.key)}}
+                        {{obj.key}}{{/link-to}}
                 </div>
             </div>
             <div class="row">

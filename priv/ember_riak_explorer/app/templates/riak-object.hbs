@@ -6,9 +6,12 @@
         <div class="col-md-4">
             Deleted:
             {{#if model.obj.headers.other.x-riak-deleted}}
-            <strong>Yes</strong>
+                <strong>Yes</strong>
             {{else}}
-            No
+                No
+                {{delete-object action="deleteObject" cluster_id=cluster_id
+                    bucket_type_id=bucket_type_id bucket_id=bucket_id
+                    object_key=object_key}}
             {{/if}}
         </div>
     </div>
