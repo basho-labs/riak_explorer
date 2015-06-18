@@ -15,12 +15,21 @@ export default Ember.Route.extend({
             '/bucket_types/' + params.bucket_type_id + '/buckets' ;
 
         var result = Ember.$.ajax( url, { dataType: "json" } );
+        var store = this.store;
+
         return result.then(
             function(data) {
+                var bucketList = data.buckets.buckets.map(function(bucketName) {
+                    return store.createRecord('bucket', {
+                        name: bucketName,
+                        clusterId: params.cluster_id,
+                        bucketTypeId: params.bucket_type_id
+                    });
+                });
                 return {
                     cluster_id: params.cluster_id,
                     bucket_type_id: params.bucket_type_id,
-                    bucket_list: data.buckets
+                    bucket_list: bucketList
                 };
             }
         );

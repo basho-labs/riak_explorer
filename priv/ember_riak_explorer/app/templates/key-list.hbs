@@ -26,7 +26,7 @@
 </div>
 
 <div class="container" style="padding-top: 2em;">
-    {{#riak-keys cluster_id=model.cluster_id
+    {{#riak-keys deleteObject="deleteObject" cluster_id=model.cluster_id
         bucket_type_id=model.bucket_type_id bucket_id=model.bucket_id
         keys=model.key_list.keys}}
     {{/riak-keys}}

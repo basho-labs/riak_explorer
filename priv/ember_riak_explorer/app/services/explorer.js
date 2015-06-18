@@ -74,6 +74,46 @@ function parseObjectFromAjax(headerString, responseText) {
     };
 }
 
+function deleteObject(cluster_id, bucket_type_id, bucket_id, object_key) {
+    alert(cluster_id + ' ' + bucket_type_id + ' ' + bucket_id + ' ' + object_key);
+    // var url = getClusterProxyUrl(cluster_id).then(function(proxyUrl) {
+    //     return proxyUrl + '/types/' + bucket_type_id + '/buckets/' +
+    //        bucket_id + '/keys/' + object_key;
+    // });
+    //
+    // var request = url.then(function(objUrl) {
+    //     var req = new Ember.RSVP.Promise(function(resolve, reject) {
+    //         Ember.$.ajax({
+    //             type: "DELETE",
+    //             url: objUrl
+    //         }).then(
+    //             function(data, textStatus, jqXHR) {
+    //                 var headerString = jqXHR.getAllResponseHeaders();
+    //                 resolve(parseObjectFromAjax(headerString, jqXHR.responseText));
+    //             },
+    //             function(jqXHR, textStatus) {
+    //                 reject(textStatus);
+    //             }
+    //         );
+    //     });
+    //
+    //     return req.catch(function(error) {
+    //         console.log('Error deleting riak object: %O', error);
+    //     });
+    // });
+    //
+    // return request.then(function(request) {
+    //     return new Ember.RSVP.hash({
+    //         obj: request,
+    //         cluster_id: cluster_id,
+    //         sbucket_type_id: bucket_type_id,
+    //         bucket_id: bucket_id,
+    //         object_key: object_key,
+    //         url: url
+    //     });
+    // });
+}
+
 function getClusters() {
     var url = '/explore/clusters/';
     var result = Ember.$.ajax({ url: url });  // returns a Promise obj
@@ -130,7 +170,10 @@ function getNodes(cluster_id) {
 }
 
 export default Ember.Service.extend({
+    name: 'explorer',
     availableIn: ['controllers', 'routes'],
+
+    deleteObject: deleteObject,
 
     // Return the details for a single cluster
     getCluster: function(cluster_id, include_nodes) {
