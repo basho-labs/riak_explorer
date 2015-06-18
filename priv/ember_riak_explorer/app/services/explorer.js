@@ -212,7 +212,7 @@ export default Ember.Service.extend({
                 Ember.$.ajax({
                     type: "GET",
                     url: objUrl,
-                    headers: { 'Accept': 'multipart/mixed' }
+                    headers: { 'Accept': '*/*, multipart/mixed' }
                 }).then(
                     function(data, textStatus, jqXHR) {
                         var headerString = jqXHR.getAllResponseHeaders();
