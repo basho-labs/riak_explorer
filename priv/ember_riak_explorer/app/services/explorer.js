@@ -4,10 +4,10 @@ function displayContentsForType(headers, contents) {
     var contentType = headers.other['content-type'];
     var displayContents;
     // Determine whether this is browser-displayable contents
-    if(contentType.indexOf('text') === 0 ||
+    if(contentType.startsWith('text') ||
         contentType === 'application/json' ||
         contentType === 'application/xml' ||
-        contentType === 'multipart/mixed') {
+        contentType.startsWith('multipart/mixed') ) {
         displayContents = contents;
     }
     return displayContents;
@@ -48,9 +48,9 @@ function parseHeaderString(headerString) {
               value: val
           };
 
-          if(key.indexOf('x-riak-meta') === 0) {
+          if(key.startsWith('x-riak-meta')) {
               custom.push(header);
-          } else if(key.indexOf('x-riak-index') === 0) {
+          } else if(key.startsWith('x-riak-index')) {
               indexes.push(header);
           } else {
               other_headers[key] = val;
@@ -211,7 +211,8 @@ export default Ember.Service.extend({
             var req = new Ember.RSVP.Promise(function(resolve, reject) {
                 Ember.$.ajax({
                     type: "GET",
-                    url: objUrl
+                    url: objUrl,
+                    headers: { 'Accept': 'multipart/mixed' }
                 }).then(
                     function(data, textStatus, jqXHR) {
                         var headerString = jqXHR.getAllResponseHeaders();
