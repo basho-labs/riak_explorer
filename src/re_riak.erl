@@ -37,6 +37,7 @@
          pb_listener/1,
          bucket_types/1,
          clusters/0,
+         cluster/1,
          nodes/1,
          node_exists/2]).
 
@@ -118,6 +119,14 @@ clusters() ->
     Mapped = lists:map(fun({C, _}) -> [{id,C}, {riak_node, re_config:riak_node(C)}, {development_mode, re_config:development_mode(C)}] end, Clusters),
     [{clusters, Mapped}].
 
+cluster(Id) ->
+    [{clusters, Clusters}] = clusters(),
+
+    case find_cluster(list_to_atom(binary_to_list(Id)), Clusters) of
+        {error, not_found} = R -> R;
+        Props -> [{clusters, Props}]
+    end.
+
 nodes(Cluster) ->
     RiakNode = re_config:riak_node(list_to_atom(Cluster)),
 
@@ -164,3 +173,10 @@ remote(N,M,F,A) ->
 
 % remote(M,F,A) ->
 %     remote(re_config:riak_node(), M, F, A).
+
+find_cluster(_, []) ->
+    {error, not_found};
+find_cluster(Id, [[{id, Id}|_]=Props|_]) ->
+    Props;
+find_cluster(Id, [[{id, _}|_]|Rest]) ->
+    find_cluster(Id, Rest).

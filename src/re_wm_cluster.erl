@@ -83,8 +83,12 @@ resource_exists(RD, Ctx=?listClusters()) ->
     {true, RD, Ctx#ctx{id=clusters, response=Response}};
 resource_exists(RD, Ctx=?clusterInfo(Cluster)) ->
     Id = list_to_binary(Cluster),
-    Response = [{clusters, [{id,Id}, {props, []}]}],
-    {true, RD, Ctx#ctx{id=cluster, response=Response}};
+    case re_riak:cluster(Id) of
+        {error, not_found} -> 
+            {false, RD, Ctx};
+        Response ->
+            {true, RD, Ctx#ctx{id=cluster, response=Response}}
+    end;
 resource_exists(RD, Ctx=?clusterResource(Cluster, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
