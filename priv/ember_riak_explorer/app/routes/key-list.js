@@ -22,13 +22,14 @@ export default Ember.Route.extend({
         var store = this.store;
         var explorerService = this.explorer;
 
+        var bucket = store.createRecord('bucket', {
+            name: params.bucket_id,
+            bucketTypeId: params.bucket_type_id,
+            clusterId: params.cluster_id
+        });
+
         return result.then(
             function(data) {
-                var bucket = store.createRecord('bucket', {
-                    name: params.bucket_id,
-                    clusterId: params.cluster_id,
-                    bucketTypeId: params.bucket_type_id
-                });
                 var keyList = data.keys.keys.map(function(key) {
                     var obj = store.createRecord('riak-object', {
                         key: key,
@@ -39,15 +40,13 @@ export default Ember.Route.extend({
                     }
                     return obj;
                 });
-
-                return {
-                    cluster_id: params.cluster_id,
-                    bucket_type_id: params.bucket_type_id,
-                    bucket_id: params.bucket_id,
-                    key_list: keyList,
+                return store.createRecord('key-list', {
+                    bucket: bucket,
+                    created: data.keys.created,
                     count: data.keys.count,
+                    keys: keyList,
                     total: data.keys.total
-                };
+                });
             }
         );
     }

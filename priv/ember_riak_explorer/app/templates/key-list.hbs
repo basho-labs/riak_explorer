@@ -2,17 +2,24 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-7">
-            <strong>Bucket Type:</strong>
-            {{model.bucket_type_id}}
+        <div class="col-md-12">
+            Bucket:
+            <strong>{{model.bucket.bucketId}}</strong>
+            (cluster: {{#link-to 'cluster' (query-params cluster_id=model.bucket.clusterId)}}
+                {{model.bucket.clusterId}}{{/link-to}}
+            /
+            type: {{#link-to 'bucket_list' (query-params cluster_id=model.bucket.clusterId
+                    bucket_type_id=model.bucket.bucketTypeId)}}
+                {{model.bucket.bucketTypeId}}{{/link-to}})
         </div>
-            <div class="col-md-7">
-                <strong>Bucket:</strong>
-                {{model.bucket_id}}
-            </div>
-        <div class="col-md-5">
-            <strong>Cluster:</strong>
-            {{model.cluster_id}}
+    </div>
+</div>
+
+<div class="container" style="margin-top: 2em;">
+    <div class="row">
+        <div class="col-md-12">
+        Cache created: {{model.created}}
+        {{refresh-keys action="refreshKeys" keyList=model}}
         </div>
     </div>
 </div>
@@ -26,5 +33,5 @@
 </div>
 
 <div class="container" style="padding-top: 2em;">
-    {{#riak-keys deleteObject="deleteObject" keys=model.key_list}}{{/riak-keys}}
+    {{#riak-keys deleteObject="deleteObject" keys=model.keys}}{{/riak-keys}}
 </div>

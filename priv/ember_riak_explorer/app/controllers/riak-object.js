@@ -20,7 +20,7 @@ export default Ember.Controller.extend({
                 { queryParams: {
                     cluster_id: object.get('bucket').get('clusterId'),
                     bucket_type_id: object.get('bucket').get('bucketTypeId'),
-                    bucket_id: object.get('bucket').get('name')
+                    bucket_id: object.get('bucket').get('bucketId')
                 }});
         }
     }
