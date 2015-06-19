@@ -83,7 +83,6 @@ function deleteObject(object) {
            bucket.get('name') + '/keys/' + object.get('key');
 
     });
-
     var request = url.then(function(objUrl) {
         var req = new Ember.RSVP.Promise(function(resolve, reject) {
             Ember.$.ajax({
@@ -273,12 +272,62 @@ function getRiakObject(cluster_id, bucket_type_id, bucket_id, object_key, store)
             url: url
         });
     });
+}
 
+// Fetch the cache of Deleted keys/buckets for a
+//  given cluster and bucket type. Initialize objects whenever missing.
+function deletedCacheFor(clusterId, bucketTypeId) {
+    if(!this.deleted.clusters[clusterId]) {
+        this.deleted.clusters[clusterId] = { types: {} };
+    }
+    if(!this.deleted.clusters[clusterId].types[bucketTypeId]) {
+        this.deleted.clusters[clusterId].types[bucketTypeId] = { buckets: {} };
+    }
+    return this.deleted.clusters[clusterId].types[bucketTypeId];
+}
+
+function markDeletedKey(object) {
+    var clusterId = object.get('clusterId');
+    var bucketTypeId = object.get('bucketTypeId');
+    var bucketId = object.get('bucketId');
+    var key = object.get('key');
+
+    var bucketTypeDelCache = this.deletedCacheFor(clusterId, bucketTypeId);
+
+    if(!bucketTypeDelCache.buckets[bucketId]) {
+        bucketTypeDelCache.buckets[bucketId] = {
+            keysDeleted: {},
+            bucketDeleted: false
+        };
+    }
+
+    bucketTypeDelCache.buckets[bucketId].keysDeleted[key] = true;
+}
+
+function wasKeyDeleted(object) {
+    var clusterId = object.get('clusterId');
+    var bucketTypeId = object.get('bucketTypeId');
+    var bucketId = object.get('bucketId');
+    var key = object.get('key');
+    var bucketTypeDelCache = this.deletedCacheFor(clusterId, bucketTypeId);
+    if(!bucketTypeDelCache.buckets[bucketId]) {
+        return false;
+    }
+    return bucketTypeDelCache.buckets[bucketId].keysDeleted[key];
 }
 
 export default Ember.Service.extend({
     name: 'explorer',
     availableIn: ['controllers', 'routes'],
+
+    // Keep track of keys/buckets deleted through the Explorer UI
+    deleted: {
+        clusters: {}
+    },
+
+    markDeletedKey: markDeletedKey,
+    deletedCacheFor: deletedCacheFor,
+    wasKeyDeleted: wasKeyDeleted,
 
     deleteObject: deleteObject,
 

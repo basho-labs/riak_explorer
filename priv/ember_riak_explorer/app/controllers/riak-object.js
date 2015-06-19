@@ -12,7 +12,8 @@ export default Ember.Controller.extend({
     actions: {
         deleteObject: function(object) {
             this.get('explorer').deleteObject(object);
-            
+            this.get('explorer').markDeletedKey(object);
+
             // Once the delete has been issued,
             // return to the bucket's Key List view.
             this.transitionToRoute('key_list',

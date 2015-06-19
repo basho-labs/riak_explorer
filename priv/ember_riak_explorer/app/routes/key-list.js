@@ -20,6 +20,7 @@ export default Ember.Route.extend({
 
         var result = Ember.$.ajax( url, { dataType: "json" } );
         var store = this.store;
+        var explorerService = this.explorer;
 
         return result.then(
             function(data) {
@@ -29,10 +30,14 @@ export default Ember.Route.extend({
                     bucketTypeId: params.bucket_type_id
                 });
                 var keyList = data.keys.keys.map(function(key) {
-                    return store.createRecord('riak-object', {
+                    var obj = store.createRecord('riak-object', {
                         key: key,
                         bucket: bucket
                     });
+                    if(explorerService.wasKeyDeleted(obj)) {
+                        obj.set('markedDeleted', true);
+                    }
+                    return obj;
                 });
 
                 return {
