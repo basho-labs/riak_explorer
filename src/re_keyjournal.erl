@@ -57,7 +57,7 @@ read_cache({Operation, Node, Path}, Start, Rows) ->
       [File|_] -> 
          DirFile = filename:join([Dir, File]),
          {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows - 1),
-         [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(File)},{Operation, Entries}]}];
+         [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(timestamp_human(File))},{Operation, Entries}]}];
       [] -> false
    end.
 
@@ -138,6 +138,15 @@ update_cache([Object|Rest], Device) ->
 timestamp_string() ->
     {{Year,Month,Day},{Hour,Min,Sec}} = calendar:now_to_universal_time(now()),
     lists:flatten(io_lib:fwrite("~4..0B~2.10.0B~2.10.0B~2.10.0B~2.10.0B~2.10.0B",[Year, Month, Day, Hour, Min, Sec])).
+
+timestamp_human(Time) ->
+   Year = lists:sublist(Time, 4),
+   Month = lists:sublist(Time, 5, 2),
+   Day = lists:sublist(Time, 7, 2),
+   Hour = lists:sublist(Time, 9, 2),
+   Min = lists:sublist(Time, 11, 2),
+   Sec = lists:sublist(Time, 13, 2),
+   lists:flatten(io_lib:fwrite("~s/~s/~s ~s:~s:~s",[Year, Month, Day, Hour, Min, Sec])).
 
 entries_from_file(File, Start, Rows) ->
    re_file_util:for_each_line_in_file(File,
