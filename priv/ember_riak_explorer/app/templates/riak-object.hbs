@@ -1,7 +1,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-8">
-            <strong>{{model.object_key}}</strong>
+            <strong>{{model.obj.key}}</strong>
         </div>
         <div class="col-md-4">
             Deleted:
@@ -9,9 +9,7 @@
                 <strong>Yes</strong>
             {{else}}
                 No
-                {{delete-object action="deleteObject" cluster_id=cluster_id
-                    bucket_type_id=bucket_type_id bucket_id=bucket_id
-                    object_key=object_key}}
+                {{delete-object action="deleteObject" object=model.obj}}
             {{/if}}
         </div>
     </div>
@@ -23,19 +21,17 @@
         </div>
         <div class="col-md-11">
             in
-            {{#link-to 'cluster' (query-params cluster_id=cluster_id)
-                    }}
-                {{bucket_type_id}}{{/link-to}} cluster
+            {{#link-to 'cluster' (query-params cluster_id=model.obj.bucket.clusterId)}}
+                {{model.obj.bucket.clusterId}}{{/link-to}} cluster
             /
-            {{#link-to 'bucket_list' (query-params cluster_id=cluster_id
-                    bucket_type_id=bucket_type_id)
-                    }}
-                {{bucket_type_id}}{{/link-to}} bucket type
+            {{#link-to 'bucket_list' (query-params cluster_id=model.obj.bucket.clusterId
+                    bucket_type_id=model.obj.bucket.bucketTypeId)}}
+                {{model.obj.bucket.bucketTypeId}}{{/link-to}} bucket type
             /
-            {{#link-to 'key_list' (query-params cluster_id=cluster_id
-                    bucket_type_id=bucket_type_id bucket_id=bucket_id)
-                    }}
-                {{bucket_id}}{{/link-to}} bucket
+            {{#link-to 'key_list' (query-params cluster_id=model.obj.bucket.clusterId
+                    bucket_type_id=model.obj.bucket.bucketTypeId
+                    bucket_id=model.obj.bucket.name)}}
+                {{model.obj.bucket.name}}{{/link-to}} bucket
 
         </div>
     </div>

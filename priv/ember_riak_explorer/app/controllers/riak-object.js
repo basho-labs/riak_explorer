@@ -10,8 +10,14 @@ export default Ember.Controller.extend({
     object_key: null,
 
     actions: {
-        deleteObject: function(cluster_id, bucket_type_id, bucket_id, object_key) {
-            this.get('explorer').deleteObject(cluster_id, bucket_type_id, bucket_id, object_key);
+        deleteObject: function(object) {
+            this.get('explorer').deleteObject(object);
+            this.transitionToRoute('key_list',
+                { queryParams: {
+                    cluster_id: object.get('bucket').get('clusterId'),
+                    bucket_type_id: object.get('bucket').get('bucketTypeId'),
+                    bucket_id: object.get('bucket').get('name')
+                }});
         }
     }
 });

@@ -64,54 +64,48 @@ function parseHeaderString(headerString) {
     };
 }
 
-function parseObjectFromAjax(headerString, responseText) {
-    var headers = parseHeaderString(headerString);
+function objectFromAjax(key, bucket, rawHeader, responseText, store) {
+    var headers = parseHeaderString(rawHeader);
     var contents = displayContentsForType(headers, responseText);
 
-    return {
+    return store.createRecord('riak-object', {
+        key: key,
+        bucket: bucket,
         headers: headers,
         contents: contents
-    };
+    });
 }
 
-function deleteObject(cluster_id, bucket_type_id, bucket_id, object_key) {
-    alert(cluster_id + ' ' + bucket_type_id + ' ' + bucket_id + ' ' + object_key);
-    // var url = getClusterProxyUrl(cluster_id).then(function(proxyUrl) {
-    //     return proxyUrl + '/types/' + bucket_type_id + '/buckets/' +
-    //        bucket_id + '/keys/' + object_key;
-    // });
-    //
-    // var request = url.then(function(objUrl) {
-    //     var req = new Ember.RSVP.Promise(function(resolve, reject) {
-    //         Ember.$.ajax({
-    //             type: "DELETE",
-    //             url: objUrl
-    //         }).then(
-    //             function(data, textStatus, jqXHR) {
-    //                 var headerString = jqXHR.getAllResponseHeaders();
-    //                 resolve(parseObjectFromAjax(headerString, jqXHR.responseText));
-    //             },
-    //             function(jqXHR, textStatus) {
-    //                 reject(textStatus);
-    //             }
-    //         );
-    //     });
-    //
-    //     return req.catch(function(error) {
-    //         console.log('Error deleting riak object: %O', error);
-    //     });
-    // });
-    //
-    // return request.then(function(request) {
-    //     return new Ember.RSVP.hash({
-    //         obj: request,
-    //         cluster_id: cluster_id,
-    //         sbucket_type_id: bucket_type_id,
-    //         bucket_id: bucket_id,
-    //         object_key: object_key,
-    //         url: url
-    //     });
-    // });
+function deleteObject(object) {
+    var bucket = object.get('bucket');
+    var url = getClusterProxyUrl(bucket.get('clusterId')).then(function(proxyUrl) {
+        return proxyUrl + '/types/' + bucket.get('bucketTypeId') + '/buckets/' +
+           bucket.get('name') + '/keys/' + object.get('key');
+
+    });
+
+    var request = url.then(function(objUrl) {
+        var req = new Ember.RSVP.Promise(function(resolve, reject) {
+            Ember.$.ajax({
+                type: "DELETE",
+                url: objUrl,
+                headers: { 'X-Riak-Vclock': object.get('headers').other['x-riak-vclock'] }
+            }).then(
+                function(data, textStatus, jqXHR) {
+                    resolve(jqXHR.status);
+                },
+                function(jqXHR, textStatus) {
+                    reject(textStatus);
+                }
+            );
+        });
+
+        return req.catch(function(error) {
+            console.log('Error deleting riak object: %O', error);
+        });
+    });
+
+    return request;
 }
 
 function getClusters() {
@@ -244,10 +238,16 @@ export default Ember.Service.extend({
 
     getClusterProxyUrl: getClusterProxyUrl,
 
-    getRiakObject: function(cluster_id, bucket_type_id, bucket_id, object_key) {
+    getRiakObject: function(cluster_id, bucket_type_id, bucket_id, object_key, store) {
         var url = getClusterProxyUrl(cluster_id).then(function(proxyUrl) {
             return proxyUrl + '/types/' + bucket_type_id + '/buckets/' +
                bucket_id + '/keys/' + object_key;
+        });
+
+        var bucket = store.createRecord('bucket', {
+            name: bucket_id,
+            bucketTypeId: bucket_type_id,
+            clusterId: cluster_id
         });
 
         var request = url.then(function(objUrl) {
@@ -259,13 +259,15 @@ export default Ember.Service.extend({
                 }).then(
                     function(data, textStatus, jqXHR) {
                         var headerString = jqXHR.getAllResponseHeaders();
-                        resolve(parseObjectFromAjax(headerString, jqXHR.responseText));
+                        resolve(objectFromAjax(object_key, bucket, headerString,
+                            jqXHR.responseText, store));
                     },
                     function(jqXHR, textStatus) {
                         if(jqXHR.status === 300) {
                             // Handle 300 Multiple Choices case for siblings
                             var headerString = jqXHR.getAllResponseHeaders();
-                            resolve(parseObjectFromAjax(headerString, jqXHR.responseText));
+                            resolve(objectFromAjax(object_key, bucket, headerString,
+                                jqXHR.responseText, store));
                         } else {
                             reject(textStatus);
                         }
