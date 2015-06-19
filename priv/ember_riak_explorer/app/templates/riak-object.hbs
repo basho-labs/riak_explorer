@@ -5,7 +5,7 @@
         </div>
         <div class="col-md-4">
             Deleted:
-            {{#if model.obj.headers.other.x-riak-deleted}}
+            {{#if model.obj.isDeleted}}
                 <strong>Yes</strong>
             {{else}}
                 No
@@ -21,17 +21,17 @@
         </div>
         <div class="col-md-11">
             in
-            {{#link-to 'cluster' (query-params cluster_id=model.obj.bucket.clusterId)}}
-                {{model.obj.bucket.clusterId}}{{/link-to}} cluster
+            {{#link-to 'cluster' (query-params cluster_id=model.obj.clusterId)}}
+                {{model.obj.clusterId}}{{/link-to}} cluster
             /
-            {{#link-to 'bucket_list' (query-params cluster_id=model.obj.bucket.clusterId
-                    bucket_type_id=model.obj.bucket.bucketTypeId)}}
-                {{model.obj.bucket.bucketTypeId}}{{/link-to}} bucket type
+            {{#link-to 'bucket_list' (query-params cluster_id=model.obj.clusterId
+                    bucket_type_id=model.obj.bucketTypeId)}}
+                {{model.obj.bucketTypeId}}{{/link-to}} bucket type
             /
-            {{#link-to 'key_list' (query-params cluster_id=model.obj.bucket.clusterId
-                    bucket_type_id=model.obj.bucket.bucketTypeId
-                    bucket_id=model.obj.bucket.name)}}
-                {{model.obj.bucket.name}}{{/link-to}} bucket
+            {{#link-to 'key_list' (query-params cluster_id=model.obj.clusterId
+                    bucket_type_id=model.obj.bucketTypeId
+                    bucket_id=model.obj.bucketId)}}
+                {{model.obj.bucketId}}{{/link-to}} bucket
 
         </div>
     </div>
@@ -42,7 +42,7 @@
     <div class="row">
         <div class="col-md-12">
             <strong>Last Modified:</strong>
-            {{model.obj.headers.other.last-modified}}
+            {{model.obj.dateLastModified}}
         </div>
     </div>
 </div>
@@ -51,13 +51,13 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            {{#object-headers headers=model.obj.headers.indexes
+            {{#object-headers headers=model.obj.headersIndexes
                 title='Secondary Indexes'}}{{/object-headers}}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {{#object-headers headers=model.obj.headers.custom
+            {{#object-headers headers=model.obj.headersCustom
                 title='Custom Headers'}}{{/object-headers}}
         </div>
     </div>
@@ -72,10 +72,10 @@
             <a href="{{model.url}}" class="btn btn-xs btn-primary">View raw</a>
         </div>
         <div class="col-md-5">
-            Content Type: <b>{{model.obj.headers.other.content-type}}</b>
+            Content Type: <b>{{model.obj.contentType}}</b>
         </div>
         <div class="col-md-5">
-            Page loaded: {{model.obj.headers.other.date}}
+            Page loaded: {{model.obj.dateLoaded}}
         </div>
     </div>
 </div>
@@ -91,11 +91,11 @@
     <div class="row">
         <div class="col-md-7">
             <strong>Causal Context:</strong>
-            {{model.obj.headers.other.x-riak-vclock}}
+            {{model.obj.causalContext}}
         </div>
         <div class="col-md-5">
             <strong>ETag:</strong>
-            {{model.obj.headers.other.etag}}
+            {{model.obj.etag}}
         </div>
     </div>
 </div>
