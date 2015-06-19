@@ -108,6 +108,50 @@ function deleteObject(object) {
     return request;
 }
 
+function getCluster(cluster_id, include_nodes) {
+    var url = '/explore/clusters/'+ cluster_id;
+    var result = Ember.$.ajax({ url: url });  // returns a Promise obj
+    var nodes;
+    var indexes;
+    var clusterUrl;
+    if(include_nodes) {
+        nodes = getNodes(cluster_id);
+
+        // Since we have the nodes, might as well grab indexes etc
+        indexes = nodes.then(function(nodes) {
+            if(!nodes) {
+                return [];
+            }
+            return getIndexes(nodes[0].id);
+        });
+        clusterUrl = nodes.then(function(nodes) {
+            if(!nodes) {
+                return null;
+            }
+            return '/riak/nodes/'+nodes[0].id;
+        });
+    }
+    return result.then(
+        // Success
+        function(data) {
+            var cluster = {
+                id: data.cluster.id,
+                props: data.cluster.props,
+                nodes: nodes,
+                indexes: indexes,
+                cluster_proxy_url: clusterUrl
+            };
+
+            return new Ember.RSVP.hash(cluster);
+        },
+        // Error
+        function(error) {
+            console.log('Error fetching cluster: ' + error);
+            return {};
+        }
+    );
+}
+
 function getClusters() {
     var url = '/explore/clusters/';
     var result = Ember.$.ajax({ url: url });  // returns a Promise obj
@@ -122,6 +166,20 @@ function getClusters() {
             return [];
         }
     );
+}
+
+function getClustersAndNodes() {
+    return getClusters().then(function(clusters_list) {
+        return Ember.RSVP.all(
+            clusters_list.map(function(cluster) {
+                return new Ember.RSVP.hash({
+                    id: cluster.id,
+                    props: cluster.props,
+                    nodes: getNodes(cluster.id)
+                });
+            })
+        );
+    });
 }
 
 function getClusterProxyUrl(cluster_id) {
@@ -163,6 +221,61 @@ function getNodes(cluster_id) {
     );
 }
 
+function getRiakObject(cluster_id, bucket_type_id, bucket_id, object_key, store) {
+    var url = getClusterProxyUrl(cluster_id).then(function(proxyUrl) {
+        return proxyUrl + '/types/' + bucket_type_id + '/buckets/' +
+           bucket_id + '/keys/' + object_key;
+    });
+
+    var bucket = store.createRecord('bucket', {
+        name: bucket_id,
+        bucketTypeId: bucket_type_id,
+        clusterId: cluster_id
+    });
+
+    var request = url.then(function(objUrl) {
+        var req = new Ember.RSVP.Promise(function(resolve, reject) {
+            Ember.$.ajax({
+                type: "GET",
+                url: objUrl,
+                headers: { 'Accept': '*/*, multipart/mixed' }
+            }).then(
+                function(data, textStatus, jqXHR) {
+                    var headerString = jqXHR.getAllResponseHeaders();
+                    resolve(objectFromAjax(object_key, bucket, headerString,
+                        jqXHR.responseText, store));
+                },
+                function(jqXHR, textStatus) {
+                    if(jqXHR.status === 300) {
+                        // Handle 300 Multiple Choices case for siblings
+                        var headerString = jqXHR.getAllResponseHeaders();
+                        resolve(objectFromAjax(object_key, bucket, headerString,
+                            jqXHR.responseText, store));
+                    } else {
+                        reject(textStatus);
+                    }
+                }
+            );
+        });
+
+        return req.catch(function(error) {
+            console.log('Error fetching riak object: %O', error);
+        });
+    });
+
+    return request.then(function(request) {
+        return new Ember.RSVP.hash({
+            obj: request,
+            cluster_id: cluster_id,
+            sbucket_type_id: bucket_type_id,
+            bucket_id: bucket_id,
+            object_key: object_key,
+            url: url
+        });
+    });
+
+}
+
 export default Ember.Service.extend({
     name: 'explorer',
     availableIn: ['controllers', 'routes'],
@@ -170,126 +283,19 @@ export default Ember.Service.extend({
     deleteObject: deleteObject,
 
     // Return the details for a single cluster
-    getCluster: function(cluster_id, include_nodes) {
-        var url = '/explore/clusters/'+ cluster_id;
-        var result = Ember.$.ajax({ url: url });  // returns a Promise obj
-        var nodes;
-        var indexes;
-        var clusterUrl;
-        if(include_nodes) {
-            nodes = getNodes(cluster_id);
-
-            // Since we have the nodes, might as well grab indexes etc
-            indexes = nodes.then(function(nodes) {
-                if(!nodes) {
-                    return [];
-                }
-                return getIndexes(nodes[0].id);
-            });
-            clusterUrl = nodes.then(function(nodes) {
-                if(!nodes) {
-                    return null;
-                }
-                return '/riak/nodes/'+nodes[0].id;
-            });
-        }
-        return result.then(
-            // Success
-            function(data) {
-                var cluster = {
-                    id: data.cluster.id,
-                    props: data.cluster.props,
-                    nodes: nodes,
-                    indexes: indexes,
-                    cluster_proxy_url: clusterUrl
-                };
-
-                return new Ember.RSVP.hash(cluster);
-            },
-            // Error
-            function(error) {
-                console.log('Error fetching cluster: ' + error);
-                return {};
-            }
-        );
-    },
+    getCluster: getCluster,
 
     // Return all clusters that Explorer knows about
     getClusters: getClusters,
 
-    // Return all nodes for a particular cluster
-    getNodes: getNodes,
-
     // Return a list of clusters with their nodes, in the form:
     // [ { id: 'default', props: [], nodes: [ <list of nodes> ] }, ... ]
-    getClustersAndNodes: function() {
-        return getClusters().then(function(clusters_list) {
-            return Ember.RSVP.all(
-                clusters_list.map(function(cluster) {
-                    return new Ember.RSVP.hash({
-                        id: cluster.id,
-                        props: cluster.props,
-                        nodes: getNodes(cluster.id)
-                    });
-                })
-            );
-        });
-    },
+    getClustersAndNodes: getClustersAndNodes,
 
     getClusterProxyUrl: getClusterProxyUrl,
 
-    getRiakObject: function(cluster_id, bucket_type_id, bucket_id, object_key, store) {
-        var url = getClusterProxyUrl(cluster_id).then(function(proxyUrl) {
-            return proxyUrl + '/types/' + bucket_type_id + '/buckets/' +
-               bucket_id + '/keys/' + object_key;
-        });
+    // Return all nodes for a particular cluster
+    getNodes: getNodes,
 
-        var bucket = store.createRecord('bucket', {
-            name: bucket_id,
-            bucketTypeId: bucket_type_id,
-            clusterId: cluster_id
-        });
-
-        var request = url.then(function(objUrl) {
-            var req = new Ember.RSVP.Promise(function(resolve, reject) {
-                Ember.$.ajax({
-                    type: "GET",
-                    url: objUrl,
-                    headers: { 'Accept': '*/*, multipart/mixed' }
-                }).then(
-                    function(data, textStatus, jqXHR) {
-                        var headerString = jqXHR.getAllResponseHeaders();
-                        resolve(objectFromAjax(object_key, bucket, headerString,
-                            jqXHR.responseText, store));
-                    },
-                    function(jqXHR, textStatus) {
-                        if(jqXHR.status === 300) {
-                            // Handle 300 Multiple Choices case for siblings
-                            var headerString = jqXHR.getAllResponseHeaders();
-                            resolve(objectFromAjax(object_key, bucket, headerString,
-                                jqXHR.responseText, store));
-                        } else {
-                            reject(textStatus);
-                        }
-                    }
-                );
-            });
-
-            return req.catch(function(error) {
-                console.log('Error fetching riak object: %O', error);
-            });
-        });
-
-        return request.then(function(request) {
-            return new Ember.RSVP.hash({
-                obj: request,
-                cluster_id: cluster_id,
-                sbucket_type_id: bucket_type_id,
-                bucket_id: bucket_id,
-                object_key: object_key,
-                url: url
-            });
-        });
-
-    }
+    getRiakObject: getRiakObject
 });
