@@ -146,7 +146,7 @@ timestamp_human(Time) ->
    Hour = lists:sublist(Time, 9, 2),
    Min = lists:sublist(Time, 11, 2),
    Sec = lists:sublist(Time, 13, 2),
-   lists:flatten(io_lib:fwrite("~s/~s/~s ~s:~s:~s",[Year, Month, Day, Hour, Min, Sec])).
+   lists:flatten(io_lib:fwrite("~s-~s-~s ~s:~s:~s",[Year, Month, Day, Hour, Min, Sec])).
 
 entries_from_file(File, Start, Rows) ->
    re_file_util:for_each_line_in_file(File,
