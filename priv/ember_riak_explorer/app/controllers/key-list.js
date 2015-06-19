@@ -10,7 +10,6 @@ export default Ember.Controller.extend({
 
     actions: {
         refreshKeys: function(keyList) {
-            alert('in controller/refresh keys');
             this.get('explorer').keyCacheRefresh(keyList);
 
             this.transitionToRoute('key_list',
