@@ -5,7 +5,7 @@
         <td>
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
+                <div>
                     {{#if obj.markedDeleted}}
                         <strike>{{obj.key}}</strike>
                     {{else}}
@@ -16,10 +16,6 @@
                                 object_key=obj.key)}}
                             {{obj.key}}{{/link-to}}
                     {{/if}}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
                 </div>
             </div>
         </div>

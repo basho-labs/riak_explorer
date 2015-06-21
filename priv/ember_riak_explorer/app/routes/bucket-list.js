@@ -26,11 +26,14 @@ export default Ember.Route.extend({
                         bucketTypeId: params.bucket_type_id
                     });
                 });
-                return {
-                    cluster_id: params.cluster_id,
-                    bucket_type_id: params.bucket_type_id,
-                    bucket_list: bucketList
-                };
+                return store.createRecord('bucket-list', {
+                    clusterId: params.cluster_id,
+                    bucketTypeId: params.bucket_type_id,
+                    buckets: bucketList,
+                    total: data.buckets.total,
+                    count: data.buckets.count,
+                    created: data.buckets.created
+                });
             }
         );
     }

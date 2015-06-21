@@ -1,6 +1,6 @@
 <table class="table">
 <tbody>
-{{#each bucket in buckets}}
+{{#each bucket in bucketList.buckets}}
     <tr>
         <td>
         <div class="container">
@@ -9,7 +9,7 @@
                 <div class="col-md-6">
                     <strong>Actions:</strong>
                     {{#link-to 'key_list' (query-params cluster_id=bucket.clusterId
-                            bucket_type_id=bucket.bucketTypeId bucket_id=bucket.name)
+                            bucket_type_id=bucket.bucketTypeId bucket_id=bucket.bucketId)
                             classNames='btn btn-xs btn-danger' }}
                         Key List{{/link-to}}
                 </div>
