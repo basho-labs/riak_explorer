@@ -10,17 +10,15 @@ export default Ember.Controller.extend({
     object_key: null,
 
     actions: {
-        deleteObject: function(object) {
-            this.get('explorer').deleteObject(object);
-            this.get('explorer').markDeletedKey(object);
+        saveObject: function(object) {
+            this.get('explorer').saveObject(object);
 
-            // Once the delete has been issued,
-            // return to the bucket's Key List view.
-            this.transitionToRoute('key_list',
+            this.transitionToRoute('riak-object',
                 { queryParams: {
                     cluster_id: object.get('clusterId'),
                     bucket_type_id: object.get('bucketTypeId'),
-                    bucket_id: object.get('bucketId')
+                    bucket_id: object.get('bucketId'),
+                    object_key: object.get('key')
                 }});
         }
     }

@@ -47,6 +47,31 @@ export default DS.Model.extend({
         return this.get('headers').custom;
     }.property('headers'),
 
+    /**
+    * Return the necessary headers when saving an object via HTTP PUT
+    */
+    headersForUpdate: function() {
+        // Start with the causal context
+        var headers = {
+            'X-Riak-Vclock': this.get('headers').other['x-riak-vclock']
+        };
+        var header;
+        var i;
+        // Add the 2i indexes, if applicable
+        var indexes = this.get('headersIndexes');
+        for (i = 0; i < indexes.length; i++) {
+            header = indexes[i];
+            headers[header.key] = header.value;
+        }
+        // Add the user-defined custom headers
+        var customHeaders = this.get('headersCustom');
+        for (i = 0; i < customHeaders.length; i++) {
+            header = customHeaders[i];
+            headers[header.key] = header.value;
+        }
+        return headers;
+    }.property('headers'),
+
     headersIndexes: function() {
         return this.get('headers').indexes;
     }.property('headers'),
