@@ -23,5 +23,6 @@
 %%%===================================================================
 
 -define(RE_BASE_ROUTE, "explore").
+-define(RE_CONTROL_ROUTE, "control").
 -define(RE_RIAK_PROXY_ROUTE, "riak").
 -define(RE_DEFAULT_INDEX, "index.html").
