@@ -27,7 +27,13 @@
          plan/1,
          commit/1,
          status/1,
-         ringready/1]).
+         ringready/1,
+         leave/1,
+         leave/2,
+         force_remove/2,
+         replace/3,
+         force_replace/3,
+         clear/1]).
 
 -export([client/1,
          get_json/3,
@@ -56,10 +62,35 @@
 %%% Control API
 %%%===================================================================
 
-% replace(Node, Node1, Node2) ->
-%     remote(Node, application, get_env, [Node1, Node2]),
-%
-% force_replace(Node, Node1, Node2) ->
+replace(Node, Node1, Node2) ->
+    try
+        Response = remote(Node, riak_core_claimant, replace, [Node1, Node2]),
+        case Response of
+            ok ->
+                [{control, [{success, ok}]}];
+            {error, R} ->
+                [{control, [{error, R}]}]
+        end
+    catch
+        Exception:Reason ->
+            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+            [{control, [{error, Error}]}]
+    end.
+
+force_replace(Node, Node1, Node2) ->
+    try
+        Response = remote(Node, riak_core_claimant, force_replace, [Node1, Node2]),
+        case Response of
+            ok ->
+                [{control, [{success, ok}]}];
+            {error, R} ->
+                [{control, [{error, R}]}]
+        end
+    catch
+        Exception:Reason ->
+            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+            [{control, [{error, Error}]}]
+    end.
 
 join(Node, Node1) ->
     Response = remote(Node, riak_core, staged_join, [Node1]),
@@ -68,12 +99,39 @@ join(Node, Node1) ->
         ok -> [{control, [{success, ok}]}]
     end.
 
-% leave(Node, Node1) ->
-%
-% force_remove(Node, Node1) ->
-%
-% leave(Node) ->
-%
+leave(Node, Node1) ->
+    try
+        Response = remote(Node, riak_core_claimant, leave_member, [Node1]),
+        case Response of
+            ok ->
+                [{control, [{success, ok}]}];
+            {error, R} ->
+                [{control, [{error, R}]}]
+        end
+    catch
+        Exception:Reason ->
+            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+            [{control, [{error, Error}]}]
+    end.
+
+force_remove(Node, Node1) ->
+    try
+        Response = remote(Node, riak_core_claimant, remove_member, [Node1]),
+        case Response of
+            ok ->
+                [{control, [{success, ok}]}];
+            {error, R} ->
+                [{control, [{error, R}]}]
+        end
+    catch
+        Exception:Reason ->
+            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+            [{control, [{error, Error}]}]
+    end.
+
+leave(Node) ->
+    leave(Node, Node).
+
 plan(Node) ->
     Response = remote(Node, riak_core_claimant, plan, []),
 
@@ -94,12 +152,20 @@ commit(Node) ->
         {error, Reason} -> [{control, [{error, Reason}]}];
         _ -> [{control, [{error, retry_plan}]}]
     end.
-% clear(Node) ->
-%     Response = remote(Node, riak_core, staged_join, [Node1]),
-%     case Response of
-%         {error, Reason} -> [{control, [{error, Reason}]}];
-%         ok -> [{control, [{success, ok}]}]
-%     end.
+
+clear(Node) ->
+    try
+        Response = remote(Node, riak_core_claimant, clear, []),
+        case Response of
+            ok -> [{control, [{success, ok}]}];
+            _ -> [{control, [{error, unkown}]}]
+        end
+    catch
+        Exception:Reason ->
+            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+            [{control, [{error, Error}]}]
+    end.
+
 status(Node) ->
     {ok, Ring} = remote(Node, riak_core_ring_manager, get_my_ring, []),
     AllStatus = lists:keysort(2, remote(Node, riak_core_ring, all_member_status, [Ring])),

@@ -35,7 +35,7 @@
 
 -define(command(Command), #ctx{command=Command,node1=undefined,node2=undefined}).
 -define(command(Command, Node1), #ctx{command=Command,node1=Node1,node2=undefined}).
-% -define(command(Command, Node1, Node2), #ctx{command=Command,node1=Node1,node2=Node2}).
+-define(command(Command, Node1, Node2), #ctx{command=Command,node1=Node1,node2=Node2}).
 
 
 
@@ -54,20 +54,19 @@ routes() ->
     Nodes = Base ++ ["nodes"],
     Node = Nodes ++ [node],
     Join         = Node ++ ["join"] ++ [node1],
-    % Leave        = Node ++ ["leave"],
-    % Leave2       = Node ++ ["leave"] ++ [node1],
-    % ForceRemove  = Node ++ ["force-remove"] ++ [node1],
-    % Replace      = Node ++ ["replace"] ++ [node1] ++ [node2],
-    % ForceReplace = Node ++ ["force-replace"] ++ [node1] ++ [node2],
+    Leave        = Node ++ ["leave"],
+    Leave2       = Node ++ ["leave"] ++ [node1],
+    ForceRemove  = Node ++ ["force-remove"] ++ [node1],
+    Replace      = Node ++ ["replace"] ++ [node1] ++ [node2],
+    ForceReplace = Node ++ ["force-replace"] ++ [node1] ++ [node2],
     Plan         = Node ++ ["plan"],
     Commit       = Node ++ ["commit"],
-    % Clear        = Node ++ ["clear"],
+    Clear        = Node ++ ["clear"],
     Status       = Node ++ ["status"],
     RingReady    = Node ++ ["ringready"],
 
-    % [Join, Leave, Leave2, ForceRemove, Replace, ForceReplace, Plan, Commit,
-    %  Clear, Status, RingReady].
-    [Join, Plan, Commit, Status, RingReady].
+    [Join, Leave, Leave2, ForceRemove, Replace, ForceReplace, Plan, Commit,
+     Clear, Status, RingReady].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -100,14 +99,14 @@ content_types_provided(RD, Ctx) ->
 resource_exists(RD, Ctx=?command(Command)) ->
     Node = Ctx#ctx.node,
     {Exists, Response} = case Command of
-%         "leave" ->
-%             re_riak:leave(Node);
+        "leave" ->
+            {true, re_riak:leave(Node)};
         "plan" ->
             {true, re_riak:plan(Node)};
         "commit" ->
             {true, re_riak:commit(Node)};
-        % "clear" ->
-        %     re_riak:clear(Node);
+        "clear" ->
+            {true, re_riak:clear(Node)};
         "status" ->
             {true, re_riak:status(Node)};
         "ringready" ->
@@ -120,23 +119,23 @@ resource_exists(RD, Ctx=?command(Command, Node1)) ->
     {Exists, Response} = case Command of
         "join" ->
             {true, re_riak:join(Node, Node1)};
-        % "leave" ->
-        %     re_riak:leave(Node, Node1);
-        % "force-remove" ->
-        %     re_riak:force_remove(Node, Node1);
+        "leave" ->
+            {true, re_riak:leave(Node, Node1)};
+        "force-remove" ->
+            {true, re_riak:force_remove(Node, Node1)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
-% resource_exists(RD, Ctx=?command(Command, Node1, Node2)) ->
-%     Node = Ctx#ctx.node,
-%     {Exists, Response} = case Command of
-%         "replace" ->
-%             {true, re_riak:replace(Node, Node1, Node2)};
-%         "force-replace" ->
-%             {true, re_riak:force_replace(Node, Node1, Node2)};
-%         _ -> {false, undefined}
-%     end,
-%     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
+resource_exists(RD, Ctx=?command(Command, Node1, Node2)) ->
+    Node = Ctx#ctx.node,
+    {Exists, Response} = case Command of
+        "replace" ->
+            {true, re_riak:replace(Node, Node1, Node2)};
+        "force-replace" ->
+            {true, re_riak:force_replace(Node, Node1, Node2)};
+        _ -> {false, undefined}
+    end,
+    {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
