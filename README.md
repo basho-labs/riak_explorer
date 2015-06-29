@@ -23,72 +23,61 @@ See also: [Riak Control Design Discussion
 
 #### API
 
-In addition to the web interface, there is also an API exposed at [http://localhost:9000/explore](http://localhost:9000/explore). Here is the Json output from the `/explore/routes` endpoint:
+In addition to the web interface, there is also an API exposed at [http://localhost:9000/explore](http://localhost:9000/explore). Following are the available routes (these can also be obtained from `/explore/routes`):
 
 ```
-{
-   "routes":{
-      "id":"routes",
-      "handlers":[
-         {
-            "id":"re_wm_static",
-            "routes":[
-               "/$*"
-            ],
-            "resources":[]
-         },
-         {
-            "id":"re_wm_riak_proxy",
-            "routes":[
-               "/riak/$node/$*"
-            ],
-            "resources":[]
-         },
-         {
-            "id":"re_wm_base",
-            "routes":[
-               "/explore/$resource",
-               "/explore"
-            ],
-            "resources":[
-               "routes",
-               "ping"
-            ]
-         },
-         {
-            "id":"re_wm_cluster",
-            "routes":[
-               "/explore/clusters",
-               "/explore/clusters/$cluster/$resource",
-               "/explore/clusters/$cluster"
-            ],
-            "resources":[]
-         },
-         {
-            "id":"re_wm_node",
-            "routes":[
-               "/explore/clusters/$cluster/nodes",
-               "/explore/clusters/$cluster/nodes/$node/$resource",
-               "/explore/clusters/$cluster/nodes/$node",
-               "/explore/nodes/$node"
-            ],
-            "resources":[]
-         },
-         {
-            "id":"re_wm_bucket_type",
-            "routes":[
-               "/explore/nodes/$node/bucket_types",
-               "/explore/nodes/$node/bucket_types/$bucket_type/$resource",
-               "/explore/nodes/$node/bucket_types/$bucket_type"
-            ],
-            "resources":[]
-         }
-      ]
-   },
-   "links":{
-      "self":"/explore/routes"
-   }
-}
+/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/keys/$key
+/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/keys/$key/$resource
+/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/keys
+/explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket/keys/$key
+/explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket/keys/$key/$resource
+/explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket/keys
+/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket
+/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/$resource (Resources: [jobs])
+/explore/nodes/$node/bucket_types/$bucket_type/buckets
+/explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket
+/explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket/$resource (Resources: [jobs])
+/explore/clusters/$cluster/bucket_types/$bucket_type/buckets
+/explore/nodes/$node/bucket_types/$bucket_type
+/explore/nodes/$node/bucket_types/$bucket_type/$resource (Resources: [jobs])
+/explore/nodes/$node/bucket_types
+/explore/clusters/$cluster/bucket_types/$bucket_type
+/explore/clusters/$cluster/bucket_types/$bucket_type/$resource (Resources: [jobs])
+/explore/clusters/$cluster/bucket_types
+/explore/nodes/$node
+/explore/clusters/$cluster/nodes/$node
+/explore/clusters/$cluster/nodes/$node/$resource
+/explore/clusters/$cluster/nodes
+/explore/clusters/$cluster
+/explore/clusters/$cluster/$resource
+/explore/clusters
+/explore
+/explore/$resource (Resources: [routes,props,jobs,ping])
+/control/clusters/$cluster/ringready
+/control/clusters/$cluster/status
+/control/clusters/$cluster/clear
+/control/clusters/$cluster/commit
+/control/clusters/$cluster/plan
+/control/clusters/$cluster/force-replace/$node1/$node2
+/control/clusters/$cluster/replace/$node1/$node2
+/control/clusters/$cluster/force-remove/$node1
+/control/clusters/$cluster/leave/$node1
+/control/clusters/$cluster/leave
+/control/clusters/$cluster/join/$node1
+/control/nodes/$node/ringready
+/control/nodes/$node/status
+/control/nodes/$node/clear
+/control/nodes/$node/commit
+/control/nodes/$node/plan
+/control/nodes/$node/force-replace/$node1/$node2
+/control/nodes/$node/replace/$node1/$node2
+/control/nodes/$node/force-remove/$node1
+/control/nodes/$node/leave/$node1
+/control/nodes/$node/leave
+/control/nodes/$node/join/$node1
+/riak/nodes/$node/$* (Riak Direct HTTP Proxy)
+/riak/clusters/$cluster/$* (Riak Direct HTTP Proxy)
+/$* (Static Endpoint)
 ```
 
 Explanation:

@@ -49,7 +49,19 @@ resources() ->
 routes() ->
     Base = [?RE_CONTROL_ROUTE],
 
-    %% TODO add cluster version
+    Clusters = Base ++ ["clusters"],
+    Cluster = Clusters ++ [cluster],
+    CJoin         = Cluster ++ ["join"] ++ [node1],
+    CLeave        = Cluster ++ ["leave"],
+    CLeave2       = Cluster ++ ["leave"] ++ [node1],
+    CForceRemove  = Cluster ++ ["force-remove"] ++ [node1],
+    CReplace      = Cluster ++ ["replace"] ++ [node1] ++ [node2],
+    CForceReplace = Cluster ++ ["force-replace"] ++ [node1] ++ [node2],
+    CPlan         = Cluster ++ ["plan"],
+    CCommit       = Cluster ++ ["commit"],
+    CClear        = Cluster ++ ["clear"],
+    CStatus       = Cluster ++ ["status"],
+    CRingReady    = Cluster ++ ["ringready"],
 
     Nodes = Base ++ ["nodes"],
     Node = Nodes ++ [node],
@@ -66,7 +78,9 @@ routes() ->
     RingReady    = Node ++ ["ringready"],
 
     [Join, Leave, Leave2, ForceRemove, Replace, ForceReplace, Plan, Commit,
-     Clear, Status, RingReady].
+     Clear, Status, RingReady] ++
+    [CJoin, CLeave, CLeave2, CForceRemove, CReplace, CForceReplace, CPlan, CCommit,
+     CClear, CStatus, CRingReady].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
