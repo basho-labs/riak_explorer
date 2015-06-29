@@ -22,52 +22,169 @@
 
 -include("riak_explorer.hrl").
 -compile({no_auto_import,[nodes/1]}).
+
+-export([join/2,
+         plan/1,
+         commit/1,
+         status/1,
+         ringready/1]).
+
 -export([client/1,
          get_json/3,
-         put_json/4,
-         first_node/1,
-         list_buckets/4,
+         put_json/4]).
+
+-export([list_buckets/4,
          clean_buckets/2,
          put_buckets/3,
          list_keys/5,
          clean_keys/3,
-         put_keys/4,
-         load_patch/1,
-         http_listener/1,
+         put_keys/4]).
+
+-export([http_listener/1,
          pb_listener/1,
-         bucket_types/1,
-         clusters/0,
+         bucket_types/1]).
+
+-export([clusters/0,
          cluster/1,
+         first_node/1,
          nodes/1,
          node_exists/2]).
 
+-export([load_patch/1]).
+
 %%%===================================================================
-%%% API
+%%% Control API
 %%%===================================================================
 
+% replace(Node, Node1, Node2) ->
+%     remote(Node, application, get_env, [Node1, Node2]),
+%
+% force_replace(Node, Node1, Node2) ->
+
+join(Node, Node1) ->
+    Response = remote(Node, riak_core, staged_join, [Node1]),
+    case Response of
+        {error, Reason} -> [{control, [{error, Reason}]}];
+        ok -> [{control, [{success, ok}]}]
+    end.
+
+% leave(Node, Node1) ->
+%
+% force_remove(Node, Node1) ->
+%
+% leave(Node) ->
+%
+plan(Node) ->
+    Response = remote(Node, riak_core_claimant, plan, []),
+
+    case Response of
+        {error, Reason} ->
+            [{control, [{error, Reason}]}];
+        {ok, Changes, _} ->
+            [{control, [{success, lists:map(fun({N, {Action, Target}}) ->
+                    {N, [{Action, Target}]};
+                 ({N, Action}) -> {N, Action}
+            end, Changes)}]}]
+    end.
+commit(Node) ->
+    Response = remote(Node, riak_core_claimant, commit, []),
+
+    case Response of
+        ok -> [{control, [{success, ok}]}];
+        {error, Reason} -> [{control, [{error, Reason}]}];
+        _ -> [{control, [{error, retry_plan}]}]
+    end.
+% clear(Node) ->
+%     Response = remote(Node, riak_core, staged_join, [Node1]),
+%     case Response of
+%         {error, Reason} -> [{control, [{error, Reason}]}];
+%         ok -> [{control, [{success, ok}]}]
+%     end.
+status(Node) ->
+    {ok, Ring} = remote(Node, riak_core_ring_manager, get_my_ring, []),
+    AllStatus = lists:keysort(2, remote(Node, riak_core_ring, all_member_status, [Ring])),
+    IsPending = ([] /= remote(Node, riak_core_ring, pending_changes, [Ring])),
+    {Nodes, Joining, Valid, Down, Leaving, Exiting} =
+        lists:foldl(fun({N, Status},
+                        {Nodes0, Joining0, Valid0, Down0, Leaving0, Exiting0}) ->
+            {RingPercent, NextPercent} =
+                remote(Node, riak_core_console, pending_claim_percentage, [Ring, N]),
+            NodeObj = case IsPending of
+                true ->
+                    {N, [{status, Status},
+                          {ring_percentage, RingPercent},
+                          {pending_percentage, NextPercent}]};
+                false ->
+                    {N, [{status, Status},
+                          {ring_percentage, RingPercent},
+                          {pending_percentage, null}]}
+            end,
+            case Status of
+                joining ->
+                    {[NodeObj|Nodes0], Joining0 + 1, Valid0, Down0, Leaving0, Exiting0};
+                valid ->
+                    {[NodeObj|Nodes0], Joining0, Valid0 + 1, Down0, Leaving0, Exiting0};
+                down ->
+                    {[NodeObj|Nodes0], Joining0, Valid0, Down0 + 1, Leaving0, Exiting0};
+                leaving ->
+                    {[NodeObj|Nodes0], Joining0, Valid0, Down0, Leaving0 + 1, Exiting0};
+                exiting ->
+                    {[NodeObj|Nodes0], Joining0, Valid0, Down0, Leaving0, Exiting0 + 1}
+            end
+        end, {[],0,0,0,0,0}, AllStatus),
+    [{control, [
+        {success, [
+            {nodes, lists:reverse(Nodes)},
+            {valid, Valid},
+            {leaving, Leaving},
+            {exiting, Exiting},
+            {joining, Joining},
+            {down, Down}]}]}].
+
+ringready(Node) ->
+    try
+        Response = remote(Node, riak_core_status, ringready, []),
+        case Response of
+            {ok, Nodes} ->
+                [{control, [{success, [{nodes, Nodes}]}]}];
+            {error, {different_owners, N1, N2}} ->
+                [{control, [{error, [{different_owners, [N1, N2]}]}]}];
+            {error, {nodes_down, Down}} ->
+                [{control, [{error, [{nodes_down, Down}]}]}]
+        end
+    catch
+        Exception:Reason ->
+            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+            [{control, [{error, Error}]}]
+    end.
+
+%%%===================================================================
+%%% Riak Client API
+%%%===================================================================
+
+%% Local Client
 client(Node) ->
     {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, pb]),
     {ok, Pid} = riakc_pb_socket:start_link(Ip, Port),
     Pid.
 
+%% Local Client Get
 get_json(Node, Bucket, Key) ->
     C = client(Node),
     O = riakc_pb_socket:get(C, Bucket, Key),
     RawData = riakc_obj:value(O),
     mochijson2:decode(RawData).
 
+%% Local Client Put
 put_json(Node, Bucket, Key, Data) ->
     C = client(Node),
     RawData = mochijson2:encode(Data),
     O = riakc_obj:new(Bucket, Key, RawData, "application/json"),
     riakc_pb_socket:get(C, O).
 
-first_node(Cluster) ->
-    case nodes(Cluster) of
-        [{nodes, [[{id, Node}]|_]}] -> Node;
-        [{nodes, []}] -> [{error, no_nodes}];
-        [{error, not_found}] -> [{error, no_nodes}]
-    end.
+%%%===================================================================
+%%% Keyjournal API
+%%%===================================================================
 
 list_buckets(Node, BucketType, Start, Rows) ->
     case re_config:development_mode() of
@@ -96,10 +213,10 @@ clean_keys(Node, BucketType, Bucket) ->
 
 put_keys(Node, BucketType, Bucket, Keys) ->
     re_keyjournal:write_cache({keys, Node, [BucketType, Bucket]}, Keys).
-    
-load_patch(Node) ->
-    IsLoaded = remote(Node, code, is_loaded, [re_riak_patch]),
-    maybe_load_patch(Node, IsLoaded).
+
+%%%===================================================================
+%%% Node Properties API
+%%%===================================================================
 
 http_listener(Node) ->
     {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, http]),
@@ -114,6 +231,10 @@ bucket_types(Node) ->
     List = remote(Node, re_riak_patch, bucket_types, []),
     [{bucket_types, List}].
 
+%%%===================================================================
+%%% Cluster API
+%%%===================================================================
+
 clusters() ->
     Clusters = re_config:clusters(),
     Mapped = lists:map(fun({C, _}) -> [{id,C}, {riak_node, re_config:riak_node(C)}, {development_mode, re_config:development_mode(C)}] end, Clusters),
@@ -125,6 +246,13 @@ cluster(Id) ->
     case find_cluster(list_to_atom(binary_to_list(Id)), Clusters) of
         {error, not_found} = R -> R;
         Props -> [{clusters, Props}]
+    end.
+
+first_node(Cluster) ->
+    case nodes(Cluster) of
+        [{nodes, [[{id, Node}]|_]}] -> Node;
+        [{nodes, []}] -> [{error, no_nodes}];
+        [{error, not_found}] -> [{error, no_nodes}]
     end.
 
 nodes(Cluster) ->
@@ -139,9 +267,9 @@ nodes(Cluster) ->
     end.
 
 node_exists(Cluster, Node) ->
-    Filter = lists:filter(fun(X) -> 
-        case X of 
-            {error, not_found} -> false; 
+    Filter = lists:filter(fun(X) ->
+        case X of
+            {error, not_found} -> false;
             [{id, Node}] -> true;
             _ -> false
         end end, nodes(Cluster)),
@@ -150,6 +278,13 @@ node_exists(Cluster, Node) ->
         _ -> false
     end.
 
+%%%===================================================================
+%%% Utility API
+%%%===================================================================
+
+load_patch(Node) ->
+    IsLoaded = remote(Node, code, is_loaded, [re_riak_patch]),
+    maybe_load_patch(Node, IsLoaded).
 
 %%%===================================================================
 %%% Private

@@ -57,6 +57,7 @@ resources() ->
         re_wm_node,
         re_wm_cluster,
         re_wm_base,
+        re_wm_control,
         re_wm_riak_proxy,
         re_wm_static
     ].
@@ -83,7 +84,7 @@ routes() -> routes(resources(), []).
 formatted_routes() ->
     formatted_routes(resources(), []).
 
-format_route([], Accum) -> 
+format_route([], Accum) ->
     list_to_binary(lists:flatten(Accum));
 format_route([Piece | Rest], Accum) when is_list(Piece) ->
     format_route(Rest, Accum ++ "/" ++ Piece);
@@ -106,9 +107,9 @@ web_config() ->
         {dispatch, dispatch()}
     ],
     WebConfig1 = case application:get_env(riak_explorer, ssl) of
-        {ok, SSLOpts} -> 
+        {ok, SSLOpts} ->
             WebConfig0 ++ [{ssl, true}, {ssl_opts, SSLOpts}];
-        undefined -> 
+        undefined ->
             WebConfig0
     end,
     WebConfig1.
@@ -155,7 +156,7 @@ formatted_routes([M | Rest], Accum) ->
     ModuleRoutes = format_routes({M, M:routes()}, []),
     formatted_routes(Rest, Accum ++ ModuleRoutes).
 
-format_routes({_,[]}, Accum) -> 
+format_routes({_,[]}, Accum) ->
     Accum;
 format_routes({M, [Route | Rest]}, Accum) ->
     Path = format_route(Route, []),
