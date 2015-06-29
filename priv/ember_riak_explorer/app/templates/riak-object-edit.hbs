@@ -1,4 +1,4 @@
-{{#object-location object=model.obj isEditing=false}}{{/object-location}}
+{{#object-location object=model.obj isEditing=true}}{{/object-location}}
 
 <br />
 <div class="container">
@@ -20,17 +20,20 @@
 <div class="container">
     <h4>Contents</h4>
     <div class="row">
-        <div class="col-md-2">
-            <a href="{{model.url}}" class="btn btn-xs btn-primary">View raw</a>
-        </div>
-        <div class="col-md-10">
+        <div class="col-md-12">
             Content Type: <b>{{model.obj.contentType}}</b>
         </div>
     </div>
 </div>
+
 <br />
-{{#if model.obj.contents}}
-<pre><code>{{model.obj.contents}}</code></pre>
-{{/if}}
+<div class="container">
+    {{textarea value=model.obj.contents rows=20 cols=100}}
+</div>
+<div class="container">
+    <button type="button" class="btn btn-md btn-primary"
+            {{action 'saveObject' model.obj}}>
+        Save</button>
+</div>
 
 {{#object-version object=model.obj}}{{/object-version}}

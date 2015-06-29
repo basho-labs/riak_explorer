@@ -1,0 +1,64 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <strong>{{object.key}}</strong>
+            {{#if isEditing}}
+                (Editing)
+                <br />
+                {{#link-to 'riak-object' (query-params cluster_id=object.clusterId
+                        bucket_type_id=object.bucketTypeId bucket_id=object.bucketId
+                        object_key=object.key)
+                        classNames='btn btn-xs btn-default' }}
+                    Cancel{{/link-to}}
+            {{else}}
+                {{edit-object object=object}}
+            {{/if}}
+        </div>
+        <div class="col-md-4">
+            Deleted:
+            {{#if object.isDeleted}}
+                <strong>Yes</strong>
+            {{else}}
+                No
+                {{#unless isEditing}}
+                    {{delete-object action="deleteObject" object=object}}
+                {{/unless}}
+            {{/if}}
+        </div>
+    </div>
+</div>
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-11">
+            in
+            {{#link-to 'cluster' (query-params cluster_id=object.clusterId)}}
+                {{object.clusterId}}{{/link-to}} cluster
+            /
+            {{#link-to 'bucket_list' (query-params cluster_id=object.clusterId
+                    bucket_type_id=object.bucketTypeId)}}
+                {{object.bucketTypeId}}{{/link-to}} bucket type
+            /
+            {{#link-to 'key_list' (query-params cluster_id=object.clusterId
+                    bucket_type_id=object.bucketTypeId
+                    bucket_id=object.bucketId)}}
+                {{object.bucketId}}{{/link-to}} bucket
+
+        </div>
+    </div>
+</div>
+
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <strong>Last Modified:</strong>
+            {{object.dateLastModified}}
+        </div>
+        <div class="col-md-6">
+            Page loaded: {{object.dateLoaded}}
+        </div>
+    </div>
+</div>

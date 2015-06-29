@@ -77,34 +77,28 @@ function objectFromAjax(key, bucket, rawHeader, responseText, store) {
 }
 
 function deleteObject(object) {
-    var bucket = object.get('bucket');
-    var url = getClusterProxyUrl(bucket.get('clusterId')).then(function(proxyUrl) {
-        return proxyUrl + '/types/' + bucket.get('bucketTypeId') + '/buckets/' +
-           bucket.get('name') + '/keys/' + object.get('key');
+    var url = getClusterProxyUrl(object.get('clusterId')) + '/types/' +
+            object.get('bucketTypeId') + '/buckets/' +
+            object.get('bucketId') + '/keys/' + object.get('key');
 
-    });
-    var request = url.then(function(objUrl) {
-        var req = new Ember.RSVP.Promise(function(resolve, reject) {
-            Ember.$.ajax({
-                type: "DELETE",
-                url: objUrl,
-                headers: { 'X-Riak-Vclock': object.get('headers').other['x-riak-vclock'] }
-            }).then(
-                function(data, textStatus, jqXHR) {
-                    resolve(jqXHR.status);
-                },
-                function(jqXHR, textStatus) {
-                    reject(textStatus);
-                }
-            );
-        });
-
-        return req.catch(function(error) {
-            console.log('Error deleting riak object: %O', error);
-        });
+    var request = new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.$.ajax({
+            type: "DELETE",
+            url: url,
+            headers: { 'X-Riak-Vclock': object.get('headers').other['x-riak-vclock'] }
+        }).then(
+            function(data, textStatus, jqXHR) {
+                resolve(jqXHR.status);
+            },
+            function(jqXHR, textStatus) {
+                reject(textStatus);
+            }
+        );
     });
 
-    return request;
+    return request.catch(function(error) {
+        console.log('Error deleting riak object: %O', error);
+    });
 }
 
 function getCluster(cluster_id, include_nodes) {
@@ -182,10 +176,7 @@ function getClustersAndNodes() {
 }
 
 function getClusterProxyUrl(cluster_id) {
-    var nodes = getNodes(cluster_id);
-    return nodes.then(function(nodes) {
-        return '/riak/nodes/' + nodes[0].id;
-    });
+    return '/riak/clusters/'+cluster_id;
 }
 
 function getIndexes(node_id) {
@@ -221,10 +212,8 @@ function getNodes(cluster_id) {
 }
 
 function getRiakObject(cluster_id, bucket_type_id, bucket_id, object_key, store) {
-    var url = getClusterProxyUrl(cluster_id).then(function(proxyUrl) {
-        return proxyUrl + '/types/' + bucket_type_id + '/buckets/' +
+    var url = getClusterProxyUrl(cluster_id) + '/types/' + bucket_type_id + '/buckets/' +
            bucket_id + '/keys/' + object_key;
-    });
 
     var bucket = store.createRecord('bucket', {
         name: bucket_id,
@@ -232,34 +221,38 @@ function getRiakObject(cluster_id, bucket_type_id, bucket_id, object_key, store)
         clusterId: cluster_id
     });
 
-    var request = url.then(function(objUrl) {
-        var req = new Ember.RSVP.Promise(function(resolve, reject) {
-            Ember.$.ajax({
-                type: "GET",
-                url: objUrl,
-                headers: { 'Accept': '*/*, multipart/mixed' }
-            }).then(
-                function(data, textStatus, jqXHR) {
-                    var headerString = jqXHR.getAllResponseHeaders();
+    var request = new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.$.ajax({
+            type: "GET",
+            processData: false,
+            cache: false,
+            url: url,
+            headers: { 'Accept': '*/*, multipart/mixed' }
+        }).then(
+            function(data, textStatus, jqXHR) {
+                var headerString = jqXHR.getAllResponseHeaders();
+                resolve(objectFromAjax(object_key, bucket, headerString,
+                    jqXHR.responseText, store));
+            },
+            function(jqXHR, textStatus) {
+                var headerString;
+                if(jqXHR.status === 200 && textStatus === 'parsererror') {
+                    // jQuery tries to parse JSON objects, and throws
+                    // parse errors when they're invalid. Suppress this.
+                    headerString = jqXHR.getAllResponseHeaders();
                     resolve(objectFromAjax(object_key, bucket, headerString,
                         jqXHR.responseText, store));
-                },
-                function(jqXHR, textStatus) {
-                    if(jqXHR.status === 300) {
-                        // Handle 300 Multiple Choices case for siblings
-                        var headerString = jqXHR.getAllResponseHeaders();
-                        resolve(objectFromAjax(object_key, bucket, headerString,
-                            jqXHR.responseText, store));
-                    } else {
-                        reject(textStatus);
-                    }
                 }
-            );
-        });
-
-        return req.catch(function(error) {
-            console.log('Error fetching riak object: %O', error);
-        });
+                if(jqXHR.status === 300) {
+                    // Handle 300 Multiple Choices case for siblings
+                    headerString = jqXHR.getAllResponseHeaders();
+                    resolve(objectFromAjax(object_key, bucket, headerString,
+                        jqXHR.responseText, store));
+                } else {
+                    reject(textStatus);
+                }
+            }
+        );
     });
 
     return request.then(function(request) {
@@ -271,6 +264,8 @@ function getRiakObject(cluster_id, bucket_type_id, bucket_id, object_key, store)
             object_key: object_key,
             url: url
         });
+    }).catch(function(error) {
+        console.log('Error fetching riak object: %O', error);
     });
 }
 
@@ -371,6 +366,34 @@ function keyCacheRefresh(keyList) {
     });
 }
 
+function saveObject(object) {
+    var url = getClusterProxyUrl(object.get('clusterId')) + '/types/' +
+            object.get('bucketTypeId') + '/buckets/' +
+            object.get('bucketId') + '/keys/' + object.get('key');
+
+    var request = new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.$.ajax({
+            type: "PUT",
+            processData: false,
+            contentType: object.get('contentType'),
+            url: url,
+            headers: object.get('headersForUpdate'),
+            data: object.get('contents')
+        }).then(
+            function(data, textStatus, jqXHR) {
+                resolve(jqXHR.status);
+            },
+            function(jqXHR, textStatus) {
+                reject(textStatus);
+            }
+        );
+    });
+
+    return request.catch(function(error) {
+        console.log('Error saving riak object: %O', error);
+    });
+}
+
 export default Ember.Service.extend({
     name: 'explorer',
     availableIn: ['controllers', 'routes'],
@@ -405,5 +428,7 @@ export default Ember.Service.extend({
 
     keyCacheCreate: keyCacheCreate,
     keyCacheDelete: keyCacheDelete,
-    keyCacheRefresh: keyCacheRefresh
+    keyCacheRefresh: keyCacheRefresh,
+
+    saveObject: saveObject
 });
