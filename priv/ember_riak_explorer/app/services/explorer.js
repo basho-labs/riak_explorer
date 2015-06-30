@@ -106,7 +106,7 @@ function getCluster(cluster_id, include_nodes) {
     var result = Ember.$.ajax({ url: url });  // returns a Promise obj
     var nodes;
     var indexes;
-    var clusterUrl;
+    var clusterUrl = getClusterProxyUrl(cluster_id);
     if(include_nodes) {
         nodes = getNodes(cluster_id);
 
@@ -115,13 +115,7 @@ function getCluster(cluster_id, include_nodes) {
             if(!nodes) {
                 return [];
             }
-            return getIndexes(nodes[0].id);
-        });
-        clusterUrl = nodes.then(function(nodes) {
-            if(!nodes) {
-                return null;
-            }
-            return '/riak/nodes/'+nodes[0].id;
+            return getIndexes(cluster_id);
         });
     }
     return result.then(
@@ -179,8 +173,8 @@ function getClusterProxyUrl(cluster_id) {
     return '/riak/clusters/'+cluster_id;
 }
 
-function getIndexes(node_id) {
-    var url = '/riak/nodes/' + node_id + '/search/index';
+function getIndexes(clusterId) {
+    var url = getClusterProxyUrl(clusterId) + '/search/index';
 
     var request = new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.$.ajax({
