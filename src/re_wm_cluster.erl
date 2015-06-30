@@ -22,7 +22,7 @@
 -export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
-         allowed_methods/2, 
+         allowed_methods/2,
          content_types_provided/2,
          resource_exists/2,
          provide_jsonapi_content/2,
@@ -44,7 +44,7 @@
 %%% API
 %%%===================================================================
 
-resources() -> 
+resources() ->
     [].
 
 routes() ->
@@ -66,7 +66,7 @@ init(_) ->
 service_available(RD, Ctx0) ->
     Ctx1 = Ctx0#ctx{
         resource = wrq:path_info(resource, RD),
-        cluster = wrq:path_info(cluster, RD)},
+        cluster = maybe_atomize(wrq:path_info(cluster, RD))},
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
@@ -82,9 +82,8 @@ resource_exists(RD, Ctx=?listClusters()) ->
     Response = re_riak:clusters(),
     {true, RD, Ctx#ctx{id=clusters, response=Response}};
 resource_exists(RD, Ctx=?clusterInfo(Cluster)) ->
-    Id = list_to_binary(Cluster),
-    case re_riak:cluster(Id) of
-        {error, not_found} -> 
+    case re_riak:cluster(Cluster) of
+        {error, not_found} ->
             {false, RD, Ctx};
         Response ->
             {true, RD, Ctx#ctx{id=cluster, response=Response}}
@@ -92,10 +91,10 @@ resource_exists(RD, Ctx=?clusterInfo(Cluster)) ->
 resource_exists(RD, Ctx=?clusterResource(Cluster, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
-        [M,F] -> 
+        [M,F] ->
             Response = M:F(Cluster),
             {true, RD, Ctx#ctx{id=Id, response=Response}};
-        _ -> 
+        _ ->
             {false, RD, Ctx}
     end;
 resource_exists(RD, Ctx) ->
@@ -120,6 +119,9 @@ provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
 %% ====================================================================
 %% Private
 %% ====================================================================
+
+maybe_atomize(Data) when is_list(Data) -> list_to_atom(Data);
+maybe_atomize(Data) when is_atom(Data) -> Data.
 
 render_json(Data, RD, Ctx) ->
     Body = mochijson2:encode(Data),

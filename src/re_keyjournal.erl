@@ -33,10 +33,11 @@
 %%%===================================================================
 
 clean({Operation, Node, Path}) ->
-   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Node)] ++ Path),
+   Cluster = re_riak:cluster_id_for_node(Node),
+   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
    {ok, Files} = file:list_dir(Dir),
    case Files of
-      [File|_] -> 
+      [File|_] ->
          DirFile = filename:join([Dir, File]),
          file:delete(DirFile),
          true;
@@ -51,10 +52,11 @@ read(Meta, Start, Rows) ->
    end.
 
 read_cache({Operation, Node, Path}, Start, Rows) ->
-   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Node)] ++ Path),
+   Cluster = re_riak:cluster_id_for_node(Node),
+   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
    {ok, Files} = file:list_dir(Dir),
    case Files of
-      [File|_] -> 
+      [File|_] ->
          DirFile = filename:join([Dir, File]),
          {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows - 1),
          [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(timestamp_human(File))},{Operation, Entries}]}];
@@ -68,7 +70,8 @@ write({Operation, _, _}=Meta) ->
    end.
 
 write_cache({Operation, Node, Path}, Objects) ->
-   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Node)] ++ Path),
+   Cluster = re_riak:cluster_id_for_node(Node),
+   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
    {ok, Files} = file:list_dir(Dir),
    DirFile = case Files of
       [File|_] -> filename:join([Dir, File]);
@@ -94,7 +97,8 @@ handle_list({keys, Node, [BucketType, Bucket]}=Meta) ->
    handle_stream(Meta, Stream).
 
 handle_stream({Operation, Node, Path}=Meta, {ok, ReqId}) ->
-   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Node)] ++ Path),
+   Cluster = re_riak:cluster_id_for_node(Node),
+   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
    TimeStamp = timestamp_string(),
    FileName = filename:join([Dir, TimeStamp]),
    file:write_file(FileName, "", [write]),
@@ -106,19 +110,19 @@ handle_stream({Operation, _Node, Path}, Error) ->
 
 write_loop({Operation, _,_}=Meta, ReqId, Device, Count) ->
     receive
-        {ReqId, done} -> 
+        {ReqId, done} ->
             re_job_manager:finish(Operation),
             lager:info("list finished for file"),
             file:close(Device);
-        {ReqId, {error, Reason}} -> 
+        {ReqId, {error, Reason}} ->
             re_job_manager:error(Operation, [{error, Reason}]),
             lager:error("list failed for file with reason: ~p", [Reason]),
             file:close(Device);
-        {ReqId, {_, Res}} -> 
+        {ReqId, {_, Res}} ->
             Count1 = Count + length(Res),
             Device1 = case Res of
                "" -> Device;
-               Entries -> 
+               Entries ->
                   re_job_manager:set_meta(Operation, [{count, Count1}]),
                   update_cache(Entries, Device)
             end,
@@ -134,7 +138,7 @@ update_cache([], Device) ->
 update_cache([Object|Rest], Device) ->
    io:fwrite(Device, binary_to_list(Object) ++ "~n", []),
    update_cache(Rest, Device).
-   
+
 timestamp_string() ->
     {{Year,Month,Day},{Hour,Min,Sec}} = calendar:now_to_universal_time(now()),
     lists:flatten(io_lib:fwrite("~4..0B~2.10.0B~2.10.0B~2.10.0B~2.10.0B~2.10.0B",[Year, Month, Day, Hour, Min, Sec])).
@@ -152,7 +156,7 @@ entries_from_file(File, Start, Rows) ->
    re_file_util:for_each_line_in_file(File,
       fun(Entry, {T, RC, S, E, Accum}) ->
          case should_add_entry(T, S, E) of
-            true -> 
+            true ->
                B = re:replace(Entry, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
                {T + 1, RC + 1, S, E, [list_to_binary(B)|Accum]};
             _ -> {T + 1, RC, S, E, Accum}

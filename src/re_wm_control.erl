@@ -179,7 +179,7 @@ maybe_atomize(Data) when is_atom(Data) -> Data.
 node_from_context(Ctx) ->
     case Ctx of
         #ctx{cluster=undefined, node=N} -> list_to_atom(N);
-        #ctx{cluster=C} -> re_riak:first_node(C)
+        #ctx{cluster=C} -> re_riak:first_node(list_to_atom(C))
     end.
 
 render_json(Data, RD, Ctx) ->

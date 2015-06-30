@@ -22,7 +22,7 @@
 -export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
-         allowed_methods/2, 
+         allowed_methods/2,
          content_types_provided/2,
          resource_exists/2,
          provide_jsonapi_content/2,
@@ -44,7 +44,7 @@
 %%% API
 %%%===================================================================
 
-resources() -> 
+resources() ->
     [].
 
 routes() ->
@@ -70,8 +70,8 @@ init(_) ->
 service_available(RD, Ctx0) ->
     Ctx1 = Ctx0#ctx{
         resource = wrq:path_info(resource, RD),
-        cluster = wrq:path_info(cluster, RD),
-        node = wrq:path_info(node, RD)},
+        cluster = maybe_atomize(wrq:path_info(cluster, RD)),
+        node = maybe_atomize(wrq:path_info(node, RD))},
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
@@ -85,10 +85,10 @@ content_types_provided(RD, Ctx) ->
 
 resource_exists(RD, Ctx=?listNodes(Cluster)) ->
     Response = re_riak:nodes(Cluster),
-    case Response of 
+    case Response of
         [{error, not_found}] ->
             {false, RD, Ctx};
-        _ -> 
+        _ ->
             {true, RD, Ctx#ctx{id=nodes, response=Response}}
     end;
 resource_exists(RD, Ctx=?nodeInfo(Cluster, Node)) ->
@@ -103,10 +103,10 @@ resource_exists(RD, Ctx=?nodeInfo(Cluster, Node)) ->
 resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
-        [M,F] -> 
+        [M,F] ->
             Response = M:F(Cluster, Node),
             {true, RD, Ctx#ctx{id=Id, response=Response}};
-        _ -> 
+        _ ->
             {false, RD, Ctx}
     end;
 resource_exists(RD, Ctx) ->
@@ -131,6 +131,9 @@ provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
 %% ====================================================================
 %% Private
 %% ====================================================================
+
+maybe_atomize(Data) when is_list(Data) -> list_to_atom(Data);
+maybe_atomize(Data) when is_atom(Data) -> Data.
 
 render_json(Data, RD, Ctx) ->
     Body = mochijson2:encode(Data),

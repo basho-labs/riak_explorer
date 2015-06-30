@@ -32,7 +32,7 @@
 %%% API
 %%%===================================================================
 
-resources() -> 
+resources() ->
     [].
 
 routes() ->
@@ -94,14 +94,14 @@ service_available(RD, Ctx0) ->
 node_from_context(Ctx) ->
     case Ctx of
         #ctx{cluster=undefined, node=N} -> list_to_atom(N);
-        #ctx{cluster=C} -> re_riak:first_node(C)
+        #ctx{cluster=C} -> re_riak:first_node(list_to_atom(C))
     end.
 
 clean_request_headers(Headers) ->
     [{K,V} || {K,V} <- Headers,
-              K /= 'Host', 
-              K /= 'Content-Length', 
-              K /= 'X-Requested-With', 
+              K /= 'Host',
+              K /= 'Content-Length',
+              K /= 'X-Requested-With',
               K /= 'Referer'].
 
 wm_to_ibrowse_method(Method) when is_list(Method) ->
