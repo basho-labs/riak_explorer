@@ -55,6 +55,7 @@ service_available(RD, Ctx0) ->
         cluster = wrq:path_info(cluster, RD)},
 
     Node = node_from_context(Ctx1),
+    Cluster = re_riak:cluster_id_for_node(Node),
     Ctx2 = Ctx1#ctx{node=Node},
 
     [{http_listener,Listener}] = re_riak:http_listener(Node),
@@ -79,7 +80,7 @@ service_available(RD, Ctx0) ->
 
     case ibrowse:send_req(Path, Headers, Method, ReqBody) of
         {ok, Status, RiakHeaders, RespBody} ->
-            RespHeaders = fix_location(RiakHeaders, RiakPath),
+            RespHeaders = fix_location(RiakHeaders, Cluster),
             {{halt, list_to_integer(Status)},
              wrq:set_resp_headers(RespHeaders,
                                   wrq:set_resp_body(RespBody, RD)),
@@ -110,8 +111,7 @@ wm_to_ibrowse_method(Method) when is_atom(Method) ->
     wm_to_ibrowse_method(atom_to_list(Method)).
 
 fix_location([], _) -> [];
-fix_location([{"Location", RiakDataPath}|Rest], RiakPath) ->
-    DataPath = lists:nthtail(length(RiakPath), RiakDataPath),
-    [{"Location", re_config:url()++DataPath}|Rest];
-fix_location([H|T], RiakPath) ->
-    [H|fix_location(T, RiakPath)].
+fix_location([{"Location", RiakDataPath}|Rest], Cluster) ->
+    [{"Location", re_config:url()++?RE_RIAK_PROXY_ROUTE++"/clusters/"++atom_to_list(Cluster)++RiakDataPath}|Rest];
+fix_location([H|T], Cluster) ->
+    [H|fix_location(T, Cluster)].
