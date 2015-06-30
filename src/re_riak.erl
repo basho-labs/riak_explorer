@@ -140,10 +140,10 @@ plan(Node) ->
         {error, Reason} ->
             [{control, [{error, Reason}]}];
         {ok, Changes, _} ->
-            [{control, [{success, lists:map(fun({N, {Action, Target}}) ->
+            [{control, lists:map(fun({N, {Action, Target}}) ->
                     {N, [{Action, Target}]};
                  ({N, Action}) -> {N, Action}
-            end, Changes)}]}]
+            end, Changes)}]
     end.
 commit(Node) ->
     Response = remote(Node, riak_core_claimant, commit, []),
@@ -178,13 +178,15 @@ status(Node) ->
                 remote(Node, riak_core_console, pending_claim_percentage, [Ring, N]),
             NodeObj = case IsPending of
                 true ->
-                    {N, [{status, Status},
-                          {ring_percentage, RingPercent},
-                          {pending_percentage, NextPercent}]};
+                    [{id, N},
+                     {status, Status},
+                     {ring_percentage, RingPercent},
+                     {pending_percentage, NextPercent}];
                 false ->
-                    {N, [{status, Status},
-                          {ring_percentage, RingPercent},
-                          {pending_percentage, null}]}
+                    [{id, N},
+                     {status, Status},
+                     {ring_percentage, RingPercent},
+                     {pending_percentage, null}]
             end,
             case Status of
                 joining ->
@@ -200,20 +202,19 @@ status(Node) ->
             end
         end, {[],0,0,0,0,0}, AllStatus),
     [{control, [
-        {success, [
-            {nodes, lists:reverse(Nodes)},
-            {valid, Valid},
-            {leaving, Leaving},
-            {exiting, Exiting},
-            {joining, Joining},
-            {down, Down}]}]}].
+        {nodes, lists:reverse(Nodes)},
+        {valid, Valid},
+        {leaving, Leaving},
+        {exiting, Exiting},
+        {joining, Joining},
+        {down, Down}]}].
 
 ringready(Node) ->
     try
         Response = remote(Node, riak_core_status, ringready, []),
         case Response of
             {ok, Nodes} ->
-                [{control, [{success, [{nodes, Nodes}]}]}];
+                [{control, [{nodes, Nodes}]}];
             {error, {different_owners, N1, N2}} ->
                 [{control, [{error, [{different_owners, [N1, N2]}]}]}];
             {error, {nodes_down, Down}} ->

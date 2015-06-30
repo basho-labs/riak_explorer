@@ -65,7 +65,6 @@ jobs_for_resource(_Node, _BucketType, _Bucket) ->
 %%% Private
 %%%===================================================================
 
-
 -ifdef(TEST).
 
 ping_test() ->
