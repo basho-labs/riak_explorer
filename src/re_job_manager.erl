@@ -66,7 +66,7 @@ init(_Args) ->
 handle_call({create, Id, {M, F, A}}, _From, State=#state{jobs=Jobs}) ->
     lager:info("Creating job: ~p, {~p, ~p, ~p}. Existing Jobs: ~p.", [Id, M, F, A, Jobs]),
     case proplists:get_value(Id, Jobs) of
-        #job{status=in_progress} -> 
+        #job{status=in_progress} ->
             {reply, [{error, already_started}], State};
         _ ->
             Pid = spawn(M, F, A),
@@ -80,7 +80,7 @@ handle_call({get_jobs}, _From, State=#state{jobs=Jobs}) ->
 
 handle_call({get_info, Id}, _From, State=#state{jobs=Jobs}) ->
     case proplists:get_value(Id, Jobs) of
-        J=#job{} -> 
+        J=#job{} ->
             {reply, [{id, Id}, {status, J#job.status}, {meta, J#job.meta}], State};
         _ ->
             {reply, [{error, not_found}], State}
@@ -88,7 +88,7 @@ handle_call({get_info, Id}, _From, State=#state{jobs=Jobs}) ->
 
 handle_cast({set_meta, Id, Meta}, State=#state{jobs=Jobs}) ->
     case proplists:get_value(Id, Jobs) of
-        J=#job{} -> 
+        J=#job{} ->
             {noreply, State#state{
                 jobs=put_job(Id, Jobs, J#job{meta=Meta}, [])}};
         _ ->
@@ -97,7 +97,7 @@ handle_cast({set_meta, Id, Meta}, State=#state{jobs=Jobs}) ->
 
 handle_cast({error, Id, Meta}, State=#state{jobs=Jobs}) ->
     case proplists:get_value(Id, Jobs) of
-        J=#job{} -> 
+        J=#job{} ->
             {noreply, State#state{
                 jobs=put_job(Id, Jobs, J#job{status=error, meta=Meta}, [])}};
         _ ->
@@ -106,7 +106,7 @@ handle_cast({error, Id, Meta}, State=#state{jobs=Jobs}) ->
 
 handle_cast({finish, Id}, State=#state{jobs=Jobs}) ->
     case proplists:get_value(Id, Jobs) of
-        J=#job{} -> 
+        J=#job{} ->
             {noreply, State#state{
                 jobs=put_job(Id, Jobs, J#job{status=done}, [])}};
         _ ->
@@ -129,11 +129,9 @@ terminate(Reason, _State) ->
 
 put_job(Id, [], Job, Accum) ->
     case proplists:is_defined(Id, Accum) of
-        true -> 
-            lager:info("Accum: ~p, not adding ~p", [Accum, Id]),
+        true ->
             lists:reverse(Accum);
-        false -> 
-            lager:info("Accum: ~p, adding ~p", [Accum, Id]),
+        false ->
             lists:reverse([{Id, Job}|Accum])
     end;
 put_job(Id, [{Id, _}|Rest], Job, Accum) ->

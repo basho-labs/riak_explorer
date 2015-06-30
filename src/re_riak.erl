@@ -37,7 +37,8 @@
 
 -export([client/1,
          get_json/3,
-         put_json/4]).
+         put_json/4,
+         delete_bucket/3]).
 
 -export([list_buckets/4,
          clean_buckets/2,
@@ -249,6 +250,33 @@ put_json(Node, Bucket, Key, Data) ->
     RawData = mochijson2:encode(Data),
     O = riakc_obj:new(Bucket, Key, RawData, "application/json"),
     riakc_pb_socket:get(C, O).
+
+delete_bucket(Node, BucketType, Bucket) ->
+    case re_config:development_mode() of
+        true ->
+            C = client(Node),
+            {Oks, Errors} = case re_keyjournal:cache_for_each({keys, Node, [BucketType, Bucket]},
+                    fun(Entry0, {Oks0, Errors0}) ->
+                        RT = list_to_binary(BucketType),
+                        RB = list_to_binary(Bucket),
+                        RK = list_to_binary(re:replace(Entry0, "(^\\s+)|(\\s+$)", "", [global,{return,list}])),
+                        case riakc_pb_socket:delete(C, {RT,RB}, RK) of
+                            ok ->
+                                {Oks0+1, Errors0};
+                            {error, Reason} ->
+                                lager:warning("Failed to delete types/~p/buckets/~p/keys/~p with reason ~p", [RT, RB, RK, Reason]),
+                                {Oks0, Errors0+1}
+                        end
+                    end, [read], {0, 0}) of
+                {Os,Es} -> {Os, Es};
+                false -> {0,0}
+            end,
+            lager:info("Completed deletion of types/~p/buckets/~p with ~p successful deletes and ~p errors", [BucketType, Bucket, Oks, Errors]),
+            ok;
+        false ->
+            lager:warn("Failed request to delete types/~p/buckets/~p because developer mode is off", [BucketType, Bucket]),
+            {error, developer_mode_off}
+    end.
 
 %%%===================================================================
 %%% Keyjournal API

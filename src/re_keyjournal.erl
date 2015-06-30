@@ -19,7 +19,8 @@
 %% -------------------------------------------------------------------
 
 -module(re_keyjournal).
--export([clean/1,
+-export([cache_for_each/4,
+         clean/1,
          read/3,
          read_cache/3,
          write/1,
@@ -31,6 +32,17 @@
 %%%===================================================================
 %%% API
 %%%===================================================================
+
+cache_for_each({Operation, Node, Path}, Fun, Mode, InitAccum) ->
+    Cluster = re_riak:cluster_id_for_node(Node),
+    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+    {ok, Files} = file:list_dir(Dir),
+    case Files of
+       [File|_] ->
+          DirFile = filename:join([Dir, File]),
+          re_file_util:for_each_line_in_file(DirFile,Fun, Mode, InitAccum);
+       [] -> false
+    end.
 
 clean({Operation, Node, Path}) ->
    Cluster = re_riak:cluster_id_for_node(Node),

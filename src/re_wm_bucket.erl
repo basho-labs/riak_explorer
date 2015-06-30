@@ -46,6 +46,8 @@
     #ctx{method='GET', bucket_type=BucketType, bucket=undefined}).
 -define(bucketInfo(BucketType, Bucket),
     #ctx{method='GET', bucket_type=BucketType, bucket=Bucket, resource=undefined}).
+-define(deleteBucket(BucketType, Bucket),
+    #ctx{method='DELETE', bucket_type=BucketType, bucket=Bucket, resource=undefined}).
 -define(bucketResource(BucketType, Bucket, Resource),
     #ctx{method='GET', bucket_type=BucketType, bucket=Bucket, resource=Resource}).
 
@@ -127,6 +129,15 @@ resource_exists(RD, Ctx=?listBuckets(BucketType)) ->
         true -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
         false -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
         Response -> {true, RD, Ctx#ctx{id=buckets, response=Response}}
+    end;
+resource_exists(RD, Ctx=?deleteBucket(BucketType, Bucket)) ->
+    Node = Ctx#ctx.node,
+    case re_riak:delete_bucket(Node, BucketType, Bucket) of
+        ok ->
+            {{halt, 204}, RD, Ctx};
+        {error, Reason} ->
+            Response = [{buckets, [{error,Reason}]}],
+            {true, RD, Ctx#ctx{id=buckets, response=Response}}
     end;
 resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
     Id = list_to_binary(Bucket),
