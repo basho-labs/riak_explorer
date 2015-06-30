@@ -137,7 +137,7 @@ resource_exists(RD, Ctx=?deleteBucket(BucketType, Bucket)) ->
             {{halt, 204}, RD, Ctx};
         {error, Reason} ->
             Response = [{buckets, [{error,Reason}]}],
-            {true, RD, Ctx#ctx{id=buckets, response=Response}}
+            {true, RD, Ctx#ctx{id=bucket, response=Response}}
     end;
 resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
     Id = list_to_binary(Bucket),
