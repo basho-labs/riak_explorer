@@ -29,11 +29,15 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <h5>Search Indexes</h5>
-            {{#search-indexes cluster_id=model.cluster.id
-                indexes=model.cluster.indexes
-                cluster_proxy_url=model.cluster.cluster_proxy_url}}
-            {{/search-indexes}}
+            {{#if model.cluster.indexes}}
+                <h5>Search Indexes</h5>
+                {{#search-indexes cluster_id=model.cluster.id
+                    indexes=model.cluster.indexes
+                    cluster_proxy_url=model.cluster.cluster_proxy_url}}
+                {{/search-indexes}}
+            {{else}}
+                No search indexes found.
+            {{/if}}
         </div>
     </div>
     <div class="row">

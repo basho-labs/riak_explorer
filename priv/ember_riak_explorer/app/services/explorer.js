@@ -181,18 +181,29 @@ function getClusterProxyUrl(cluster_id) {
 
 function getIndexes(node_id) {
     var url = '/riak/nodes/' + node_id + '/search/index';
-    var result = Ember.$.ajax({ url: url });  // returns a Promise obj
-    return result.then(
-        // Success
-        function(data) {
-            return data;
-        },
-        // Error
-        function(error) {
-            console.log('Error fetching indexes: ' + error);
-            return [];
-        }
-    );
+
+    var request = new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.$.ajax({
+            type: "GET",
+            url: url
+        }).then(
+            // Success
+            function(data) {
+                resolve(data);
+            },
+            // Error
+            function(jqXHR, textStatus) {
+                if(jqXHR.status === 404) {
+                    // No indexes found, simply return an empty list
+                    resolve([]);
+                } else {
+                    // Some other error
+                    reject(textStatus);
+                }
+            }
+        );
+    });
+    return request;
 }
 
 function getNodes(cluster_id) {
