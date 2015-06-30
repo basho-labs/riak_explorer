@@ -50,7 +50,8 @@
          pb_listener/1,
          bucket_types/1]).
 
--export([clusters/0,
+-export([cluster_id_for_node/1,
+         clusters/0,
          cluster/1,
          first_node/1,
          nodes/1,
@@ -301,6 +302,14 @@ bucket_types(Node) ->
 %%% Cluster API
 %%%===================================================================
 
+cluster_id_for_node(Node) ->
+    [{clusters, Clusters}] = clusters(),
+
+    case find_cluster_by_node(Node, Clusters) of
+        {error, not_found} -> undefined;
+        [{id, Id}|_] -> Id
+    end.
+
 clusters() ->
     Clusters = re_config:clusters(),
     Mapped = lists:map(fun({C, _}) -> [{id,C}, {riak_node, re_config:riak_node(C)}, {development_mode, re_config:development_mode(C)}] end, Clusters),
@@ -309,8 +318,8 @@ clusters() ->
 cluster(Id) ->
     [{clusters, Clusters}] = clusters(),
 
-    case find_cluster(list_to_atom(binary_to_list(Id)), Clusters) of
-        {error, not_found} = R -> R;
+    case find_cluster_by_id(Id, Clusters) of
+        {error, not_found} -> {error, not_found};
         Props -> [{clusters, Props}]
     end.
 
@@ -322,7 +331,7 @@ first_node(Cluster) ->
     end.
 
 nodes(Cluster) ->
-    RiakNode = re_config:riak_node(list_to_atom(Cluster)),
+    RiakNode = re_config:riak_node(Cluster),
 
     case remote(RiakNode, riak_core_ring_manager, get_my_ring, []) of
         {ok, MyRing} ->
@@ -372,12 +381,19 @@ maybe_load_patch(Node, _) ->
 remote(N,M,F,A) ->
     rpc:call(N, M, F, A, 60000).
 
-% remote(M,F,A) ->
-%     remote(re_config:riak_node(), M, F, A).
-
-find_cluster(_, []) ->
+find_cluster_by_id(_, []) ->
     {error, not_found};
-find_cluster(Id, [[{id, Id}|_]=Props|_]) ->
+find_cluster_by_id(Id, [[{id, Id}|_]=Props|_]) ->
     Props;
-find_cluster(Id, [[{id, _}|_]|Rest]) ->
-    find_cluster(Id, Rest).
+find_cluster_by_id(Id, [_|Rest]) ->
+    find_cluster_by_id(Id, Rest).
+
+find_cluster_by_node(_, []) ->
+    {error, not_found};
+find_cluster_by_node(Node, [[_,{riak_node,Node}|_]=Props|_]) ->
+    Props;
+find_cluster_by_node(Node, [[{id, Cluster}|_]=Props|Rest]) ->
+    case node_exists(Cluster, Node) of
+        true -> Props;
+        false -> find_cluster_by_node(Node, Rest)
+    end.

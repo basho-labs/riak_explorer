@@ -22,7 +22,7 @@
 -export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
-         allowed_methods/2, 
+         allowed_methods/2,
          content_types_provided/2,
          content_types_accepted/2,
          resource_exists/2,
@@ -53,7 +53,7 @@
 %%% API
 %%%===================================================================
 
-resources() -> 
+resources() ->
     [{jobs, [riak_explorer, jobs_for_resource]}].
 
 routes() ->
@@ -136,16 +136,16 @@ resource_exists(RD, Ctx=?bucketResource(BucketType, Bucket, Resource)) ->
     Node = Ctx#ctx.node,
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
-        [M,F] -> 
+        [M,F] ->
             Response = M:F(Node, BucketType, Bucket),
             {true, RD, Ctx#ctx{id=Id, response=Response}};
-        _ -> 
+        _ ->
             {false, RD, Ctx}
     end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
-delete_resource(RD, Ctx) -> 
+delete_resource(RD, Ctx) ->
     {true, RD, Ctx}.
 
 accept_content(RD, Ctx=?putBuckets(BucketType)) ->
@@ -178,7 +178,7 @@ provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
 node_from_context(Ctx) ->
     case Ctx of
         #ctx{cluster=undefined, node=N} -> list_to_atom(N);
-        #ctx{cluster=C} -> re_riak:first_node(C)
+        #ctx{cluster=C} -> re_riak:first_node(list_to_atom(C))
     end.
 
 render_json(Data, RD, Ctx) ->
