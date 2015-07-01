@@ -42,8 +42,10 @@
     #ctx{method='PUT', bucket_type=BucketType, bucket=Bucket, key=undefined}).
 -define(cleanKeys(BucketType, Bucket),
     #ctx{method='DELETE', bucket_type=BucketType, bucket=Bucket, key=undefined}).
--define(listKeys(BucketType, Bucket),
+-define(listKeysCache(BucketType, Bucket),
     #ctx{method='GET', bucket_type=BucketType, bucket=Bucket, key=undefined}).
+-define(listKeys(BucketType, Bucket),
+    #ctx{method='POST', bucket_type=BucketType, bucket=Bucket, key=undefined}).
 -define(keyInfo(BucketType, Bucket, Key),
     #ctx{method='GET', bucket_type=BucketType, bucket=Bucket, key=Key, resource=undefined}).
 -define(keyResource(BucketType, Bucket, Key, Resource),
@@ -57,16 +59,20 @@ resources() ->
     [].
 
 routes() ->
-    [_, _, CBucket, _, _, Bucket] = re_wm_bucket:routes(),
+    [_, _, _, CBucket, _, _, _, Bucket] = re_wm_bucket:routes(),
+
+    CRefresh = CBucket ++ ["refresh_keys"] ++ ["source"] ++ ["riak_kv"],
 
     CKeys = CBucket ++ ["keys"],
     CKey = CKeys ++ [key],
     CKeyResource = CKey ++ [resource],
 
+    Refresh = Bucket ++ ["refresh_keys"] ++ ["source"] ++ ["riak_kv"],
+
     Keys = Bucket ++ ["keys"],
     Key = Keys ++ [key],
     KeyResource = Key ++ [resource],
-    [CKeys, CKeyResource, CKey, Keys, KeyResource, Key].
+    [CRefresh, CKeys, CKeyResource, CKey, Refresh, Keys, KeyResource, Key].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -91,7 +97,7 @@ service_available(RD, Ctx0) ->
     {true, RD, Ctx1#ctx{node = node_from_context(Ctx1)}}.
 
 allowed_methods(RD, Ctx) ->
-    Methods = ['GET', 'PUT', 'DELETE'],
+    Methods = ['POST', 'GET', 'PUT', 'DELETE'],
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
@@ -110,15 +116,26 @@ resource_exists(RD, Ctx=?putKeys(_BucketType, _Bucket)) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx=?cleanKeys(BucketType, Bucket)) ->
     Node = Ctx#ctx.node,
-    Succeeded = re_riak:clean_keys(Node, BucketType, Bucket),
-    {Succeeded, RD, Ctx};
+    re_riak:clean_keys(Node, BucketType, Bucket),
+    {true, RD, Ctx};
+resource_exists(RD, Ctx=?listKeysCache(BucketType, Bucket)) ->
+    Node = Ctx#ctx.node,
+    case re_riak:list_keys_cache(Node, BucketType, Bucket, Ctx#ctx.start, Ctx#ctx.rows) of
+        {error, not_found} ->
+            {false, RD, Ctx};
+        Response ->
+            {true, RD, Ctx#ctx{id=keys, response=Response}}
+    end;
 resource_exists(RD, Ctx=?listKeys(BucketType, Bucket)) ->
     Node = Ctx#ctx.node,
-    JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "keys") - 1) ++ "jobs",
-    case re_riak:list_keys(Node, BucketType, Bucket, Ctx#ctx.start, Ctx#ctx.rows) of
-        true -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
-        false -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
-        Response -> {true, RD, Ctx#ctx{id=keys, response=Response}}
+    JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "refresh_keys") - 1) ++ "jobs",
+    case re_riak:list_keys(Node, BucketType, Bucket) of
+        ok ->
+            {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
+        {error, already_started} ->
+            {{halt, 102}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
+        {error, developer_mode_off} ->
+            {{halt, 403}, RD, Ctx}
     end;
 resource_exists(RD, Ctx=?keyInfo(_BucketType, _Bucket, Key)) ->
     Id = list_to_binary(Key),

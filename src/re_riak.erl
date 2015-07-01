@@ -42,10 +42,12 @@
          delete_bucket/4,
          delete_bucket_job/1]).
 
--export([list_buckets/4,
+-export([list_buckets_cache/4,
+         list_buckets/2,
          clean_buckets/2,
          put_buckets/3,
-         list_keys/5,
+         list_keys_cache/5,
+         list_keys/3,
          clean_keys/3,
          put_keys/4]).
 
@@ -285,6 +287,9 @@ delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
                 re_job_manager:set_meta(delete_bucket, [{oks, Oks1},{errors,Errors1}]),
                 {Oks1,Errors1}
             end, [read], {0, 0}) of
+        {error, not_found} ->
+            lager:warning("Deletetion of types/~p/buckets/~p could not be completed because no cache was found", [BucketType, Bucket]),
+            re_job_manager:error(delete_bucket, [{error, cache_not_found}]);
         {Os,Es} ->
             lager:info("Completed deletion of types/~p/buckets/~p with ~p successful deletes and ~p errors", [BucketType, Bucket, Os, Es]),
             re_job_manager:finish(delete_bucket),
@@ -296,23 +301,23 @@ delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
                     %% tombstone reaping
                 false ->
                     ok
-            end;
-        false ->
-            lager:warning("Deletetion of types/~p/buckets/~p could not be completed because no cache was found", [BucketType, Bucket]),
-            re_job_manager:error(delete_bucket, [{error, cache_not_found}])
+            end
     end.
 
 %%%===================================================================
 %%% Keyjournal API
 %%%===================================================================
 
-list_buckets(Node, BucketType, Start, Rows) ->
+list_buckets(Node, BucketType) ->
     case re_config:development_mode() of
         true ->
-            re_keyjournal:read({buckets, Node, [BucketType]}, Start, Rows);
+            re_keyjournal:write({buckets, Node, [BucketType]});
         false ->
-            re_keyjournal:read_cache({buckets, Node, [BucketType]}, Start, Rows)
+            {error, developer_mode_off}
     end.
+
+list_buckets_cache(Node, BucketType, Start, Rows) ->
+    re_keyjournal:read_cache({buckets, Node, [BucketType]}, Start, Rows).
 
 clean_buckets(Node, BucketType) ->
     re_keyjournal:clean({buckets, Node, [BucketType]}).
@@ -320,13 +325,16 @@ clean_buckets(Node, BucketType) ->
 put_buckets(Node, BucketType, Buckets) ->
     re_keyjournal:write_cache({buckets, Node, [BucketType]}, Buckets).
 
-list_keys(Node, BucketType, Bucket, Start, Rows) ->
+list_keys(Node, BucketType, Bucket) ->
     case re_config:development_mode() of
         true ->
-            re_keyjournal:read({keys, Node, [BucketType, Bucket]}, Start, Rows);
+            re_keyjournal:write({keys, Node, [BucketType, Bucket]});
         false ->
-            re_keyjournal:read_cache({keys, Node, [BucketType, Bucket]}, Start, Rows)
+            {error, developer_mode_off}
     end.
+
+list_keys_cache(Node, BucketType, Bucket, Start, Rows) ->
+    re_keyjournal:read_cache({keys, Node, [BucketType, Bucket]}, Start, Rows).
 
 clean_keys(Node, BucketType, Bucket) ->
     re_keyjournal:clean({keys, Node, [BucketType, Bucket]}).

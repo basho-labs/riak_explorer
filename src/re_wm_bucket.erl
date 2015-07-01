@@ -43,6 +43,8 @@
 -define(cleanBuckets(BucketType),
     #ctx{method='DELETE', bucket_type=BucketType, bucket=undefined}).
 -define(listBuckets(BucketType),
+    #ctx{method='POST', bucket_type=BucketType, bucket=undefined}).
+-define(listBucketsCache(BucketType),
     #ctx{method='GET', bucket_type=BucketType, bucket=undefined}).
 -define(bucketInfo(BucketType, Bucket),
     #ctx{method='GET', bucket_type=BucketType, bucket=Bucket, resource=undefined}).
@@ -69,6 +71,8 @@ routes() ->
     CBucket = CBuckets ++ [bucket],
     CBucketResource = CBucket ++ [resource],
 
+    CRefresh = CBucketType ++ ["refresh_buckets"] ++ ["source"] ++ ["riak_kv"],
+
     Nodes = Base ++ ["nodes"],
     Node = Nodes ++ [node],
     BucketTypes = Node ++ ["bucket_types"],
@@ -76,7 +80,10 @@ routes() ->
     Buckets = BucketType ++ ["buckets"],
     Bucket = Buckets ++ [bucket],
     BucketResource = Bucket ++ [resource],
-    [CBuckets, CBucketResource, CBucket, Buckets, BucketResource, Bucket].
+
+    Refresh = BucketType ++ ["refresh_buckets"] ++ ["source"] ++ ["riak_kv"],
+
+    [CBuckets, CBucketResource, CRefresh, CBucket, Buckets, BucketResource, Refresh, Bucket].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -101,7 +108,7 @@ service_available(RD, Ctx0) ->
     {true, RD, Ctx1#ctx{node = node_from_context(Ctx1)}}.
 
 allowed_methods(RD, Ctx) ->
-    Methods = ['GET', 'PUT', 'DELETE'],
+    Methods = ['POST', 'GET', 'PUT', 'DELETE'],
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
@@ -120,16 +127,26 @@ resource_exists(RD, Ctx=?putBuckets(_BucketType)) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx=?cleanBuckets(BucketType)) ->
     Node = Ctx#ctx.node,
-    Succeeded = re_riak:clean_buckets(Node, BucketType),
-    {Succeeded, RD, Ctx};
+    re_riak:clean_buckets(Node, BucketType),
+    {true, RD, Ctx};
+resource_exists(RD, Ctx=?listBucketsCache(BucketType)) ->
+    Node = Ctx#ctx.node,
+    case re_riak:list_buckets_cache(Node, BucketType, Ctx#ctx.start, Ctx#ctx.rows) of
+        {error, not_found} ->
+            {false, RD, Ctx};
+        Response ->
+            {true, RD, Ctx#ctx{id=buckets, response=Response}}
+    end;
 resource_exists(RD, Ctx=?listBuckets(BucketType)) ->
     Node = Ctx#ctx.node,
-    JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "buckets") - 1) ++ "jobs",
-    %% TODO: Make list_buckets return ok or error tuple
-    case re_riak:list_buckets(Node, BucketType, Ctx#ctx.start, Ctx#ctx.rows) of
-        true -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
-        false -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
-        Response -> {true, RD, Ctx#ctx{id=buckets, response=Response}}
+    JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "refresh_buckets") - 1) ++ "jobs",
+    case re_riak:list_buckets(Node, BucketType) of
+        ok ->
+            {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
+        {error, already_started} ->
+            {{halt, 102}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
+        {error, developer_mode_off} ->
+            {{halt, 403}, RD, Ctx}
     end;
 resource_exists(RD, Ctx=?deleteBucket(BucketType, Bucket)) ->
     Node = Ctx#ctx.node,
@@ -138,9 +155,9 @@ resource_exists(RD, Ctx=?deleteBucket(BucketType, Bucket)) ->
         ok ->
             {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
         {error, already_started} ->
-            {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
+            {{halt, 102}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
         {error, developer_mode_off} ->
-            {{halt, 403}, wrq:set_resp_header("Location",JobsPath,RD), Ctx}
+            {{halt, 403}, RD, Ctx}
     end;
 resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
     Id = list_to_binary(Bucket),
