@@ -124,7 +124,7 @@ write_loop({Operation, _,_}=Meta, ReqId, Device, Count) ->
     receive
         {ReqId, done} ->
             re_job_manager:finish(Operation),
-            lager:info("list finished for file"),
+            lager:info("list finished for file with ~p", [{count, Count}]),
             file:close(Device);
         {ReqId, {error, Reason}} ->
             re_job_manager:error(Operation, [{error, Reason}]),

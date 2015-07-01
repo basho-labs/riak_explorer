@@ -55,11 +55,16 @@ jobs_for_resource(_Node, _BucketType) ->
     [{jobs, Jobs}].
 
 jobs_for_resource(_Node, _BucketType, _Bucket) ->
-    Jobs = case re_job_manager:get(keys) of
+    %%TODO need to add filter criteria potentially
+    KeysJobs = case re_job_manager:get(keys) of
         [{error, not_found}] -> [];
-        J -> [J]
+        KJ -> [KJ]
     end,
-    [{jobs, Jobs}].
+    DeleteBucketJobs = case re_job_manager:get(delete_bucket) of
+        [{error, not_found}] -> [];
+        DJ -> [DJ]
+    end,
+    [{jobs, KeysJobs ++ DeleteBucketJobs}].
 
 %%%===================================================================
 %%% Private
