@@ -1,12 +1,12 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-12"><h3>Cluster: {{model.cluster.id}}</h3></div>
+        <div class="col-md-12"><h3>Cluster: {{model.cluster.clusterId}}</h3></div>
     </div>
     <div class="row">
         <div class="col-md-12">
             Status:
             <strong>
-            {{#if model.cluster.props.development_mode}}
+            {{#if model.cluster.developmentMode}}
             Development Mode
             {{else}}
             Production Mode
@@ -20,8 +20,8 @@
     <div class="row">
         <div class="col-md-12">
             <h5>Bucket Types</h5>
-            {{#bucket-types cluster_id=model.cluster.id
-                bucket_types=model.bucket_types}}{{/bucket-types}}
+            {{#bucket-types clusterId=model.cluster.clusterId
+                bucketTypes=model.bucketTypes}}{{/bucket-types}}
         </div>
     </div>
     <div class="row">
@@ -31,9 +31,9 @@
         <div class="col-md-12">
             {{#if model.cluster.indexes}}
                 <h5>Search Indexes</h5>
-                {{#search-indexes cluster_id=model.cluster.id
-                    indexes=model.cluster.indexes
-                    cluster_proxy_url=model.cluster.cluster_proxy_url}}
+                {{#search-indexes cluster_id=model.cluster.clusterId
+                    indexes=model.indexes
+                    cluster_proxy_url=model.cluster_proxy_url}}
                 {{/search-indexes}}
             {{else}}
                 No search indexes found.
@@ -52,7 +52,7 @@
             </tr>
         </thead>
         <tbody>
-    {{#each node in model.cluster.nodes}}
+    {{#each node in model.nodes}}
       {{riak-node node=node}}
     {{else}}
       No nodes detected.

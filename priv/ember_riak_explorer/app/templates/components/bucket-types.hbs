@@ -1,6 +1,6 @@
 <table class="table">
 <tbody>
-{{#each bt in bucket_types}}
+{{#each bt in bucketTypes}}
     <tr>
         <td>
         <div class="container">
@@ -12,10 +12,10 @@
                 </div>
                 <div class="col-md-5">
                     <strong>Actions:</strong>
-                    {{#link-to 'bucket_type' (query-params cluster_id=cluster_id bucket_type_id=bt.id)
+                    {{#link-to 'bucket_type' (query-params cluster_id=clusterId bucket_type_id=bt.id)
                             classNames='btn btn-xs btn-primary' }}
                         View Properties{{/link-to}}
-                    {{#link-to 'bucket_list' (query-params cluster_id=cluster_id bucket_type_id=bt.id)
+                    {{#link-to 'bucket_list' (query-params cluster_id=clusterId bucket_type_id=bt.id)
                             classNames='btn btn-xs btn-danger' }}
                         Bucket List{{/link-to}}
                 </div>
