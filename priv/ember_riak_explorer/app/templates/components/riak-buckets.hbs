@@ -6,16 +6,17 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">{{bucket.name}}</div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <strong>Actions:</strong>
                     {{#link-to 'key_list' (query-params cluster_id=bucket.clusterId
                             bucket_type_id=bucket.bucketTypeId bucket_id=bucket.bucketId)
-                            classNames='btn btn-xs btn-danger' }}
+                            classNames='btn btn-xs btn-primary' }}
                         Key List{{/link-to}}
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-xs btn-danger"
+                            {{action 'deleteBucket' bucket}}>
+                        Delete All Keys</button>
                 </div>
             </div>
         </div>

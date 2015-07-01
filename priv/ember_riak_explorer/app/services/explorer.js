@@ -76,6 +76,30 @@ function objectFromAjax(key, bucket, rawHeader, responseText, store) {
     });
 }
 
+function deleteBucket(bucket) {
+    var url = '/explore/clusters/' + bucket.get('clusterId') +
+        '/bucket_types/' + bucket.get('bucketTypeId') +
+        '/buckets/' + bucket.get('bucketId');
+
+    var request = new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.$.ajax({
+            type: "DELETE",
+            url: url
+        }).then(
+            function(data, textStatus, jqXHR) {
+                resolve(jqXHR.status);
+            },
+            function(jqXHR, textStatus) {
+                reject(textStatus);
+            }
+        );
+    });
+
+    return request.catch(function(error) {
+        console.log('Error deleting riak bucket: %O', error);
+    });
+}
+
 function deleteObject(object) {
     var url = getClusterProxyUrl(object.get('clusterId')) + '/types/' +
             object.get('bucketTypeId') + '/buckets/' +
@@ -413,6 +437,7 @@ export default Ember.Service.extend({
     wasKeyDeleted: wasKeyDeleted,
 
     deleteObject: deleteObject,
+    deleteBucket: deleteBucket,
 
     // Return the details for a single cluster
     getCluster: getCluster,
