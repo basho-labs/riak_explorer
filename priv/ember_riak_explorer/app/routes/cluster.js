@@ -8,6 +8,6 @@ export default Ember.Route.extend({
     },
 
     model: function(params) {
-        return this.explorer.getClusterInfo(params.cluster_id, true, this.store);
+        return this.explorer.getClusterInfo(params.cluster_id, this.store);
     }
 });

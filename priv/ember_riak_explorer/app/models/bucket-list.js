@@ -2,8 +2,8 @@ import DS from 'ember-data';
 
 // BucketList object, used to list buckets for a selected bucket type.
 export default DS.Model.extend({
-    clusterId: DS.attr(),
-    bucketTypeId: DS.attr(),
+    cluster: DS.attr(),
+    bucketType: DS.attr(),
 
     // Number of buckets displayed on this page
     count: DS.attr('number', {defaultValue: 0}),
@@ -14,5 +14,9 @@ export default DS.Model.extend({
     buckets: DS.attr(),
 
     // Total number of buckets
-    total: DS.attr('number', {defaultValue: 0})
+    total: DS.attr('number', {defaultValue: 0}),
+
+    clusterId: function() {
+        return this.get('cluster').get('clusterId');
+    }.property('cluster')
 });

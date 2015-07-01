@@ -1,5 +1,4 @@
 import Ember from 'ember';
-import objectToArray from '../utils/riak-util';
 
 export default Ember.Route.extend({
     queryParams: {
@@ -12,17 +11,7 @@ export default Ember.Route.extend({
     },
 
     model: function(params) {
-        var propsUrl = '/riak/clusters/' + params.cluster_id + '/types/' +
-            params.bucket_type_id + '/props' ;
-        var propsResult = Ember.$.ajax( propsUrl, { dataType: "json" } );
-        return propsResult.then(
-            function(data) {
-                var propsArray = objectToArray(data.props);
-                return {
-                    bucketType: params.bucket_type_id,
-                    props: propsArray
-                };
-            }
-        );
+        return this.explorer.getBucketType(params.cluster_id,
+            params.bucket_type_id, this.store);
     }
 });

@@ -1,18 +1,18 @@
 import DS from 'ember-data';
+import objectToArray from '../utils/riak-util';
 
 export default DS.Model.extend({
     name: DS.attr('string'),
-    cluster: DS.belongsTo('cluster'),
-    props: DS.attr(),
-    links: DS.attr(),
+    cluster: DS.attr(),
 
-    // Separate from .id because Ember requires the ID to be unique globally,
-    // but bucket types are unique only within a cluster
+    // {"allow_mult":false, "basic_quorum":false, ... }
+    props: DS.attr(),
+
     bucketTypeId: function() {
         return this.get('name');
     }.property('name'),
 
-    clusterId: function() {
-        return this.get('cluster').get('id');
-    }.property('cluster')
+    propsList: function() {
+        return objectToArray(this.get('props'));
+    }.property('props')
 });

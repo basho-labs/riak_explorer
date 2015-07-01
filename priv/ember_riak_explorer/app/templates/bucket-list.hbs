@@ -8,7 +8,7 @@
         </div>
         <div class="col-md-5">
             <strong>Cluster:</strong>
-            {{model.clusterId}}
+            {{model.cluster.clusterId}}
         </div>
     </div>
 </div>
@@ -22,6 +22,6 @@
 </div>
 
 <div class="container" style="padding-top: 2em;">
-    {{#riak-buckets bucketList=model deleteBucketAction="deleteBucket"}}
+    {{#riak-buckets bucketList=model deleteBucketAction="deleteBucket" cluster=model.cluster}}
     {{/riak-buckets}}
 </div>

@@ -29,11 +29,10 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            {{#if model.cluster.indexes}}
+            {{#if model.indexes}}
                 <h5>Search Indexes</h5>
-                {{#search-indexes cluster_id=model.cluster.clusterId
-                    indexes=model.indexes
-                    cluster_proxy_url=model.cluster_proxy_url}}
+                {{#search-indexes indexes=model.indexes
+                    clusterProxyUrl=model.cluster.proxyUrl}}
                 {{/search-indexes}}
             {{else}}
                 No search indexes found.

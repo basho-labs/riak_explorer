@@ -125,48 +125,77 @@ function deleteObject(object) {
     });
 }
 
-function getClusterInfo(clusterId, includeNodes, store) {
-    var url = '/explore/clusters/'+ clusterId;
-    var result = Ember.$.ajax({ url: url });  // returns a Promise obj
-    var nodes;
-    var indexes;
-    var clusterUrl = getClusterProxyUrl(clusterId);
-    if(includeNodes) {
-        nodes = getNodes(clusterId);
+function getBucketList(clusterId, bucketTypeId, store) {
+    var url = '/explore/clusters/' + clusterId +
+        '/bucket_types/' + bucketTypeId + '/buckets' ;
 
-        // Since we have the nodes, might as well grab indexes etc
-        indexes = nodes.then(function(nodes) {
-            if(!nodes) {
-                return [];
+    var bucketListRequest = Ember.$.ajax( url, { dataType: "json" } );
+
+    return getCluster(clusterId, store).then(function(cluster) {
+        return bucketListRequest.then(
+            function(data) {
+                var bucketList = data.buckets.buckets.map(function(bucketName) {
+                    return store.createRecord('bucket', {
+                        name: bucketName,
+                        clusterId: clusterId,
+                        bucketTypeId: bucketTypeId
+                    });
+                });
+                return store.createRecord('bucket_list', {
+                    cluster: cluster,
+                    bucketTypeId: bucketTypeId,
+                    buckets: bucketList,
+                    total: data.buckets.total,
+                    count: data.buckets.count,
+                    created: data.buckets.created
+                });
             }
-            return getIndexes(clusterId);
+        );
+    });
+}
+
+function getBucketType(clusterId, bucketTypeId, store) {
+    var cluster = getCluster(clusterId, store);
+    var propsUrl = getClusterProxyUrl(clusterId) + '/types/' +
+            bucketTypeId + '/props' ;
+    var result = Ember.$.ajax( propsUrl, { dataType: "json" } );
+    return result.then(function(data) {
+        return store.createRecord('bucket_type', {
+            name: bucketTypeId,
+            cluster: cluster,
+            props: data.props
         });
-    }
-    return result.then(
-        // Success
-        function(data) {
-            var bucketTypes = store.find('bucket_type', { cluster_id: clusterId });
-            var cluster = store.createRecord('cluster', {
+    });
+}
+
+function getCluster(clusterId, store) {
+        var url = '/explore/clusters/'+ clusterId;
+        var result = Ember.$.ajax({ url: url });  // returns a Promise obj
+
+        var clusterData = result.then(function(data) {
+            return {
                 clusterId: data.cluster.id,
                 developmentMode: data.cluster.development_mode,
-                connectedNode: data.cluster.riak_node
-            });
-            var clusterInfo = {
-                cluster: cluster,
-                nodes: nodes,
-                indexes: indexes,
-                bucketTypes: bucketTypes,
-                cluster_proxy_url: clusterUrl
+                connectedNode: data.cluster.riak_node,
+                proxyUrl: getClusterProxyUrl(clusterId)
             };
+        });
+        return store.createRecord('cluster', clusterData);
+}
 
-            return new Ember.RSVP.hash(clusterInfo);
-        },
-        // Error
-        function(error) {
-            console.log('Error fetching cluster: ' + error);
-            return {};
-        }
-    );
+function getClusterInfo(clusterId, store) {
+    var cluster = getCluster(clusterId, store);
+    var nodes = getNodes(clusterId);
+    var indexes = getIndexes(clusterId);
+    var bucketTypes = store.find('bucket_type', { cluster_id: clusterId });
+    var clusterInfo = {
+        cluster: cluster,
+        nodes: nodes,
+        indexes: indexes,
+        bucketTypes: bucketTypes
+    };
+
+    return new Ember.RSVP.hash(clusterInfo);
 }
 
 function getClusters() {
@@ -440,6 +469,9 @@ export default Ember.Service.extend({
 
     deleteObject: deleteObject,
     deleteBucket: deleteBucket,
+
+    getBucketList: getBucketList,
+    getBucketType: getBucketType,
 
     // Return the details for a single cluster
     getClusterInfo: getClusterInfo,

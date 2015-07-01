@@ -11,30 +11,7 @@ export default Ember.Route.extend({
     },
 
     model: function(params) {
-        var url = '/explore/clusters/' + params.cluster_id +
-            '/bucket_types/' + params.bucket_type_id + '/buckets' ;
-
-        var result = Ember.$.ajax( url, { dataType: "json" } );
-        var store = this.store;
-
-        return result.then(
-            function(data) {
-                var bucketList = data.buckets.buckets.map(function(bucketName) {
-                    return store.createRecord('bucket', {
-                        name: bucketName,
-                        clusterId: params.cluster_id,
-                        bucketTypeId: params.bucket_type_id
-                    });
-                });
-                return store.createRecord('bucket-list', {
-                    clusterId: params.cluster_id,
-                    bucketTypeId: params.bucket_type_id,
-                    buckets: bucketList,
-                    total: data.buckets.total,
-                    count: data.buckets.count,
-                    created: data.buckets.created
-                });
-            }
-        );
+        return this.explorer.getBucketList(params.cluster_id,
+            params.bucket_type_id, this.store);
     }
 });

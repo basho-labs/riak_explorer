@@ -15,5 +15,9 @@ export default DS.Model.extend({
 
     productionMode: function() {
         return !this.get('developmentMode');
-    }.property('developmentMode')
+    }.property('developmentMode'),
+
+    // URL which Explorer uses to forward requests to the Riak cluster
+    // Currently in the form of /riak/clusters/$clusterId
+    proxyUrl: DS.attr('string')
 });
