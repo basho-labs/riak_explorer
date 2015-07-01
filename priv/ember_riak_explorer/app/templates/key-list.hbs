@@ -19,7 +19,9 @@
     <div class="row">
         <div>
         Cache created: {{model.created}}
-        {{refresh-keys action="refreshKeys" keyList=model}}
+        {{#if model.cluster.developmentMode}}
+            {{refresh-keys action="refreshKeys" keyList=model}}
+        {{/if}}
         </div>
     </div>
 </div>

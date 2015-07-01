@@ -2,7 +2,7 @@ import DS from 'ember-data';
 
 export default DS.Model.extend({
     name: DS.attr('string'),
-    cluster: DS.belongsTo('cluster'),
+    cluster: DS.attr(),
     clusterId: DS.attr(),
     bucketTypeId: DS.attr(),
 

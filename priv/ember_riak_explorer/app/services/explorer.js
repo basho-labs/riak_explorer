@@ -259,6 +259,50 @@ function getIndexes(clusterId) {
     return request;
 }
 
+function getBucket(clusterId, bucketTypeId, bucketId, store) {
+    return getCluster(clusterId, store).then(function(cluster) {
+        return store.createRecord('bucket', {
+            name: bucketId,
+            bucketTypeId: bucketTypeId,
+            cluster: cluster,
+            clusterId: clusterId
+        });
+    });
+}
+
+function getKeyList(clusterId, bucketTypeId, bucketId, store) {
+    var url = '/explore/clusters/' + clusterId +
+        '/bucket_types/' + bucketTypeId + '/buckets/' +
+        bucketId + '/keys' ;
+    var keyListRequest = Ember.$.ajax( url, { dataType: "json" } );
+    var explorerService = this;
+
+    return getBucket(clusterId, bucketTypeId, bucketId, store).then(function(bucket) {
+        return keyListRequest.then(
+            function(data) {
+                var keyList = data.keys.keys.map(function(key) {
+                    var obj = store.createRecord('riak-object', {
+                        key: key,
+                        bucket: bucket
+                    });
+                    if(explorerService.wasKeyDeleted(obj)) {
+                        obj.set('markedDeleted', true);
+                    }
+                    return obj;
+                });
+                return store.createRecord('key-list', {
+                    bucket: bucket,
+                    cluster: bucket.get('cluster'),
+                    created: data.keys.created,
+                    count: data.keys.count,
+                    keys: keyList,
+                    total: data.keys.total
+                });
+            }
+        );
+    });
+}
+
 function getNodes(clusterId) {
     var url = '/explore/clusters/'+ clusterId + '/nodes';
     var result = Ember.$.ajax({ url: url });  // returns a Promise obj
@@ -484,6 +528,7 @@ export default Ember.Service.extend({
     getClustersAndNodes: getClustersAndNodes,
 
     getClusterProxyUrl: getClusterProxyUrl,
+    getKeyList: getKeyList,
 
     // Return all nodes for a particular cluster
     getNodes: getNodes,

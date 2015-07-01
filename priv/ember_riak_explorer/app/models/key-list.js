@@ -1,7 +1,8 @@
 import DS from 'ember-data';
 
 export default DS.Model.extend({
-    bucket: DS.belongsTo('bucket'),
+    cluster: DS.attr(),
+    bucket: DS.attr(),
 
     // Number of keys displayed on this page
     count: DS.attr('number', {defaultValue: 0}),
