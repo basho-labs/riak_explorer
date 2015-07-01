@@ -21,7 +21,6 @@
 -module(re_keyjournal).
 -export([cache_for_each/4,
          clean/1,
-         read/3,
          read_cache/3,
          write/1,
          write_cache/2,
@@ -41,7 +40,7 @@ cache_for_each({Operation, Node, Path}, Fun, Mode, InitAccum) ->
        [File|_] ->
           DirFile = filename:join([Dir, File]),
           re_file_util:for_each_line_in_file(DirFile,Fun, Mode, InitAccum);
-       [] -> false
+       [] -> {error, not_found}
     end.
 
 clean({Operation, Node, Path}) ->
@@ -52,15 +51,9 @@ clean({Operation, Node, Path}) ->
       [File|_] ->
          DirFile = filename:join([Dir, File]),
          file:delete(DirFile),
-         true;
+         ok;
       [] ->
-         false
-   end.
-
-read(Meta, Start, Rows) ->
-   case read_cache(Meta, Start, Rows) of
-      false -> write(Meta);
-      CacheData -> CacheData
+         {error, not_found}
    end.
 
 read_cache({Operation, Node, Path}, Start, Rows) ->
@@ -72,14 +65,11 @@ read_cache({Operation, Node, Path}, Start, Rows) ->
          DirFile = filename:join([Dir, File]),
          {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows - 1),
          [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(timestamp_human(File))},{Operation, Entries}]}];
-      [] -> false
+      [] -> {error, not_found}
    end.
 
 write({Operation, _, _}=Meta) ->
-   case re_job_manager:create(Operation, {?MODULE, handle_list, [Meta]}) of
-      ok -> true;
-      _ -> false
-   end.
+   re_job_manager:create(Operation, {?MODULE, handle_list, [Meta]}).
 
 write_cache({Operation, Node, Path}, Objects) ->
    Cluster = re_riak:cluster_id_for_node(Node),
@@ -92,7 +82,8 @@ write_cache({Operation, Node, Path}, Objects) ->
 
    {ok, Device} = file:open(DirFile, [append]),
    update_cache(Objects, Device),
-   file:close(Device).
+   file:close(Device),
+   ok.
 
 %%%===================================================================
 %%% Callbacks
