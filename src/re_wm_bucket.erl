@@ -125,6 +125,7 @@ resource_exists(RD, Ctx=?cleanBuckets(BucketType)) ->
 resource_exists(RD, Ctx=?listBuckets(BucketType)) ->
     Node = Ctx#ctx.node,
     JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "buckets") - 1) ++ "jobs",
+    %% TODO: Make list_buckets return ok or error tuple
     case re_riak:list_buckets(Node, BucketType, Ctx#ctx.start, Ctx#ctx.rows) of
         true -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
         false -> {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
@@ -132,12 +133,14 @@ resource_exists(RD, Ctx=?listBuckets(BucketType)) ->
     end;
 resource_exists(RD, Ctx=?deleteBucket(BucketType, Bucket)) ->
     Node = Ctx#ctx.node,
+    JobsPath = wrq:path(RD) ++ "/jobs",
     case re_riak:delete_bucket(Node, BucketType, Bucket) of
         ok ->
-            {{halt, 204}, RD, Ctx};
-        {error, Reason} ->
-            Response = [{buckets, [{error,Reason}]}],
-            {true, RD, Ctx#ctx{id=bucket, response=Response}}
+            {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
+        {error, already_started} ->
+            {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
+        {error, developer_mode_off} ->
+            {{halt, 403}, wrq:set_resp_header("Location",JobsPath,RD), Ctx}
     end;
 resource_exists(RD, Ctx=?bucketInfo(_BucketType, Bucket)) ->
     Id = list_to_binary(Bucket),
