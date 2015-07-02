@@ -274,12 +274,37 @@ function getKeyList(clusterId, bucketTypeId, bucketId, store) {
     var url = '/explore/clusters/' + clusterId +
         '/bucket_types/' + bucketTypeId + '/buckets/' +
         bucketId + '/keys' ;
-    var keyListRequest = Ember.$.ajax( url, { dataType: "json" } );
+    var keyListRequest = new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.$.ajax( url, { dataType: "json" } ).then(
+            function(data) {  // Success
+                resolve(data);
+            },
+            function(jqXHR, textStatus) { // Error
+                if(jqXHR.status === 404) {
+                    // Empty cache (need to kick off a refresh)
+                    resolve(null);
+                } else {
+                    // Some other error
+                    // reject(textStatus);
+                    resolve(null);
+                }
+            }
+        );
+    });
     var explorerService = this;
 
     return getBucket(clusterId, bucketTypeId, bucketId, store).then(function(bucket) {
         return keyListRequest.then(
             function(data) {
+                if(!data) {
+                    return store.createRecord('key-list', {
+                        bucket: bucket,
+                        cluster: bucket.get('cluster'),
+                        count: 0,
+                        keys: [],
+                        total: 0
+                    });
+                }
                 var keyList = data.keys.keys.map(function(key) {
                     var obj = store.createRecord('riak-object', {
                         key: key,
