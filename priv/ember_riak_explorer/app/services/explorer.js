@@ -1,5 +1,24 @@
 import Ember from 'ember';
 
+/**
+* Refresh a key list cache or bucket list cache on the Explorer API side
+*/
+function cacheRefresh(url) {
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.$.ajax({
+            type: "POST",
+            url: url
+        }).then(
+            function(data, textStatus, jqXHR) {
+                resolve(jqXHR.status);
+            },
+            function(jqXHR, textStatus) {
+                reject(textStatus);
+            }
+        );
+    });
+}
+
 function displayContentsForType(headers, contents) {
     var contentType = headers.other['content-type'];
     var displayContents;
@@ -440,59 +459,17 @@ function wasKeyDeleted(object) {
     return bucketTypeDelCache.buckets[bucketId].keysDeleted[key];
 }
 
-function keyCacheCreate(clusterId, bucketTypeId, bucketId) {
-    var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId +
-        '/buckets/' + bucketId + '/keys';
-
-    var req = new Ember.RSVP.Promise(function(resolve, reject) {
-        Ember.$.ajax({
-            type: "GET",
-            url: url
-        }).then(
-            function(data, textStatus, jqXHR) {
-                resolve(jqXHR.status);
-            },
-            function(jqXHR, textStatus) {
-                reject(textStatus);
-            }
-        );
-    });
-
-    return req;
-}
-
-
-function keyCacheDelete(clusterId, bucketTypeId, bucketId) {
-    var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId +
-        '/buckets/' + bucketId + '/keys';
-
-    var req = new Ember.RSVP.Promise(function(resolve, reject) {
-        Ember.$.ajax({
-            type: "DELETE",
-            url: url
-        }).then(
-            function(data, textStatus, jqXHR) {
-                resolve(jqXHR.status);
-            },
-            function(jqXHR, textStatus) {
-                reject(textStatus);
-            }
-        );
-    });
-
-    return req;
-}
-
 function keyCacheRefresh(keyList) {
     var bucket = keyList.get('bucket');
     var clusterId = bucket.get('clusterId');
     var bucketTypeId = bucket.get('bucketTypeId');
     var bucketId = bucket.get('bucketId');
-    var service = this;
 
-    service.keyCacheDelete(clusterId, bucketTypeId, bucketId).then(function() {
-        service.keyCacheCreate(clusterId, bucketTypeId, bucketId);
-    });
+    // For the moment, 'riak_kv' is the only implemented source of
+    // cache refresh
+    var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId +
+        '/buckets/' + bucketId + '/refresh_keys/source/riak_kv';
+    return cacheRefresh(url);
 }
 
 function saveObject(object) {
@@ -560,8 +537,6 @@ export default Ember.Service.extend({
 
     getRiakObject: getRiakObject,
 
-    keyCacheCreate: keyCacheCreate,
-    keyCacheDelete: keyCacheDelete,
     keyCacheRefresh: keyCacheRefresh,
 
     saveObject: saveObject
