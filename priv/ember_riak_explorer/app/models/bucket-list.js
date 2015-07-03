@@ -14,9 +14,5 @@ export default DS.Model.extend({
     buckets: DS.attr(),
 
     // Total number of buckets
-    total: DS.attr('number', {defaultValue: 0}),
-
-    clusterId: function() {
-        return this.get('cluster').get('clusterId');
-    }.property('cluster')
+    total: DS.attr('number', {defaultValue: 0})
 });

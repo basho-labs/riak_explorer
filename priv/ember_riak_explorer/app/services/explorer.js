@@ -1,5 +1,17 @@
 import Ember from 'ember';
 
+function bucketCacheRefresh(bucketList) {
+    var cluster = bucketList.get('cluster');
+    var clusterId = cluster.get('clusterId');
+    var bucketTypeId = bucketList.get('bucketTypeId');
+
+    // For the moment, 'riak_kv' is the only implemented source of
+    // cache refresh
+    var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId +
+        '/refresh_buckets/source/riak_kv';
+    return cacheRefresh(url);
+}
+
 /**
 * Refresh a key list cache or bucket list cache on the Explorer API side
 */
@@ -13,6 +25,10 @@ function cacheRefresh(url) {
                 resolve(jqXHR.status);
             },
             function(jqXHR, textStatus) {
+                if(jqXHR.status === 202 && textStatus === 'parsererror') {
+                    // Server responds with 202 Accepted, and empty body
+                    resolve(jqXHR.status);
+                }
                 reject(textStatus);
             }
         );
@@ -191,15 +207,14 @@ function getCluster(clusterId, store) {
         var url = '/explore/clusters/'+ clusterId;
         var result = Ember.$.ajax({ url: url });  // returns a Promise obj
 
-        var clusterData = result.then(function(data) {
-            return {
+        return result.then(function(data) {
+            return store.createRecord('cluster', {
                 clusterId: data.cluster.id,
                 developmentMode: data.cluster.development_mode,
                 connectedNode: data.cluster.riak_node,
                 proxyUrl: getClusterProxyUrl(clusterId)
-            };
+            });
         });
-        return store.createRecord('cluster', clusterData);
 }
 
 function getClusterInfo(clusterId, store) {
@@ -509,14 +524,16 @@ export default Ember.Service.extend({
         clusters: {}
     },
 
-    markDeletedKey: markDeletedKey,
+    bucketCacheRefresh: bucketCacheRefresh,
+
     deletedCacheFor: deletedCacheFor,
-    wasKeyDeleted: wasKeyDeleted,
 
     deleteObject: deleteObject,
+
     deleteBucket: deleteBucket,
 
     getBucketList: getBucketList,
+
     getBucketType: getBucketType,
 
     // Return the details for a single cluster
@@ -530,6 +547,7 @@ export default Ember.Service.extend({
     getClustersAndNodes: getClustersAndNodes,
 
     getClusterProxyUrl: getClusterProxyUrl,
+
     getKeyList: getKeyList,
 
     // Return all nodes for a particular cluster
@@ -539,5 +557,9 @@ export default Ember.Service.extend({
 
     keyCacheRefresh: keyCacheRefresh,
 
-    saveObject: saveObject
+    markDeletedKey: markDeletedKey,
+
+    saveObject: saveObject,
+
+    wasKeyDeleted: wasKeyDeleted
 });

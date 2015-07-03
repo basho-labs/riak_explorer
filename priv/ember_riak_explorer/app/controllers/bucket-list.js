@@ -19,6 +19,15 @@ export default Ember.Controller.extend({
                     cluster_id: bucket.get('clusterId'),
                     bucket_type_id: bucket.get('bucketTypeId')
                 }});
+        },
+        refreshBuckets: function(bucketList) {
+            this.get('explorer').bucketCacheRefresh(bucketList);
+
+            this.transitionToRoute('bucket_list',
+                { queryParams: {
+                    cluster_id: bucketList.get('cluster').get('clusterId'),
+                    bucket_type_id: bucketList.get('bucketTypeId')
+                }});
         }
     }
 });
