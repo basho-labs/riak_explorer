@@ -21,7 +21,11 @@ export default Ember.Controller.extend({
                 }});
         },
         refreshBuckets: function(bucketList) {
-            this.get('explorer').bucketCacheRefresh(bucketList);
+            var cluster = bucketList.get('cluster');
+            var clusterId = cluster.get('clusterId');
+            var bucketTypeId = bucketList.get('bucketTypeId');
+
+            this.get('explorer').bucketCacheRefresh(clusterId, bucketTypeId);
 
             this.transitionToRoute('bucket_list',
                 { queryParams: {

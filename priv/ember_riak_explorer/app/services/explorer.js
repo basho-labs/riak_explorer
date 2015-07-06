@@ -1,10 +1,6 @@
 import Ember from 'ember';
 
-function bucketCacheRefresh(bucketList) {
-    var cluster = bucketList.get('cluster');
-    var clusterId = cluster.get('clusterId');
-    var bucketTypeId = bucketList.get('bucketTypeId');
-
+function bucketCacheRefresh(clusterId, bucketTypeId) {
     // For the moment, 'riak_kv' is the only implemented source of
     // cache refresh
     var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId +
@@ -160,30 +156,52 @@ function deleteObject(object) {
     });
 }
 
+function createBucketList(data, cluster, bucketTypeId, store) {
+    var clusterId = cluster.get('clusterId');
+    var bucketList = data.buckets.buckets.map(function(bucketName) {
+        return store.createRecord('bucket', {
+            name: bucketName,
+            clusterId: clusterId,
+            bucketTypeId: bucketTypeId
+        });
+    });
+    return store.createRecord('bucket_list', {
+        cluster: cluster,
+        bucketTypeId: bucketTypeId,
+        buckets: bucketList,
+        total: data.buckets.total,
+        count: data.buckets.count,
+        created: data.buckets.created
+    });
+}
+
 function getBucketList(clusterId, bucketTypeId, store) {
+    return getCluster(clusterId, store).then(function(cluster) {
+        return getBucketListCache(cluster, bucketTypeId, store);
+    });
+}
+
+function getBucketListCache(cluster, bucketTypeId, store) {
+    var clusterId = cluster.get('clusterId');
     var url = '/explore/clusters/' + clusterId +
         '/bucket_types/' + bucketTypeId + '/buckets' ;
-
     var bucketListRequest = Ember.$.ajax( url, { dataType: "json" } );
 
-    return getCluster(clusterId, store).then(function(cluster) {
+    return new Ember.RSVP.Promise(function(resolve, reject) {
         return bucketListRequest.then(
-            function(data) {
-                var bucketList = data.buckets.buckets.map(function(bucketName) {
-                    return store.createRecord('bucket', {
-                        name: bucketName,
-                        clusterId: clusterId,
-                        bucketTypeId: bucketTypeId
-                    });
-                });
-                return store.createRecord('bucket_list', {
-                    cluster: cluster,
-                    bucketTypeId: bucketTypeId,
-                    buckets: bucketList,
-                    total: data.buckets.total,
-                    count: data.buckets.count,
-                    created: data.buckets.created
-                });
+            function(data) { // Success, bucket list returned
+                resolve(createBucketList(data, cluster, bucketTypeId, store));
+            },
+            function(jqXHR, textStatus) { // Fail (likely a 404, cache not yet created)
+                if(jqXHR.status === 404) {
+                    // Kick off a Cache Refresh, and repeat the getBucketList request
+                    bucketCacheRefresh(clusterId, bucketTypeId);
+                    Ember.run.later(function() {
+                        resolve(getBucketListCache(cluster, bucketTypeId, store));
+                    }, 3000);
+                } else {
+                    reject(textStatus);
+                }
             }
         );
     });
@@ -308,12 +326,12 @@ function getKeyList(clusterId, bucketTypeId, bucketId, store) {
     var url = '/explore/clusters/' + clusterId +
         '/bucket_types/' + bucketTypeId + '/buckets/' +
         bucketId + '/keys' ;
-    var keyListRequest = new Ember.RSVP.Promise(function(resolve, reject) {
+    var keyListRequest = new Ember.RSVP.Promise(function(resolve) {
         Ember.$.ajax( url, { dataType: "json" } ).then(
             function(data) {  // Success
                 resolve(data);
             },
-            function(jqXHR, textStatus) { // Error
+            function(jqXHR) { // Error
                 if(jqXHR.status === 404) {
                     // Empty cache (need to kick off a refresh)
                     resolve(null);
