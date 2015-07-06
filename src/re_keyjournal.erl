@@ -47,13 +47,16 @@ clean({Operation, Node, Path}) ->
    Cluster = re_riak:cluster_id_for_node(Node),
    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
    {ok, Files} = file:list_dir(Dir),
+
    case Files of
-      [File|_] ->
-         DirFile = filename:join([Dir, File]),
-         file:delete(DirFile),
-         ok;
-      [] ->
-         {error, not_found}
+        [] ->
+            {error, not_found};
+        _ ->
+            lists:foreach(fun(File) ->
+                DirFile = filename:join([Dir, File]),
+                file:delete(DirFile)
+            end, Files),
+            ok
    end.
 
 read_cache({Operation, Node, Path}, Start, Rows) ->
@@ -105,6 +108,7 @@ handle_stream({Operation, Node, Path}=Meta, {ok, ReqId}) ->
    TimeStamp = timestamp_string(),
    FileName = filename:join([Dir, TimeStamp]),
    file:write_file(FileName, "", [write]),
+   clean(Meta),
    lager:info("list started for file: ~p at: ~p", [FileName, TimeStamp]),
    {ok, Device} = file:open(FileName, [append]),
    write_loop(Meta, ReqId, Device, 0);
