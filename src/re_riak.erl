@@ -145,10 +145,11 @@ plan(Node) ->
         {error, Reason} ->
             [{control, [{error, Reason}]}];
         {ok, Changes, _} ->
-            [{control, lists:map(fun({N, {Action, Target}}) ->
-                    {N, [{Action, Target}]};
-                 ({N, Action}) -> {N, Action}
-            end, Changes)}]
+            [{control, [{changes, lists:map(fun({N, {Action, Target}}) ->
+                    [{node, N},{action, Action},{target, Target}];
+                 ({N, Action}) ->
+                    [{node, N},{action, Action},{target, null}]
+            end, Changes)}]}]
     end.
 commit(Node) ->
     Response = remote(Node, riak_core_claimant, commit, []),
@@ -219,11 +220,11 @@ ringready(Node) ->
         Response = remote(Node, riak_core_status, ringready, []),
         case Response of
             {ok, Nodes} ->
-                [{control, [{nodes, Nodes}]}];
+                [{control, [{ready, true},{nodes, Nodes}]}];
             {error, {different_owners, N1, N2}} ->
-                [{control, [{error, [{different_owners, [N1, N2]}]}]}];
+                [{control, [{ready, false},{error, [{different_owners, [N1, N2]}]}]}];
             {error, {nodes_down, Down}} ->
-                [{control, [{error, [{nodes_down, Down}]}]}]
+                [{control, [{ready, false},{error, [{nodes_down, Down}]}]}]
         end
     catch
         Exception:Reason ->
