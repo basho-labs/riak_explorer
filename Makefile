@@ -10,7 +10,7 @@ all: compile
 compile: deps compile-backend compile-frontend
 recompile: recompile-backend recompile-frontend
 deps: deps-backend deps-frontend
-clean-package: 
+clean-package:
 	-rm -rf $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)
 package: rel clean-package
@@ -18,7 +18,7 @@ package: rel clean-package
 	mv rel/riak_explorer210.tar.gz $(BUILD_DIR)/
 test: test-backend test-frontend
 itest: itest-backend
-rel: webrelclean deps compile
+rel: relclean webrelclean deps compile
 	$(REBAR) compile
 	$(REBAR) skip_deps=true generate $(OVERLAY_VARS)
 relclean:
@@ -58,4 +58,4 @@ test-frontend:
 
 # Deployment
 deploy: package
-	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer210.tar.gz s3://riak-tools/
+	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_darwin_amd64.tar.gz s3://riak-tools/

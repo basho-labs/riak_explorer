@@ -11,7 +11,7 @@ See also: [Riak Control Design Discussion
 
 ## Mac OS X Installation
 
-1. Download and extract [http://riak-tools.s3.amazonaws.com/riak_explorer210.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer210.tar.gz)
+1. Download and extract [http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz)
 
 2. Verify settings in `etc/riak_explorer.conf`
 
