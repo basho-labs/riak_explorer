@@ -1,0 +1,36 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "2048"
+  end
+
+  config.vm.synced_folder "./../../../", "/riak_explorer"
+
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get -y update
+    apt-get -y install build-essential libncurses5-dev openssl libssl-dev fop xsltproc unixodbc-dev git curl autoconf
+
+    # wget http://s3.amazonaws.com/downloads.basho.com/erlang/otp_src_R16B02-basho8.tar.gz
+    # tar zxvf otp_src_R16B02-basho8.tar.gz
+    # cd OTP_R16B02_basho8
+    # autoconf
+    # cd erts && autoheader && autoconf
+    # ./configure && make && sudo make install
+
+    apt-get -y install erlang
+
+    apt-get -y install npm
+    npm install -g nodejs
+    npm install -g ember-cli
+    npm install -g bower
+    cd /usr/bin && ln -fs nodejs node
+    npm install -g phantomjs
+
+
+    cd /riak_explorer && make package
+  SHELL
+end

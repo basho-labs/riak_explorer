@@ -9,9 +9,10 @@ Riak dev-mode and admin GUI.
 See also: [Riak Control Design Discussion
  doc](https://docs.google.com/document/d/1qcHyyEEL1jCAKrjNtmbIEcAFS3VAdLyoRK88FDy6o_0/edit#).
 
-## Mac OS X Installation
+## Installation
 
-1. Download and extract [http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz)
+
+1. Download and extract [http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz (Mac OS X)](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) or [http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz (Ubuntu 14.04)](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz)
 
 2. Verify settings in `etc/riak_explorer.conf`
 
