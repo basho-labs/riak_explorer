@@ -64,5 +64,7 @@ test-frontend:
 # Deployment
 deploy-mac: package
 	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_darwin_amd64.tar.gz s3://riak-tools/
-deploy-mac: package
+deploy-linux: package
 	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_linux_amd64.tar.gz s3://riak-tools/
+deploy-linux-riak: package
+	cd $(BUILD_DIR) && s3cmd put --acl-public riak_linux_amd64.tar.gz s3://riak-tools/
