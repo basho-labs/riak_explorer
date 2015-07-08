@@ -13,9 +13,14 @@ deps: deps-backend deps-frontend
 clean-package:
 	-rm -rf $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)
-package: rel clean-package
-	cd rel && tar -zcvf riak_explorer210.tar.gz riak_explorer
-	mv rel/riak_explorer210.tar.gz $(BUILD_DIR)/
+package-mac: rel clean-package
+	cd rel && tar -zcvf riak_explorer_darwin_amd64.tar.gz riak_explorer
+	mv rel/riak_explorer_darwin_amd64.tar.gz $(BUILD_DIR)/
+package-trusty64:
+	cd vagrant/ubuntu/trusty64 && vagrant up
+package-linux: rel clean-package
+	cd rel && tar -zcvf riak_explorer_linux_amd64.tar.gz riak_explorer
+	mv rel/riak_explorer_linux_amd64.tar.gz $(BUILD_DIR)/
 test: test-backend test-frontend
 itest: itest-backend
 rel: relclean webrelclean deps compile
