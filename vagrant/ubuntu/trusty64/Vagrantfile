@@ -21,18 +21,18 @@ Vagrant.configure(2) do |config|
     # cd erts && autoheader && autoconf
     # ./configure && make && sudo make install
 
+    # Need to figure out what is wrong with OTP R16B02-basho8. For now, this
+    # installs R16B03
     apt-get -y install erlang
-
     apt-get -y install npm
     npm install -g nodejs
     npm install -g ember-cli
     npm install -g bower
     cd /usr/bin && ln -fs nodejs node
     npm install -g phantomjs
-
-
     cd /riak_explorer && make package-linux
 
+    # Relocatable Riak, just in case
     cd
     apt-get -y install build-essential libc6-dev-i386 git
     apt-get -y install libpam0g-dev
