@@ -440,7 +440,7 @@ maybe_load_patch(Node, _) ->
         _ -> ok
     end.
 
-remote(N,M,F,A) ->
+remote(N, M, F, A) ->
     safe_rpc(N, M, F, A, 60000).
 
 safe_rpc(Node, Module, Function, Args, Timeout) ->
