@@ -37,8 +37,6 @@
 -define(command(Command, Node1), #ctx{command=Command,node1=Node1,node2=undefined}).
 -define(command(Command, Node1, Node2), #ctx{command=Command,node1=Node1,node2=Node2}).
 
-
-
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -49,38 +47,44 @@ resources() ->
 routes() ->
     Base = [?RE_CONTROL_ROUTE],
 
-    Clusters = Base ++ ["clusters"],
-    Cluster = Clusters ++ [cluster],
-    CJoin         = Cluster ++ ["join"] ++ [node1],
-    CLeave        = Cluster ++ ["leave"],
-    CLeave2       = Cluster ++ ["leave"] ++ [node1],
-    CForceRemove  = Cluster ++ ["force-remove"] ++ [node1],
-    CReplace      = Cluster ++ ["replace"] ++ [node1] ++ [node2],
-    CForceReplace = Cluster ++ ["force-replace"] ++ [node1] ++ [node2],
-    CPlan         = Cluster ++ ["plan"],
-    CCommit       = Cluster ++ ["commit"],
-    CClear        = Cluster ++ ["clear"],
-    CStatus       = Cluster ++ ["status"],
-    CRingReady    = Cluster ++ ["ringready"],
+    Clusters       = Base ++ ["clusters"],
+    Cluster        = Clusters ++ [cluster],
+    CJoin          = Cluster ++ ["join"] ++ [node1],
+    CLeave2        = Cluster ++ ["leave"] ++ [node1],
+    CSJoin         = Cluster ++ ["staged-join"] ++ [node1],
+    CSLeave        = Cluster ++ ["staged-leave"],
+    CSLeave2       = Cluster ++ ["staged-leave"] ++ [node1],
+    CForceRemove   = Cluster ++ ["force-remove"] ++ [node1],
+    CReplace       = Cluster ++ ["replace"] ++ [node1] ++ [node2],
+    CSReplace      = Cluster ++ ["staged-replace"] ++ [node1] ++ [node2],
+    CForceReplace  = Cluster ++ ["force-replace"] ++ [node1] ++ [node2],
+    CPlan          = Cluster ++ ["plan"],
+    CCommit        = Cluster ++ ["commit"],
+    CClear         = Cluster ++ ["clear"],
+    CStatus        = Cluster ++ ["status"],
+    CRingReady     = Cluster ++ ["ringready"],
 
-    Nodes = Base ++ ["nodes"],
-    Node = Nodes ++ [node],
-    Join         = Node ++ ["join"] ++ [node1],
-    Leave        = Node ++ ["leave"],
-    Leave2       = Node ++ ["leave"] ++ [node1],
-    ForceRemove  = Node ++ ["force-remove"] ++ [node1],
-    Replace      = Node ++ ["replace"] ++ [node1] ++ [node2],
-    ForceReplace = Node ++ ["force-replace"] ++ [node1] ++ [node2],
-    Plan         = Node ++ ["plan"],
-    Commit       = Node ++ ["commit"],
-    Clear        = Node ++ ["clear"],
-    Status       = Node ++ ["status"],
-    RingReady    = Node ++ ["ringready"],
+    Nodes         = Base ++ ["nodes"],
+    Node          = Nodes ++ [node],
+    Join          = Node ++ ["join"] ++ [node1],
+    Leave2        = Node ++ ["leave"] ++ [node1],
+    SJoin         = Node ++ ["staged-join"] ++ [node1],
+    SLeave        = Node ++ ["staged-leave"],
+    SLeave2       = Node ++ ["staged-leave"] ++ [node1],
+    ForceRemove   = Node ++ ["force-remove"] ++ [node1],
+    Replace       = Node ++ ["replace"] ++ [node1] ++ [node2],
+    SReplace      = Node ++ ["staged-replace"] ++ [node1] ++ [node2],
+    ForceReplace  = Node ++ ["force-replace"] ++ [node1] ++ [node2],
+    Plan          = Node ++ ["plan"],
+    Commit        = Node ++ ["commit"],
+    Clear         = Node ++ ["clear"],
+    Status        = Node ++ ["status"],
+    RingReady     = Node ++ ["ringready"],
 
-    [Join, Leave, Leave2, ForceRemove, Replace, ForceReplace, Plan, Commit,
-     Clear, Status, RingReady] ++
-    [CJoin, CLeave, CLeave2, CForceRemove, CReplace, CForceReplace, CPlan, CCommit,
-     CClear, CStatus, CRingReady].
+    [CJoin,CLeave2,CSJoin,CSLeave,CSLeave2,CForceRemove,CReplace,CSReplace,
+     CForceReplace,CPlan,CCommit,CClear,CStatus,CRingReady] ++
+    [Join,Leave2,SJoin,SLeave,SLeave2,ForceRemove,Replace,SReplace,
+     ForceReplace,Plan,Commit,Clear,Status,RingReady].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -113,8 +117,8 @@ content_types_provided(RD, Ctx) ->
 resource_exists(RD, Ctx=?command(Command)) ->
     Node = Ctx#ctx.node,
     {Exists, Response} = case Command of
-        "leave" ->
-            {true, re_riak:leave(Node)};
+        "staged-leave" ->
+            {true, re_riak:staged_leave(Node)};
         "plan" ->
             {true, re_riak:plan(Node)};
         "commit" ->
@@ -133,8 +137,12 @@ resource_exists(RD, Ctx=?command(Command, Node1)) ->
     {Exists, Response} = case Command of
         "join" ->
             {true, re_riak:join(Node, Node1)};
+        "staged-join" ->
+            {true, re_riak:staged_join(Node, Node1)};
         "leave" ->
             {true, re_riak:leave(Node, Node1)};
+        "staged-leave" ->
+            {true, re_riak:staged_leave(Node, Node1)};
         "force-remove" ->
             {true, re_riak:force_remove(Node, Node1)};
         _ -> {false, undefined}
@@ -143,6 +151,8 @@ resource_exists(RD, Ctx=?command(Command, Node1)) ->
 resource_exists(RD, Ctx=?command(Command, Node1, Node2)) ->
     Node = Ctx#ctx.node,
     {Exists, Response} = case Command of
+        "staged-replace" ->
+            {true, re_riak:staged_replace(Node, Node1, Node2)};
         "replace" ->
             {true, re_riak:replace(Node, Node1, Node2)};
         "force-replace" ->
