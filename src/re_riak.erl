@@ -448,7 +448,7 @@ load_patch(Node) ->
 maybe_load_patch(Node, false) ->
     lager:info("Loading re_riak_patch module into node[~p].", [Node]),
     {Mod, Bin, _} = code:get_object_code(re_riak_patch),
-    rpc:call(Node, code, load_binary, [Mod, "/tmp/re_riak_patch.beam", Bin]);
+    remote(Node, code, load_binary, [Mod, "/tmp/re_riak_patch.beam", Bin]);
 maybe_load_patch(Node, _) ->
     LocalVersion = re_riak_patch:version(),
     RemoteVersion = remote(Node, re_riak_patch, version, []),
@@ -458,8 +458,17 @@ maybe_load_patch(Node, _) ->
         _ -> ok
     end.
 
-remote(N,M,F,A) ->
-    rpc:call(N, M, F, A, 60000).
+remote(N, M, F, A) ->
+    safe_rpc(N, M, F, A, 60000).
+
+safe_rpc(Node, Module, Function, Args, Timeout) ->
+    try rpc:call(Node, Module, Function, Args, Timeout) of
+        Result ->
+            Result
+    catch
+        'EXIT':{noproc, _NoProcDetails} ->
+            {badrpc, rpc_process_down}
+    end.
 
 find_cluster_by_id(_, []) ->
     {error, not_found};
