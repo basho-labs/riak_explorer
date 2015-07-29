@@ -23,7 +23,8 @@
 -include("riak_explorer.hrl").
 -compile({no_auto_import,[nodes/1]}).
 
--export([join/2,
+-export([repair/1,
+         join/2,
          staged_join/2,
          force_remove/2,
          leave/2,
@@ -70,6 +71,26 @@
 %%%===================================================================
 %%% Control API
 %%%===================================================================
+
+repair(Node) ->
+    {ok, Ring} = remote(Node, riak_core_ring_manager, get_my_ring, []),
+    AllOwners = remote(Node, riak_core_ring, all_owners, [Ring]),
+    F1 = fun({P, N}, Acc) ->
+        case N of
+            Node -> [P|Acc];
+            _ -> Acc
+        end
+    end,
+    Partitions = lists:foldl(F1, [], AllOwners),
+    Results = [remote(Node, riak_kv_vnode, repair, [P]) || P <- Partitions],
+    F2 = fun(R, [{success, S},{failure, F}]) ->
+        case R of
+            {ok,_} -> [{success, S+1},{failure, F}];
+            _ -> [{success, S},{failure, F+1}]
+        end
+    end,
+    Result = lists:foldl(F2, [{success, 0},{failure, 0}], Results),
+    [{control, Result}].
 
 force_replace(Node, Node1, Node2) ->
     try

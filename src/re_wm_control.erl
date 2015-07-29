@@ -49,6 +49,7 @@ routes() ->
 
     Clusters       = Base ++ ["clusters"],
     Cluster        = Clusters ++ [cluster],
+    CRepair        = Cluster ++ ["repair"],
     CJoin          = Cluster ++ ["join"] ++ [node1],
     CLeave2        = Cluster ++ ["leave"] ++ [node1],
     CSJoin         = Cluster ++ ["staged-join"] ++ [node1],
@@ -66,6 +67,7 @@ routes() ->
 
     Nodes         = Base ++ ["nodes"],
     Node          = Nodes ++ [node],
+    Repair        = Node ++ ["repair"],
     Join          = Node ++ ["join"] ++ [node1],
     Leave2        = Node ++ ["leave"] ++ [node1],
     SJoin         = Node ++ ["staged-join"] ++ [node1],
@@ -81,9 +83,9 @@ routes() ->
     Status        = Node ++ ["status"],
     RingReady     = Node ++ ["ringready"],
 
-    [CJoin,CLeave2,CSJoin,CSLeave,CSLeave2,CForceRemove,CReplace,CSReplace,
+    [CRepair, CJoin,CLeave2,CSJoin,CSLeave,CSLeave2,CForceRemove,CReplace,CSReplace,
      CForceReplace,CPlan,CCommit,CClear,CStatus,CRingReady] ++
-    [Join,Leave2,SJoin,SLeave,SLeave2,ForceRemove,Replace,SReplace,
+    [Repair, Join,Leave2,SJoin,SLeave,SLeave2,ForceRemove,Replace,SReplace,
      ForceReplace,Plan,Commit,Clear,Status,RingReady].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
@@ -117,6 +119,8 @@ content_types_provided(RD, Ctx) ->
 resource_exists(RD, Ctx=?command(Command)) ->
     Node = Ctx#ctx.node,
     {Exists, Response} = case Command of
+        "repair" ->
+            {true, re_riak:repair(Node)};
         "staged-leave" ->
             {true, re_riak:staged_leave(Node)};
         "plan" ->
