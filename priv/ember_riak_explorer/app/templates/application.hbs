@@ -24,7 +24,7 @@
           {{#link-to 'index' tagName='li'}}<a href="/">Clusters</a>
           {{/link-to}}
 
-          {{#each cluster in model}}
+          {{#each model as |cluster|}}
               {{#link-to 'cluster' tagName='li'}}
                   {{#link-to 'cluster' (query-params cluster_id=cluster.id)}}
                       &nbsp;&nbsp;{{cluster.id}}
