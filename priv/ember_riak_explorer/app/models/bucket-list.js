@@ -1,18 +1,14 @@
 import DS from 'ember-data';
+import CachedList from "./cached-list";
 
 // BucketList object, used to list buckets for a selected bucket type.
-export default DS.Model.extend({
-    cluster: DS.attr(),
+export default CachedList.extend({
+    // List of Bucket model instances
+    buckets: DS.attr(null, {defaultValue: []}),
+
+    // Bucket-type model instance
     bucketType: DS.attr(),
 
-    // Number of buckets displayed on this page
-    count: DS.attr('number', {defaultValue: 0}),
-
-    // When was the cache created on the server side
-    created: DS.attr(),
-
-    buckets: DS.attr(),
-
-    // Total number of buckets
-    total: DS.attr('number', {defaultValue: 0})
+    // Cluster model instance
+    cluster: DS.attr()
 });

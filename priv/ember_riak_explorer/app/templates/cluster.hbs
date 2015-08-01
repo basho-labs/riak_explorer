@@ -51,7 +51,7 @@
             </tr>
         </thead>
         <tbody>
-    {{#each node in model.nodes}}
+    {{#each model.nodes as |node|}}
       {{riak-node node=node}}
     {{else}}
       No nodes detected.

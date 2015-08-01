@@ -8,7 +8,7 @@
         </tr>
     </thead>
     <tbody>
-{{#each prop in model.propsList}}
+{{#each model.propsList as |prop|}}
         <tr>
             <td>{{prop.key}}</td>
             <td>{{prop.value}}</td>

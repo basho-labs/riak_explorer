@@ -16,5 +16,12 @@ export default Ember.Route.extend({
     model: function(params) {
         return this.explorer.getKeyList(params.cluster_id, params.bucket_type_id,
             params.bucket_id, this.store);
+    },
+
+    setupController: function(controller, model) {
+        this._super(controller, model);
+        if(!model.get('isLoaded')) {
+            controller.pollForModel(model, 3000);
+        }
     }
 });

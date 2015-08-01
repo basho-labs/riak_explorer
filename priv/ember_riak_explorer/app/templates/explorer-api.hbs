@@ -3,7 +3,7 @@
 <h3>Service Information</h3>
 
 <strong>Name:</strong> {{model.service}}<br />
-<strong>Ping:</strong> 
+<strong>Ping:</strong>
 {{#if model.pingResult.ping}}Available ({{model.pingResult.ping.message}})
 {{else}}Unavailable{{/if}}<br />
 <strong>Development Mode:</strong> {{model.propsResult.props.development_mode}}<br />
@@ -18,7 +18,7 @@
         </tr>
     </thead>
     <tbody>
-{{#each route in model.routes}}
+{{#each model.routes as |route|}}
         <tr>
             <td>{{route.links.self}}</td>
             <td>[{{route.resources}}]</td>

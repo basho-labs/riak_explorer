@@ -13,26 +13,32 @@
     </div>
 </div>
 
-<div class="container" style="margin-top: 2em;">
-    <div class="row">
-        <div>
-        Cache created: {{model.created}}
-        {{#if model.cluster.developmentMode}}
-            {{refresh-buckets action="refreshBuckets" bucketList=model}}
-        {{/if}}
+{{#if model.isLoaded}}
+    <div class="container" style="margin-top: 2em;">
+        <div class="row">
+            <div>
+            Cache created: {{model.created}}
+            {{#if model.cluster.developmentMode}}
+                {{refresh-buckets action="refreshBuckets" bucketList=model}}
+            {{/if}}
+            </div>
         </div>
     </div>
-</div>
 
-<div class="container" style="margin-top: 2em;">
-    Displaying
-    <strong>{{model.count}}</strong>
-    buckets out of
-    <strong>{{model.total}}</strong>
-    total.
-</div>
+    <div class="container" style="margin-top: 2em;">
+        Displaying
+        <strong>{{model.count}}</strong>
+        buckets out of
+        <strong>{{model.total}}</strong>
+        total.
+    </div>
 
-<div class="container" style="padding-top: 2em;">
-    {{#riak-buckets bucketList=model deleteBucketAction="deleteBucket" cluster=model.cluster}}
-    {{/riak-buckets}}
-</div>
+    <div class="container" style="padding-top: 2em;">
+        {{#riak-buckets bucketList=model deleteBucketAction="deleteBucket" cluster=model.cluster}}
+        {{/riak-buckets}}
+    </div>
+{{else}}
+    <div class="container" style="padding-top: 2em; text-align: center;">
+    Loading...
+    </div>
+{{/if}}

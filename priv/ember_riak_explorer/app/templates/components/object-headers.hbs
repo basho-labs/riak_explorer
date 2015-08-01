@@ -3,7 +3,7 @@
 <h4>{{title}}</h4>
 <table class="table">
     <tbody>
-        {{#each header in headers}}
+        {{#each headers as |header|}}
         <tr>
             <td width="30%;">{{header.key}}</td>
             <td>{{header.value}}</td>
