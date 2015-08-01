@@ -171,7 +171,8 @@ function createBucketList(data, cluster, bucketTypeId, store) {
         buckets: bucketList,
         total: data.buckets.total,
         count: data.buckets.count,
-        created: data.buckets.created
+        created: data.buckets.created,
+        isLoaded: true
     });
 }
 
@@ -196,9 +197,13 @@ function getBucketListCache(cluster, bucketTypeId, store) {
                 if(jqXHR.status === 404) {
                     // Kick off a Cache Refresh, and repeat the getBucketList request
                     bucketCacheRefresh(clusterId, bucketTypeId);
-                    Ember.run.later(function() {
-                        resolve(getBucketListCache(cluster, bucketTypeId, store));
-                    }, 3000);
+                    // Return an empty (Loading..) list. Controller will poll to
+                    // refresh it, later
+                    var emptyList = store.createRecord('bucket_list', {
+                        cluster: cluster,
+                        bucketTypeId: bucketTypeId
+                    });
+                    resolve(emptyList);
                 } else {
                     reject(textStatus);
                 }
@@ -334,6 +339,8 @@ function getKeyList(clusterId, bucketTypeId, bucketId, store) {
             function(jqXHR) { // Error
                 if(jqXHR.status === 404) {
                     // Empty cache (need to kick off a refresh)
+                    keyCacheRefresh(clusterId, bucketTypeId, bucketId);
+                    // Results in returning an empty (Loading..) key list
                     resolve(null);
                 } else {
                     // Some other error
@@ -351,10 +358,7 @@ function getKeyList(clusterId, bucketTypeId, bucketId, store) {
                 if(!data) {
                     return store.createRecord('key-list', {
                         bucket: bucket,
-                        cluster: bucket.get('cluster'),
-                        count: 0,
-                        keys: [],
-                        total: 0
+                        cluster: bucket.get('cluster')
                     });
                 }
                 var keyList = data.keys.keys.map(function(key) {
@@ -373,7 +377,8 @@ function getKeyList(clusterId, bucketTypeId, bucketId, store) {
                     created: data.keys.created,
                     count: data.keys.count,
                     keys: keyList,
-                    total: data.keys.total
+                    total: data.keys.total,
+                    isLoaded: true
                 });
             }
         );
@@ -492,12 +497,7 @@ function wasKeyDeleted(object) {
     return bucketTypeDelCache.buckets[bucketId].keysDeleted[key];
 }
 
-function keyCacheRefresh(keyList) {
-    var bucket = keyList.get('bucket');
-    var clusterId = bucket.get('clusterId');
-    var bucketTypeId = bucket.get('bucketTypeId');
-    var bucketId = bucket.get('bucketId');
-
+function keyCacheRefresh(clusterId, bucketTypeId, bucketId) {
     // For the moment, 'riak_kv' is the only implemented source of
     // cache refresh
     var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId +
