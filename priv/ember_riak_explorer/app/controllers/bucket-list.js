@@ -29,12 +29,6 @@ export default Ember.Controller.extend({
     },
 
     actions: {
-        deleteBucket: function(bucket) {
-            this.get('explorer').deleteBucket(bucket);
-            // this.get('explorer').markDeletedBucket(bucket);
-
-            this.pollForModel(this.get('model'), 100);
-        },
         refreshBuckets: function(bucketList) {
             var clusterId = bucketList.get('cluster').get('clusterId');
             var bucketTypeId = bucketList.get('bucketTypeId');

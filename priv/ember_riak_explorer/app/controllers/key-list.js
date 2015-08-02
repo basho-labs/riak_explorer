@@ -11,7 +11,6 @@ export default Ember.Controller.extend({
     // delay in milliseconds
     pollForModel: function(bucketList, delay) {
             var self = this;
-            console.log("Polling...");
             Ember.run.later(function() {
                 self.refreshModel(bucketList);
             }, delay);
@@ -32,6 +31,15 @@ export default Ember.Controller.extend({
     },
 
     actions: {
+        deleteBucket: function(bucket) {
+            this.get('model').set('isLoaded', false);
+            this.get('explorer').deleteBucket(bucket);
+            // Reload the model after the delete, triggers a cache refresh
+            this.pollForModel(this.get('model'), 5000);
+            // Reload the second time
+            this.pollForModel(this.get('model'), 10000);
+        },
+
         refreshKeys: function(keyList) {
             var clusterId = keyList.get('bucket').get('clusterId');
             var bucketTypeId = keyList.get('bucket').get('bucketTypeId');
