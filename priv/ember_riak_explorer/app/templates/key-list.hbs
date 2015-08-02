@@ -32,6 +32,12 @@
         keys out of
         <strong>{{model.total}}</strong>
         total.
+        {{#if model.showDeleteKeys}}
+        <button type="button" class="btn btn-xs btn-danger"
+                {{action 'deleteBucket' model.bucket}}>
+            Delete Listed Objects</button>
+        {{/if}}
+
     </div>
 
     <div class="container" style="padding-top: 2em;">
