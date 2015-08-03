@@ -454,7 +454,7 @@ function getRiakObject(clusterId, bucketTypeId, bucketId, key, store) {
                     resolve(objectFromAjax(key, bucket, headerString,
                         jqXHR.responseText, store));
                 } else {
-                    reject(textStatus);
+                    reject(jqXHR);
                 }
             }
         );
@@ -465,9 +465,10 @@ function getRiakObject(clusterId, bucketTypeId, bucketId, key, store) {
             obj: request,
             url: url
         });
-    }).catch(function(error) {
-        console.log('Error fetching riak object: %O', error);
     });
+    // .catch(function(error) {
+    //     console.log('Error fetching riak object: %O', error);
+    // });
 }
 
 // Fetch the cache of Deleted keys/buckets for a

@@ -16,4 +16,7 @@ export default Router.map(function() {
   this.route('riak-object');
   this.route('riak-object-edit');
   this.route('bucket_props');
+  this.route('errors', { path: '/errors' }, function() {
+    this.route('unknown');
+  });
 });
