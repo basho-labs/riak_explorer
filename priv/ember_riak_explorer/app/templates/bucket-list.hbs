@@ -1,17 +1,6 @@
-<h4>Bucket List</h4>
+<h4>Bucket List: {{model.bucketTypeId}}</h4>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-7">
-            <strong>Bucket Type:</strong>
-            {{model.bucketTypeId}}
-        </div>
-        <div class="col-md-5">
-            <strong>Cluster:</strong>
-            {{model.cluster.clusterId}}
-        </div>
-    </div>
-</div>
+{{crumb-trail model=model}}
 
 {{#if model.isLoaded}}
     <div class="container" style="margin-top: 2em;">

@@ -1,19 +1,7 @@
-<h4>Key List</h4>
+<h4>Key List: {{model.bucketId}}</h4>
 
-<div class="container">
-    <div class="row">
-        <div>
-            Bucket:
-            <strong>{{model.bucket.bucketId}}</strong>
-            (cluster: {{#link-to 'cluster' (query-params cluster_id=model.bucket.clusterId)}}
-                {{model.bucket.clusterId}}{{/link-to}}
-            /
-            type: {{#link-to 'bucket_list' (query-params cluster_id=model.bucket.clusterId
-                    bucket_type_id=model.bucket.bucketTypeId)}}
-                {{model.bucket.bucketTypeId}}{{/link-to}})
-        </div>
-    </div>
-</div>
+{{crumb-trail model=model}}
+
 {{#if model.isLoaded}}
     <div class="container" style="margin-top: 2em;">
         <div class="row">

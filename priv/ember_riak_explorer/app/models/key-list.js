@@ -8,6 +8,18 @@ export default CachedList.extend({
     // List of riak-object model instances
     keys: DS.attr(null, {defaultValue: []}),
 
+    bucketId: function() {
+        return this.get('bucket').get('bucketId');
+    }.property('bucket'),
+
+    bucketTypeId: function() {
+        return this.get('bucket').get('bucketTypeId');
+    }.property('bucket'),
+
+    clusterId: function() {
+        return this.get('cluster').get('clusterId');
+    }.property('cluster'),
+
     showDeleteKeys: function() {
         return this.get('cluster').developmentMode &&
             this.get('keys').length > 0;

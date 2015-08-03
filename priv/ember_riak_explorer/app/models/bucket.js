@@ -4,7 +4,6 @@ import objectToArray from '../utils/riak-util';
 export default DS.Model.extend({
     name: DS.attr('string'),
     cluster: DS.attr(),
-    clusterId: DS.attr(),
     bucketTypeId: DS.attr(),
 
     // {"allow_mult":false, "basic_quorum":false, ... }
@@ -13,6 +12,10 @@ export default DS.Model.extend({
     bucketId: function() {
         return this.get('name');
     }.property('name'),
+
+    clusterId: function() {
+        return this.get('cluster').get('clusterId');
+    }.property('cluster'),
 
     propsList: function() {
         if(!this.get('props')) {

@@ -6,15 +6,19 @@
             in
             {{#link-to 'cluster' (query-params cluster_id=model.clusterId)}}
                 {{model.clusterId}}{{/link-to}} cluster
-            /
-            {{#link-to 'bucket_list' (query-params cluster_id=model.clusterId
-                    bucket_type_id=model.bucketTypeId)}}
-                {{model.bucketTypeId}}{{/link-to}} bucket type
-            /
-            {{#link-to 'key_list' (query-params cluster_id=model.clusterId
-                    bucket_type_id=model.bucketTypeId
-                    bucket_id=model.bucketId)}}
-                {{model.bucketId}}{{/link-to}} bucket
+            {{#if model.bucketTypeId}}
+                /
+                {{#link-to 'bucket_list' (query-params cluster_id=model.clusterId
+                        bucket_type_id=model.bucketTypeId)}}
+                    {{model.bucketTypeId}}{{/link-to}} bucket type
+            {{/if}}
+            {{#if model.bucketId}}
+                /
+                {{#link-to 'key_list' (query-params cluster_id=model.clusterId
+                        bucket_type_id=model.bucketTypeId
+                        bucket_id=model.bucketId)}}
+                    {{model.bucketId}}{{/link-to}} bucket
+            {{/if}}
         </div>
     </div>
 </div>

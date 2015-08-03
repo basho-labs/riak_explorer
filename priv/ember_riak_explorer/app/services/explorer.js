@@ -213,30 +213,34 @@ function getBucketListCache(cluster, bucketTypeId, store) {
 }
 
 function getBucketProps(clusterId, bucketTypeId, bucketId, store) {
-    var cluster = getCluster(clusterId, store);
+    var clusterRequest = getCluster(clusterId, store);
     var propsUrl = getClusterProxyUrl(clusterId) + '/types/' +
             bucketTypeId + '/buckets/' + bucketId + '/props';
-    var result = Ember.$.ajax( propsUrl, { dataType: "json" } );
-    return result.then(function(data) {
-        return store.createRecord('bucket', {
-            name: bucketId,
-            bucketTypeId: bucketTypeId,
-            cluster: cluster,
-            props: data.props
+    var propsRequest = Ember.$.ajax( propsUrl, { dataType: "json" } );
+    return clusterRequest.then(function(cluster) {
+        return propsRequest.then(function(data) {
+            return store.createRecord('bucket', {
+                name: bucketId,
+                bucketTypeId: bucketTypeId,
+                cluster: cluster,
+                props: data.props
+            });
         });
     });
 }
 
 function getBucketType(clusterId, bucketTypeId, store) {
-    var cluster = getCluster(clusterId, store);
+    var clusterRequest = getCluster(clusterId, store);
     var propsUrl = getClusterProxyUrl(clusterId) + '/types/' +
             bucketTypeId + '/props';
-    var result = Ember.$.ajax( propsUrl, { dataType: "json" } );
-    return result.then(function(data) {
-        return store.createRecord('bucket_type', {
-            name: bucketTypeId,
-            cluster: cluster,
-            props: data.props
+    var propsRequest = Ember.$.ajax( propsUrl, { dataType: "json" } );
+    return clusterRequest.then(function(cluster) {
+        return propsRequest.then(function(data) {
+            return store.createRecord('bucket_type', {
+                name: bucketTypeId,
+                cluster: cluster,
+                props: data.props
+            });
         });
     });
 }

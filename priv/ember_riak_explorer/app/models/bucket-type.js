@@ -12,6 +12,10 @@ export default DS.Model.extend({
         return this.get('name');
     }.property('name'),
 
+    clusterId: function() {
+        return this.get('cluster').get('clusterId');
+    }.property('cluster'),
+
     propsList: function() {
         if(!this.get('props')) {
             return [];

@@ -10,5 +10,13 @@ export default CachedList.extend({
     bucketType: DS.attr(),
 
     // Cluster model instance
-    cluster: DS.attr()
+    cluster: DS.attr(),
+
+    bucketTypeId: function() {
+        return this.get('bucketType').get('bucketTypeId');
+    }.property('bucketType'),
+
+    clusterId: function() {
+        return this.get('cluster').get('clusterId');
+    }.property('cluster')
 });
