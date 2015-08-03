@@ -15,4 +15,5 @@ export default Router.map(function() {
   this.route('cluster');
   this.route('riak-object');
   this.route('riak-object-edit');
+  this.route('bucket_props');
 });

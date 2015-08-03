@@ -34,7 +34,8 @@
     </div>
 
     <div class="container" style="padding-top: 2em;">
-        {{#riak-buckets bucketList=model cluster=model.cluster}}
+        {{#riak-buckets bucketList=model cluster=model.cluster
+            bucketTypeI=model.bucketTypeId}}
         {{/riak-buckets}}
     </div>
 {{else}}
