@@ -17,11 +17,9 @@ export default Ember.Route.extend({
     },
 
     actions: {
-        error: function() {
+        error: function(error, transition) {
             if (error && error.status === 404) {
-                // error substate and parent routes do not handle this error
-                // return this.transitionTo('modelNotFound');
-                alert('404');
+                this.transitionTo('errors.object-not-found', transition);
             } else {
                 // Unknown error, bubble error event up to routes/application.js
                 return true;

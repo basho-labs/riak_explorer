@@ -18,5 +18,6 @@ export default Router.map(function() {
   this.route('bucket_props');
   this.route('errors', { path: '/errors' }, function() {
     this.route('unknown');
+    this.route('object-not-found');
   });
 });

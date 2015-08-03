@@ -1,0 +1,20 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-11">
+            in
+            {{#link-to 'cluster' (query-params cluster_id=model.clusterId)}}
+                {{model.clusterId}}{{/link-to}} cluster
+            /
+            {{#link-to 'bucket_list' (query-params cluster_id=model.clusterId
+                    bucket_type_id=model.bucketTypeId)}}
+                {{model.bucketTypeId}}{{/link-to}} bucket type
+            /
+            {{#link-to 'key_list' (query-params cluster_id=model.clusterId
+                    bucket_type_id=model.bucketTypeId
+                    bucket_id=model.bucketId)}}
+                {{model.bucketId}}{{/link-to}} bucket
+        </div>
+    </div>
+</div>
