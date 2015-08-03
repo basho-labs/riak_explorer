@@ -1,0 +1,15 @@
+{{#if headers}}
+
+<h4>{{title}}</h4>
+<table class="table">
+    <tbody>
+        {{#each headers as |header|}}
+        <tr>
+            <td width="30%;">{{header.key}}</td>
+            <td>{{input value=header.value id=header.key class="form-control"}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+{{/if}}

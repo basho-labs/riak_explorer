@@ -4,14 +4,14 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            {{#object-headers headers=model.obj.headersIndexes
-                title='Secondary Indexes'}}{{/object-headers}}
+            {{#object-headers-edit headers=model.obj.headersIndexes
+                title='Secondary Indexes'}}{{/object-headers-edit}}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {{#object-headers headers=model.obj.headersCustom
-                title='Custom Headers'}}{{/object-headers}}
+            {{#object-headers-edit headers=model.obj.headersCustom
+                title='Custom Headers'}}{{/object-headers-edit}}
         </div>
     </div>
 </div>
@@ -23,7 +23,6 @@
         <div class="col-md-12 form-group">
             <label for='contentType'>Content Type:</label>
             {{input value=model.obj.contentType id='contentType' class="form-control"}}
-
         </div>
     </div>
 </div>
