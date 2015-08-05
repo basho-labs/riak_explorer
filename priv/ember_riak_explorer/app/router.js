@@ -12,7 +12,7 @@ export default Router.map(function() {
   this.route('key_list');
   this.route('riak_ping');
   this.route('node_stats');
-  this.route('cluster');
+  this.route('cluster', { path: '/cluster/:cluster_id' });
   this.route('riak-object');
   this.route('riak-object-edit');
   this.route('bucket_props');

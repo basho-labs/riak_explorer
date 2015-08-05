@@ -36,21 +36,36 @@ export default DS.RESTAdapter.extend({
     },
 
     /**
-      Called by the store in order to fetch a JSON array for
-      the records that match a particular query.
-      The `findQuery` method makes an Ajax (HTTP GET) request to a URL computed
-      by `buildURL`, and returns a promise for the resulting payload.
-      The `query` argument is a simple JavaScript object that will be passed directly
-      to the server as parameters.
-      @private
-      @method findQuery
-      @param {DS.Store} store
-      @param {subclass of DS.Model} type
-      @param {Object} query
-      @return {Promise} promise
+    This method delegates a query to the adapter. This is the one place where
+    adapter-level semantics are exposed to the application.
+    Exposing queries this way seems preferable to creating an abstract query
+    language for all server-side queries, and then require all adapters to
+    implement them.
+    The call made to the server, using a Rails backend, will look something like this:
+    ```
+    Started GET "/api/v1/person?page=1"
+    Processing by Api::V1::PersonsController#index as HTML
+    Parameters: {"page"=>"1"}
+    ```
+    If you do something like this:
+    ```javascript
+    store.query('person', {ids: [1, 2, 3]});
+    ```
+    The call to the server, using a Rails backend, will look something like this:
+    ```
+    Started GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
+    Processing by Api::V1::PersonsController#index as HTML
+    Parameters: {"ids"=>["1", "2", "3"]}
+    ```
+    This method returns a promise, which is resolved with a `RecordArray`
+    once the server returns.
+    @method query
+    @param {String} modelName
+    @param {any} query an opaque query to be used by the adapter
+    @return {Promise} promise
     */
     findQuery: function(store, type, query) {
-      var url = this.buildURL(type.typeKey, null, query);
+      var url = this.buildURL(type.modelName, null, query);
 
       if (this.sortQueryParams) {
         query = this.sortQueryParams(query);
