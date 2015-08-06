@@ -236,7 +236,7 @@ function getBucketType(clusterId, bucketTypeId, store) {
     var propsRequest = Ember.$.ajax( propsUrl, { dataType: "json" } );
     return clusterRequest.then(function(cluster) {
         return propsRequest.then(function(data) {
-            return store.createRecord('bucket_type', {
+            return store.createRecord('cluster.bucket-type', {
                 name: bucketTypeId,
                 cluster: cluster,
                 props: data.props
@@ -257,21 +257,6 @@ function getCluster(clusterId, store) {
                 proxyUrl: getClusterProxyUrl(clusterId)
             });
         });
-}
-
-function getClusterInfo(clusterId, store) {
-    var cluster = getCluster(clusterId, store);
-    var nodes = getNodes(clusterId);
-    var indexes = getIndexes(clusterId);
-    var bucketTypes = store.find('bucket_type', { cluster_id: clusterId });
-    var clusterInfo = {
-        cluster: cluster,
-        nodes: nodes,
-        indexes: indexes,
-        bucketTypes: bucketTypes
-    };
-
-    return new Ember.RSVP.hash(clusterInfo);
 }
 
 function getClusters() {
@@ -406,18 +391,29 @@ function getKeyList(clusterId, bucketTypeId, bucketId, store) {
 
 function getNodes(clusterId) {
     var url = '/explore/clusters/'+ clusterId + '/nodes';
-    var result = Ember.$.ajax({ url: url });  // returns a Promise obj
-    return result.then(
-        // Success
-        function(data) {
-            return data.nodes;
-        },
-        // Error
-        function(error) {
-            console.log('Error fetching nodes: ' + error);
-            return [];
-        }
-    );
+
+    var request = new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.$.ajax({
+            type: "GET",
+            url: url
+        }).then(
+            // Success
+            function(data) {
+                resolve(data.nodes);
+            },
+            // Error
+            function(jqXHR, textStatus) {
+                if(jqXHR.status === 404) {
+                    // No nodes found, simply return an empty list
+                    resolve([]);
+                } else {
+                    // Some other error
+                    reject(textStatus);
+                }
+            }
+        );
+    });
+    return request;
 }
 
 function getRiakObject(clusterId, bucketTypeId, bucketId, key, store) {
@@ -587,6 +583,8 @@ export default Ember.Service.extend({
     getClustersAndNodes: getClustersAndNodes,
 
     getClusterProxyUrl: getClusterProxyUrl,
+
+    getIndexes: getIndexes,
 
     getKeyList: getKeyList,
 

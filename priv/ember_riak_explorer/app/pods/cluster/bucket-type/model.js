@@ -1,5 +1,5 @@
 import DS from 'ember-data';
-import objectToArray from '../utils/riak-util';
+import objectToArray from '../../../utils/riak-util';
 
 export default DS.Model.extend({
     name: DS.attr('string'),
