@@ -11,6 +11,20 @@ export default DS.RESTSerializer.extend({
     isNewSerializerAPI: true,
 
     /**
+     `keyForAttribute` can be used to define rules for how to convert an
+     attribute name in your model to a key in your JSON.
+
+     @method keyForAttribute
+     @param {String} key
+     @param {String} method
+     @return {String} normalized key
+    */
+    keyForAttribute: function(attr /*, method*/) {
+        // Riak and Explorer json uses snake case, like 'development_mode'
+        return Ember.String.underscore(attr);
+    }
+
+    /**
     Normalizes a part of the JSON payload returned by
     the server.
     @method normalize

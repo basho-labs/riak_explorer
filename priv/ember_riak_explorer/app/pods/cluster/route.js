@@ -2,15 +2,19 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
     model: function(params) {
-        var clusterId = params.cluster_id;
-        var cluster = this.store.findRecord('cluster', clusterId);
-        this.explorer.getIndexes(clusterId).then(function(indexes) {
-            cluster.set('indexes', indexes);
-        });
-        this.explorer.getNodes(clusterId).then(function(nodes) {
-            cluster.set('nodes', nodes);
-        });
+        var cluster = this.store.findRecord('cluster', params.cluster_id);
 
         return cluster;
+    },
+
+    setupController: function(controller, model) {
+        this._super(controller, model);
+        var clusterId = model.get('id');
+        this.explorer.getIndexes(clusterId).then(function(indexes) {
+            model.set('indexes', indexes);
+        });
+        this.explorer.getNodes(clusterId).then(function(nodes) {
+            model.set('nodes', nodes);
+        });
     }
 });
