@@ -9,7 +9,8 @@ export default Ember.Route.extend({
         }
     },
 
+    // Load the list of available clusters, for the left nav
     model: function() {
-        return this.explorer.getClusters();
+        return this.store.findAll('cluster');
     }
 });

@@ -26,7 +26,7 @@
 
           {{#each model as |cluster|}}
               {{#link-to 'cluster' tagName='li'}}
-                  {{#link-to 'cluster' (query-params cluster_id=cluster.id)}}
+                  {{#link-to 'cluster' cluster}}
                       &nbsp;&nbsp;{{cluster.id}}
                       {{#if cluster.development_mode}}<strong>(Dev mode)</strong>{{/if}}
                   {{/link-to}}
