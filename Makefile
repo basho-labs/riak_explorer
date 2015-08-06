@@ -50,7 +50,10 @@ itest-backend: recompile-backend cleantest-backend
 	INTEGRATION_TEST=true $(REBAR) skip_deps=true eunit
 reitest-backend: cleantest-backend
 	INTEGRATION_TEST=true $(REBAR) skip_deps=true eunit
-
+rel-backend: relclean deps-backend compile-backend
+	$(REBAR) compile
+	$(REBAR) skip_deps=true generate $(OVERLAY_VARS)
+	
 # Frontend
 compile-frontend: deps-frontend
 	-cd priv/ember_riak_explorer && ember build
