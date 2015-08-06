@@ -572,9 +572,6 @@ export default Ember.Service.extend({
 
     getBucketType: getBucketType,
 
-    // Return the details for a single cluster
-    getClusterInfo: getClusterInfo,
-
     // Return all clusters that Explorer knows about
     getClusters: getClusters,
 
