@@ -1,4 +1,4 @@
-import ClusterResourceAdapter from './cluster-resource';
+import ExplorerResourceAdapter from './explorer-resource';
 
-export default ClusterResourceAdapter.extend({
+export default ExplorerResourceAdapter.extend({
 });

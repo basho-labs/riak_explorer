@@ -16,5 +16,8 @@ export default Ember.Route.extend({
         this.explorer.getNodes(clusterId).then(function(nodes) {
             model.set('nodes', nodes);
         });
+        this.store.query('cluster.bucket-type', {clusterId: clusterId}).then(function(bucketTypes) {
+            model.set('bucketTypes', bucketTypes);
+        });
     }
 });

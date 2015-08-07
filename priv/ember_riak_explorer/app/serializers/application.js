@@ -22,6 +22,21 @@ export default DS.RESTSerializer.extend({
     keyForAttribute: function(attr /*, method*/) {
         // Riak and Explorer json uses snake case, like 'development_mode'
         return Ember.String.underscore(attr);
+    },
+    /**
+    This method is used to convert each JSON root key in the payload
+    into a modelName that it can use to look up the appropriate model for
+    that part of the payload.
+    @method modelNameFromPayloadKey
+    @param {String} key
+    @return {String} the model's modelName
+    */
+    modelNameFromPayloadKey: function(payloadKey) {
+        if(payloadKey === 'bucket_types') {
+            return this._super('cluster.bucket-types');
+        } else {
+            return this._super(payloadKey);
+        }
     }
 
     /**

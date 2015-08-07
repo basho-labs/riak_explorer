@@ -4,10 +4,6 @@ import DS from 'ember-data';
 * Represents a Riak cluster as a whole.
 */
 export default DS.Model.extend({
-    // id: function() {
-    //     return this.get('clusterId');
-    // }.property('clusterId'),
-
     // Bucket types created on the cluster
     bucketTypes: DS.attr(),
 

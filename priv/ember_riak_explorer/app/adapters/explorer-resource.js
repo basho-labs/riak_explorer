@@ -1,9 +1,8 @@
 import DS from 'ember-data';
 import Ember from "ember";
 
-// ClusterResourceAdapter
-// Models fetching Riak resources from Explorer's cluster proxy API
-var ClusterResourceAdapter = DS.RESTAdapter.extend({
+// Models fetching Riak resources from Explorer's own API
+var ExplorerResourceAdapter = DS.RESTAdapter.extend({
     namespace: 'explore',
 
     /**
@@ -28,27 +27,16 @@ var ClusterResourceAdapter = DS.RESTAdapter.extend({
       @return {String} url
     */
     buildURL: function(modelName, id, snapshot, requestType, query) {
-        var url = [];
-        var host = Ember.get(this, 'host');
-        var prefix = this.urlPrefix();
-
-        if (modelName) { url.push(this.pathForType(modelName)); }
-
-        // We might get passed in an array of ids from findMany
-        // in which case we don't want to modify the url, as the
-        // ids will be passed in through a query param
-        if (id && !Ember.isArray(id)) { url.push(encodeURIComponent(id)); }
-
-        if (query && query.cluster_id) { url.unshift('clusters/' + query.cluster_id); }
-
-        if (query && query.node_id) { url.unshift('nodes/' + query.node_id); }
-
-        if (prefix) { url.unshift(prefix); }
-
-        url = url.join('/');
-        if (!host && url) { url = '/' + url; }
-
-        return url;
+        switch (requestType) {
+            case 'findRecord':
+                return this.urlForFindRecord(id, modelName, snapshot);
+            case 'findAll':
+                return this.urlForFindAll(modelName);
+            case 'query':
+                return this.urlForQuery(query, modelName);
+            default:
+                return this._buildURL(modelName, id);
+        }
     },
 
     /**
@@ -75,6 +63,33 @@ var ClusterResourceAdapter = DS.RESTAdapter.extend({
 
     pathForType: function(type) {
       return Ember.String.underscore(Ember.String.pluralize(type));
+  },
+
+    /**
+    Called by the store in order to fetch a JSON array for
+    the records that match a particular query.
+    @private
+    @method query
+    @param {DS.Store} store
+    @param {DS.Model} type
+    @param {Object} query (POJO, contains query parameters)
+    @return {Promise} promise
+    */
+    query: function(store, type, query) {
+        var url = this.buildURL(type.modelName, null, null, 'query', query);
+        return this.ajax(url, 'GET');
+    },
+
+    urlForQuery: function(query, modelName) {
+        if(modelName.indexOf('.') > -1) {
+            // Deal with nested model names, like 'cluster.bucket_types'
+            modelName = modelName.split('.').pop();
+        }
+
+        // For the moment, assume we're only dealing with cluster-based resources
+        var url = this._buildURL('cluster', query.clusterId);
+
+        return url + '/' + this.pathForType(modelName);
     }
 });
-export default ClusterResourceAdapter;
+export default ExplorerResourceAdapter;

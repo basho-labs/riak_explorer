@@ -12,7 +12,9 @@ export default Router.map(function() {
   this.route('riak_ping');
   this.route('node_stats');
   this.route('cluster', { path: '/cluster/:cluster_id' }, function() {
-      this.route('bucket-type', { path: 'bucket-type/:bucket_type_id'});
+      this.route('bucket-type', { resetNamespace: true }, function() {
+
+      });
   });
   this.route('riak-object');
   this.route('riak-object-edit');
