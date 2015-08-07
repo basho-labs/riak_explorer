@@ -2,9 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
     model: function(params) {
-        var cluster = this.store.findRecord('cluster', params.cluster_id);
-
-        return cluster;
+        return this.store.findRecord('cluster', params.cluster_id);;
     },
 
     setupController: function(controller, model) {
