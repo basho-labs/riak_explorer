@@ -91,7 +91,13 @@ resource_exists(RD, Ctx=?listNodes(Cluster)) ->
         _ ->
             {true, RD, Ctx#ctx{id=nodes, response=Response}}
     end;
-resource_exists(RD, Ctx=?nodeInfo(Cluster, Node)) ->
+resource_exists(RD, Ctx=?nodeInfo(Cluster0, Node)) ->
+    Cluster = case Cluster0 of
+        undefined ->
+            re_config:set_adhoc_cluster(Node),
+            adhoc;
+        _ -> Cluster0
+    end,
     case re_riak:node_exists(Cluster, Node) of
         true ->
             Id = list_to_binary(Node),

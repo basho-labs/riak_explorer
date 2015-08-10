@@ -68,6 +68,9 @@
 
 -export([load_patch/1]).
 
+-export([remote/4,
+         node_is_alive/1]).
+
 %%%===================================================================
 %%% Control API
 %%%===================================================================
@@ -454,6 +457,9 @@ node_exists(Cluster, Node) ->
         _ -> false
     end.
 
+node_is_alive(Node) ->
+    Test = remote(Node, erlang, node, []),
+    is_atom(Test).
 %%%===================================================================
 %%% Utility API
 %%%===================================================================
@@ -461,6 +467,9 @@ node_exists(Cluster, Node) ->
 load_patch(Node) ->
     IsLoaded = remote(Node, code, is_loaded, [re_riak_patch]),
     maybe_load_patch(Node, IsLoaded).
+
+remote(N, M, F, A) ->
+    safe_rpc(N, M, F, A, 60000).
 
 %%%===================================================================
 %%% Private
@@ -478,9 +487,6 @@ maybe_load_patch(Node, _) ->
         false -> maybe_load_patch(Node, false);
         _ -> ok
     end.
-
-remote(N, M, F, A) ->
-    safe_rpc(N, M, F, A, 60000).
 
 safe_rpc(Node, Module, Function, Args, Timeout) ->
     try rpc:call(Node, Module, Function, Args, Timeout) of

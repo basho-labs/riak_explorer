@@ -34,7 +34,8 @@
          clusters/0,
          cluster/1,
          riak_node/0, riak_node/1,
-         web_root/0]).
+         web_root/0,
+         set_adhoc_cluster/1]).
 
 -include("riak_explorer.hrl").
 
@@ -120,6 +121,23 @@ url() ->
 
 url(Ip, Port) ->
     "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/".
+
+set_adhoc_cluster(Node) ->
+    AdhocCluster = [{riak_node, atom_to_list(Node)},{development_mode, true}],
+    case cluster(adhoc) of
+        undefined ->
+            C = [{adhoc, AdhocCluster}|clusters()],
+            application:set_env(riak_explorer, clusters, C);
+        Cluster ->
+            case proplists:get_value(riak_node, Cluster) of
+                Node ->
+                    ok;
+                _ ->
+                    CleanC = proplists:delete(adhoc, clusters()),
+                    C = [{adhoc, AdhocCluster}|CleanC],
+                    application:set_env(riak_explorer, clusters, C)
+            end
+    end.
 
 clusters() ->
     {ok, Clusters} = application:get_env(riak_explorer, clusters),

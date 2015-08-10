@@ -94,7 +94,10 @@ service_available(RD, Ctx0) ->
 
 node_from_context(Ctx) ->
     case Ctx of
-        #ctx{cluster=undefined, node=N} -> list_to_atom(N);
+        #ctx{cluster=undefined, node=N} ->
+            Node = list_to_atom(N),
+            re_config:set_adhoc_cluster(Node),
+            Node;
         #ctx{cluster=C} -> re_riak:first_node(list_to_atom(C))
     end.
 

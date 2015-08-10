@@ -22,7 +22,7 @@
 -export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
-         allowed_methods/2, 
+         allowed_methods/2,
          content_types_provided/2,
          resource_exists/2,
          provide_jsonapi_content/2,
@@ -42,7 +42,7 @@
 %%% API
 %%%===================================================================
 
-resources() -> 
+resources() ->
     [{ping, [riak_explorer, ping]},
      {routes, [riak_explorer, routes]},
      {props, [riak_explorer, props]},
@@ -80,10 +80,10 @@ resource_exists(RD, Ctx=?exploreInfo()) ->
 resource_exists(RD, Ctx=?exploreResource(Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
-        [M,F] -> 
+        [M,F] ->
             Response = M:F(),
             {true, RD, Ctx#ctx{id=Id, response=Response}};
-        _ -> 
+        _ ->
             {false, RD, Ctx}
     end;
 resource_exists(RD, Ctx) ->
