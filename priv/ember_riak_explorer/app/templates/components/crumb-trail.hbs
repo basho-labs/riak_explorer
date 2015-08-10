@@ -4,7 +4,7 @@
         </div>
         <div class="col-md-11">
             in
-            {{#link-to 'cluster' (query-params cluster_id=model.clusterId)}}
+            {{#link-to 'cluster' model.cluster}}
                 {{model.clusterId}}{{/link-to}} cluster
             {{#if model.bucketTypeId}}
                 /
