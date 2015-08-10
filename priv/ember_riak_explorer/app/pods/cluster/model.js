@@ -5,7 +5,7 @@ import DS from 'ember-data';
 */
 export default DS.Model.extend({
     // Bucket types created on the cluster
-    bucketTypes: DS.attr(),
+    bucketTypes: DS.hasMany('bucket-type'),
 
     clusterId: function() {
         return this.get('id');

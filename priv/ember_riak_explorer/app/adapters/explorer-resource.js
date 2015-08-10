@@ -61,9 +61,41 @@ var ExplorerResourceAdapter = DS.RESTAdapter.extend({
           return this.ajax(url, 'GET');
     },
 
+    injectParentIds: function(payload, query) {
+        if(query.clusterId) {
+            payload.cluster_id = query.clusterId;
+        }
+        if(query.bucketTypeId) {
+            payload.bucket_type_id = query.bucketTypeId;
+        }
+    },
+
+    /**
+    Normalize the ID in a given resource into globally unique
+    version required by Ember Data.
+    (Most Riak cluster resources do not have globally unique IDs.
+    For example, bucket types are only unique within a cluster.)
+    */
+    normalizeId: function(record, query, idKey) {
+        var prefix = [];
+        if(query.clusterId) {
+            prefix.push(query.clusterId);
+        }
+        if(query.bucketTypeId) {
+            prefix.push(query.bucketTypeId);
+        }
+        if(!idKey) {
+            idKey = 'id';
+        }
+        var originalId = record[idKey];
+        record.original_id = originalId;
+        prefix.push(originalId);
+        record['id'] = prefix.join('/');
+    },
+
     pathForType: function(type) {
-      return Ember.String.underscore(Ember.String.pluralize(type));
-  },
+        return Ember.String.underscore(Ember.String.pluralize(type));
+    },
 
     /**
     Called by the store in order to fetch a JSON array for
@@ -77,7 +109,18 @@ var ExplorerResourceAdapter = DS.RESTAdapter.extend({
     */
     query: function(store, type, query) {
         var url = this.buildURL(type.modelName, null, null, 'query', query);
-        return this.ajax(url, 'GET');
+        var adapter = this;
+        var root = this.pathForType(type.modelName);
+        var promise = this.ajax(url, 'GET').then(function(payload) {
+            for(let i=0; i < payload[root].length; i++) {
+                var record = payload[root][i];
+                adapter.normalizeId(record, query);
+                adapter.injectParentIds(record, query);
+                console.log('record: %O', record);
+            }
+            return payload;
+        });
+        return promise;
     },
 
     urlForQuery: function(query, modelName) {

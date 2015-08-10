@@ -32,11 +32,7 @@ export default DS.RESTSerializer.extend({
     @return {String} the model's modelName
     */
     modelNameFromPayloadKey: function(payloadKey) {
-        if(payloadKey === 'bucket_types') {
-            return this._super('cluster.bucket-types');
-        } else {
-            return this._super(payloadKey);
-        }
+        return this._super(payloadKey);
     }
 
     /**

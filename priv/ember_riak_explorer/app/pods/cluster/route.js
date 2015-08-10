@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
     model: function(params) {
-        return this.store.findRecord('cluster', params.cluster_id);;
+        return this.store.findRecord('cluster', params.cluster_id);
     },
 
     setupController: function(controller, model) {
@@ -14,7 +14,7 @@ export default Ember.Route.extend({
         this.explorer.getNodes(clusterId).then(function(nodes) {
             model.set('nodes', nodes);
         });
-        this.store.query('cluster.bucket-type', {clusterId: clusterId}).then(function(bucketTypes) {
+        this.store.query('bucket-type', {clusterId: clusterId}).then(function(bucketTypes) {
             model.set('bucketTypes', bucketTypes);
         });
     }

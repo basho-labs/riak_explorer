@@ -229,22 +229,6 @@ function getBucketProps(clusterId, bucketTypeId, bucketId, store) {
     });
 }
 
-function getBucketType(clusterId, bucketTypeId, store) {
-    var clusterRequest = getCluster(clusterId, store);
-    var propsUrl = getClusterProxyUrl(clusterId) + '/types/' +
-            bucketTypeId + '/props';
-    var propsRequest = Ember.$.ajax( propsUrl, { dataType: "json" } );
-    return clusterRequest.then(function(cluster) {
-        return propsRequest.then(function(data) {
-            return store.createRecord('cluster.bucket-type', {
-                name: bucketTypeId,
-                cluster: cluster,
-                props: data.props
-            });
-        });
-    });
-}
-
 function getCluster(clusterId, store) {
         var url = '/explore/clusters/'+ clusterId;
         var result = Ember.$.ajax({ url: url });  // returns a Promise obj
@@ -560,6 +544,10 @@ export default Ember.Service.extend({
 
     bucketCacheRefresh: bucketCacheRefresh,
 
+    compositeId: function(clusterId, bucketTypeId) {
+        return clusterId + '/' + bucketTypeId;
+    },
+
     deletedCacheFor: deletedCacheFor,
 
     deleteObject: deleteObject,
@@ -569,8 +557,6 @@ export default Ember.Service.extend({
     getBucketList: getBucketList,
 
     getBucketProps: getBucketProps,
-
-    getBucketType: getBucketType,
 
     // Return all clusters that Explorer knows about
     getClusters: getClusters,
