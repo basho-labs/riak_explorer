@@ -3,10 +3,6 @@ import Ember from 'ember';
 export default Ember.Controller.extend({
     explorer: Ember.inject.service('explorer'),
 
-    queryParams: ['cluster_id', 'bucket_type_id'],
-    cluster_id: null,
-    bucket_type_id: null,
-
     // delay in milliseconds
     pollForModel: function(bucketList, delay) {
             var self = this;

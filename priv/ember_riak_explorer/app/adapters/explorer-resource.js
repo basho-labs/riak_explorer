@@ -110,29 +110,58 @@ var ExplorerResourceAdapter = DS.RESTAdapter.extend({
     query: function(store, type, query) {
         var url = this.buildURL(type.modelName, null, null, 'query', query);
         var adapter = this;
-        var root = this.pathForType(type.modelName);
+        var root;
         var promise = this.ajax(url, 'GET').then(function(payload) {
+            root = adapter.pathForType(type.modelName);
             for(let i=0; i < payload[root].length; i++) {
                 var record = payload[root][i];
                 adapter.normalizeId(record, query);
                 adapter.injectParentIds(record, query);
-                console.log('record: %O', record);
             }
             return payload;
         });
         return promise;
     },
 
+    /**
+    Invoked when the store is asked for a single
+    record through a query object.
+    @private
+    @method query
+    @param {DS.Store} store
+    @param {DS.Model} type
+    @param {Object} query (POJO, contains query parameters)
+    @return {Promise} promise
+    */
+    queryRecord: function(store, type, query) {
+        var url = this.buildURL(type.modelName, null, null, 'query', query);
+        var adapter = this;
+        var root = Ember.String.underscore(type.modelName);
+        var promise = this.ajax(url, 'GET').then(function(payload) {
+            adapter.normalizeId(payload[root], query);
+            adapter.injectParentIds(payload[root], query);
+            console.log("payload: %O", payload);
+            return payload;
+        });
+        return promise;
+    },
+
+
     urlForQuery: function(query, modelName) {
         if(modelName.indexOf('.') > -1) {
             // Deal with nested model names, like 'cluster.bucket_types'
             modelName = modelName.split('.').pop();
         }
-
+        var url = [];
         // For the moment, assume we're only dealing with cluster-based resources
-        var url = this._buildURL('cluster', query.clusterId);
+        url.push(this._buildURL('cluster', query.clusterId));
 
-        return url + '/' + this.pathForType(modelName);
+        url.push(this.pathForType('bucket-type'));
+        if(query.bucketTypeId) {
+            url.push(query.bucketTypeId);
+        }
+
+        return url.join('/');
     }
 });
 export default ExplorerResourceAdapter;

@@ -15,9 +15,8 @@
                     {{#link-to 'bucket-type' bt
                             classNames='btn btn-xs btn-primary' }}
                         View Properties{{/link-to}}
-                    {{#link-to 'bucket_list' (query-params cluster_id=clusterId bucket_type_id=bt.bucketTypeId)
-                            classNames='btn btn-xs btn-primary' }}
-                        Bucket List{{/link-to}}
+                    <a href="/cluster/{{clusterId}}/bucket_type/{{bt.bucketTypeId}}/buckets"
+                        class="btn btn-xs btn-primary">Bucket List</a>
                 </div>
             </div>
             <div class="row">
