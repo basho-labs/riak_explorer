@@ -14,7 +14,8 @@
                     <strong>Actions:</strong>
                     {{#link-to 'bucket-type' bt
                             classNames='btn btn-xs btn-primary' }}
-                        View Properties{{/link-to}}
+                        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                        Properties{{/link-to}}
                     <a href="/cluster/{{clusterId}}/bucket_type/{{bt.bucketTypeId}}/buckets"
                         class="btn btn-xs btn-primary">Bucket List</a>
                 </div>

@@ -3892,8 +3892,8 @@ define('ember-riak-explorer/templates/components/bucket-types', ['exports'], fun
                 "column": 20
               },
               "end": {
-                "line": 17,
-                "column": 39
+                "line": 18,
+                "column": 34
               }
             },
             "moduleName": "ember-riak-explorer/templates/components/bucket-types.hbs"
@@ -3903,7 +3903,13 @@ define('ember-riak-explorer/templates/components/bucket-types', ['exports'], fun
           hasRendered: false,
           buildFragment: function buildFragment(dom) {
             var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("                        View Properties");
+            var el1 = dom.createTextNode("                        ");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createElement("span");
+            dom.setAttribute(el1,"class","glyphicon glyphicon-cog");
+            dom.setAttribute(el1,"aria-hidden","true");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n                        Properties");
             dom.appendChild(el0, el1);
             return el0;
           },
@@ -3925,7 +3931,7 @@ define('ember-riak-explorer/templates/components/bucket-types', ['exports'], fun
               "column": 0
             },
             "end": {
-              "line": 29,
+              "line": 30,
               "column": 0
             }
           },
@@ -4055,8 +4061,8 @@ define('ember-riak-explorer/templates/components/bucket-types', ['exports'], fun
           ["content","bt.bucketTypeId",["loc",[null,[8,38],[8,57]]]],
           ["content","bt.props.active",["loc",[null,[10,45],[10,64]]]],
           ["content","bt.props.allow_mult",["loc",[null,[11,49],[11,72]]]],
-          ["block","link-to",["bucket-type",["get","bt",["loc",[null,[15,45],[15,47]]]]],["classNames","btn btn-xs btn-primary"],0,null,["loc",[null,[15,20],[17,51]]]],
-          ["attribute","href",["concat",["/cluster/",["get","clusterId",["loc",[null,[18,40],[18,49]]]],"/bucket_type/",["get","bt.bucketTypeId",["loc",[null,[18,66],[18,81]]]],"/buckets"]]]
+          ["block","link-to",["bucket-type",["get","bt",["loc",[null,[15,45],[15,47]]]]],["classNames","btn btn-xs btn-primary"],0,null,["loc",[null,[15,20],[18,46]]]],
+          ["attribute","href",["concat",["/cluster/",["get","clusterId",["loc",[null,[19,40],[19,49]]]],"/bucket_type/",["get","bt.bucketTypeId",["loc",[null,[19,66],[19,81]]]],"/buckets"]]]
         ],
         locals: ["bt"],
         templates: [child0]
@@ -4069,11 +4075,11 @@ define('ember-riak-explorer/templates/components/bucket-types', ['exports'], fun
           "loc": {
             "source": null,
             "start": {
-              "line": 29,
+              "line": 30,
               "column": 0
             },
             "end": {
-              "line": 31,
+              "line": 32,
               "column": 0
             }
           },
@@ -4106,7 +4112,7 @@ define('ember-riak-explorer/templates/components/bucket-types', ['exports'], fun
             "column": 0
           },
           "end": {
-            "line": 34,
+            "line": 35,
             "column": 0
           }
         },
@@ -4140,7 +4146,7 @@ define('ember-riak-explorer/templates/components/bucket-types', ['exports'], fun
         return morphs;
       },
       statements: [
-        ["block","each",[["get","bucketTypes",["loc",[null,[3,8],[3,19]]]]],[],0,1,["loc",[null,[3,0],[31,9]]]]
+        ["block","each",[["get","bucketTypes",["loc",[null,[3,8],[3,19]]]]],[],0,1,["loc",[null,[3,0],[32,9]]]]
       ],
       locals: [],
       templates: [child0, child1]
@@ -4421,7 +4427,7 @@ define('ember-riak-explorer/templates/components/delete-object', ['exports'], fu
             "column": 0
           },
           "end": {
-            "line": 4,
+            "line": 5,
             "column": 0
           }
         },
@@ -4435,6 +4441,12 @@ define('ember-riak-explorer/templates/components/delete-object', ['exports'], fu
         var el1 = dom.createElement("button");
         dom.setAttribute(el1,"type","button");
         dom.setAttribute(el1,"class","btn btn-xs btn-danger");
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("span");
+        dom.setAttribute(el2,"class","glyphicon glyphicon-trash");
+        dom.setAttribute(el2,"aria-hidden","true");
+        dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n    Delete");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
@@ -4473,7 +4485,7 @@ define('ember-riak-explorer/templates/components/edit-object', ['exports'], func
               "column": 0
             },
             "end": {
-              "line": 5,
+              "line": 6,
               "column": 15
             }
           },
@@ -4484,7 +4496,13 @@ define('ember-riak-explorer/templates/components/edit-object', ['exports'], func
         hasRendered: false,
         buildFragment: function buildFragment(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    Edit Object");
+          var el1 = dom.createTextNode("    ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("span");
+          dom.setAttribute(el1,"class","glyphicon glyphicon-pencil");
+          dom.setAttribute(el1,"aria-hidden","true");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n    Edit Object");
           dom.appendChild(el0, el1);
           return el0;
         },
@@ -4506,7 +4524,7 @@ define('ember-riak-explorer/templates/components/edit-object', ['exports'], func
             "column": 0
           },
           "end": {
-            "line": 6,
+            "line": 7,
             "column": 0
           }
         },
@@ -4530,7 +4548,7 @@ define('ember-riak-explorer/templates/components/edit-object', ['exports'], func
         return morphs;
       },
       statements: [
-        ["block","link-to",["riak-object-edit",["subexpr","query-params",[],["cluster_id",["get","object.clusterId",["loc",[null,[1,55],[1,71]]]],"bucket_type_id",["get","object.bucketTypeId",["loc",[null,[2,23],[2,42]]]],"bucket_id",["get","object.bucketId",["loc",[null,[2,53],[2,68]]]],"object_key",["get","object.key",["loc",[null,[3,19],[3,29]]]]],["loc",[null,[1,30],[3,30]]]]],["classNames","btn btn-xs btn-primary"],0,null,["loc",[null,[1,0],[5,27]]]]
+        ["block","link-to",["riak-object-edit",["subexpr","query-params",[],["cluster_id",["get","object.clusterId",["loc",[null,[1,55],[1,71]]]],"bucket_type_id",["get","object.bucketTypeId",["loc",[null,[2,23],[2,42]]]],"bucket_id",["get","object.bucketId",["loc",[null,[2,53],[2,68]]]],"object_key",["get","object.key",["loc",[null,[3,19],[3,29]]]]],["loc",[null,[1,30],[3,30]]]]],["classNames","btn btn-xs btn-primary"],0,null,["loc",[null,[1,0],[6,27]]]]
       ],
       locals: [],
       templates: [child0]
@@ -7338,7 +7356,7 @@ define('ember-riak-explorer/templates/components/refresh-buckets', ['exports'], 
             "column": 0
           },
           "end": {
-            "line": 4,
+            "line": 5,
             "column": 0
           }
         },
@@ -7352,6 +7370,12 @@ define('ember-riak-explorer/templates/components/refresh-buckets', ['exports'], 
         var el1 = dom.createElement("button");
         dom.setAttribute(el1,"type","button");
         dom.setAttribute(el1,"class","btn btn-xs btn-primary");
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("span");
+        dom.setAttribute(el2,"class","glyphicon glyphicon-refresh");
+        dom.setAttribute(el2,"aria-hidden","true");
+        dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n    Refresh Bucket Cache");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
@@ -7389,7 +7413,7 @@ define('ember-riak-explorer/templates/components/refresh-keys', ['exports'], fun
             "column": 0
           },
           "end": {
-            "line": 4,
+            "line": 5,
             "column": 0
           }
         },
@@ -7403,6 +7427,12 @@ define('ember-riak-explorer/templates/components/refresh-keys', ['exports'], fun
         var el1 = dom.createElement("button");
         dom.setAttribute(el1,"type","button");
         dom.setAttribute(el1,"class","btn btn-xs btn-primary");
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("span");
+        dom.setAttribute(el2,"class","glyphicon glyphicon-refresh");
+        dom.setAttribute(el2,"aria-hidden","true");
+        dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n    Refresh Key Cache");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
@@ -8019,12 +8049,12 @@ define('ember-riak-explorer/templates/components/riak-node', ['exports'], functi
           "loc": {
             "source": null,
             "start": {
-              "line": 2,
+              "line": 3,
               "column": 8
             },
             "end": {
-              "line": 2,
-              "column": 111
+              "line": 5,
+              "column": 18
             }
           },
           "moduleName": "ember-riak-explorer/templates/components/riak-node.hbs"
@@ -8034,7 +8064,7 @@ define('ember-riak-explorer/templates/components/riak-node', ['exports'], functi
         hasRendered: false,
         buildFragment: function buildFragment(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("Node Stats");
+          var el1 = dom.createTextNode("        Node Stats");
           dom.appendChild(el0, el1);
           return el0;
         },
@@ -8056,7 +8086,7 @@ define('ember-riak-explorer/templates/components/riak-node', ['exports'], functi
             "column": 0
           },
           "end": {
-            "line": 4,
+            "line": 7,
             "column": 0
           }
         },
@@ -8076,6 +8106,8 @@ define('ember-riak-explorer/templates/components/riak-node', ['exports'], functi
         var el1 = dom.createTextNode("\n    ");
         dom.appendChild(el0, el1);
         var el1 = dom.createElement("td");
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
         var el2 = dom.createComment("");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
@@ -8092,14 +8124,14 @@ define('ember-riak-explorer/templates/components/riak-node', ['exports'], functi
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var morphs = new Array(3);
         morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]),0,0);
-        morphs[1] = dom.createMorphAt(dom.childAt(fragment, [3]),0,0);
+        morphs[1] = dom.createMorphAt(dom.childAt(fragment, [3]),1,1);
         morphs[2] = dom.createMorphAt(dom.childAt(fragment, [5]),0,0);
         return morphs;
       },
       statements: [
         ["block","link-to",["riak_ping",["subexpr","query-params",[],["node_id",["get","node.id",["loc",[null,[1,53],[1,60]]]]],["loc",[null,[1,31],[1,61]]]]],["classNames","btn btn-sm btn-default"],0,null,["loc",[null,[1,8],[1,121]]]],
-        ["block","link-to",["node_stats",["subexpr","query-params",[],["node_id",["get","node.id",["loc",[null,[2,54],[2,61]]]]],["loc",[null,[2,32],[2,62]]]]],["classNames","btn btn-sm btn-primary"],1,null,["loc",[null,[2,8],[2,123]]]],
-        ["content","node.id",["loc",[null,[3,8],[3,19]]]]
+        ["block","link-to",["node_stats",["subexpr","query-params",[],["node_id",["get","node.id",["loc",[null,[3,54],[3,61]]]]],["loc",[null,[3,32],[3,62]]]]],["classNames","btn btn-sm btn-primary"],1,null,["loc",[null,[3,8],[5,30]]]],
+        ["content","node.id",["loc",[null,[6,8],[6,19]]]]
       ],
       locals: [],
       templates: [child0, child1]
@@ -8828,7 +8860,7 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
                 "column": 8
               },
               "end": {
-                "line": 27,
+                "line": 28,
                 "column": 8
               }
             },
@@ -8844,6 +8876,12 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
             var el1 = dom.createElement("button");
             dom.setAttribute(el1,"type","button");
             dom.setAttribute(el1,"class","btn btn-xs btn-danger");
+            var el2 = dom.createTextNode("\n            ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("span");
+            dom.setAttribute(el2,"class","glyphicon glyphicon-trash");
+            dom.setAttribute(el2,"aria-hidden","true");
+            dom.appendChild(el1, el2);
             var el2 = dom.createTextNode("\n            Delete Listed Objects");
             dom.appendChild(el1, el2);
             dom.appendChild(el0, el1);
@@ -8871,11 +8909,11 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
             "loc": {
               "source": null,
               "start": {
-                "line": 32,
+                "line": 33,
                 "column": 8
               },
               "end": {
-                "line": 32,
+                "line": 33,
                 "column": 66
               }
             },
@@ -8906,7 +8944,7 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
               "column": 0
             },
             "end": {
-              "line": 34,
+              "line": 35,
               "column": 0
             }
           },
@@ -9003,8 +9041,8 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
           ["block","if",[["get","model.cluster.developmentMode",["loc",[null,[10,18],[10,47]]]]],[],0,null,["loc",[null,[10,12],[12,19]]]],
           ["content","model.count",["loc",[null,[19,16],[19,31]]]],
           ["content","model.total",["loc",[null,[21,16],[21,31]]]],
-          ["block","if",[["get","model.showDeleteKeys",["loc",[null,[23,14],[23,34]]]]],[],1,null,["loc",[null,[23,8],[27,15]]]],
-          ["block","riak-keys",[],["deleteObject","deleteObject","keys",["subexpr","@mut",[["get","model.keys",["loc",[null,[32,54],[32,64]]]]],[],[]]],2,null,["loc",[null,[32,8],[32,80]]]]
+          ["block","if",[["get","model.showDeleteKeys",["loc",[null,[23,14],[23,34]]]]],[],1,null,["loc",[null,[23,8],[28,15]]]],
+          ["block","riak-keys",[],["deleteObject","deleteObject","keys",["subexpr","@mut",[["get","model.keys",["loc",[null,[33,54],[33,64]]]]],[],[]]],2,null,["loc",[null,[33,8],[33,80]]]]
         ],
         locals: [],
         templates: [child0, child1, child2]
@@ -9017,11 +9055,11 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
           "loc": {
             "source": null,
             "start": {
-              "line": 34,
+              "line": 35,
               "column": 0
             },
             "end": {
-              "line": 38,
+              "line": 39,
               "column": 0
             }
           },
@@ -9062,7 +9100,7 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
             "column": 0
           },
           "end": {
-            "line": 39,
+            "line": 40,
             "column": 0
           }
         },
@@ -9100,7 +9138,7 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
       statements: [
         ["content","model.bucketId",["loc",[null,[1,14],[1,32]]]],
         ["inline","crumb-trail",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[3,20],[3,25]]]]],[],[]]],["loc",[null,[3,0],[3,27]]]],
-        ["block","if",[["get","model.isLoaded",["loc",[null,[5,6],[5,20]]]]],[],0,1,["loc",[null,[5,0],[38,7]]]]
+        ["block","if",[["get","model.isLoaded",["loc",[null,[5,6],[5,20]]]]],[],0,1,["loc",[null,[5,0],[39,7]]]]
       ],
       locals: [],
       templates: [child0, child1]
@@ -9729,11 +9767,11 @@ define('ember-riak-explorer/templates/riak-object', ['exports'], function (expor
           "loc": {
             "source": null,
             "start": {
-              "line": 32,
+              "line": 34,
               "column": 0
             },
             "end": {
-              "line": 34,
+              "line": 36,
               "column": 0
             }
           },
@@ -9760,7 +9798,7 @@ define('ember-riak-explorer/templates/riak-object', ['exports'], function (expor
           return morphs;
         },
         statements: [
-          ["content","model.obj.contents",["loc",[null,[33,11],[33,33]]]]
+          ["content","model.obj.contents",["loc",[null,[35,11],[35,33]]]]
         ],
         locals: [],
         templates: []
@@ -9773,11 +9811,11 @@ define('ember-riak-explorer/templates/riak-object', ['exports'], function (expor
           "loc": {
             "source": null,
             "start": {
-              "line": 36,
+              "line": 38,
               "column": 0
             },
             "end": {
-              "line": 36,
+              "line": 38,
               "column": 36
             }
           },
@@ -9808,7 +9846,7 @@ define('ember-riak-explorer/templates/riak-object', ['exports'], function (expor
             "column": 0
           },
           "end": {
-            "line": 37,
+            "line": 39,
             "column": 0
           }
         },
@@ -9894,7 +9932,13 @@ define('ember-riak-explorer/templates/riak-object', ['exports'], function (expor
         dom.appendChild(el3, el4);
         var el4 = dom.createElement("a");
         dom.setAttribute(el4,"class","btn btn-xs btn-primary");
-        var el5 = dom.createTextNode("View raw");
+        var el5 = dom.createTextNode("\n                ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("span");
+        dom.setAttribute(el5,"class","glyphicon glyphicon-download");
+        dom.setAttribute(el5,"aria-hidden","true");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n                View raw");
         dom.appendChild(el4, el5);
         dom.appendChild(el3, el4);
         var el4 = dom.createTextNode("\n        ");
@@ -9955,9 +9999,9 @@ define('ember-riak-explorer/templates/riak-object', ['exports'], function (expor
         ["block","object-headers",[],["headers",["subexpr","@mut",[["get","model.obj.headersIndexes",["loc",[null,[7,38],[7,62]]]]],[],[]],"title","Secondary Indexes"],1,null,["loc",[null,[7,12],[8,62]]]],
         ["block","object-headers",[],["headers",["subexpr","@mut",[["get","model.obj.headersCustom",["loc",[null,[13,38],[13,61]]]]],[],[]],"title","Custom Headers"],2,null,["loc",[null,[13,12],[14,59]]]],
         ["attribute","href",["concat",[["get","model.url",["loc",[null,[24,23],[24,32]]]]]]],
-        ["content","model.obj.contentType",["loc",[null,[27,29],[27,54]]]],
-        ["block","if",[["get","model.obj.contents",["loc",[null,[32,6],[32,24]]]]],[],3,null,["loc",[null,[32,0],[34,7]]]],
-        ["block","object-version",[],["object",["subexpr","@mut",[["get","model.obj",["loc",[null,[36,25],[36,34]]]]],[],[]]],4,null,["loc",[null,[36,0],[36,55]]]]
+        ["content","model.obj.contentType",["loc",[null,[29,29],[29,54]]]],
+        ["block","if",[["get","model.obj.contents",["loc",[null,[34,6],[34,24]]]]],[],3,null,["loc",[null,[34,0],[36,7]]]],
+        ["block","object-version",[],["object",["subexpr","@mut",[["get","model.obj",["loc",[null,[38,25],[38,34]]]]],[],[]]],4,null,["loc",[null,[38,0],[38,55]]]]
       ],
       locals: [],
       templates: [child0, child1, child2, child3, child4]
@@ -11156,7 +11200,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+cdebd0e6"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+8636afa7"});
 }
 
 /* jshint ignore:end */
