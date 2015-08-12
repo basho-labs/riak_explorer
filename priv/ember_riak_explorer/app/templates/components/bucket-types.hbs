@@ -5,19 +5,18 @@
         <td>
         <div class="container">
             <div class="row">
-                <div class="col-md-4">{{bt.id}}</div>
+                <div class="col-md-4">{{bt.bucketTypeId}}</div>
                 <div class="col-md-3">
                     <strong>Active:</strong> {{bt.props.active}},
                     <strong>allow_mult:</strong> {{bt.props.allow_mult}}
                 </div>
                 <div class="col-md-5">
                     <strong>Actions:</strong>
-                    {{#link-to 'bucket_type' (query-params cluster_id=clusterId bucket_type_id=bt.id)
+                    {{#link-to 'bucket-type' bt
                             classNames='btn btn-xs btn-primary' }}
                         View Properties{{/link-to}}
-                    {{#link-to 'bucket_list' (query-params cluster_id=clusterId bucket_type_id=bt.id)
-                            classNames='btn btn-xs btn-primary' }}
-                        Bucket List{{/link-to}}
+                    <a href="/cluster/{{clusterId}}/bucket_type/{{bt.bucketTypeId}}/buckets"
+                        class="btn btn-xs btn-primary">Bucket List</a>
                 </div>
             </div>
             <div class="row">

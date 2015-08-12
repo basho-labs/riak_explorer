@@ -1,12 +1,12 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-12"><h3>Cluster: {{model.cluster.clusterId}}</h3></div>
+        <div class="col-md-12"><h3>Cluster: {{model.clusterId}}</h3></div>
     </div>
     <div class="row">
         <div class="col-md-12">
             Status:
             <strong>
-            {{#if model.cluster.developmentMode}}
+            {{#if model.developmentMode}}
             Development Mode
             {{else}}
             Production Mode
@@ -20,7 +20,7 @@
     <div class="row">
         <div class="col-md-12">
             <h5>Bucket Types</h5>
-            {{#bucket-types clusterId=model.cluster.clusterId
+            {{#bucket-types clusterId=model.clusterId
                 bucketTypes=model.bucketTypes}}{{/bucket-types}}
         </div>
     </div>
@@ -32,7 +32,7 @@
             {{#if model.indexes}}
                 <h5>Search Indexes</h5>
                 {{#search-indexes indexes=model.indexes
-                    clusterProxyUrl=model.cluster.proxyUrl}}
+                    clusterProxyUrl=model.proxyUrl}}
                 {{/search-indexes}}
             {{else}}
                 No search indexes found.
@@ -45,9 +45,9 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Node</th>
                 <th>Ping</th>
                 <th>Stats</th>
+                <th>Node</th>
             </tr>
         </thead>
         <tbody>

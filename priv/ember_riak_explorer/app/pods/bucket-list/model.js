@@ -1,5 +1,5 @@
 import DS from 'ember-data';
-import CachedList from "./cached-list";
+import CachedList from "../../models/cached-list";
 
 // BucketList object, used to list buckets for a selected bucket type.
 export default CachedList.extend({
@@ -7,10 +7,10 @@ export default CachedList.extend({
     buckets: DS.attr(null, {defaultValue: []}),
 
     // Bucket-type model instance
-    bucketType: DS.attr(),
+    bucketType: DS.belongsTo('bucket-type'),
 
     // Cluster model instance
-    cluster: DS.attr(),
+    cluster: DS.belongsTo('cluster'),
 
     bucketTypeId: function() {
         return this.get('bucketType').get('bucketTypeId');

@@ -4,13 +4,12 @@
         </div>
         <div class="col-md-11">
             in
-            {{#link-to 'cluster' (query-params cluster_id=model.clusterId)}}
+            {{#link-to 'cluster' model.cluster}}
                 {{model.clusterId}}{{/link-to}} cluster
             {{#if model.bucketTypeId}}
                 /
-                {{#link-to 'bucket_list' (query-params cluster_id=model.clusterId
-                        bucket_type_id=model.bucketTypeId)}}
-                    {{model.bucketTypeId}}{{/link-to}} bucket type
+                <a href="/cluster/{{model.clusterId}}/bucket_type/{{model.bucketTypeId}}/buckets">
+                    {{model.bucketTypeId}}</a> bucket type
             {{/if}}
             {{#if model.bucketId}}
                 /

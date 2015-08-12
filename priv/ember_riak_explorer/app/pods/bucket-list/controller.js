@@ -3,14 +3,11 @@ import Ember from 'ember';
 export default Ember.Controller.extend({
     explorer: Ember.inject.service('explorer'),
 
-    queryParams: ['cluster_id', 'bucket_type_id'],
-    cluster_id: null,
-    bucket_type_id: null,
-
     // delay in milliseconds
     pollForModel: function(bucketList, delay) {
             var self = this;
             Ember.run.later(function() {
+                console.log('controller: scheduling to refreshModel');
                 self.refreshModel(bucketList);
             }, delay);
     },
@@ -22,6 +19,7 @@ export default Ember.Controller.extend({
 
         self.get('explorer').getBucketList(clusterId, bucketTypeId, self.store)
             .then(function(updatedModel) {
+                console.log('loaded bucket list: %O', updatedModel);
                 updatedModel.then(function(data) {
                     self.set('model', data);
                 });

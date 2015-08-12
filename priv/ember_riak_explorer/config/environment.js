@@ -3,6 +3,7 @@
 module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'ember-riak-explorer',
+    podModulePrefix: 'ember-riak-explorer/pods',
     environment: environment,
     baseURL: '/',
     locationType: 'auto',
