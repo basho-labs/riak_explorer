@@ -25,12 +25,7 @@
           {{/link-to}}
 
           {{#each model as |cluster|}}
-              {{#link-to 'cluster' tagName='li'}}
-                  {{#link-to 'cluster' cluster}}
-                      &nbsp;&nbsp;{{cluster.id}}
-                      {{#if cluster.developmentMode}}<strong>(Dev mode)</strong>{{/if}}
-                  {{/link-to}}
-              {{/link-to}}
+            {{nav-cluster-link cluster=cluster}}
           {{/each}}
 
           {{#link-to 'explorer_api' tagName='li'}}<a href="/ping">Explorer API</a>{{/link-to}}
