@@ -249,7 +249,7 @@ function getIndexes(clusterId) {
 }
 
 function getBucket(clusterId, bucketTypeId, bucketId, store) {
-    return getCluster(clusterId, store).then(function(cluster) {
+    return store.findRecord('cluster', clusterId).then(function(cluster) {
         return store.createRecord('bucket', {
             name: bucketId,
             bucketTypeId: bucketTypeId,

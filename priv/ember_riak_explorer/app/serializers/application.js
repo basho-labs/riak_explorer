@@ -8,7 +8,7 @@ export default DS.RESTSerializer.extend({
         a JSON-API Document back.
     @property isNewSerializerAPI
     */
-    isNewSerializerAPI: true,
+    isNewSerializerAPI: false,
 
     /**
      `keyForAttribute` can be used to define rules for how to convert an

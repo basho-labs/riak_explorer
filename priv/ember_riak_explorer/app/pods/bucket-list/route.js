@@ -5,9 +5,11 @@ export default Ember.Route.extend({
         var store = this.store;
         var explorer = this.explorer;
         return store.findRecord('cluster', params.clusterId).then(function(cluster) {
-            return store.query('bucket-type', {clusterId: params.clusterId,
+            console.log('found cluster: %O', cluster);
+            return store.queryRecord('bucket-type', {clusterId: params.clusterId,
                 bucketTypeId: params.bucketTypeId})
             .then(function(bucketType) {
+                console.log('found buckettype: %O', bucketType);
                 return explorer.getBucketList(cluster, bucketType, store);
             });
         });

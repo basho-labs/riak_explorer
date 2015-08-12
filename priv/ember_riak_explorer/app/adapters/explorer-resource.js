@@ -76,12 +76,12 @@ var ExplorerResourceAdapter = DS.RESTAdapter.extend({
     (Most Riak cluster resources do not have globally unique IDs.
     For example, bucket types are only unique within a cluster.)
     */
-    normalizeId: function(record, query, idKey) {
+    normalizeId: function(record, type, query, idKey) {
         var prefix = [];
         if(query.clusterId) {
             prefix.push(query.clusterId);
         }
-        if(query.bucketTypeId) {
+        if(query.bucketTypeId && type.modelName !== 'bucket-type') {
             prefix.push(query.bucketTypeId);
         }
         if(!idKey) {
@@ -113,9 +113,10 @@ var ExplorerResourceAdapter = DS.RESTAdapter.extend({
         var root;
         var promise = this.ajax(url, 'GET').then(function(payload) {
             root = adapter.pathForType(type.modelName);
+            console.log('1) model name: %O, query payload: %O, root: %O', type.modelName, payload, root);
             for(let i=0; i < payload[root].length; i++) {
                 var record = payload[root][i];
-                adapter.normalizeId(record, query);
+                adapter.normalizeId(record, type, query);
                 adapter.injectParentIds(record, query);
             }
             return payload;
@@ -136,11 +137,19 @@ var ExplorerResourceAdapter = DS.RESTAdapter.extend({
     queryRecord: function(store, type, query) {
         var url = this.buildURL(type.modelName, null, null, 'query', query);
         var adapter = this;
+        // var id = this.getNormalizedId(type.modelName, query);
+        // if(store.hasRecordForId(type.modelName, id)) {
+        //
+        // } else {
+        //
+        // }
         var root = Ember.String.underscore(type.modelName);
         var promise = this.ajax(url, 'GET').then(function(payload) {
-            adapter.normalizeId(payload[root], query);
+            console.log('model name: %O, query payload: %O, root: %O', type.modelName, payload, root);
+            adapter.normalizeId(payload[root], type, query);
             adapter.injectParentIds(payload[root], query);
-            console.log("payload: %O", payload);
+            console.log("payload after normalize: %O", payload);
+            // store.push(payload[root]);
             return payload;
         });
         return promise;
