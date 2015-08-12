@@ -8,9 +8,8 @@
                 {{model.clusterId}}{{/link-to}} cluster
             {{#if model.bucketTypeId}}
                 /
-                {{#link-to 'bucket-list' (query-params cluster_id=model.clusterId
-                        bucket_type_id=model.bucketTypeId)}}
-                    {{model.bucketTypeId}}{{/link-to}} bucket type
+                <a href="/cluster/{{model.clusterId}}/bucket_type/{{model.bucketTypeId}}/buckets">
+                    {{model.bucketTypeId}}</a> bucket type
             {{/if}}
             {{#if model.bucketId}}
                 /

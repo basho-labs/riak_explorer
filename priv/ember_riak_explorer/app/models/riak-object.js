@@ -22,6 +22,10 @@ export default DS.Model.extend({
         return this.get('headers').other['x-riak-vclock'];
     }.property('headers'),
 
+    cluster: function() {
+        return this.get('bucket').get('cluster');
+    }.property('bucket'),
+
     clusterId: function() {
         return this.get('bucket').get('clusterId');
     }.property('bucket'),
