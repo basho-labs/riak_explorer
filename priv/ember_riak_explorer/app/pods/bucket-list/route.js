@@ -29,7 +29,10 @@ export default Ember.Route.extend({
         this._super(controller, model);
 
         if(!model.get('isLoaded')) {
+            console.log('Model not loaded. Polling..');
             controller.pollForModel(model, 3000);
+        } else {
+            console.log('Model loaded.');
         }
     }
 });

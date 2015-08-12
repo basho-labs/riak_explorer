@@ -338,6 +338,13 @@ define('ember-riak-explorer/components/edit-object', ['exports', 'ember'], funct
 	exports['default'] = Ember['default'].Component.extend({});
 
 });
+define('ember-riak-explorer/components/loading-spinner', ['exports', 'ember'], function (exports, Ember) {
+
+	'use strict';
+
+	exports['default'] = Ember['default'].Component.extend({});
+
+});
 define('ember-riak-explorer/components/nav-cluster-link', ['exports', 'ember'], function (exports, Ember) {
 
     'use strict';
@@ -935,15 +942,14 @@ define('ember-riak-explorer/pods/bucket-list/controller', ['exports', 'ember'], 
         },
 
         refreshModel: function refreshModel(bucketList) {
-            var clusterId = bucketList.get('cluster').get('clusterId');
-            var bucketTypeId = bucketList.get('bucketTypeId');
             var self = this;
-
-            self.get('explorer').getBucketList(clusterId, bucketTypeId, self.store).then(function (updatedModel) {
+            console.log("Refreshing model %O", bucketList);
+            self.get('explorer').getBucketList(bucketList.get('cluster'), bucketList.get('bucketType'), self.store).then(function (updatedModel) {
                 console.log('loaded bucket list: %O', updatedModel);
-                updatedModel.then(function (data) {
-                    self.set('model', data);
-                });
+                self.set('model', updatedModel);
+                if (!updatedModel.isLoaded) {
+                    self.pollForModel(updatedModel, 3000);
+                }
             });
         },
 
@@ -1015,7 +1021,10 @@ define('ember-riak-explorer/pods/bucket-list/route', ['exports', 'ember'], funct
             this._super(controller, model);
 
             if (!model.get('isLoaded')) {
+                console.log('Model not loaded. Polling..');
                 controller.pollForModel(model, 3000);
+            } else {
+                console.log('Model loaded.');
             }
         }
     });
@@ -1220,7 +1229,7 @@ define('ember-riak-explorer/pods/bucket-list/template', ['exports'], function (e
               "column": 0
             },
             "end": {
-              "line": 34,
+              "line": 32,
               "column": 0
             }
           },
@@ -1233,19 +1242,19 @@ define('ember-riak-explorer/pods/bucket-list/template', ['exports'], function (e
           var el0 = dom.createDocumentFragment();
           var el1 = dom.createTextNode("    ");
           dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          dom.setAttribute(el1,"class","container");
-          dom.setAttribute(el1,"style","padding-top: 2em; text-align: center;");
-          var el2 = dom.createTextNode("\n    Loading...\n    ");
-          dom.appendChild(el1, el2);
+          var el1 = dom.createComment("");
           dom.appendChild(el0, el1);
           var el1 = dom.createTextNode("\n");
           dom.appendChild(el0, el1);
           return el0;
         },
-        buildRenderNodes: function buildRenderNodes() { return []; },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
+          return morphs;
+        },
         statements: [
-
+          ["content","loading-spinner",["loc",[null,[31,4],[31,23]]]]
         ],
         locals: [],
         templates: []
@@ -1261,7 +1270,7 @@ define('ember-riak-explorer/pods/bucket-list/template', ['exports'], function (e
             "column": 0
           },
           "end": {
-            "line": 35,
+            "line": 33,
             "column": 0
           }
         },
@@ -1299,7 +1308,7 @@ define('ember-riak-explorer/pods/bucket-list/template', ['exports'], function (e
       statements: [
         ["content","model.bucketTypeId",["loc",[null,[1,17],[1,39]]]],
         ["inline","crumb-trail",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[3,20],[3,25]]]]],[],[]]],["loc",[null,[3,0],[3,27]]]],
-        ["block","if",[["get","model.isLoaded",["loc",[null,[5,6],[5,20]]]]],[],0,1,["loc",[null,[5,0],[34,7]]]]
+        ["block","if",[["get","model.isLoaded",["loc",[null,[5,6],[5,20]]]]],[],0,1,["loc",[null,[5,0],[32,7]]]]
       ],
       locals: [],
       templates: [child0, child1]
@@ -2681,6 +2690,9 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
 
     function getKeyList(clusterId, bucketTypeId, bucketId, store) {
         var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId + '/buckets/' + bucketId + '/keys';
+        console.log('Retrieving key list, url: %s', url);
+        var explorerService = this;
+
         var keyListRequest = new Ember['default'].RSVP.Promise(function (resolve) {
             Ember['default'].$.ajax(url, { dataType: "json" }).then(function (data) {
                 // Success
@@ -2699,7 +2711,6 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
                 }
             });
         });
-        var explorerService = this;
 
         return this.getBucket(clusterId, bucketTypeId, bucketId, store).then(function (bucket) {
             return keyListRequest.then(function (data) {
@@ -2924,18 +2935,25 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
         },
 
         getBucketList: function getBucketList(cluster, bucketType, store) {
-            console.log('bucketType: %O', bucketType);
+            console.log('Refreshing buckets for bucketType: %O', bucketType);
             var clusterId = cluster.get('clusterId');
             var bucketTypeId = bucketType.get('bucketTypeId');
             var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId + '/buckets';
-            var bucketListRequest = Ember['default'].$.ajax(url, { dataType: "json" });
             var explorer = this;
+
             return new Ember['default'].RSVP.Promise(function (resolve, reject) {
-                return bucketListRequest.then(function (data) {
+                console.log('getBucketList url: %s', url);
+                var ajaxHash = {
+                    url: url,
+                    dataType: 'json',
+                    type: 'GET'
+                };
+                ajaxHash.success = function (data) {
                     // Success, bucket list returned
                     console.log("Found bucket list");
                     resolve(explorer.createBucketList(data, cluster, bucketType, store));
-                }, function (jqXHR, textStatus) {
+                };
+                ajaxHash.error = function (jqXHR, textStatus) {
                     // Fail (likely a 404, cache not yet created)
                     if (jqXHR.status === 404) {
                         // Kick off a Cache Refresh, and repeat the getBucketList request
@@ -2947,11 +2965,13 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
                             cluster: cluster,
                             bucketType: bucketType
                         });
-                        resolve(emptyList);
+                        Ember['default'].run(null, resolve, emptyList);
                     } else {
-                        reject(textStatus);
+                        Ember['default'].run(null, reject, textStatus);
                     }
-                });
+                };
+
+                Ember['default'].$.ajax(ajaxHash);
             });
         },
 
@@ -6272,6 +6292,70 @@ define('ember-riak-explorer/templates/components/form-element/vertical/textarea'
   }()));
 
 });
+define('ember-riak-explorer/templates/components/loading-spinner', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports['default'] = Ember.HTMLBars.template((function() {
+    return {
+      meta: {
+        "revision": "Ember@1.13.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 9,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/components/loading-spinner.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1,"class","center-block text-center loading");
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2,"class","container");
+        var el3 = dom.createTextNode("\n    Loading...\n    ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2,"class","container spinner");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("img");
+        dom.setAttribute(el3,"src","assets/images/ajax-loading-big.gif");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes() { return []; },
+      statements: [
+
+      ],
+      locals: [],
+      templates: []
+    };
+  }()));
+
+});
 define('ember-riak-explorer/templates/components/nav-cluster-link', ['exports'], function (exports) {
 
   'use strict';
@@ -9039,7 +9123,7 @@ define('ember-riak-explorer/templates/loading', ['exports'], function (exports) 
             "column": 0
           },
           "end": {
-            "line": 9,
+            "line": 2,
             "column": 0
           }
         },
@@ -9050,37 +9134,20 @@ define('ember-riak-explorer/templates/loading', ['exports'], function (exports) 
       hasRendered: false,
       buildFragment: function buildFragment(dom) {
         var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1,"class","center-block text-center loading");
-        var el2 = dom.createTextNode("\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2,"class","container");
-        var el3 = dom.createTextNode("\n    Loading...\n    ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2,"class","container");
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("img");
-        dom.setAttribute(el3,"src","assets/images/ajax-loading-big.gif");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
+        var el1 = dom.createComment("");
         dom.appendChild(el0, el1);
         var el1 = dom.createTextNode("\n");
         dom.appendChild(el0, el1);
         return el0;
       },
-      buildRenderNodes: function buildRenderNodes() { return []; },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment,0,0,contextualElement);
+        dom.insertBoundary(fragment, 0);
+        return morphs;
+      },
       statements: [
-
+        ["content","loading-spinner",["loc",[null,[1,0],[1,19]]]]
       ],
       locals: [],
       templates: []
@@ -10065,6 +10132,16 @@ define('ember-riak-explorer/tests/components/edit-object.jshint', function () {
   module('JSHint - components');
   test('components/edit-object.js should pass jshint', function() { 
     ok(true, 'components/edit-object.js should pass jshint.'); 
+  });
+
+});
+define('ember-riak-explorer/tests/components/loading-spinner.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - components');
+  test('components/loading-spinner.js should pass jshint', function() { 
+    ok(true, 'components/loading-spinner.js should pass jshint.'); 
   });
 
 });
@@ -11079,7 +11156,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+368116b9"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+cdebd0e6"});
 }
 
 /* jshint ignore:end */

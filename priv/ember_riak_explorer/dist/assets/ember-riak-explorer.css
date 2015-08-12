@@ -11,3 +11,7 @@ tr:nth-child(odd) {background: #EEE}
     padding-top: 3em;
     padding-bottom: 3em;
 }
+
+.spinner {
+    padding: 3em 0px;
+}

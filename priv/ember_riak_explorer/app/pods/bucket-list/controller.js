@@ -13,16 +13,16 @@ export default Ember.Controller.extend({
     },
 
     refreshModel: function(bucketList) {
-        var clusterId = bucketList.get('cluster').get('clusterId');
-        var bucketTypeId = bucketList.get('bucketTypeId');
         var self = this;
-
-        self.get('explorer').getBucketList(clusterId, bucketTypeId, self.store)
+        console.log("Refreshing model %O", bucketList);
+        self.get('explorer').getBucketList(bucketList.get('cluster'),
+            bucketList.get('bucketType'), self.store)
             .then(function(updatedModel) {
                 console.log('loaded bucket list: %O', updatedModel);
-                updatedModel.then(function(data) {
-                    self.set('model', data);
-                });
+                self.set('model', updatedModel);
+                if(!updatedModel.isLoaded) {
+                    self.pollForModel(updatedModel, 3000);
+                }
             });
     },
 
