@@ -9059,7 +9059,7 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
               "column": 0
             },
             "end": {
-              "line": 39,
+              "line": 37,
               "column": 0
             }
           },
@@ -9072,19 +9072,19 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
           var el0 = dom.createDocumentFragment();
           var el1 = dom.createTextNode("    ");
           dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          dom.setAttribute(el1,"class","container");
-          dom.setAttribute(el1,"style","padding-top: 2em; text-align: center;");
-          var el2 = dom.createTextNode("\n    Loading...\n    ");
-          dom.appendChild(el1, el2);
+          var el1 = dom.createComment("");
           dom.appendChild(el0, el1);
           var el1 = dom.createTextNode("\n");
           dom.appendChild(el0, el1);
           return el0;
         },
-        buildRenderNodes: function buildRenderNodes() { return []; },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
+          return morphs;
+        },
         statements: [
-
+          ["content","loading-spinner",["loc",[null,[36,4],[36,23]]]]
         ],
         locals: [],
         templates: []
@@ -9100,7 +9100,7 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
             "column": 0
           },
           "end": {
-            "line": 40,
+            "line": 38,
             "column": 0
           }
         },
@@ -9138,7 +9138,7 @@ define('ember-riak-explorer/templates/key-list', ['exports'], function (exports)
       statements: [
         ["content","model.bucketId",["loc",[null,[1,14],[1,32]]]],
         ["inline","crumb-trail",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[3,20],[3,25]]]]],[],[]]],["loc",[null,[3,0],[3,27]]]],
-        ["block","if",[["get","model.isLoaded",["loc",[null,[5,6],[5,20]]]]],[],0,1,["loc",[null,[5,0],[39,7]]]]
+        ["block","if",[["get","model.isLoaded",["loc",[null,[5,6],[5,20]]]]],[],0,1,["loc",[null,[5,0],[37,7]]]]
       ],
       locals: [],
       templates: [child0, child1]
@@ -11200,7 +11200,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+8636afa7"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+f6ec0472"});
 }
 
 /* jshint ignore:end */

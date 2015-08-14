@@ -33,7 +33,5 @@
         {{#riak-keys deleteObject="deleteObject" keys=model.keys}}{{/riak-keys}}
     </div>
 {{else}}
-    <div class="container" style="padding-top: 2em; text-align: center;">
-    Loading...
-    </div>
+    {{loading-spinner}}
 {{/if}}
