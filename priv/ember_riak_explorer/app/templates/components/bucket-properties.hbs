@@ -1,0 +1,81 @@
+<div class="row">
+    <div class="col-sm-12">
+        <div class="row property-header">
+            <div class="col-sm-10">
+                <strong>Properties Overview</strong>
+            </div>
+            <div class="col-sm-2">
+                {{#if model.isActive}}
+                <span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+                <span class="status-ok">Activated</span>
+                {{else}}
+                <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+                <span class="status-disabled">Inactive</span>
+                {{/if}}
+            </div>
+        </div>
+        <div class="row property-row">
+            <div class="col-sm-4">
+                <strong>Object type</strong><br />
+                {{model.objectType}}
+            </div>
+            <div class="col-sm-3">
+                <strong>Replicas (n_val)</strong><br />
+                {{model.nVal}}
+            </div>
+            <div class="col-sm-5">
+                <strong>Quorum</strong><br />
+                {{#if model.quorumRelevant}}
+                    R: {{model.quorum.r}}, W: {{model.quorum.w}},
+                    PR: {{model.quorum.pr}}, PW: {{model.quorum.pw}},
+                    DW: {{model.quorum.dw}}
+                    <br />
+                    <small>(basic_quorum: {{model.quorum.basic_quorum}},
+                        notfound_ok: {{model.quorum.basic_quorum}})</small>
+                {{else}}
+                    n/a
+                {{/if}}
+            </div>
+        </div>
+
+    {{#if model.isSearchIndexed}}
+    <div class="row property-row">
+        <div class="col-sm-4">
+            <strong>Search Index</strong><br />
+            {{model.searchIndexName}}
+        </div>
+        <div class="col-sm-3">
+            <strong>Index n_val</strong><br />
+            {{model.searchIndexNVal}}
+        </div>
+        <div class="col-sm-5">
+            <strong>Search Schema</strong><br />
+            <a href="{{model.cluster.clusterProxyUrl}}/search/schema/{{model.searchSchemaName}}">
+                {{model.searchSchemaName}}</a>
+        </div>
+    </div>
+    {{else}}
+        <div class="row property-row">
+            <div class="col-sm-12">
+                <div class="disabled">
+                <strong>Search Index</strong><br />
+                n/a (not being indexed)
+                </div>
+            </div>
+        </div>
+    {{/if}}
+
+    {{#if model.warnings}}
+        <div class="row property-row">
+            <div class="col-sm-12">
+                <strong class="warning">Warnings</strong>
+                <ul>
+                {{#each model.warnings as |warning|}}
+                    <li><strong>{{warning}}</strong></li>
+                {{/each}}
+                </ul>
+            </div>
+        </div>
+    {{/if}}
+    </div>
+</div>

@@ -1,30 +1,33 @@
 <table class="table">
+<thead>
+    <tr>
+        <th>Type</th>
+        <th>n_val</th>
+        <th>Object Type</th>
+        <th>Conflict Res. Strategy</th>
+    </tr>
+</thead>
 <tbody>
 {{#each bucketTypes as |bt|}}
     <tr>
         <td>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">{{bt.bucketTypeId}}</div>
-                <div class="col-md-3">
-                    <strong>Active:</strong> {{bt.props.active}},
-                    <strong>allow_mult:</strong> {{bt.props.allow_mult}}
-                </div>
-                <div class="col-md-5">
-                    <strong>Actions:</strong>
-                    {{#link-to 'bucket-type' bt
-                            classNames='btn btn-xs btn-primary' }}
-                        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-                        Properties{{/link-to}}
-                    <a href="/cluster/{{clusterId}}/bucket_type/{{bt.bucketTypeId}}/buckets"
-                        class="btn btn-xs btn-primary">Bucket List</a>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                </div>
-            </div>
-        </div>
+            {{#link-to 'bucket-type' bt
+                    classNames='btn btn-xs btn-primary' }}
+                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                Properties{{/link-to}}
+            <a href="/cluster/{{clusterId}}/bucket_type/{{bt.bucketTypeId}}/buckets"
+                class="btn btn-xs btn-primary">Bucket List</a>
+
+            {{bt.bucketTypeId}}
+        </td>
+        <td>
+            {{bt.nVal}}
+        </td>
+        <td>
+            {{bt.objectType}}
+        </td>
+        <td>
+            {{bt.resolutionStrategy}}
         </td>
     </tr>
 {{else}}

@@ -7,6 +7,16 @@ tr:nth-child(odd) {background: #EEE}
     padding-bottom: 3em;
 }
 
+.status-ok {
+    color: green;
+}
+.status-disabled {
+    color: grey;
+}
+.warning {
+    color: red;
+}
+
 .key {
     padding-top: 3em;
     padding-bottom: 3em;
@@ -14,4 +24,23 @@ tr:nth-child(odd) {background: #EEE}
 
 .spinner {
     padding: 3em 0px;
+}
+
+.property-header {
+    background-color: #DDD;
+    padding: 0.5em 3px;
+    margin-bottom: 1em;
+}
+
+.bucket-properties {
+    margin-top: 2em;
+    margin-bottom: 2em;
+    margin-left: 0px auto;
+    margin-right: 0px auto;
+    width: 95%;
+    border: 1px solid gray;
+    box-sizing: border-box;
+}
+.property-row {
+    padding: 0.5em 1em;
 }

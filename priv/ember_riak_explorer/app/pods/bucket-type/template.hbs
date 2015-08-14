@@ -2,6 +2,14 @@
 
 {{crumb-trail model=model}}
 
+<div class="container bucket-properties center-block">
+{{#if model.props}}
+    {{bucket-properties model=model}}
+{{else}}
+    Properties not loaded...
+{{/if}}
+</div>
+
 <table class="table">
     <thead>
         <tr>
