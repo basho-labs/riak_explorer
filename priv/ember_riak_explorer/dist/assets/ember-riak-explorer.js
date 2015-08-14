@@ -1366,8 +1366,13 @@ define('ember-riak-explorer/pods/bucket-type/route', ['exports', 'ember'], funct
     exports['default'] = Ember['default'].Route.extend({
         model: function model(params) {
             var store = this.store;
-            return store.queryRecord('bucket-type', { clusterId: params.clusterId,
-                bucketTypeId: params.bucketTypeId });
+            return store.findRecord('cluster', params.clusterId).then(function (cluster) {
+                return store.queryRecord('bucket-type', { clusterId: params.clusterId,
+                    bucketTypeId: params.bucketTypeId }).then(function (model) {
+                    model.set('cluster', cluster);
+                    return model;
+                });
+            });
 
             // return store.findRecord('cluster', params.clusterId).then(function(cluster) {
             //     return store.queryRecord('bucket-type', {clusterId: params.clusterId,
@@ -11345,7 +11350,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+bdf8dd25"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+b91d3ab8"});
 }
 
 /* jshint ignore:end */

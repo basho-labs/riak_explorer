@@ -3,9 +3,15 @@ import Ember from 'ember';
 export default Ember.Route.extend({
     model: function(params) {
         var store = this.store;
-        return store.queryRecord('bucket-type', {clusterId: params.clusterId,
-            bucketTypeId: params.bucketTypeId});
-            
+        return store.findRecord('cluster', params.clusterId).then(function(cluster) {
+            return store.queryRecord('bucket-type', {clusterId: params.clusterId,
+                bucketTypeId: params.bucketTypeId}).then(function(model) {
+                    model.set('cluster', cluster);
+                    return model;
+                });
+        });
+
+
         // return store.findRecord('cluster', params.clusterId).then(function(cluster) {
         //     return store.queryRecord('bucket-type', {clusterId: params.clusterId,
         //         bucketTypeId: params.bucketTypeId}).then(function(model) {
