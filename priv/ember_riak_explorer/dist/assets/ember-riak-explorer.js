@@ -473,7 +473,17 @@ define('ember-riak-explorer/controllers/bucket-props', ['exports', 'ember'], fun
     });
 
 });
-define('ember-riak-explorer/controllers/errors/object-not-found', ['exports', 'ember'], function (exports, Ember) {
+define('ember-riak-explorer/controllers/error/cluster-not-found', ['exports', 'ember'], function (exports, Ember) {
+
+    'use strict';
+
+    exports['default'] = Ember['default'].Controller.extend({
+        queryParams: ['cluster_id'],
+        cluster_id: null
+    });
+
+});
+define('ember-riak-explorer/controllers/error/object-not-found', ['exports', 'ember'], function (exports, Ember) {
 
     'use strict';
 
@@ -486,7 +496,7 @@ define('ember-riak-explorer/controllers/errors/object-not-found', ['exports', 'e
     });
 
 });
-define('ember-riak-explorer/controllers/errors/unknown', ['exports', 'ember'], function (exports, Ember) {
+define('ember-riak-explorer/controllers/error/unknown', ['exports', 'ember'], function (exports, Ember) {
 
 	'use strict';
 
@@ -1583,6 +1593,20 @@ define('ember-riak-explorer/pods/cluster/route', ['exports', 'ember'], function 
     'use strict';
 
     exports['default'] = Ember['default'].Route.extend({
+        actions: {
+            error: function error(errors, transition) {
+                var error = errors.errors[0];
+                console.log("Error encountered: %O", error);
+                if (error && error.status === "404") {
+                    console.log("Status is 404");
+                    this.transitionTo('error.cluster-not-found', { queryParams: { cluster_id: transition.params.cluster_id } });
+                } else {
+                    // Unknown error, bubble error event up to routes/application.js
+                    return true;
+                }
+            }
+        },
+
         model: function model(params) {
             return this.store.findRecord('cluster', params.cluster_id);
         },
@@ -2160,8 +2184,9 @@ define('ember-riak-explorer/router', ['exports', 'ember', 'ember-riak-explorer/c
     this.route('riak-object');
     this.route('riak-object-edit');
     this.route('bucket_props');
-    this.route('errors', { path: '/errors' }, function () {
+    this.route('error', { path: '/error' }, function () {
       this.route('unknown');
+      this.route('cluster-not-found');
       this.route('object-not-found');
     });
   });
@@ -2210,7 +2235,26 @@ define('ember-riak-explorer/routes/bucket-props', ['exports', 'ember'], function
     });
 
 });
-define('ember-riak-explorer/routes/errors/object-not-found', ['exports', 'ember'], function (exports, Ember) {
+define('ember-riak-explorer/routes/error/cluster-not-found', ['exports', 'ember'], function (exports, Ember) {
+
+    'use strict';
+
+    exports['default'] = Ember['default'].Route.extend({
+        queryParams: {
+            cluster_id: {
+                refreshModel: true
+            }
+        },
+
+        model: function model(params) {
+            return {
+                clusterId: params.cluster_id
+            };
+        }
+    });
+
+});
+define('ember-riak-explorer/routes/error/object-not-found', ['exports', 'ember'], function (exports, Ember) {
 
     'use strict';
 
@@ -2241,7 +2285,7 @@ define('ember-riak-explorer/routes/errors/object-not-found', ['exports', 'ember'
     });
 
 });
-define('ember-riak-explorer/routes/errors/unknown', ['exports', 'ember'], function (exports, Ember) {
+define('ember-riak-explorer/routes/error/unknown', ['exports', 'ember'], function (exports, Ember) {
 
 	'use strict';
 
@@ -2383,7 +2427,7 @@ define('ember-riak-explorer/routes/riak-object', ['exports', 'ember'], function 
         actions: {
             error: function error(_error, transition) {
                 if (_error && _error.status === 404) {
-                    this.transitionTo('errors.object-not-found', transition);
+                    this.transitionTo('error.object-not-found', transition);
                 } else {
                     // Unknown error, bubble error event up to routes/application.js
                     return true;
@@ -8336,7 +8380,7 @@ define('ember-riak-explorer/templates/components/search-indexes', ['exports'], f
   }()));
 
 });
-define('ember-riak-explorer/templates/errors/object-not-found', ['exports'], function (exports) {
+define('ember-riak-explorer/templates/error/cluster-not-found', ['exports'], function (exports) {
 
   'use strict';
 
@@ -8355,7 +8399,88 @@ define('ember-riak-explorer/templates/errors/object-not-found', ['exports'], fun
             "column": 0
           }
         },
-        "moduleName": "ember-riak-explorer/templates/errors/object-not-found.hbs"
+        "moduleName": "ember-riak-explorer/templates/error/cluster-not-found.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1,"class","container text-center");
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("h2");
+        var el3 = dom.createTextNode("404 Cluster Not Found");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2,"class","container");
+        var el3 = dom.createTextNode("\n        ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3,"class","row");
+        var el4 = dom.createTextNode("\n            The cluster id you requested was not found:\n            ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        var el5 = dom.createTextNode("\n            ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("strong");
+        var el6 = dom.createComment("");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n            ");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n        ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0, 3, 1, 1, 1]),0,0);
+        return morphs;
+      },
+      statements: [
+        ["content","model.clusterId",["loc",[null,[8,20],[8,39]]]]
+      ],
+      locals: [],
+      templates: []
+    };
+  }()));
+
+});
+define('ember-riak-explorer/templates/error/object-not-found', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports['default'] = Ember.HTMLBars.template((function() {
+    return {
+      meta: {
+        "revision": "Ember@1.13.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 13,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/error/object-not-found.hbs"
       },
       arity: 0,
       cachedFragment: null,
@@ -8418,7 +8543,7 @@ define('ember-riak-explorer/templates/errors/object-not-found', ['exports'], fun
   }()));
 
 });
-define('ember-riak-explorer/templates/errors/unknown', ['exports'], function (exports) {
+define('ember-riak-explorer/templates/error/unknown', ['exports'], function (exports) {
 
   'use strict';
 
@@ -8437,7 +8562,7 @@ define('ember-riak-explorer/templates/errors/unknown', ['exports'], function (ex
             "column": 0
           }
         },
-        "moduleName": "ember-riak-explorer/templates/errors/unknown.hbs"
+        "moduleName": "ember-riak-explorer/templates/error/unknown.hbs"
       },
       arity: 0,
       cachedFragment: null,
@@ -10309,23 +10434,33 @@ define('ember-riak-explorer/tests/controllers/bucket-props.jshint', function () 
   });
 
 });
-define('ember-riak-explorer/tests/controllers/errors/object-not-found.jshint', function () {
+define('ember-riak-explorer/tests/controllers/error/cluster-not-found.jshint', function () {
 
   'use strict';
 
-  module('JSHint - controllers/errors');
-  test('controllers/errors/object-not-found.js should pass jshint', function() { 
-    ok(true, 'controllers/errors/object-not-found.js should pass jshint.'); 
+  module('JSHint - controllers/error');
+  test('controllers/error/cluster-not-found.js should pass jshint', function() { 
+    ok(true, 'controllers/error/cluster-not-found.js should pass jshint.'); 
   });
 
 });
-define('ember-riak-explorer/tests/controllers/errors/unknown.jshint', function () {
+define('ember-riak-explorer/tests/controllers/error/object-not-found.jshint', function () {
 
   'use strict';
 
-  module('JSHint - controllers/errors');
-  test('controllers/errors/unknown.js should pass jshint', function() { 
-    ok(true, 'controllers/errors/unknown.js should pass jshint.'); 
+  module('JSHint - controllers/error');
+  test('controllers/error/object-not-found.js should pass jshint', function() { 
+    ok(true, 'controllers/error/object-not-found.js should pass jshint.'); 
+  });
+
+});
+define('ember-riak-explorer/tests/controllers/error/unknown.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - controllers/error');
+  test('controllers/error/unknown.js should pass jshint', function() { 
+    ok(true, 'controllers/error/unknown.js should pass jshint.'); 
   });
 
 });
@@ -10616,23 +10751,33 @@ define('ember-riak-explorer/tests/routes/bucket-props.jshint', function () {
   });
 
 });
-define('ember-riak-explorer/tests/routes/errors/object-not-found.jshint', function () {
+define('ember-riak-explorer/tests/routes/error/cluster-not-found.jshint', function () {
 
   'use strict';
 
-  module('JSHint - routes/errors');
-  test('routes/errors/object-not-found.js should pass jshint', function() { 
-    ok(true, 'routes/errors/object-not-found.js should pass jshint.'); 
+  module('JSHint - routes/error');
+  test('routes/error/cluster-not-found.js should pass jshint', function() { 
+    ok(true, 'routes/error/cluster-not-found.js should pass jshint.'); 
   });
 
 });
-define('ember-riak-explorer/tests/routes/errors/unknown.jshint', function () {
+define('ember-riak-explorer/tests/routes/error/object-not-found.jshint', function () {
 
   'use strict';
 
-  module('JSHint - routes/errors');
-  test('routes/errors/unknown.js should pass jshint', function() { 
-    ok(true, 'routes/errors/unknown.js should pass jshint.'); 
+  module('JSHint - routes/error');
+  test('routes/error/object-not-found.js should pass jshint', function() { 
+    ok(true, 'routes/error/object-not-found.js should pass jshint.'); 
+  });
+
+});
+define('ember-riak-explorer/tests/routes/error/unknown.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - routes/error');
+  test('routes/error/unknown.js should pass jshint', function() { 
+    ok(true, 'routes/error/unknown.js should pass jshint.'); 
   });
 
 });
@@ -11200,7 +11345,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+f6ec0472"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+bdf8dd25"});
 }
 
 /* jshint ignore:end */

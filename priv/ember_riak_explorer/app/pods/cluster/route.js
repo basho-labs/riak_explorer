@@ -1,6 +1,22 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
+    actions: {
+        error: function(errors, transition) {
+            var error = errors.errors[0];
+            console.log("Error encountered: %O", error);
+            if (error && error.status === "404") {
+                console.log("Status is 404");
+                this.transitionTo('error.cluster-not-found',
+                    { queryParams:
+                        { cluster_id: transition.params.cluster_id } });
+            } else {
+                // Unknown error, bubble error event up to routes/application.js
+                return true;
+            }
+        }
+    },
+
     model: function(params) {
         return this.store.findRecord('cluster', params.cluster_id);
     },

@@ -18,8 +18,9 @@ export default Router.map(function() {
   this.route('riak-object');
   this.route('riak-object-edit');
   this.route('bucket_props');
-  this.route('errors', { path: '/errors' }, function() {
+  this.route('error', { path: '/error' }, function() {
     this.route('unknown');
+    this.route('cluster-not-found');
     this.route('object-not-found');
   });
 });

@@ -19,7 +19,7 @@ export default Ember.Route.extend({
     actions: {
         error: function(error, transition) {
             if (error && error.status === 404) {
-                this.transitionTo('errors.object-not-found', transition);
+                this.transitionTo('error.object-not-found', transition);
             } else {
                 // Unknown error, bubble error event up to routes/application.js
                 return true;
