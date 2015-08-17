@@ -1,0 +1,16 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+{{#each model.propsList as |prop|}}
+        <tr>
+            <td>{{prop.key}}</td>
+            <td>{{prop.value}}</td>
+        </tr>
+{{/each}}
+    </tbody>
+</table>

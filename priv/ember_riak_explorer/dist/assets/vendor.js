@@ -87047,6 +87047,664 @@ define('ember-cli-content-security-policy', ['ember-cli-content-security-policy/
   }));
 });
 
+define('ember-idx-tabs', ['ember-idx-tabs/index', 'ember', 'exports'], function(__index__, __Ember__, __exports__) {
+  'use strict';
+  var keys = Object.keys || __Ember__['default'].keys;
+  var forEach = Array.prototype.forEach && function(array, cb) {
+    array.forEach(cb);
+  } || __Ember__['default'].EnumerableUtils.forEach;
+
+  forEach(keys(__index__), (function(key) {
+    __exports__[key] = __index__[key];
+  }));
+});
+
+define('ember-idx-tabs/tab-list', ['exports', 'ember', 'ember-idx-utils/mixin/with-config'], function (exports, Em, WithConfigMixin) {
+
+  'use strict';
+
+  //(c) 2014 Indexia, Inc.
+  var computed = Em['default'].computed;
+  var on = Em['default'].on;
+
+  /**
+   * `{{em-tab-list}}` component.
+   *
+   * Holds a list of `{{em-tab}}` components.
+   * *Must be a direct descendent of the `{{em-tabs}` component.*
+
+   * @class TabList
+   */
+
+  exports['default'] = Em['default'].Component.extend(WithConfigMixin['default'], {
+    setTagName: on('init', function () {
+      return this.set('tagName', this.get('config.tabs.tabListTag') || 'div');
+    }),
+    classNameBindings: ['styleClasses'],
+    styleClasses: Em['default'].computed(function () {
+      var _ref;
+      return (_ref = this.get('config.tabs.tabListClasses')) != null ? _ref.join(" ") : void 0;
+    }),
+
+    /**
+     * The ancestor `Tabs` component
+     * @property tabs
+     * @type Tabs
+     */
+    tabs: computed.alias('parentView'),
+
+    /**
+     * The tab instances of this list.
+     *
+     * @property tab_instances
+     * @type ArrayProxy
+     */
+    tab_instances: void 0,
+
+    /**
+     * The current selected tab
+     *
+     * @property selected
+     * @type Tab
+     */
+    selected: computed.alias('parentView.selectedTab'),
+
+    /**
+     * The selected tab index
+     *
+     * @property selectedIdx
+     * @type Number
+     */
+    selectedIdx: computed('selected', function () {
+      return this.get('tab_instances').indexOf(this.get('selected'));
+    }),
+
+    /**
+     * Auto register this `TabList` in the ancestor tabs component.
+     *
+     * @method register
+     * @private
+     */
+    register: on('didInsertElement', function () {
+      return this.get('tabs').setTabList(this);
+    }),
+
+    /**
+     * Initialize an empty tabs array
+     *
+     * @method initTabs
+     * @private
+     */
+    initTabs: on('init', function () {
+      return this.set('tab_instances', Em['default'].ArrayProxy.create({
+        content: Em['default'].A()
+      }));
+    }),
+
+    /**
+     * Add a tab to the tab list
+     *
+     * @method addTab
+     * @param tab {Tab} the tab to add.
+     * @private
+     */
+    addTab: function addTab(tab) {
+      return this.get('tab_instances').addObject(tab);
+    },
+
+    /**
+     * Remove a tab from the tab list
+     *
+     * @method removeTab
+     * @param tab {Tab} the tab to remove.
+     * @private
+     */
+    removeTab: function removeTab(tab) {
+      var nextIdx, tabIdx, _ref;
+      this.get('tab_instances').removeObject(tab);
+      if (this.get('tabs.selected') === tab) {
+        tabIdx = tab.get('index');
+        nextIdx = (_ref = tabIdx === 0) != null ? _ref : {
+          tabIdx: tabIdx - 1
+        };
+        return this.get('tabs').select(this.get('tab_instances').objectAt(nextIdx));
+      }
+    }
+  });
+
+});
+define('ember-idx-tabs/tab-panel', ['exports', 'ember', 'ember-idx-utils/mixin/with-config', 'ember-idx-utils/mixin/style-bindings'], function (exports, Em, WithConfigMixin, StyleBindingsMixin) {
+
+  'use strict';
+
+  //(c) 2014 Indexia, Inc.
+  var computed = Em['default'].computed;
+
+  exports['default'] = Em['default'].Component.extend(WithConfigMixin['default'], StyleBindingsMixin['default'], {
+    classNameBindings: ['styleClasses'],
+    styleClasses: Em['default'].computed(function () {
+      var _ref;
+      return (_ref = this.get('config.tabs.tabPanelClasses')) != null ? _ref.join(" ") : void 0;
+    }),
+    styleBindings: ['height'],
+    attributeBindings: ['selected'],
+
+    /**
+     * The ancestor `Tabs` component
+     * @property tabs
+     * @type Tabs
+     */
+    tabs: computed.alias('parentView'),
+
+    /**
+     * A reference to the {{#crossLink "TabList}}TabList{{/crossLink}} instance.
+     *
+     * @property tabList
+     * @type TabList
+     */
+    tabList: computed.alias('parentView.tabList'),
+
+    /**
+     * A reference to the {{#crossLink "Tabs}}{{/crossLink}}'s panels property.
+     *
+     * @property panels 
+     * @type Array
+     */
+    panels: computed.alias('parentView.panels'),
+
+    /**
+     * The tab that refer to this tab pane
+     *
+     * @property tab
+     * @type Tab
+     */
+    tab: Em['default'].computed('panels.length', 'tabList.tab_instances.@each', function () {
+      var index, tabs;
+      index = this.get('panels').indexOf(this);
+      tabs = this.get('tabList.tab_instances');
+      return tabs && tabs.objectAt(index);
+    }),
+    selected: Em['default'].computed('tab', 'tab.selected', function () {
+      return this.get('tab.selected');
+    }),
+    changeVisibility: Em['default'].observer('selected', function () {
+      return this.$().css('display', this.get('selected') ? "" : 'none');
+    }),
+    register: Em['default'].on('didInsertElement', function () {
+      return this.get('tabs').addTabPanel(this);
+    }),
+    unregister: Em['default'].on('willDestroyElement', function () {
+      return this.get('tabs').removeTabPanel(this);
+    })
+  });
+
+});
+define('ember-idx-tabs/tab', ['exports', 'ember', 'ember-idx-utils/mixin/with-config'], function (exports, Em, WithConfigMixin) {
+
+  'use strict';
+
+  //(c) 2014 Indexia, Inc.
+  var computed = Em['default'].computed;
+
+  /**
+   * `{{tab}}` component
+   * Add a new tab
+   *
+   * @class Tab
+   */
+  exports['default'] = Em['default'].Component.extend(WithConfigMixin['default'], {
+    setTagName: Em['default'].on('init', function () {
+      return this.set('tagName', this.get('config.tabs.tabTag') || 'div');
+    }),
+
+    /**
+     * Bind the specified attributes to the DOM element
+     *
+     * @property attributeBindings
+     * @type Array
+     */
+    attributeBindings: ['active'],
+    classNameBindings: ['styleClasses', 'selectedClass'],
+
+    styleClasses: computed(function () {
+      var _ref;
+      return (_ref = this.get('config.tabs.tabClasses')) != null ? _ref.join(" ") : void 0;
+    }),
+
+    selectedClass: computed('selected', function () {
+      var _ref;
+      if (this.get('selected')) {
+        return (_ref = this.get('config.tabs.tabSelectedClasses')) != null ? _ref.join(" ") : void 0;
+      } else {
+        return null;
+      }
+    }),
+
+    /**
+     * A reference to the {{#crossLink "Tabs"}}Tabs{{/crossLink}} instance.
+     * 
+     * @property tabs
+     * @type Tabs
+     */
+    tabs: computed.alias('parentView.parentView'),
+
+    /**
+     * A reference to the {{#crossLink "TabList}}TabList{{/crossLink}} instance.
+     *
+     * @property tabList
+     * @type TabList
+     */
+    tabList: computed.alias('parentView'),
+
+    /**
+     * true if this tab is currently selected.
+     *
+     * @property selected
+     * @type Boolean
+     */
+    selected: computed('tabs.selected', function () {
+      return this.get('tabs.selected') === this;
+    }),
+
+    active: computed('selected', function () {
+      if (this.get('selected')) {
+        return "true";
+      } else {
+        return null;
+      }
+    }),
+
+    index: computed('tabList.tab_instances.@each', function () {
+      return this.get('tabList.tab_instances').indexOf(this);
+    }),
+
+    /**
+     * Select this tab.
+     *
+     * Bound to `click` event.
+     *
+     * @method select
+     */
+    select: Em['default'].on('click', function () {
+      return this.get('tabs').select(this);
+    }),
+
+    /**
+     * Select this tab if it matches the {{#crossLink "Tabs/select:method"}}selected-idx{{/crossLink}} property set by the Tabs component.
+     *
+     * @method selectByTabsParam
+     * @private
+     */
+    selectByTabsParam: Em['default'].on('didInsertElement', Em['default'].observer('tabs.selected-idx', function () {
+      var idx;
+      if (this.get('tabs.selected') != null === this) {
+        return;
+      }
+      idx = parseInt(this.get('tabs.selected-idx', 10));
+      if (idx === this.get('index')) {
+        return this.select();
+      }
+    })),
+
+    /**
+     * Register this tab in the {{#crossLink "TabList"}}{{/crossLink}} component instance.
+     *
+     * @method register
+     * @private
+     */
+    register: Em['default'].on('didInsertElement', function () {
+      return this.get('tabList').addTab(this);
+    }),
+
+    /**
+     * Unregister this tab from the {{#crossLink "TabList"}}{{/crossLink}} component instance.
+     *
+     * @method unregister
+     * @private
+     */
+    unregister: Em['default'].on('willDestroyElement', function () {
+      return this.get('tabList').removeTab(this);
+    })
+  });
+
+});
+define('ember-idx-tabs/tabs', ['exports', 'ember', 'ember-idx-utils/mixin/with-config', 'ember-idx-utils/mixin/style-bindings'], function (exports, Em, WithConfigMixin, StyleBindingsMixin) {
+
+  'use strict';
+
+  //(c) 2014 Indexia, Inc.
+  exports['default'] = Em['default'].Component.extend(WithConfigMixin['default'], StyleBindingsMixin['default'], {
+    debug: false,
+    classNameBindings: ['styleClasses'],
+    styleClasses: Em['default'].computed(function () {
+      var _ref;
+      return (_ref = this.get('config.tabs.tabsClasses')) != null ? _ref.join(" ") : void 0;
+    }),
+    styleBindings: ['height'],
+
+    /**
+     * A list of tab panels
+     *
+     * @property panels
+     * @private
+     * @type Array
+     */
+    panels: void 0,
+
+    /**
+     * A {{#crossLink "TabList"}}{{/crossLink}} component instance.
+     *
+     * @property tabList
+     * @type TabList
+     */
+    tabList: void 0,
+
+    /**
+     * The selected tab instance.
+     *
+     * @property selectedTab
+     * @type Tab
+     * @private
+     * @see Tab
+     *
+     */
+    selected: void 0,
+
+    /**
+     * The index of the selected tab
+     *
+     * @property 'selected-idx'
+     * @type Number
+     */
+    'selected-idx': 0,
+
+    /**
+     * Select the given tab.
+     *
+     * @method select
+     * @param {Object} a tab instance to select.
+     * @see selectedTab
+     * @see selected-idx
+     */
+    select: function select(tab) {
+      if (!tab) {
+        return;
+      }
+      if (this.get('debug')) {
+        Em['default'].debug("Selecting tab: " + tab.get('index'));
+      }
+      this.set('selected', tab);
+      return this.set('selected-idx', tab.get('index'));
+    },
+
+    /**
+     * Initialize the tab panels array
+     *
+     * @method initTabPanels
+     */
+    initTabPanels: Em['default'].on('init', function () {
+      return this.set('panels', Em['default'].ArrayProxy.create({
+        content: Em['default'].A()
+      }));
+    }),
+
+    /**
+     * Set the specified `TabList` instance.
+     *
+     * @method setTabList
+     * @private
+     */
+    setTabList: function setTabList(tabList) {
+      return this.set('tabList', tabList);
+    },
+
+    /**
+     * Add the given `TabPanel` instance to the tabs panels.
+     *
+     * @method addTabPanel
+     * @param panel {Object} The `TabPanel` instance to add.
+     */
+    addTabPanel: function addTabPanel(panel) {
+      return this.get('panels').addObject(panel);
+    },
+
+    /**
+     * Remove the given `TabPanel` instance from the tabs panels.
+     *
+     * @method removeTabPanel.
+     * @param panel {Object} The `TabPanel` instance to remove.
+     */
+    removeTabPanel: function removeTabPanel(panel) {
+      return this.get('panels').removeObject(panel);
+    }
+  });
+
+});
+define('ember-idx-utils', ['ember-idx-utils/index', 'ember', 'exports'], function(__index__, __Ember__, __exports__) {
+  'use strict';
+  var keys = Object.keys || __Ember__['default'].keys;
+  var forEach = Array.prototype.forEach && function(array, cb) {
+    array.forEach(cb);
+  } || __Ember__['default'].EnumerableUtils.forEach;
+
+  forEach(keys(__index__), (function(key) {
+    __exports__[key] = __index__[key];
+  }));
+});
+
+define('ember-idx-utils/config', ['exports', 'ember'], function (exports, Em) {
+
+  'use strict';
+
+  exports['default'] = Em['default'].Namespace.extend({
+    _configs: Em['default'].Object.create(),
+    getConfig: function(name) {
+      var config;
+      config = this._configs.get(name);
+      return config;
+    },
+    addConfig: function(name, config) {
+      var defaultConfig, newConfig;
+      defaultConfig = this._configs.get('default');
+      newConfig = Em['default'].Object.create(config);
+      newConfig = Em['default'].$.extend(true, newConfig, defaultConfig);
+      return this._configs.set(name, newConfig);
+    }
+  });
+
+});
+define('ember-idx-utils/mixin/hotkeys-bindings', ['exports', 'ember'], function (exports, Em) {
+
+  'use strict';
+
+  exports['default'] = Em['default'].Mixin.create({
+    /**
+     * Add `hotkeysBindings` property as a `concatenatedProperties`.
+     * @property concatenatedProperties
+     * @type array
+     */
+    concatenatedProperties: ['hotkeysBindings'],
+    keyMap: {
+      8: "backspace",
+      9: "tab",
+      13: "return",
+      16: "shift",
+      17: "ctrl",
+      18: "alt",
+      224: "meta",
+      112: "f1",
+      113: "f2",
+      114: "f3",
+      115: "f4",
+      116: "f5",
+      117: "f6",
+      118: "f7",
+      119: "f8",
+      120: "f9",
+      121: "f10",
+      122: "f11",
+      123: "f12"
+    },
+    keyPressHandler: function(e) {
+      var command;
+      command = "";
+      if (e.ctrlKey) {
+        command += "ctrl+";
+      }
+      if (e.altKey) {
+        command += "alt+";
+      }
+      if (e.shiftKey) {
+        command += "shift+";
+      }
+      if (e.metaKey) {
+        command += "meta+";
+      }
+      if (this.keyMap[e.which]) {
+        command += this.keyMap[e.which];
+      } else {
+        command += String.fromCharCode(e.which).toLowerCase();
+      }
+      Em['default'].debug("hotkey command: " + command);
+      return this.send(command);
+    },
+    keyDown: function(e) {
+      return this.keyPressHandler(e);
+    },
+    keyUp: function(e) {
+      return this.keyPressHandler(e);
+    },
+    keyPress: function(e) {
+      return this.keyPressHandler(e);
+    }
+  });
+
+});
+define('ember-idx-utils/mixin/style-bindings', ['exports', 'ember'], function (exports, Em) {
+
+  'use strict';
+
+  exports['default'] = Em['default'].Mixin.create({
+
+    /**
+     * Add `styleBindings` property as a `concatenatedProperties`.
+     * @property concatenatedProperties
+     * @type array
+     */
+    concatenatedProperties: ['styleBindings'],
+
+    /**
+     * Apply the `style` attribute to the DOM element.
+     * @property attributeBindings
+     * @type array
+     */
+    attributeBindings: ['style'],
+
+    /**
+     * The default unit for numbered value.
+     * @property unit
+     * @type string
+     */
+    unit: 'px',
+
+    /**
+     * Build a style property and its value as a string.
+     * @method buildStyleString
+     * @param {String} style property name
+     * @param {String} property name in the current object that should be resolved as the
+     * value of the style property.
+     * @private
+     */
+    buildStyleString: function(styleName, property) {
+      var value;
+      value = this.get(property);
+      if (value === void 0) {
+        return;
+      }
+      if (Em['default'].typeOf(value) === "number") {
+        value = value + this.get("unit");
+      }
+      return styleName + ":" + value + ";";
+    },
+
+    /**
+     * Apply the style bindings during the view `init` phase.
+     *
+     * This method assumes that the attribute `styleBindings` is defined as an array of strings where
+     * each string is a property name that should be resolved as a style option.
+     *
+     * @method applyBindings
+     * @private
+     */
+    applyBindings: Em['default'].on('init', function() {
+      var lookup, properties, styleBindingsstyleBindings, styleComputed, styles;
+      if (!(styleBindingsstyleBindings = this.styleBindings)) {
+        return;
+      }
+      lookup = {};
+      this.styleBindings.forEach(function(binding) {
+        var propArr, property, style;
+        propArr = binding.split(":");
+        property = propArr[0];
+        style = propArr[1];
+        return lookup[style || property] = property;
+      });
+      styles = Em['default'].keys(lookup);
+      properties = styles.map(function(style) {
+        return lookup[style];
+      });
+      styleComputed = Em['default'].computed(function() {
+        var styleString, styleTokens;
+        styleTokens = styles.map((function(_this) {
+          return function(style) {
+            return _this.buildStyleString(style, lookup[style]);
+          };
+        })(this));
+        styleString = styleTokens.join("");
+        if (styleString.length !== 0) {
+          return styleString;
+        }
+      });
+      styleComputed.property.apply(styleComputed, properties);
+      return Em['default'].defineProperty(this, "style", styleComputed);
+    })
+  });
+
+});
+define('ember-idx-utils/mixin/with-config', ['exports', 'ember'], function (exports, Em) {
+
+  'use strict';
+
+  exports['default'] = Em['default'].Mixin.create({
+    configName: Em['default'].computed(function() {
+      var config;
+      config = this.nearestWithProperty('configName');
+      if (config) {
+        return config.get('configName');
+      } else {
+        return 'default';
+      }
+    }),
+    config: Em['default'].computed('configName', function() {
+      return Em['default'].IdxConfig.getConfig(this.get('configName'));
+    })
+  });
+
+});
+define('ember-idx-utils/utils/delay', ['exports', 'ember'], function (exports, Em) {
+
+  'use strict';
+
+  var delay = function(ms) {
+    ms = ms || 1500;
+    return new Em['default'].RSVP.Promise(function(resolve) {
+      Em['default'].run.later(this, resolve, ms);
+    });
+  };
+
+  exports['default'] = delay;
+
+});
 ;/* jshint ignore:start */
 
 

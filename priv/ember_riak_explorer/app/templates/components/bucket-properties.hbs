@@ -2,7 +2,7 @@
     <div class="col-sm-12">
         <div class="row property-header">
             <div class="col-sm-10">
-                <strong>Properties Overview</strong>
+                <strong>Properties</strong>
             </div>
             <div class="col-sm-2">
                 {{#if model.isActive}}
@@ -14,66 +14,20 @@
                 {{/if}}
             </div>
         </div>
-        <div class="row property-row">
-            <div class="col-sm-4">
-                <strong>Object type</strong><br />
-                {{model.objectType}}
-            </div>
-            <div class="col-sm-4">
-                <strong>Conflict Res. Strategy</strong><br />
-                {{model.resolutionStrategy}}
-            </div>
-            <div class="col-sm-4">
-                <strong>Quorum</strong><br />
-                N_Val: {{model.nVal}} <br />
-                {{#if model.quorumRelevant}}
-                    R: {{model.quorum.r}}, W: {{model.quorum.w}},
-                    PR: {{model.quorum.pr}}, PW: {{model.quorum.pw}},<br />
-                    DW: {{model.quorum.dw}}
-                    <small>(basic_quorum: {{model.quorum.basic_quorum}},
-                        notfound_ok: {{model.quorum.basic_quorum}})</small>
-                {{/if}}
-            </div>
+        <div class="row">
+            {{#em-tabs configName="default"}}
+                {{#em-tab-list}}
+                    {{#em-tab}}Overview{{/em-tab}}
+                    {{#em-tab}}Advanced Properties{{/em-tab}}
+                {{/em-tab-list}}
+                {{#em-tab-panel}}
+                    {{bucket-properties-overview model=model}}
+                {{/em-tab-panel}}
+                {{#em-tab-panel}}
+                    {{bucket-properties-list model=model}}
+                {{/em-tab-panel}}
+            {{/em-tabs}}
         </div>
 
-    {{#if model.isSearchIndexed}}
-    <div class="row property-row">
-        <div class="col-sm-4">
-            <strong>Search Index</strong><br />
-            {{model.searchIndexName}}
-        </div>
-        <div class="col-sm-4">
-            <strong>Search Schema</strong><br />
-            <a href="{{model.cluster.clusterProxyUrl}}/search/schema/{{model.index.schema}}">
-                {{model.index.schema}}</a>
-        </div>
-        <div class="col-sm-4">
-            <strong>Index N_Val</strong><br />
-            {{model.index.n_val}}
-        </div>
-    </div>
-    {{else}}
-        <div class="row property-row">
-            <div class="col-sm-12">
-                <div class="disabled">
-                <strong>Search Index</strong><br />
-                n/a (not being indexed)
-                </div>
-            </div>
-        </div>
-    {{/if}}
-
-    {{#if model.warnings}}
-        <div class="row property-row">
-            <div class="col-sm-12">
-                <strong class="warning">Warnings</strong>
-                <ul>
-                {{#each model.warnings as |warning|}}
-                    <li><strong>{{warning}}</strong></li>
-                {{/each}}
-                </ul>
-            </div>
-        </div>
-    {{/if}}
     </div>
 </div>
