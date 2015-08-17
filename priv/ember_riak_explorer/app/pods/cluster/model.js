@@ -4,6 +4,10 @@ import DS from 'ember-data';
 * Represents a Riak cluster as a whole.
 */
 export default DS.Model.extend({
+    activeBucketTypes: function() {
+        return this.get('bucketTypes').filterBy('isActive');
+    }.property('bucketTypes'),
+
     // Bucket types created on the cluster
     bucketTypes: DS.hasMany('bucket-type'),
 
@@ -17,6 +21,10 @@ export default DS.Model.extend({
     // Is this cluster in Dev Mode? Set in the Explorer config file
     // Dev mode allows expensive operations like list keys, delete bucket, etc
     developmentMode: DS.attr('boolean', {defaultValue: false}),
+
+    inactiveBucketTypes: function() {
+        return this.get('bucketTypes').filterBy('isInactive');
+    }.property('bucketTypes'),
 
     // (Solr) Search Indexes in the cluster
     indexes: DS.attr(),

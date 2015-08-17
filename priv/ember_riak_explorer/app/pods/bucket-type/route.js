@@ -6,7 +6,6 @@ export default Ember.Route.extend({
         return store.findRecord('cluster', params.clusterId).then(function(cluster) {
             return store.queryRecord('bucket-type', {clusterId: params.clusterId,
                 bucketTypeId: params.bucketTypeId}).then(function(model) {
-                    model.set('cluster', cluster);
                     return model;
                 });
         });

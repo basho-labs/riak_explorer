@@ -3,14 +3,7 @@ import Ember from 'ember';
 import objectToArray from '../../utils/riak-util';
 
 export default DS.Model.extend({
-    name: function() {
-        return this.get('id');
-    }.property('id'),
-
     cluster: DS.belongsTo('cluster'),
-
-    // {"allow_mult":false, "basic_quorum":false, ... }
-    props: DS.attr(),
 
     bucketTypeId: function() {
         return this.get('originalId');
@@ -20,7 +13,14 @@ export default DS.Model.extend({
         return this.get('cluster').get('clusterId');
     }.property('cluster'),
 
+    name: function() {
+        return this.get('id');
+    }.property('id'),
+
     originalId: DS.attr('string'),
+
+    // {"allow_mult":false, "basic_quorum":false, ... }
+    props: DS.attr(),
 
     propsList: function() {
         if(!this.get('props')) {

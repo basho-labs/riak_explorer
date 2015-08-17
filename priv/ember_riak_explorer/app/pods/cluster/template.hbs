@@ -19,11 +19,25 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <h5>Bucket Types</h5>
-            {{#bucket-types clusterId=model.clusterId
-                bucketTypes=model.bucketTypes}}{{/bucket-types}}
+            <h5>Active Bucket Types</h5>
+            {{#if model.activeBucketTypes}}
+                {{#bucket-types clusterId=model.clusterId
+                    bucketTypes=model.activeBucketTypes}}{{/bucket-types}}
+            {{else}}
+            <div class="container">No bucket types have been activated.</div>
+            {{/if}}
         </div>
     </div>
+    {{#if model.inactiveBucketTypes}}
+    <div class="row">
+        <div class="col-md-12">
+            <h5>Inactive Bucket Types</h5>
+
+                {{#bucket-types clusterId=model.clusterId
+                    bucketTypes=model.inactiveBucketTypes}}{{/bucket-types}}
+        </div>
+    </div>
+    {{/if}}
     <div class="row">
         <div class="col-md-12"><h4>Search</h4></div>
     </div>
