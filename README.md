@@ -1,16 +1,14 @@
 # riak_explorer
 
-Riak dev-mode and admin GUI.
+Riak Explorer provides browsing and admin capabilities that are useful while in
+development mode. It provides a convenient method to browse Bucket Types,
+Buckets, Keys, view and edit Riak Objects, and more.
 
 *Front-end GUI:* Ember.js
 
 *Back-end:* Erlang + WebMachine serving a REST API.
 
-See also: [Riak Control Design Discussion
- doc](https://docs.google.com/document/d/1qcHyyEEL1jCAKrjNtmbIEcAFS3VAdLyoRK88FDy6o_0/edit#).
-
 ## Installation
-
 
 1. Download and extract [http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz (Mac OS X)](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) or [http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz (Ubuntu 14.04)](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz)
 
@@ -178,5 +176,3 @@ The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
 - [riak_control](https://github.com/basho/riak_control)
 - [rekon](https://github.com/basho/rekon) (old bucket / object explorer gui)
 - [riak_cs_control](https://github.com/basho/riak_cs_control)
-- [RiakCS.net source code](https://github.com/basho/riak_cs_test_harness)
-    (RiakCS.net itself is now defunct, but had nice CS-related features).
