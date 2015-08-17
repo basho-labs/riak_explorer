@@ -1348,6 +1348,10 @@ define('ember-riak-explorer/pods/bucket-type/model', ['exports', 'ember-data', '
             return this.get('cluster').get('clusterId');
         }).property('cluster'),
 
+        index: (function () {
+            return this.get('cluster').get('indexes').findBy('name', this.get('searchIndexName'));
+        }).property('cluster'),
+
         name: (function () {
             return this.get('id');
         }).property('id'),
@@ -1474,6 +1478,12 @@ define('ember-riak-explorer/pods/bucket-type/model', ['exports', 'ember-data', '
                     warnings.push('Using commit hooks, but those are ignored for Strongly Consistent data!');
                 }
             }
+            if (this.get('allowMult')) {
+                // Siblings enabled
+                if (!this.get('props').dvv_enabled) {
+                    warnings.push('Dotted Version Vectors (dvv_enabled) should be enabled when Siblings are enabled.');
+                }
+            }
             return warnings;
         }).property('props')
     });
@@ -1487,6 +1497,7 @@ define('ember-riak-explorer/pods/bucket-type/route', ['exports', 'ember'], funct
         model: function model(params) {
             var store = this.store;
             return store.findRecord('cluster', params.clusterId).then(function (cluster) {
+
                 return store.queryRecord('bucket-type', { clusterId: params.clusterId,
                     bucketTypeId: params.bucketTypeId }).then(function (model) {
                     return model;
@@ -2565,6 +2576,24 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
       templates: [child0, child1, child2, child3, child4, child5, child6, child7, child8]
     };
   }()));
+
+});
+define('ember-riak-explorer/pods/search-index/model', ['exports', 'ember-data'], function (exports, DS) {
+
+    'use strict';
+
+    var SearchIndex = DS['default'].Model.extend({
+        cluster: DS['default'].belongsTo('cluster'),
+
+        name: DS['default'].attr('string'),
+
+        // Index's n_val
+        nVal: DS['default'].attr('integer', { defaultValue: 3 }),
+
+        // Name of the schema the index is using
+        schema: DS['default'].attr('string')
+    });
+    exports['default'] = SearchIndex;
 
 });
 define('ember-riak-explorer/router', ['exports', 'ember', 'ember-riak-explorer/config/environment'], function (exports, Ember, config) {
@@ -4427,7 +4456,7 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
           "loc": {
             "source": null,
             "start": {
-              "line": 28,
+              "line": 29,
               "column": 16
             },
             "end": {
@@ -4458,13 +4487,13 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
           dom.appendChild(el0, el1);
           var el1 = dom.createComment("");
           dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode(",\n                    DW: ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n                    ");
+          var el1 = dom.createTextNode(",");
           dom.appendChild(el0, el1);
           var el1 = dom.createElement("br");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n                    DW: ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
           dom.appendChild(el0, el1);
           var el1 = dom.createTextNode("\n                    ");
           dom.appendChild(el0, el1);
@@ -4491,17 +4520,17 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
           morphs[1] = dom.createMorphAt(fragment,3,3,contextualElement);
           morphs[2] = dom.createMorphAt(fragment,5,5,contextualElement);
           morphs[3] = dom.createMorphAt(fragment,7,7,contextualElement);
-          morphs[4] = dom.createMorphAt(fragment,9,9,contextualElement);
+          morphs[4] = dom.createMorphAt(fragment,11,11,contextualElement);
           morphs[5] = dom.createMorphAt(element2,1,1);
           morphs[6] = dom.createMorphAt(element2,3,3);
           return morphs;
         },
         statements: [
-          ["content","model.quorum.r",["loc",[null,[29,23],[29,41]]]],
-          ["content","model.quorum.w",["loc",[null,[29,46],[29,64]]]],
-          ["content","model.quorum.pr",["loc",[null,[30,24],[30,43]]]],
-          ["content","model.quorum.pw",["loc",[null,[30,49],[30,68]]]],
-          ["content","model.quorum.dw",["loc",[null,[31,24],[31,43]]]],
+          ["content","model.quorum.r",["loc",[null,[30,23],[30,41]]]],
+          ["content","model.quorum.w",["loc",[null,[30,46],[30,64]]]],
+          ["content","model.quorum.pr",["loc",[null,[31,24],[31,43]]]],
+          ["content","model.quorum.pw",["loc",[null,[31,49],[31,68]]]],
+          ["content","model.quorum.dw",["loc",[null,[32,24],[32,43]]]],
           ["content","model.quorum.basic_quorum",["loc",[null,[33,42],[33,71]]]],
           ["content","model.quorum.basic_quorum",["loc",[null,[34,37],[34,66]]]]
         ],
@@ -4516,45 +4545,11 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
           "loc": {
             "source": null,
             "start": {
-              "line": 35,
-              "column": 16
-            },
-            "end": {
-              "line": 37,
-              "column": 16
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bucket-properties.hbs"
-        },
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("                    n/a\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes() { return []; },
-        statements: [
-
-        ],
-        locals: [],
-        templates: []
-      };
-    }());
-    var child4 = (function() {
-      return {
-        meta: {
-          "revision": "Ember@1.13.5",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 41,
+              "line": 39,
               "column": 4
             },
             "end": {
-              "line": 57,
+              "line": 55,
               "column": 4
             }
           },
@@ -4591,26 +4586,7 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
           var el2 = dom.createTextNode("\n        ");
           dom.appendChild(el1, el2);
           var el2 = dom.createElement("div");
-          dom.setAttribute(el2,"class","col-sm-3");
-          var el3 = dom.createTextNode("\n            ");
-          dom.appendChild(el2, el3);
-          var el3 = dom.createElement("strong");
-          var el4 = dom.createTextNode("Index n_val");
-          dom.appendChild(el3, el4);
-          dom.appendChild(el2, el3);
-          var el3 = dom.createElement("br");
-          dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode("\n            ");
-          dom.appendChild(el2, el3);
-          var el3 = dom.createComment("");
-          dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode("\n        ");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("div");
-          dom.setAttribute(el2,"class","col-sm-5");
+          dom.setAttribute(el2,"class","col-sm-4");
           var el3 = dom.createTextNode("\n            ");
           dom.appendChild(el2, el3);
           var el3 = dom.createElement("strong");
@@ -4630,6 +4606,25 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
           var el3 = dom.createTextNode("\n        ");
           dom.appendChild(el2, el3);
           dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n        ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("div");
+          dom.setAttribute(el2,"class","col-sm-4");
+          var el3 = dom.createTextNode("\n            ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("strong");
+          var el4 = dom.createTextNode("Index N_Val");
+          dom.appendChild(el3, el4);
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("br");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n            ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createComment("");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n        ");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
           var el2 = dom.createTextNode("\n    ");
           dom.appendChild(el1, el2);
           dom.appendChild(el0, el1);
@@ -4639,36 +4634,36 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
         },
         buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
           var element0 = dom.childAt(fragment, [1]);
-          var element1 = dom.childAt(element0, [5, 4]);
+          var element1 = dom.childAt(element0, [3, 4]);
           var morphs = new Array(4);
           morphs[0] = dom.createMorphAt(dom.childAt(element0, [1]),4,4);
-          morphs[1] = dom.createMorphAt(dom.childAt(element0, [3]),4,4);
-          morphs[2] = dom.createAttrMorph(element1, 'href');
-          morphs[3] = dom.createMorphAt(element1,1,1);
+          morphs[1] = dom.createAttrMorph(element1, 'href');
+          morphs[2] = dom.createMorphAt(element1,1,1);
+          morphs[3] = dom.createMorphAt(dom.childAt(element0, [5]),4,4);
           return morphs;
         },
         statements: [
-          ["content","model.searchIndexName",["loc",[null,[45,12],[45,37]]]],
-          ["content","model.searchIndexNVal",["loc",[null,[49,12],[49,37]]]],
-          ["attribute","href",["concat",[["get","model.cluster.clusterProxyUrl",["loc",[null,[53,23],[53,52]]]],"/search/schema/",["get","model.searchSchemaName",["loc",[null,[53,71],[53,93]]]]]]],
-          ["content","model.searchSchemaName",["loc",[null,[54,16],[54,42]]]]
+          ["content","model.searchIndexName",["loc",[null,[43,12],[43,37]]]],
+          ["attribute","href",["concat",[["get","model.cluster.clusterProxyUrl",["loc",[null,[47,23],[47,52]]]],"/search/schema/",["get","model.index.schema",["loc",[null,[47,71],[47,89]]]]]]],
+          ["content","model.index.schema",["loc",[null,[48,16],[48,38]]]],
+          ["content","model.index.n_val",["loc",[null,[52,12],[52,33]]]]
         ],
         locals: [],
         templates: []
       };
     }());
-    var child5 = (function() {
+    var child4 = (function() {
       return {
         meta: {
           "revision": "Ember@1.13.5",
           "loc": {
             "source": null,
             "start": {
-              "line": 57,
+              "line": 55,
               "column": 4
             },
             "end": {
-              "line": 66,
+              "line": 64,
               "column": 4
             }
           },
@@ -4720,7 +4715,7 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
         templates: []
       };
     }());
-    var child6 = (function() {
+    var child5 = (function() {
       var child0 = (function() {
         return {
           meta: {
@@ -4728,11 +4723,11 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
             "loc": {
               "source": null,
               "start": {
-                "line": 73,
+                "line": 71,
                 "column": 16
               },
               "end": {
-                "line": 75,
+                "line": 73,
                 "column": 16
               }
             },
@@ -4761,7 +4756,7 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
             return morphs;
           },
           statements: [
-            ["content","warning",["loc",[null,[74,32],[74,43]]]]
+            ["content","warning",["loc",[null,[72,32],[72,43]]]]
           ],
           locals: ["warning"],
           templates: []
@@ -4773,11 +4768,11 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
           "loc": {
             "source": null,
             "start": {
-              "line": 68,
+              "line": 66,
               "column": 4
             },
             "end": {
-              "line": 79,
+              "line": 77,
               "column": 4
             }
           },
@@ -4829,7 +4824,7 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
           return morphs;
         },
         statements: [
-          ["block","each",[["get","model.warnings",["loc",[null,[73,24],[73,38]]]]],[],0,null,["loc",[null,[73,16],[75,25]]]]
+          ["block","each",[["get","model.warnings",["loc",[null,[71,24],[71,38]]]]],[],0,null,["loc",[null,[71,16],[73,25]]]]
         ],
         locals: [],
         templates: [child0]
@@ -4845,7 +4840,7 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
             "column": 0
           },
           "end": {
-            "line": 82,
+            "line": 80,
             "column": 0
           }
         },
@@ -4919,11 +4914,11 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
         var el4 = dom.createTextNode("\n            ");
         dom.appendChild(el3, el4);
         var el4 = dom.createElement("div");
-        dom.setAttribute(el4,"class","col-sm-3");
+        dom.setAttribute(el4,"class","col-sm-4");
         var el5 = dom.createTextNode("\n                ");
         dom.appendChild(el4, el5);
         var el5 = dom.createElement("strong");
-        var el6 = dom.createTextNode("Replicas (n_val)");
+        var el6 = dom.createTextNode("Conflict Res. Strategy");
         dom.appendChild(el5, el6);
         dom.appendChild(el4, el5);
         var el5 = dom.createElement("br");
@@ -4938,12 +4933,20 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
         var el4 = dom.createTextNode("\n            ");
         dom.appendChild(el3, el4);
         var el4 = dom.createElement("div");
-        dom.setAttribute(el4,"class","col-sm-5");
+        dom.setAttribute(el4,"class","col-sm-4");
         var el5 = dom.createTextNode("\n                ");
         dom.appendChild(el4, el5);
         var el5 = dom.createElement("strong");
         var el6 = dom.createTextNode("Quorum");
         dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("br");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n                N_Val: ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode(" ");
         dom.appendChild(el4, el5);
         var el5 = dom.createElement("br");
         dom.appendChild(el4, el5);
@@ -4978,25 +4981,28 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element3 = dom.childAt(fragment, [0, 1]);
         var element4 = dom.childAt(element3, [3]);
-        var morphs = new Array(6);
+        var element5 = dom.childAt(element4, [5]);
+        var morphs = new Array(7);
         morphs[0] = dom.createMorphAt(dom.childAt(element3, [1, 3]),1,1);
         morphs[1] = dom.createMorphAt(dom.childAt(element4, [1]),4,4);
         morphs[2] = dom.createMorphAt(dom.childAt(element4, [3]),4,4);
-        morphs[3] = dom.createMorphAt(dom.childAt(element4, [5]),4,4);
-        morphs[4] = dom.createMorphAt(element3,5,5);
-        morphs[5] = dom.createMorphAt(element3,7,7);
+        morphs[3] = dom.createMorphAt(element5,4,4);
+        morphs[4] = dom.createMorphAt(element5,8,8);
+        morphs[5] = dom.createMorphAt(element3,5,5);
+        morphs[6] = dom.createMorphAt(element3,7,7);
         return morphs;
       },
       statements: [
         ["block","if",[["get","model.isActive",["loc",[null,[8,22],[8,36]]]]],[],0,1,["loc",[null,[8,16],[14,23]]]],
         ["content","model.objectType",["loc",[null,[20,16],[20,36]]]],
-        ["content","model.nVal",["loc",[null,[24,16],[24,30]]]],
-        ["block","if",[["get","model.quorumRelevant",["loc",[null,[28,22],[28,42]]]]],[],2,3,["loc",[null,[28,16],[37,23]]]],
-        ["block","if",[["get","model.isSearchIndexed",["loc",[null,[41,10],[41,31]]]]],[],4,5,["loc",[null,[41,4],[66,11]]]],
-        ["block","if",[["get","model.warnings",["loc",[null,[68,10],[68,24]]]]],[],6,null,["loc",[null,[68,4],[79,11]]]]
+        ["content","model.resolutionStrategy",["loc",[null,[24,16],[24,44]]]],
+        ["content","model.nVal",["loc",[null,[28,23],[28,37]]]],
+        ["block","if",[["get","model.quorumRelevant",["loc",[null,[29,22],[29,42]]]]],[],2,null,["loc",[null,[29,16],[35,23]]]],
+        ["block","if",[["get","model.isSearchIndexed",["loc",[null,[39,10],[39,31]]]]],[],3,4,["loc",[null,[39,4],[64,11]]]],
+        ["block","if",[["get","model.warnings",["loc",[null,[66,10],[66,24]]]]],[],5,null,["loc",[null,[66,4],[77,11]]]]
       ],
       locals: [],
-      templates: [child0, child1, child2, child3, child4, child5, child6]
+      templates: [child0, child1, child2, child3, child4, child5]
     };
   }()));
 
@@ -11775,6 +11781,16 @@ define('ember-riak-explorer/tests/pods/cluster/route.jshint', function () {
   });
 
 });
+define('ember-riak-explorer/tests/pods/search-index/model.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - pods/search-index');
+  test('pods/search-index/model.js should pass jshint', function() { 
+    ok(true, 'pods/search-index/model.js should pass jshint.'); 
+  });
+
+});
 define('ember-riak-explorer/tests/router.jshint', function () {
 
   'use strict';
@@ -12399,7 +12415,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+6beec542"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+1ea81269"});
 }
 
 /* jshint ignore:end */

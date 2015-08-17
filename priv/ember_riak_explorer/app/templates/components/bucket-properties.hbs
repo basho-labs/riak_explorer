@@ -19,21 +19,19 @@
                 <strong>Object type</strong><br />
                 {{model.objectType}}
             </div>
-            <div class="col-sm-3">
-                <strong>Replicas (n_val)</strong><br />
-                {{model.nVal}}
+            <div class="col-sm-4">
+                <strong>Conflict Res. Strategy</strong><br />
+                {{model.resolutionStrategy}}
             </div>
-            <div class="col-sm-5">
+            <div class="col-sm-4">
                 <strong>Quorum</strong><br />
+                N_Val: {{model.nVal}} <br />
                 {{#if model.quorumRelevant}}
                     R: {{model.quorum.r}}, W: {{model.quorum.w}},
-                    PR: {{model.quorum.pr}}, PW: {{model.quorum.pw}},
+                    PR: {{model.quorum.pr}}, PW: {{model.quorum.pw}},<br />
                     DW: {{model.quorum.dw}}
-                    <br />
                     <small>(basic_quorum: {{model.quorum.basic_quorum}},
                         notfound_ok: {{model.quorum.basic_quorum}})</small>
-                {{else}}
-                    n/a
                 {{/if}}
             </div>
         </div>
@@ -44,14 +42,14 @@
             <strong>Search Index</strong><br />
             {{model.searchIndexName}}
         </div>
-        <div class="col-sm-3">
-            <strong>Index n_val</strong><br />
-            {{model.searchIndexNVal}}
-        </div>
-        <div class="col-sm-5">
+        <div class="col-sm-4">
             <strong>Search Schema</strong><br />
-            <a href="{{model.cluster.clusterProxyUrl}}/search/schema/{{model.searchSchemaName}}">
-                {{model.searchSchemaName}}</a>
+            <a href="{{model.cluster.clusterProxyUrl}}/search/schema/{{model.index.schema}}">
+                {{model.index.schema}}</a>
+        </div>
+        <div class="col-sm-4">
+            <strong>Index N_Val</strong><br />
+            {{model.index.n_val}}
         </div>
     </div>
     {{else}}

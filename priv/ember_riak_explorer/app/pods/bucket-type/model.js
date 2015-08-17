@@ -13,6 +13,11 @@ export default DS.Model.extend({
         return this.get('cluster').get('clusterId');
     }.property('cluster'),
 
+    index: function() {
+        return this.get('cluster').get('indexes')
+            .findBy('name', this.get('searchIndexName'));
+    }.property('cluster'),
+
     name: function() {
         return this.get('id');
     }.property('id'),
@@ -137,6 +142,11 @@ export default DS.Model.extend({
             }
             if(this.get('hasCommitHooks')) {
                 warnings.push('Using commit hooks, but those are ignored for Strongly Consistent data!');
+            }
+        }
+        if(this.get('allowMult')) {  // Siblings enabled
+            if(!this.get('props').dvv_enabled) {
+                warnings.push('Dotted Version Vectors (dvv_enabled) should be enabled when Siblings are enabled.');
             }
         }
         return warnings;
