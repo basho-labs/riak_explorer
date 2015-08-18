@@ -478,7 +478,6 @@ export default Ember.Service.extend({
         var explorer = this;
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
-            console.log('getBucketList url: %s', url);
             var ajaxHash = {
                 url: url,
                 dataType: 'json',
@@ -508,6 +507,24 @@ export default Ember.Service.extend({
 
             Ember.$.ajax(ajaxHash);
         });
+    },
+
+    getBucketType: function(clusterId, bucketTypeId, store) {
+        return store.findRecord('cluster', clusterId)
+            .then(function(cluster) {
+                // If this page was accessed directly
+                //  (via a bookmark and not from a link), bucket types are likely
+                //  to be not loaded yet. Load them.
+                if(Ember.isEmpty(cluster.get('bucketTypes'))) {
+                    return store.query('bucket-type', {clusterId: cluster.get('clusterId')})
+                        .then(function(bucketTypes) {
+                            cluster.set('bucketTypes', bucketTypes);
+                            return bucketTypes.findBy('originalId', bucketTypeId);
+                        });
+                } else {
+                    return cluster.get('bucketTypes').findBy('originalId', bucketTypeId);
+                }
+            });
     },
 
     getBucketProps: getBucketProps,
