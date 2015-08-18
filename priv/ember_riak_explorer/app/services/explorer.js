@@ -485,6 +485,7 @@ export default Ember.Service.extend({
             };
             ajaxHash.success = function(data) { // Success, bucket list returned
                 console.log("Found bucket list");
+                bucketType.set('isBucketListLoaded', true);
                 resolve(explorer.createBucketList(data, cluster, bucketType, store));
             };
             ajaxHash.error = function(jqXHR, textStatus) {
@@ -510,20 +511,53 @@ export default Ember.Service.extend({
     },
 
     getBucketType: function(clusterId, bucketTypeId, store) {
+        var self = this;
+        return self.getCluster(clusterId, store)
+            .then(function(cluster) {
+                var bucketType = cluster.get('bucketTypes')
+                    .findBy('originalId', bucketTypeId);
+
+                return self.getBucketTypeWithList(bucketType, cluster, store);
+            });
+    },
+
+    getBucketTypeWithList: function(bucketType, cluster, store) {
+        return this.getBucketList(cluster, bucketType, store)
+            .then(function(bucketList) {
+                bucketType.set('bucketList', bucketList);
+                return bucketType;
+            });
+    },
+
+    getBucketTypesForCluster: function(cluster, store) {
+        if(Ember.isEmpty(cluster.get('bucketTypes'))) {
+            // If this page was accessed directly
+            //  (via a bookmark and not from a link), bucket types are likely
+            //  to be not loaded yet. Load them.
+            return store.query('bucket-type',
+                    {clusterId: cluster.get('clusterId')})
+                .then(function(bucketTypes) {
+                    cluster.set('bucketTypes', bucketTypes);
+                    return bucketTypes;
+                });
+        } else {
+            return cluster.get('bucketTypes');
+        }
+    },
+
+    getCluster: function(clusterId, store) {
+        var self = this;
         return store.findRecord('cluster', clusterId)
             .then(function(cluster) {
-                // If this page was accessed directly
-                //  (via a bookmark and not from a link), bucket types are likely
-                //  to be not loaded yet. Load them.
-                if(Ember.isEmpty(cluster.get('bucketTypes'))) {
-                    return store.query('bucket-type', {clusterId: cluster.get('clusterId')})
-                        .then(function(bucketTypes) {
-                            cluster.set('bucketTypes', bucketTypes);
-                            return bucketTypes.findBy('originalId', bucketTypeId);
-                        });
-                } else {
-                    return cluster.get('bucketTypes').findBy('originalId', bucketTypeId);
-                }
+                // Ensure that bucket types are loaded
+                self.getBucketTypesForCluster(cluster, store);
+                return cluster;
+            })
+            .then(function(cluster) {
+                return self.getIndexes(clusterId).then(function(indexes) {
+                    cluster.set('indexes', indexes);
+                    return cluster;
+                });
             });
     },
 

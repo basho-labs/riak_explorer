@@ -5,6 +5,10 @@ import objectToArray from '../../utils/riak-util';
 export default DS.Model.extend({
     cluster: DS.belongsTo('cluster'),
 
+    bucketList: DS.belongsTo('bucket-list'),
+
+    isBucketListLoaded: DS.attr('boolean', { defaultValue: false }),
+
     bucketTypeId: function() {
         return this.get('originalId');
     }.property('originalId'),

@@ -16,3 +16,34 @@
     Properties not loaded...
 {{/if}}
 </div>
+
+<h4>Bucket List</h4>
+
+{{#if model.isBucketListLoaded}}
+    <div class="container" style="margin-top: 2em;">
+        <div class="row">
+            <div>
+            Cache created: {{model.bucketList.created}}
+            {{#if model.cluster.developmentMode}}
+                {{refresh-buckets action="refreshBuckets" bucketType=model}}
+            {{/if}}
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: 2em;">
+        Displaying
+        <strong>{{model.bucketList.count}}</strong>
+        buckets out of
+        <strong>{{model.bucketList.total}}</strong>
+        total.
+    </div>
+
+    <div class="container" style="padding-top: 2em;">
+        {{#riak-buckets bucketList=model.bucketList cluster=model.cluster
+            bucketTypeId=model.bucketTypeId}}
+        {{/riak-buckets}}
+    </div>
+{{else}}
+    {{loading-spinner}}
+{{/if}}
