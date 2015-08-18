@@ -3,20 +3,18 @@
         <div class="col-md-1">
         </div>
         <div class="col-md-11">
-            in
-            {{#link-to 'cluster' model.cluster}}
-                {{model.clusterId}}{{/link-to}} cluster
+            {{link-cluster clusterId=model.clusterId}}
+
             {{#if model.bucketTypeId}}
                 /
-                <a href="/cluster/{{model.clusterId}}/bucket_type/{{model.bucketTypeId}}/buckets">
-                    {{model.bucketTypeId}}</a> bucket type
+                {{#link-to 'bucket-type' model.bucketType
+                        classNames='btn btn-sm btn-primary cluster-resource-link' }}
+                    <span class="glyphicon glyphicon-inbox cluster-resource-icon"
+                        aria-hidden="true"></span>
+                    {{model.bucketTypeId}}{{/link-to}}
             {{/if}}
             {{#if model.bucketId}}
                 /
-                {{#link-to 'key_list' (query-params cluster_id=model.clusterId
-                        bucket_type_id=model.bucketTypeId
-                        bucket_id=model.bucketId)}}
-                    {{model.bucketId}}{{/link-to}} bucket
             {{/if}}
         </div>
     </div>

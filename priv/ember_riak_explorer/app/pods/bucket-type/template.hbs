@@ -1,6 +1,15 @@
-<h3>Bucket Type Properties: {{model.bucketTypeId}}</h3>
+<div class="crumb-trail">
+    {{link-cluster cluster=model.cluster}} /
 
-{{crumb-trail model=model}}
+    <div class="cluster-resource-header center-block"
+            title="Bucket Type: {{model.bucketTypeId}}">
+        <span class="glyphicon glyphicon-inbox cluster-resource-icon"
+            aria-hidden="true"></span>
+        <span title="Bucket Type: {{model.bucketTypeId}}">
+            {{model.bucketTypeId}}</span>
+    </div>
+
+</div>
 
 <div class="container bucket-properties center-block">
 {{#if model.props}}

@@ -7,6 +7,30 @@ tr:nth-child(odd) {background: #EEE}
     padding-bottom: 3em;
 }
 
+.cluster-resource-header {
+    border: 1px solid #CCC;
+    background-color: #3c948b;
+    color: white;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 6px 3em 6px 2em;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.cluster-resource-link {
+    /*background-color: #337ab7;*/
+    padding: 6px 2em 6px 1em;
+    text-align: left;
+}
+
+.cluster-resource-icon {
+    margin-right: 1em;
+}
+
 .status-ok {
     color: green;
 }
@@ -37,7 +61,7 @@ tr:nth-child(odd) {background: #EEE}
     margin-bottom: 2em;
     margin-left: 0px auto;
     margin-right: 0px auto;
-    width: 95%;
+
     border: 1px solid gray;
     box-sizing: border-box;
 }

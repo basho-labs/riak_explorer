@@ -12,19 +12,16 @@
     <tr>
         <td>
             {{#link-to 'bucket-type' bt
-                    classNames='btn btn-xs btn-primary' }}
-                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-                Properties{{/link-to}}
-            <a href="/cluster/{{clusterId}}/bucket_type/{{bt.bucketTypeId}}/buckets"
-                class="btn btn-xs btn-primary">Bucket List</a>
-
-            {{bt.bucketTypeId}}
-        </td>
-        <td>
-            {{bt.nVal}}
+                    classNames='btn btn-sm btn-block btn-primary cluster-resource-link' }}
+                <span class="glyphicon glyphicon-inbox cluster-resource-icon"
+                    aria-hidden="true"></span>
+                {{bt.bucketTypeId}}{{/link-to}}
         </td>
         <td>
             {{bt.objectType}}
+        </td>
+        <td>
+            {{bt.nVal}}
         </td>
         <td>
             {{bt.resolutionStrategy}}

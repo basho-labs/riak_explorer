@@ -1,21 +1,25 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-12"><h3>Cluster: {{model.clusterId}}</h3></div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            Status:
-            <strong>
-            {{#if model.developmentMode}}
-            Development Mode
-            {{else}}
-            Production Mode
-            {{/if}}
-            </strong>
+        <div class="col-md-12 text-center">
+            <div class="cluster-resource-header center-block"
+                    title="Cluster: {{model.clusterId}}">
+                <img src="assets/images/riak.png" class="cluster-resource-icon"
+                    title="Cluster: {{model.clusterId}}"/>
+                <span title="Cluster: {{model.clusterId}}">
+                    {{model.clusterId}}</span>
+            </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12"><h4>Explore</h4></div>
+        <div class="col-md-12">
+            <h4>Explore
+                {{#if model.developmentMode}}
+                    (Development mode)
+                {{else}}
+                    (Production mode)
+                {{/if}}
+            </h4>
+        </div>
     </div>
     <div class="row">
         <div class="col-md-12">
