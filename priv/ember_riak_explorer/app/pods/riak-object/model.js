@@ -12,6 +12,8 @@ var RiakObject = DS.Model.extend({
 
     headers: DS.attr(),
 
+    isLoaded: DS.attr('boolean', {defaultValue: false}),
+
     key: DS.attr('string'),
 
     // This object was marked as deleted by Explorer UI,

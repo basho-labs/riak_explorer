@@ -19,11 +19,22 @@ export default Ember.Route.extend({
         var key = params.key;
         var explorer = this.explorer;
         var store = this.store;
-
         return explorer.getBucket(clusterId, bucketTypeId, bucketId, store)
             .then(function(bucket) {
                 return explorer.getRiakObject(clusterId,
                     bucketTypeId, bucket, key, store);
             });
+    },
+
+    setupController: function(controller, model) {
+        this._super(controller, model);
+        if(!model.get('isLoaded')) {
+            this.explorer.getRiakObject(model.get('clusterId'),
+                    model.get('bucketTypeId'), model.get('bucket'),
+                    model.get('key'), this.store)
+                .then(function(object) {
+                    controller.set('model', object);
+                });
+        }
     }
 });

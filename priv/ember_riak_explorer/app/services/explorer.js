@@ -44,57 +44,6 @@ function displayContentsForType(headers, contents) {
     return displayContents;
 }
 
-/**
-* XmlHttpRequest's getAllResponseHeaders() method returns a string of response
-* headers according to the format described here:
-* http://www.w3.org/TR/XMLHttpRequest/#the-getallresponseheaders-method
-*
-* Which we then have to parse. Like savages.
-*/
-function parseHeaderString(headerString) {
-    var other_headers = {};
-    var indexes = [];
-    var custom = [];
-
-    if (!headerString) {
-      return {
-          custom: [],     // x-riak-meta-*
-          indexes: [],    // x-riak-index-*
-          other: {}       // everything else
-      };
-    }
-    var headerLines = headerString.split("\r\n");
-
-    for (var i = 0; i < headerLines.length; i++) {
-        var headerLine = headerLines[i];
-
-        // Can't use split() here because it does the wrong thing
-        // if the header value has the string ": " in it.
-        var index = headerLine.indexOf(': ');
-        if (index > 0) {
-          var key = headerLine.substring(0, index).toLowerCase();
-          var val = headerLine.substring(index + 2);
-          var header = {
-              key: key,
-              value: val
-          };
-
-          if(key.startsWith('x-riak-meta')) {
-              custom.push(header);
-          } else if(key.startsWith('x-riak-index')) {
-              indexes.push(header);
-          } else {
-              other_headers[key] = val;
-          }
-        }
-    }
-    return {
-        other: other_headers,
-        indexes: indexes,
-        custom: custom
-    };
-}
-
 function deleteBucket(bucket) {
     var url = '/explore/clusters/' + bucket.get('clusterId') +
         '/bucket_types/' + bucket.get('bucketTypeId') +
@@ -348,7 +297,11 @@ export default Ember.Service.extend({
         var keyList = data.keys.keys.map(function(key) {
             var obj = store.createRecord('riak-object', {
                 key: key,
-                bucket: bucket
+                bucket: bucket,
+                bucketType: bucket.get('bucketType'),
+                cluster: bucket.get('cluster'),
+                headers: explorer.emptyObjectHeaders(),
+                isLoaded: false
             });
             if(explorer.wasObjectDeleted(obj)) {
                 obj.set('markedDeleted', true);
@@ -365,11 +318,35 @@ export default Ember.Service.extend({
         });
     },
 
+    createObjectFromAjax: function(key, bucket, rawHeader, responseText, store, url) {
+        var headers = this.parseHeaderString(rawHeader);
+        var contents = displayContentsForType(headers, responseText);
+
+        return store.createRecord('riak-object', {
+            key: key,
+            bucket: bucket,
+            bucketType: bucket.get('bucketType'),
+            cluster: bucket.get('cluster'),
+            headers: headers,
+            isLoaded: true,
+            contents: contents,
+            rawUrl: url
+        });
+    },
+
     deletedCacheFor: deletedCacheFor,
 
     deleteObject: deleteObject,
 
     deleteBucket: deleteBucket,
+
+    emptyObjectHeaders: function() {
+        return {
+            custom: [],     // x-riak-meta-*
+            indexes: [],    // x-riak-index-*
+            other: {}       // everything else
+        };
+    },
 
     getBucket: function(clusterId, bucketTypeId, bucketId, store) {
         var self = this;
@@ -529,7 +506,7 @@ export default Ember.Service.extend({
             var headerString;
             ajaxHash.success = function(data, textStatus, jqXHR) {
                 headerString = jqXHR.getAllResponseHeaders();
-                resolve(explorer.objectFromAjax(key, bucket, headerString,
+                resolve(explorer.createObjectFromAjax(key, bucket, headerString,
                     jqXHR.responseText, store, url));
             };
             ajaxHash.error = function(jqXHR, textStatus) {
@@ -537,13 +514,13 @@ export default Ember.Service.extend({
                     // jQuery tries to parse JSON objects, and throws
                     // parse errors when they're invalid. Suppress this.
                     headerString = jqXHR.getAllResponseHeaders();
-                    resolve(explorer.objectFromAjax(key, bucket, headerString,
+                    resolve(explorer.createObjectFromAjax(key, bucket, headerString,
                         jqXHR.responseText, store, url));
                 }
                 if(jqXHR.status === 300) {
                     // Handle 300 Multiple Choices case for siblings
                     headerString = jqXHR.getAllResponseHeaders();
-                    resolve(explorer.objectFromAjax(key, bucket, headerString,
+                    resolve(explorer.createObjectFromAjax(key, bucket, headerString,
                         jqXHR.responseText, store, url));
                 } else {
                     reject(jqXHR);
@@ -557,19 +534,51 @@ export default Ember.Service.extend({
 
     markDeletedKey: markDeletedKey,
 
-    objectFromAjax: function(key, bucket, rawHeader, responseText, store, url) {
-        var headers = parseHeaderString(rawHeader);
-        var contents = displayContentsForType(headers, responseText);
+    /**
+    * XmlHttpRequest's getAllResponseHeaders() method returns a string of response
+    * headers according to the format described here:
+    * http://www.w3.org/TR/XMLHttpRequest/#the-getallresponseheaders-method
+    *
+    * Which we then have to parse. Like savages.
+    */
+    parseHeaderString: function(headerString) {
+        var other_headers = {};
+        var indexes = [];
+        var custom = [];
 
-        return store.createRecord('riak-object', {
-            key: key,
-            bucket: bucket,
-            bucketType: bucket.get('bucketType'),
-            cluster: bucket.get('cluster'),
-            headers: headers,
-            contents: contents,
-            rawUrl: url
-        });
+        if (!headerString) {
+          return this.emptyObjectHeaders();
+        }
+        var headerLines = headerString.split("\r\n");
+
+        for (var i = 0; i < headerLines.length; i++) {
+            var headerLine = headerLines[i];
+
+            // Can't use split() here because it does the wrong thing
+            // if the header value has the string ": " in it.
+            var index = headerLine.indexOf(': ');
+            if (index > 0) {
+              var key = headerLine.substring(0, index).toLowerCase();
+              var val = headerLine.substring(index + 2);
+              var header = {
+                  key: key,
+                  value: val
+              };
+
+              if(key.startsWith('x-riak-meta')) {
+                  custom.push(header);
+              } else if(key.startsWith('x-riak-index')) {
+                  indexes.push(header);
+              } else {
+                  other_headers[key] = val;
+              }
+            }
+        }
+        return {
+            other: other_headers,
+            indexes: indexes,
+            custom: custom
+        };
     },
 
     saveObject: saveObject,
