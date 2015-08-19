@@ -1,7 +1,15 @@
 import DS from 'ember-data';
 import Ember from 'ember';
 
-export default DS.RESTSerializer.extend({
+export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    // Specify embedded attributes
+    attrs: {
+        // Bucket Type properties and Bucket properties
+        props: {
+            embedded: 'always'
+        }
+    },
+
     /**
     This indicates that the
         store should call `normalizeResponse` instead of `extract` and to expect

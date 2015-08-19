@@ -4,9 +4,7 @@ export default Ember.Route.extend({
     actions: {
         error: function(errors, transition) {
             var error = errors.errors[0];
-            console.log("Error encountered: %O", error);
             if (error && error.status === "404") {
-                console.log("Status is 404");
                 this.transitionTo('error.cluster-not-found',
                     { queryParams:
                         { cluster_id: transition.params.cluster_id } });

@@ -90,7 +90,24 @@ var ExplorerResourceAdapter = DS.RESTAdapter.extend({
         var originalId = record[idKey];
         record.original_id = originalId;
         prefix.push(originalId);
-        record['id'] = prefix.join('/');
+        var compositeId = prefix.join('/');
+        record['id'] = compositeId;
+        if(record.props) {
+            record.props['id'] = compositeId;
+        }
+    },
+
+    /**
+    Relevant for Bucket Type Properties and Bucket Properties
+    */
+    normalizeProps: function(record, modelName) {
+        if(modelName === 'bucket-type' || modelName === 'bucket') {
+            record.props = {
+                id: record.props.id,
+                props: record.props
+            };
+            delete record.props.props.id;
+        }
     },
 
     pathForType: function(type) {
@@ -113,11 +130,13 @@ var ExplorerResourceAdapter = DS.RESTAdapter.extend({
         var root;
         var promise = this.ajax(url, 'GET').then(function(payload) {
             root = adapter.pathForType(type.modelName);
-            console.log('1) model name: %O, query payload: %O, root: %O', type.modelName, payload, root);
+            // console.log('1) model name: %O, query payload: %O, root: %O', type.modelName, payload, root);
             for(let i=0; i < payload[root].length; i++) {
                 var record = payload[root][i];
                 adapter.normalizeId(record, type, query);
                 adapter.injectParentIds(record, query);
+                adapter.normalizeProps(record, type.modelName);
+                // console.log("payload after normalize: %O", payload);
             }
             return payload;
         });
@@ -137,19 +156,13 @@ var ExplorerResourceAdapter = DS.RESTAdapter.extend({
     queryRecord: function(store, type, query) {
         var url = this.buildURL(type.modelName, null, null, 'query', query);
         var adapter = this;
-        // var id = this.getNormalizedId(type.modelName, query);
-        // if(store.hasRecordForId(type.modelName, id)) {
-        //
-        // } else {
-        //
-        // }
         var root = Ember.String.underscore(type.modelName);
         var promise = this.ajax(url, 'GET').then(function(payload) {
-            console.log('model name: %O, query payload: %O, root: %O', type.modelName, payload, root);
+            // console.log('model name: %O, query payload: %O, root: %O', type.modelName, payload, root);
             adapter.normalizeId(payload[root], type, query);
             adapter.injectParentIds(payload[root], query);
-            console.log("payload after normalize: %O", payload);
-            // store.push(payload[root]);
+            adapter.normalizeProps(payload[root], type.modelName);
+            // console.log("payload after normalize: %O", payload);
             return payload;
         });
         return promise;

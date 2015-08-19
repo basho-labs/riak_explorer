@@ -1,34 +1,34 @@
 <div class="row property-row">
     <div class="col-sm-4">
         <strong>Object type</strong><br />
-        {{model.objectType}}
+        {{props.objectType}}
     </div>
     <div class="col-sm-4">
         <strong>Conflict Res. Strategy</strong><br />
-        {{model.resolutionStrategy}}
+        {{props.resolutionStrategy}}
     </div>
     <div class="col-sm-4">
         <strong>Quorum</strong><br />
-        N_Val: {{model.nVal}} <br />
-        {{#if model.quorumRelevant}}
-            R: {{model.quorum.r}}, W: {{model.quorum.w}},
-            PR: {{model.quorum.pr}}, PW: {{model.quorum.pw}},<br />
-            DW: {{model.quorum.dw}}
-            <small>(basic_quorum: {{model.quorum.basic_quorum}},
-                notfound_ok: {{model.quorum.basic_quorum}})</small>
+        N_Val: {{props.nVal}} <br />
+        {{#if props.quorumRelevant}}
+            R: {{props.quorum.r}}, W: {{props.quorum.w}},
+            PR: {{props.quorum.pr}}, PW: {{props.quorum.pw}},<br />
+            DW: {{props.quorum.dw}}
+            <small>(basic_quorum: {{props.quorum.basic_quorum}},
+                notfound_ok: {{props.quorum.basic_quorum}})</small>
         {{/if}}
     </div>
 </div>
 
-{{#if model.isSearchIndexed}}
+{{#if props.isSearchIndexed}}
 <div class="row property-row">
 <div class="col-sm-4">
     <strong>Search Index</strong><br />
-    {{model.searchIndexName}}
+    {{props.searchIndexName}}
 </div>
 <div class="col-sm-4">
     <strong>Search Schema</strong><br />
-    <a href="{{model.cluster.clusterProxyUrl}}/search/schema/{{model.index.schema}}">
+    <a href="{{props.cluster.clusterProxyUrl}}/search/schema/{{props.index.schema}}">
         {{model.index.schema}}</a>
 </div>
 <div class="col-sm-4">
@@ -47,12 +47,12 @@
 </div>
 {{/if}}
 
-{{#if model.warnings}}
+{{#if props.warnings}}
 <div class="row property-row">
     <div class="col-sm-12">
         <strong class="warning">Warnings</strong>
         <ul>
-        {{#each model.warnings as |warning|}}
+        {{#each props.warnings as |warning|}}
             <li><strong>{{warning}}</strong></li>
         {{/each}}
         </ul>

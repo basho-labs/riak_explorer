@@ -443,10 +443,9 @@ export default Ember.Service.extend({
 
     getBucket: function(clusterId, bucketTypeId, bucketId, store) {
         var self = this;
-        console.log('in get bucket');
         return self.getBucketType(clusterId, bucketTypeId, store)
             .then(function(bucketType) {
-                return self.getBucketProps(clusterId, bucketTypeId, bucketId)
+                return self.getBucketProps(clusterId, bucketTypeId, bucketId, store)
                     .then(function(bucketProps) {
                         return store.createRecord('bucket', {
                             name: bucketId,
@@ -499,13 +498,13 @@ export default Ember.Service.extend({
         });
     },
 
-    getBucketProps: function(clusterId, bucketTypeId, bucketId) {
+    getBucketProps: function(clusterId, bucketTypeId, bucketId, store) {
         var propsUrl = this.getClusterProxyUrl(clusterId) + '/types/' +
                 bucketTypeId + '/buckets/' + bucketId + '/props';
 
         return Ember.$.ajax( propsUrl, { dataType: "json" } )
             .then(function(data) {
-                return data.props;
+                return store.createRecord('bucket-props', data.props);
             });
     },
 

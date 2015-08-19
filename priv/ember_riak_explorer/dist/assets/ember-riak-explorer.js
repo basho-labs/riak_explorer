@@ -107,7 +107,24 @@ define('ember-riak-explorer/adapters/explorer-resource', ['exports', 'ember-data
             var originalId = record[idKey];
             record.original_id = originalId;
             prefix.push(originalId);
-            record['id'] = prefix.join('/');
+            var compositeId = prefix.join('/');
+            record['id'] = compositeId;
+            if (record.props) {
+                record.props['id'] = compositeId;
+            }
+        },
+
+        /**
+        Relevant for Bucket Type Properties and Bucket Properties
+        */
+        normalizeProps: function normalizeProps(record, modelName) {
+            if (modelName === 'bucket-type' || modelName === 'bucket') {
+                record.props = {
+                    id: record.props.id,
+                    props: record.props
+                };
+                delete record.props.props.id;
+            }
         },
 
         pathForType: function pathForType(type) {
@@ -130,11 +147,13 @@ define('ember-riak-explorer/adapters/explorer-resource', ['exports', 'ember-data
             var root;
             var promise = this.ajax(url, 'GET').then(function (payload) {
                 root = adapter.pathForType(type.modelName);
-                console.log('1) model name: %O, query payload: %O, root: %O', type.modelName, payload, root);
+                // console.log('1) model name: %O, query payload: %O, root: %O', type.modelName, payload, root);
                 for (var i = 0; i < payload[root].length; i++) {
                     var record = payload[root][i];
                     adapter.normalizeId(record, type, _query);
                     adapter.injectParentIds(record, _query);
+                    adapter.normalizeProps(record, type.modelName);
+                    // console.log("payload after normalize: %O", payload);
                 }
                 return payload;
             });
@@ -154,19 +173,13 @@ define('ember-riak-explorer/adapters/explorer-resource', ['exports', 'ember-data
         queryRecord: function queryRecord(store, type, query) {
             var url = this.buildURL(type.modelName, null, null, 'query', query);
             var adapter = this;
-            // var id = this.getNormalizedId(type.modelName, query);
-            // if(store.hasRecordForId(type.modelName, id)) {
-            //
-            // } else {
-            //
-            // }
             var root = Ember['default'].String.underscore(type.modelName);
             var promise = this.ajax(url, 'GET').then(function (payload) {
-                console.log('model name: %O, query payload: %O, root: %O', type.modelName, payload, root);
+                // console.log('model name: %O, query payload: %O, root: %O', type.modelName, payload, root);
                 adapter.normalizeId(payload[root], type, query);
                 adapter.injectParentIds(payload[root], query);
-                console.log("payload after normalize: %O", payload);
-                // store.push(payload[root]);
+                adapter.normalizeProps(payload[root], type.modelName);
+                // console.log("payload after normalize: %O", payload);
                 return payload;
             });
             return promise;
@@ -878,6 +891,142 @@ define('ember-riak-explorer/models/bucket-list', ['exports', 'ember-data', 'embe
     });
 
 });
+define('ember-riak-explorer/models/bucket-props', ['exports', 'ember-data', 'ember', 'ember-riak-explorer/utils/riak-util'], function (exports, DS, Ember, objectToArray) {
+
+    'use strict';
+
+    exports['default'] = DS['default'].Model.extend({
+        // {"allow_mult":false, "basic_quorum":false, ... }
+        props: DS['default'].attr(),
+
+        propsList: (function () {
+            if (!this.get('props')) {
+                return [];
+            }
+            return objectToArray['default'](this.get('props'));
+        }).property('props'),
+
+        // Helper functions to access Properties
+
+        // Siblings enabled
+        allowMult: (function () {
+            return this.get('props').allow_mult;
+        }).property('props'),
+
+        // Pre-commit or post-commit hooks enabled
+        hasCommitHooks: (function () {
+            var hasPrecommit = !Ember['default'].isEmpty(this.get('props').precommit);
+            var hasPostcommit = !Ember['default'].isEmpty(this.get('props').postcommit);
+            if (hasPrecommit || hasPostcommit) {
+                return true;
+            }
+            return false;
+        }).property('props'),
+
+        // Bucket Type activated via riak-admin command line
+        isActive: (function () {
+            return this.get('props').active;
+        }).property('props'),
+
+        // Last Write Wins optimization
+        isLWW: (function () {
+            return this.get('props').last_write_wins;
+        }).property('props'),
+
+        // Has a Riak Search index been associated with this bucket type
+        isSearchIndexed: (function () {
+            return this.get('searchIndexName');
+        }).property('props'),
+
+        isStronglyConsistent: (function () {
+            return false;
+        }).property('props'),
+
+        // Riak 2.1+ feature
+        isWriteOnce: (function () {
+            return this.get('props').write_once;
+        }).property('props'),
+
+        nVal: (function () {
+            return this.get('props').n_val;
+        }).property('props'),
+
+        // What conflict resolution strategy this bucket type uses
+        resolutionStrategy: (function () {
+            if (this.get('isStronglyConsistent')) {
+                return 'Strongly Consistent';
+            }
+            if (this.get('allowMult')) {
+                return 'Causal Context (Siblings Enabled)';
+            }
+            if (this.get('isWriteOnce')) {
+                return 'n/a (Write-Once Optimized)';
+            }
+            // Last Write Wins optimization enabled
+            if (this.get('isLWW')) {
+                return 'Wall Clock (LastWriteWins enabled)';
+            }
+
+            // Default, regular riak object, allow_mult = false
+            return 'Causal Context (Siblings Off, fallback to Wall Clock)';
+        }).property('props'),
+
+        // What type of objects are stored (default, search indexed, CRDTs)
+        objectType: (function () {
+            var type = [];
+            type.push('Default');
+            if (this.get('isSearchIndexed')) {
+                type.push('Search Indexed');
+            }
+            return type.join(', ');
+        }).property('props'),
+
+        quorum: (function () {
+            return {
+                r: this.get('props').r, // Read quorum
+                w: this.get('props').r, // Write Quorum
+                pr: this.get('props').pr, // Primary Read
+                pw: this.get('props').pw, // Primary Write
+                dw: this.get('props').dw, // Durable Write
+                basic_quorum: this.get('props').basic_quorum,
+                notfound_ok: this.get('props').notfound_ok
+            };
+        }).property('props'),
+
+        // Whether or not the notion of Eventual Consistency / Quorums applies
+        // (meaning, if it's not Strongly consistent)
+        quorumRelevant: (function () {
+            return !this.get('isStronglyConsistent');
+        }).property('props'),
+
+        searchIndexName: (function () {
+            return this.get('props').search_index;
+        }).property('props'),
+
+        warnings: (function () {
+            var warnings = [];
+            if (this.get('isStronglyConsistent')) {
+                if (this.get('nVal') < 5) {
+                    warnings.push('Using Strong Consistency, but n_val < 5!');
+                }
+                if (this.get('isSearchIndexed')) {
+                    warnings.push('Combining Strong Consistency with Search. Use cation!');
+                }
+                if (this.get('hasCommitHooks')) {
+                    warnings.push('Using commit hooks, but those are ignored for Strongly Consistent data!');
+                }
+            }
+            if (this.get('allowMult')) {
+                // Siblings enabled
+                if (!this.get('props').dvv_enabled) {
+                    warnings.push('Dotted Version Vectors (dvv_enabled) should be enabled when Siblings are enabled.');
+                }
+            }
+            return warnings;
+        }).property('props')
+    });
+
+});
 define('ember-riak-explorer/models/cached-list', ['exports', 'ember-data'], function (exports, DS) {
 
     'use strict';
@@ -1083,7 +1232,7 @@ define('ember-riak-explorer/pods/bucket-type/controller', ['exports', 'ember'], 
     });
 
 });
-define('ember-riak-explorer/pods/bucket-type/model', ['exports', 'ember-data', 'ember', 'ember-riak-explorer/utils/riak-util'], function (exports, DS, Ember, objectToArray) {
+define('ember-riak-explorer/pods/bucket-type/model', ['exports', 'ember-data'], function (exports, DS) {
 
     'use strict';
 
@@ -1103,8 +1252,12 @@ define('ember-riak-explorer/pods/bucket-type/model', ['exports', 'ember-data', '
         }).property('cluster'),
 
         index: (function () {
-            return this.get('cluster').get('indexes').findBy('name', this.get('searchIndexName'));
+            return this.get('cluster').get('indexes').findBy('name', this.get('props').get('searchIndexName'));
         }).property('cluster'),
+
+        isActive: (function () {
+            return this.get('props').get('isActive');
+        }).property('props'),
 
         name: (function () {
             return this.get('id');
@@ -1113,133 +1266,7 @@ define('ember-riak-explorer/pods/bucket-type/model', ['exports', 'ember-data', '
         originalId: DS['default'].attr('string'),
 
         // {"allow_mult":false, "basic_quorum":false, ... }
-        props: DS['default'].attr(),
-
-        propsList: (function () {
-            if (!this.get('props')) {
-                return [];
-            }
-            return objectToArray['default'](this.get('props'));
-        }).property('props'),
-
-        // Helper functions to access Bucket Type Properties
-
-        // Siblings enabled
-        allowMult: (function () {
-            return this.get('props').allow_mult;
-        }).property('props'),
-
-        // Pre-commit or post-commit hooks enabled
-        hasCommitHooks: (function () {
-            var hasPrecommit = !Ember['default'].isEmpty(this.get('props').precommit);
-            var hasPostcommit = !Ember['default'].isEmpty(this.get('props').postcommit);
-            if (hasPrecommit || hasPostcommit) {
-                return true;
-            }
-            return false;
-        }).property('props'),
-
-        // Bucket Type activated via riak-admin command line
-        isActive: (function () {
-            return this.get('props').active;
-        }).property('props'),
-
-        // Last Write Wins optimization
-        isLWW: (function () {
-            return this.get('props').last_write_wins;
-        }).property('props'),
-
-        // Has a Riak Search index been associated with this bucket type
-        isSearchIndexed: (function () {
-            return this.get('searchIndexName');
-        }).property('props'),
-
-        isStronglyConsistent: (function () {
-            return false;
-        }).property('props'),
-
-        // Riak 2.1+ feature
-        isWriteOnce: (function () {
-            return this.get('props').write_once;
-        }).property('props'),
-
-        nVal: (function () {
-            return this.get('props').n_val;
-        }).property('props'),
-
-        // What conflict resolution strategy this bucket type uses
-        resolutionStrategy: (function () {
-            if (this.get('isStronglyConsistent')) {
-                return 'Strongly Consistent';
-            }
-            if (this.get('allowMult')) {
-                return 'Causal Context (Siblings Enabled)';
-            }
-            if (this.get('isWriteOnce')) {
-                return 'n/a (Write-Once Optimized)';
-            }
-            // Last Write Wins optimization enabled
-            if (this.get('isLWW')) {
-                return 'Wall Clock (LastWriteWins enabled)';
-            }
-
-            // Default, regular riak object, allow_mult = false
-            return 'Causal Context (Siblings Off, fallback to Wall Clock)';
-        }).property('props'),
-
-        // What type of objects are stored (default, search indexed, CRDTs)
-        objectType: (function () {
-            var type = [];
-            type.push('Default');
-            if (this.get('isSearchIndexed')) {
-                type.push('Search Indexed');
-            }
-            return type.join(', ');
-        }).property('props'),
-
-        quorum: (function () {
-            return {
-                r: this.get('props').r, // Read quorum
-                w: this.get('props').r, // Write Quorum
-                pr: this.get('props').pr, // Primary Read
-                pw: this.get('props').pw, // Primary Write
-                dw: this.get('props').dw, // Durable Write
-                basic_quorum: this.get('props').basic_quorum,
-                notfound_ok: this.get('props').notfound_ok
-            };
-        }).property('props'),
-
-        // Whether or not the notion of Eventual Consistency / Quorums applies
-        // (meaning, if it's not Strongly consistent)
-        quorumRelevant: (function () {
-            return !this.get('isStronglyConsistent');
-        }).property('props'),
-
-        searchIndexName: (function () {
-            return this.get('props').search_index;
-        }).property('props'),
-
-        warnings: (function () {
-            var warnings = [];
-            if (this.get('isStronglyConsistent')) {
-                if (this.get('nVal') < 5) {
-                    warnings.push('Using Strong Consistency, but n_val < 5!');
-                }
-                if (this.get('isSearchIndexed')) {
-                    warnings.push('Combining Strong Consistency with Search. Use cation!');
-                }
-                if (this.get('hasCommitHooks')) {
-                    warnings.push('Using commit hooks, but those are ignored for Strongly Consistent data!');
-                }
-            }
-            if (this.get('allowMult')) {
-                // Siblings enabled
-                if (!this.get('props').dvv_enabled) {
-                    warnings.push('Dotted Version Vectors (dvv_enabled) should be enabled when Siblings are enabled.');
-                }
-            }
-            return warnings;
-        }).property('props')
+        props: DS['default'].belongsTo('bucket-props')
     });
 
 });
@@ -1263,10 +1290,7 @@ define('ember-riak-explorer/pods/bucket-type/route', ['exports', 'ember'], funct
             this._super(controller, model);
 
             if (!model.get('isBucketListLoaded')) {
-                console.log('Model not loaded. Polling..');
                 controller.pollForModel(model, 3000);
-            } else {
-                console.log('Model loaded.');
             }
         }
     });
@@ -1341,7 +1365,7 @@ define('ember-riak-explorer/pods/bucket-type/template', ['exports'], function (e
         hasRendered: false,
         buildFragment: function buildFragment(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    Properties not loaded...\n");
+          var el1 = dom.createTextNode("    Properties not loaded.\n");
           dom.appendChild(el0, el1);
           return el0;
         },
@@ -1717,12 +1741,14 @@ define('ember-riak-explorer/pods/bucket/route', ['exports', 'ember'], function (
 
     exports['default'] = Ember['default'].Route.extend({
         model: function model(params) {
-            console.log('in route');
             return this.explorer.getBucket(params.clusterId, params.bucketTypeId, params.bucketId, this.store);
         },
 
         setupController: function setupController(controller, model) {
             this._super(controller, model);
+            // When user follows a bucket link from the Bucket Type view,
+            //   the props are not yet initialized. Also, the model()
+            //   function, above, is not called. Handle this case.
             if (Ember['default'].isEmpty(model.get('propsList'))) {
                 this.explorer.getBucketProps(model.get('clusterId'), model.get('bucketTypeId'), model.get('bucketId')).then(function (bucketProps) {
                     model.set('props', bucketProps);
@@ -1968,9 +1994,7 @@ define('ember-riak-explorer/pods/cluster/route', ['exports', 'ember'], function 
         actions: {
             error: function error(errors, transition) {
                 var error = errors.errors[0];
-                console.log("Error encountered: %O", error);
                 if (error && error.status === "404") {
-                    console.log("Status is 404");
                     this.transitionTo('error.cluster-not-found', { queryParams: { cluster_id: transition.params.cluster_id } });
                 } else {
                     // Unknown error, bubble error event up to routes/application.js
@@ -3044,7 +3068,15 @@ define('ember-riak-explorer/serializers/application', ['exports', 'ember-data', 
 
     'use strict';
 
-    exports['default'] = DS['default'].RESTSerializer.extend({
+    exports['default'] = DS['default'].RESTSerializer.extend(DS['default'].EmbeddedRecordsMixin, {
+        // Specify embedded attributes
+        attrs: {
+            // Bucket Type properties and Bucket properties
+            props: {
+                embedded: 'always'
+            }
+        },
+
         /**
         This indicates that the
             store should call `normalizeResponse` instead of `extract` and to expect
@@ -3512,9 +3544,8 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
 
         getBucket: function getBucket(clusterId, bucketTypeId, bucketId, store) {
             var self = this;
-            console.log('in get bucket');
             return self.getBucketType(clusterId, bucketTypeId, store).then(function (bucketType) {
-                return self.getBucketProps(clusterId, bucketTypeId, bucketId).then(function (bucketProps) {
+                return self.getBucketProps(clusterId, bucketTypeId, bucketId, store).then(function (bucketProps) {
                     return store.createRecord('bucket', {
                         name: bucketId,
                         bucketType: bucketType,
@@ -3566,11 +3597,11 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             });
         },
 
-        getBucketProps: function getBucketProps(clusterId, bucketTypeId, bucketId) {
+        getBucketProps: function getBucketProps(clusterId, bucketTypeId, bucketId, store) {
             var propsUrl = this.getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' + bucketId + '/props';
 
             return Ember['default'].$.ajax(propsUrl, { dataType: "json" }).then(function (data) {
-                return data.props;
+                return store.createRecord('bucket-props', data.props);
             });
         },
 
@@ -4490,7 +4521,7 @@ define('ember-riak-explorer/templates/components/bucket-properties-list', ['expo
         return morphs;
       },
       statements: [
-        ["block","each",[["get","model.propsList",["loc",[null,[9,8],[9,23]]]]],[],0,null,["loc",[null,[9,0],[14,9]]]]
+        ["block","each",[["get","model.props.propsList",["loc",[null,[9,8],[9,29]]]]],[],0,null,["loc",[null,[9,0],[14,9]]]]
       ],
       locals: [],
       templates: [child0]
@@ -4580,13 +4611,13 @@ define('ember-riak-explorer/templates/components/bucket-properties-overview', ['
           return morphs;
         },
         statements: [
-          ["content","model.quorum.r",["loc",[null,[14,15],[14,33]]]],
-          ["content","model.quorum.w",["loc",[null,[14,38],[14,56]]]],
-          ["content","model.quorum.pr",["loc",[null,[15,16],[15,35]]]],
-          ["content","model.quorum.pw",["loc",[null,[15,41],[15,60]]]],
-          ["content","model.quorum.dw",["loc",[null,[16,16],[16,35]]]],
-          ["content","model.quorum.basic_quorum",["loc",[null,[17,34],[17,63]]]],
-          ["content","model.quorum.basic_quorum",["loc",[null,[18,29],[18,58]]]]
+          ["content","props.quorum.r",["loc",[null,[14,15],[14,33]]]],
+          ["content","props.quorum.w",["loc",[null,[14,38],[14,56]]]],
+          ["content","props.quorum.pr",["loc",[null,[15,16],[15,35]]]],
+          ["content","props.quorum.pw",["loc",[null,[15,41],[15,60]]]],
+          ["content","props.quorum.dw",["loc",[null,[16,16],[16,35]]]],
+          ["content","props.quorum.basic_quorum",["loc",[null,[17,34],[17,63]]]],
+          ["content","props.quorum.basic_quorum",["loc",[null,[18,29],[18,58]]]]
         ],
         locals: [],
         templates: []
@@ -4695,8 +4726,8 @@ define('ember-riak-explorer/templates/components/bucket-properties-overview', ['
           return morphs;
         },
         statements: [
-          ["content","model.searchIndexName",["loc",[null,[27,4],[27,29]]]],
-          ["attribute","href",["concat",[["get","model.cluster.clusterProxyUrl",["loc",[null,[31,15],[31,44]]]],"/search/schema/",["get","model.index.schema",["loc",[null,[31,63],[31,81]]]]]]],
+          ["content","props.searchIndexName",["loc",[null,[27,4],[27,29]]]],
+          ["attribute","href",["concat",[["get","props.cluster.clusterProxyUrl",["loc",[null,[31,15],[31,44]]]],"/search/schema/",["get","props.index.schema",["loc",[null,[31,63],[31,81]]]]]]],
           ["content","model.index.schema",["loc",[null,[32,8],[32,30]]]],
           ["content","model.index.n_val",["loc",[null,[36,4],[36,25]]]]
         ],
@@ -4872,7 +4903,7 @@ define('ember-riak-explorer/templates/components/bucket-properties-overview', ['
           return morphs;
         },
         statements: [
-          ["block","each",[["get","model.warnings",["loc",[null,[55,16],[55,30]]]]],[],0,null,["loc",[null,[55,8],[57,17]]]]
+          ["block","each",[["get","props.warnings",["loc",[null,[55,16],[55,30]]]]],[],0,null,["loc",[null,[55,8],[57,17]]]]
         ],
         locals: [],
         templates: [child0]
@@ -4993,12 +5024,12 @@ define('ember-riak-explorer/templates/components/bucket-properties-overview', ['
         return morphs;
       },
       statements: [
-        ["content","model.objectType",["loc",[null,[4,8],[4,28]]]],
-        ["content","model.resolutionStrategy",["loc",[null,[8,8],[8,36]]]],
-        ["content","model.nVal",["loc",[null,[12,15],[12,29]]]],
-        ["block","if",[["get","model.quorumRelevant",["loc",[null,[13,14],[13,34]]]]],[],0,null,["loc",[null,[13,8],[19,15]]]],
-        ["block","if",[["get","model.isSearchIndexed",["loc",[null,[23,6],[23,27]]]]],[],1,2,["loc",[null,[23,0],[48,7]]]],
-        ["block","if",[["get","model.warnings",["loc",[null,[50,6],[50,20]]]]],[],3,null,["loc",[null,[50,0],[61,7]]]]
+        ["content","props.objectType",["loc",[null,[4,8],[4,28]]]],
+        ["content","props.resolutionStrategy",["loc",[null,[8,8],[8,36]]]],
+        ["content","props.nVal",["loc",[null,[12,15],[12,29]]]],
+        ["block","if",[["get","props.quorumRelevant",["loc",[null,[13,14],[13,34]]]]],[],0,null,["loc",[null,[13,8],[19,15]]]],
+        ["block","if",[["get","props.isSearchIndexed",["loc",[null,[23,6],[23,27]]]]],[],1,2,["loc",[null,[23,0],[48,7]]]],
+        ["block","if",[["get","props.warnings",["loc",[null,[50,6],[50,20]]]]],[],3,null,["loc",[null,[50,0],[61,7]]]]
       ],
       locals: [],
       templates: [child0, child1, child2, child3]
@@ -5258,7 +5289,7 @@ define('ember-riak-explorer/templates/components/bucket-properties', ['exports']
             return morphs;
           },
           statements: [
-            ["inline","bucket-properties-overview",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[24,55],[24,60]]]]],[],[]]],["loc",[null,[24,20],[24,62]]]]
+            ["inline","bucket-properties-overview",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[24,55],[24,60]]]]],[],[]],"props",["subexpr","@mut",[["get","model.props",["loc",[null,[24,67],[24,78]]]]],[],[]]],["loc",[null,[24,20],[24,80]]]]
           ],
           locals: [],
           templates: []
@@ -5584,9 +5615,9 @@ define('ember-riak-explorer/templates/components/bucket-types', ['exports'], fun
         },
         statements: [
           ["block","link-to",["bucket-type",["get","bt",["loc",[null,[14,37],[14,39]]]]],["classNames","btn btn-sm btn-block btn-primary cluster-resource-link"],0,null,["loc",[null,[14,12],[18,47]]]],
-          ["content","bt.objectType",["loc",[null,[21,12],[21,29]]]],
-          ["content","bt.nVal",["loc",[null,[24,12],[24,23]]]],
-          ["content","bt.resolutionStrategy",["loc",[null,[27,12],[27,37]]]]
+          ["content","bt.props.objectType",["loc",[null,[21,12],[21,35]]]],
+          ["content","bt.props.nVal",["loc",[null,[24,12],[24,29]]]],
+          ["content","bt.props.resolutionStrategy",["loc",[null,[27,12],[27,43]]]]
         ],
         locals: ["bt"],
         templates: [child0]
@@ -12273,6 +12304,16 @@ define('ember-riak-explorer/tests/models/bucket-list.jshint', function () {
   });
 
 });
+define('ember-riak-explorer/tests/models/bucket-props.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - models');
+  test('models/bucket-props.js should pass jshint', function() { 
+    ok(true, 'models/bucket-props.js should pass jshint.'); 
+  });
+
+});
 define('ember-riak-explorer/tests/models/cached-list.jshint', function () {
 
   'use strict';
@@ -13027,7 +13068,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+978c45e0"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+4736869f"});
 }
 
 /* jshint ignore:end */

@@ -25,7 +25,6 @@ export default function objectToArray(obj) {
             } else {
                 propsArray.push({key:prop, value:obj[prop]});
             }
-            
         }
     }
     return propsArray;
