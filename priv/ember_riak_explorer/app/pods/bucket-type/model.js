@@ -24,6 +24,10 @@ var BucketType = DS.Model.extend({
         return this.get('props').get('isActive');
     }.property('props'),
 
+    isInactive: function() {
+        return !this.get('props').get('isActive');
+    }.property('props'),
+
     name: function() {
         return this.get('id');
     }.property('id'),

@@ -1069,6 +1069,10 @@ define('ember-riak-explorer/pods/bucket-type/model', ['exports', 'ember-data'], 
             return this.get('props').get('isActive');
         }).property('props'),
 
+        isInactive: (function () {
+            return !this.get('props').get('isActive');
+        }).property('props'),
+
         name: (function () {
             return this.get('id');
         }).property('id'),
@@ -2222,74 +2226,6 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
       };
     }());
     var child1 = (function() {
-      return {
-        meta: {
-          "revision": "Ember@1.13.5",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 16,
-              "column": 16
-            },
-            "end": {
-              "line": 18,
-              "column": 16
-            }
-          },
-          "moduleName": "ember-riak-explorer/pods/cluster/template.hbs"
-        },
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("                    (Development mode)\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes() { return []; },
-        statements: [
-
-        ],
-        locals: [],
-        templates: []
-      };
-    }());
-    var child2 = (function() {
-      return {
-        meta: {
-          "revision": "Ember@1.13.5",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 18,
-              "column": 16
-            },
-            "end": {
-              "line": 20,
-              "column": 16
-            }
-          },
-          "moduleName": "ember-riak-explorer/pods/cluster/template.hbs"
-        },
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("                    (Production mode)\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes() { return []; },
-        statements: [
-
-        ],
-        locals: [],
-        templates: []
-      };
-    }());
-    var child3 = (function() {
       var child0 = (function() {
         return {
           meta: {
@@ -2297,11 +2233,11 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
             "loc": {
               "source": null,
               "start": {
-                "line": 28,
+                "line": 22,
                 "column": 16
               },
               "end": {
-                "line": 29,
+                "line": 23,
                 "column": 57
               }
             },
@@ -2328,11 +2264,11 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
           "loc": {
             "source": null,
             "start": {
-              "line": 27,
+              "line": 21,
               "column": 12
             },
             "end": {
-              "line": 30,
+              "line": 24,
               "column": 12
             }
           },
@@ -2357,24 +2293,24 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
           return morphs;
         },
         statements: [
-          ["block","bucket-types",[],["clusterId",["subexpr","@mut",[["get","model.clusterId",["loc",[null,[28,42],[28,57]]]]],[],[]],"bucketTypes",["subexpr","@mut",[["get","model.activeBucketTypes",["loc",[null,[29,32],[29,55]]]]],[],[]]],0,null,["loc",[null,[28,16],[29,74]]]]
+          ["block","bucket-types",[],["clusterId",["subexpr","@mut",[["get","model.clusterId",["loc",[null,[22,42],[22,57]]]]],[],[]],"bucketTypes",["subexpr","@mut",[["get","model.activeBucketTypes",["loc",[null,[23,32],[23,55]]]]],[],[]]],0,null,["loc",[null,[22,16],[23,74]]]]
         ],
         locals: [],
         templates: [child0]
       };
     }());
-    var child4 = (function() {
+    var child2 = (function() {
       return {
         meta: {
           "revision": "Ember@1.13.5",
           "loc": {
             "source": null,
             "start": {
-              "line": 30,
+              "line": 24,
               "column": 12
             },
             "end": {
-              "line": 32,
+              "line": 26,
               "column": 12
             }
           },
@@ -2404,7 +2340,7 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
         templates: []
       };
     }());
-    var child5 = (function() {
+    var child3 = (function() {
       var child0 = (function() {
         return {
           meta: {
@@ -2412,11 +2348,11 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
             "loc": {
               "source": null,
               "start": {
-                "line": 40,
+                "line": 34,
                 "column": 16
               },
               "end": {
-                "line": 41,
+                "line": 35,
                 "column": 59
               }
             },
@@ -2443,11 +2379,11 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
           "loc": {
             "source": null,
             "start": {
-              "line": 35,
+              "line": 29,
               "column": 4
             },
             "end": {
-              "line": 44,
+              "line": 38,
               "column": 4
             }
           },
@@ -2492,13 +2428,13 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
           return morphs;
         },
         statements: [
-          ["block","bucket-types",[],["clusterId",["subexpr","@mut",[["get","model.clusterId",["loc",[null,[40,42],[40,57]]]]],[],[]],"bucketTypes",["subexpr","@mut",[["get","model.inactiveBucketTypes",["loc",[null,[41,32],[41,57]]]]],[],[]]],0,null,["loc",[null,[40,16],[41,76]]]]
+          ["block","bucket-types",[],["clusterId",["subexpr","@mut",[["get","model.clusterId",["loc",[null,[34,42],[34,57]]]]],[],[]],"bucketTypes",["subexpr","@mut",[["get","model.inactiveBucketTypes",["loc",[null,[35,32],[35,57]]]]],[],[]]],0,null,["loc",[null,[34,16],[35,76]]]]
         ],
         locals: [],
         templates: [child0]
       };
     }());
-    var child6 = (function() {
+    var child4 = (function() {
       var child0 = (function() {
         return {
           meta: {
@@ -2506,11 +2442,11 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
             "loc": {
               "source": null,
               "start": {
-                "line": 52,
+                "line": 46,
                 "column": 16
               },
               "end": {
-                "line": 54,
+                "line": 48,
                 "column": 16
               }
             },
@@ -2537,11 +2473,11 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
           "loc": {
             "source": null,
             "start": {
-              "line": 50,
+              "line": 44,
               "column": 12
             },
             "end": {
-              "line": 55,
+              "line": 49,
               "column": 12
             }
           },
@@ -2571,24 +2507,24 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
           return morphs;
         },
         statements: [
-          ["block","search-indexes",[],["indexes",["subexpr","@mut",[["get","model.indexes",["loc",[null,[52,42],[52,55]]]]],[],[]],"clusterProxyUrl",["subexpr","@mut",[["get","model.proxyUrl",["loc",[null,[53,36],[53,50]]]]],[],[]]],0,null,["loc",[null,[52,16],[54,35]]]]
+          ["block","search-indexes",[],["indexes",["subexpr","@mut",[["get","model.indexes",["loc",[null,[46,42],[46,55]]]]],[],[]],"clusterProxyUrl",["subexpr","@mut",[["get","model.proxyUrl",["loc",[null,[47,36],[47,50]]]]],[],[]]],0,null,["loc",[null,[46,16],[48,35]]]]
         ],
         locals: [],
         templates: [child0]
       };
     }());
-    var child7 = (function() {
+    var child5 = (function() {
       return {
         meta: {
           "revision": "Ember@1.13.5",
           "loc": {
             "source": null,
             "start": {
-              "line": 55,
+              "line": 49,
               "column": 12
             },
             "end": {
-              "line": 57,
+              "line": 51,
               "column": 12
             }
           },
@@ -2611,18 +2547,18 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
         templates: []
       };
     }());
-    var child8 = (function() {
+    var child6 = (function() {
       return {
         meta: {
           "revision": "Ember@1.13.5",
           "loc": {
             "source": null,
             "start": {
-              "line": 72,
+              "line": 66,
               "column": 4
             },
             "end": {
-              "line": 74,
+              "line": 68,
               "column": 4
             }
           },
@@ -2647,24 +2583,24 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
           return morphs;
         },
         statements: [
-          ["inline","riak-node",[],["node",["subexpr","@mut",[["get","node",["loc",[null,[73,23],[73,27]]]]],[],[]]],["loc",[null,[73,6],[73,29]]]]
+          ["inline","riak-node",[],["node",["subexpr","@mut",[["get","node",["loc",[null,[67,23],[67,27]]]]],[],[]]],["loc",[null,[67,6],[67,29]]]]
         ],
         locals: ["node"],
         templates: []
       };
     }());
-    var child9 = (function() {
+    var child7 = (function() {
       return {
         meta: {
           "revision": "Ember@1.13.5",
           "loc": {
             "source": null,
             "start": {
-              "line": 74,
+              "line": 68,
               "column": 4
             },
             "end": {
-              "line": 76,
+              "line": 70,
               "column": 4
             }
           },
@@ -2697,7 +2633,7 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
             "column": 0
           },
           "end": {
-            "line": 82,
+            "line": 76,
             "column": 0
           }
         },
@@ -2762,11 +2698,7 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
         var el4 = dom.createTextNode("\n            ");
         dom.appendChild(el3, el4);
         var el4 = dom.createElement("h4");
-        var el5 = dom.createTextNode("Explore\n");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createComment("");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("            ");
+        var el5 = dom.createTextNode("Explore");
         dom.appendChild(el4, el5);
         dom.appendChild(el3, el4);
         var el4 = dom.createTextNode("\n        ");
@@ -2922,27 +2854,25 @@ define('ember-riak-explorer/pods/cluster/template', ['exports'], function (expor
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element0 = dom.childAt(fragment, [0]);
         var element1 = dom.childAt(element0, [1, 1, 1, 3]);
-        var morphs = new Array(7);
+        var morphs = new Array(6);
         morphs[0] = dom.createMorphAt(element1,1,1);
         morphs[1] = dom.createMorphAt(element1,3,3);
-        morphs[2] = dom.createMorphAt(dom.childAt(element0, [3, 1, 1]),1,1);
-        morphs[3] = dom.createMorphAt(dom.childAt(element0, [5, 1]),3,3);
-        morphs[4] = dom.createMorphAt(element0,7,7);
-        morphs[5] = dom.createMorphAt(dom.childAt(element0, [11, 1]),1,1);
-        morphs[6] = dom.createMorphAt(dom.childAt(element0, [13, 1, 3, 3]),1,1);
+        morphs[2] = dom.createMorphAt(dom.childAt(element0, [5, 1]),3,3);
+        morphs[3] = dom.createMorphAt(element0,7,7);
+        morphs[4] = dom.createMorphAt(dom.childAt(element0, [11, 1]),1,1);
+        morphs[5] = dom.createMorphAt(dom.childAt(element0, [13, 1, 3, 3]),1,1);
         return morphs;
       },
       statements: [
         ["content","model.clusterId",["loc",[null,[7,20],[7,39]]]],
         ["block","if",[["get","model.developmentMode",["loc",[null,[8,26],[8,47]]]]],[],0,null,["loc",[null,[8,20],[8,61]]]],
-        ["block","if",[["get","model.developmentMode",["loc",[null,[16,22],[16,43]]]]],[],1,2,["loc",[null,[16,16],[20,23]]]],
-        ["block","if",[["get","model.activeBucketTypes",["loc",[null,[27,18],[27,41]]]]],[],3,4,["loc",[null,[27,12],[32,19]]]],
-        ["block","if",[["get","model.inactiveBucketTypes",["loc",[null,[35,10],[35,35]]]]],[],5,null,["loc",[null,[35,4],[44,11]]]],
-        ["block","if",[["get","model.indexes",["loc",[null,[50,18],[50,31]]]]],[],6,7,["loc",[null,[50,12],[57,19]]]],
-        ["block","each",[["get","model.nodes",["loc",[null,[72,12],[72,23]]]]],[],8,9,["loc",[null,[72,4],[76,13]]]]
+        ["block","if",[["get","model.activeBucketTypes",["loc",[null,[21,18],[21,41]]]]],[],1,2,["loc",[null,[21,12],[26,19]]]],
+        ["block","if",[["get","model.inactiveBucketTypes",["loc",[null,[29,10],[29,35]]]]],[],3,null,["loc",[null,[29,4],[38,11]]]],
+        ["block","if",[["get","model.indexes",["loc",[null,[44,18],[44,31]]]]],[],4,5,["loc",[null,[44,12],[51,19]]]],
+        ["block","each",[["get","model.nodes",["loc",[null,[66,12],[66,23]]]]],[],6,7,["loc",[null,[66,4],[70,13]]]]
       ],
       locals: [],
-      templates: [child0, child1, child2, child3, child4, child5, child6, child7, child8, child9]
+      templates: [child0, child1, child2, child3, child4, child5, child6, child7]
     };
   }()));
 
@@ -13261,7 +13191,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.3"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+fb5a5795"});
 }
 
 /* jshint ignore:end */
