@@ -9,11 +9,7 @@
                     {{#if obj.markedDeleted}}
                         <strike>{{obj.key}}</strike>
                     {{else}}
-                        {{#link-to 'riak-object'
-                            (query-params cluster_id=obj.bucket.clusterId
-                                bucket_type_id=obj.bucket.bucketTypeId
-                                bucket_id=obj.bucket.name
-                                object_key=obj.key)}}
+                        {{#link-to 'riak-object' obj}}
                             {{obj.key}}{{/link-to}}
                     {{/if}}
                 </div>

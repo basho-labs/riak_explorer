@@ -95,18 +95,6 @@ function parseHeaderString(headerString) {
     };
 }
 
-function objectFromAjax(key, bucket, rawHeader, responseText, store) {
-    var headers = parseHeaderString(rawHeader);
-    var contents = displayContentsForType(headers, responseText);
-
-    return store.createRecord('riak-object', {
-        key: key,
-        bucket: bucket,
-        headers: headers,
-        contents: contents
-    });
-}
-
 function deleteBucket(bucket) {
     var url = '/explore/clusters/' + bucket.get('clusterId') +
         '/bucket_types/' + bucket.get('bucketTypeId') +
@@ -247,55 +235,6 @@ function getNodes(clusterId) {
         );
     });
     return request;
-}
-
-function getRiakObject(clusterId, bucketTypeId, bucket, key, store) {
-    var url = getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' +
-           bucket.get('bucketId') + '/keys/' + key;
-
-    var request = new Ember.RSVP.Promise(function(resolve, reject) {
-        Ember.$.ajax({
-            type: "GET",
-            processData: false,
-            cache: false,
-            url: url,
-            headers: { 'Accept': '*/*, multipart/mixed' }
-        }).then(
-            function(data, textStatus, jqXHR) {
-                var headerString = jqXHR.getAllResponseHeaders();
-                resolve(objectFromAjax(key, bucket, headerString,
-                    jqXHR.responseText, store));
-            },
-            function(jqXHR, textStatus) {
-                var headerString;
-                if(jqXHR.status === 200 && textStatus === 'parsererror') {
-                    // jQuery tries to parse JSON objects, and throws
-                    // parse errors when they're invalid. Suppress this.
-                    headerString = jqXHR.getAllResponseHeaders();
-                    resolve(objectFromAjax(key, bucket, headerString,
-                        jqXHR.responseText, store));
-                }
-                if(jqXHR.status === 300) {
-                    // Handle 300 Multiple Choices case for siblings
-                    headerString = jqXHR.getAllResponseHeaders();
-                    resolve(objectFromAjax(key, bucket, headerString,
-                        jqXHR.responseText, store));
-                } else {
-                    reject(jqXHR);
-                }
-            }
-        );
-    });
-
-    return request.then(function(request) {
-        return new Ember.RSVP.hash({
-            obj: request,
-            url: url
-        });
-    });
-    // .catch(function(error) {
-    //     console.log('Error fetching riak object: %O', error);
-    // });
 }
 
 // Fetch the cache of Deleted keys/buckets for a
@@ -574,11 +513,64 @@ export default Ember.Service.extend({
     // Return all nodes for a particular cluster
     getNodes: getNodes,
 
-    getRiakObject: getRiakObject,
+    getRiakObject: function(clusterId, bucketTypeId, bucket, key, store) {
+        var url = getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' +
+               bucket.get('bucketId') + '/keys/' + key;
+        var explorer = this;
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+            var ajaxHash = {
+                type: "GET",
+                processData: false,
+                cache: false,
+                url: url,
+                headers: { 'Accept': '*/*, multipart/mixed' }
+            };
+            var headerString;
+            ajaxHash.success = function(data, textStatus, jqXHR) {
+                headerString = jqXHR.getAllResponseHeaders();
+                resolve(explorer.objectFromAjax(key, bucket, headerString,
+                    jqXHR.responseText, store, url));
+            };
+            ajaxHash.error = function(jqXHR, textStatus) {
+                if(jqXHR.status === 200 && textStatus === 'parsererror') {
+                    // jQuery tries to parse JSON objects, and throws
+                    // parse errors when they're invalid. Suppress this.
+                    headerString = jqXHR.getAllResponseHeaders();
+                    resolve(explorer.objectFromAjax(key, bucket, headerString,
+                        jqXHR.responseText, store, url));
+                }
+                if(jqXHR.status === 300) {
+                    // Handle 300 Multiple Choices case for siblings
+                    headerString = jqXHR.getAllResponseHeaders();
+                    resolve(explorer.objectFromAjax(key, bucket, headerString,
+                        jqXHR.responseText, store, url));
+                } else {
+                    reject(jqXHR);
+                }
+            };
+            Ember.$.ajax(ajaxHash);
+        });
+    },
 
     keyCacheRefresh: keyCacheRefresh,
 
     markDeletedKey: markDeletedKey,
+
+    objectFromAjax: function(key, bucket, rawHeader, responseText, store, url) {
+        var headers = parseHeaderString(rawHeader);
+        var contents = displayContentsForType(headers, responseText);
+
+        return store.createRecord('riak-object', {
+            key: key,
+            bucket: bucket,
+            bucketType: bucket.get('bucketType'),
+            cluster: bucket.get('cluster'),
+            headers: headers,
+            contents: contents,
+            rawUrl: url
+        });
+    },
 
     saveObject: saveObject,
 

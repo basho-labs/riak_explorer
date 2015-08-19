@@ -1,16 +1,16 @@
-{{#object-location object=model.obj isEditing=false}}{{/object-location}}
+{{#object-location object=model isEditing=false}}{{/object-location}}
 
 <br />
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            {{#object-headers headers=model.obj.headersIndexes
+            {{#object-headers headers=model.headersIndexes
                 title='Secondary Indexes'}}{{/object-headers}}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {{#object-headers headers=model.obj.headersCustom
+            {{#object-headers headers=model.headersCustom
                 title='Custom Headers'}}{{/object-headers}}
         </div>
     </div>
@@ -21,18 +21,18 @@
     <h4>Contents</h4>
     <div class="row">
         <div class="col-md-2">
-            <a href="{{model.url}}" class="btn btn-xs btn-primary">
+            <a href="{{model.rawUrl}}" class="btn btn-xs btn-primary">
                 <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
                 View raw</a>
         </div>
         <div class="col-md-10">
-            Content Type: <b>{{model.obj.contentType}}</b>
+            Content Type: <b>{{model.contentType}}</b>
         </div>
     </div>
 </div>
 <br />
-{{#if model.obj.contents}}
-<pre><code>{{model.obj.contents}}</code></pre>
+{{#if model.contents}}
+<pre><code>{{model.contents}}</code></pre>
 {{/if}}
 
-{{#object-version object=model.obj}}{{/object-version}}
+{{#object-version object=model}}{{/object-version}}

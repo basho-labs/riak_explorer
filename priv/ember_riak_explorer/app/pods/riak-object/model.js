@@ -1,33 +1,39 @@
 import DS from 'ember-data';
 
-export default DS.Model.extend({
-    key: DS.attr('string'),
+var RiakObject = DS.Model.extend({
+
     bucket: DS.belongsTo('bucket'),
-    headers: DS.attr(),
+
+    bucketType: DS.belongsTo('bucket-type'),
+
+    cluster: DS.belongsTo('cluster'),
+
     contents: DS.attr(),
+
+    headers: DS.attr(),
+
+    key: DS.attr('string'),
 
     // This object was marked as deleted by Explorer UI,
     //  but may show up in key list cache.
     markedDeleted: DS.attr('boolean', {defaultValue: false}),
+
+    rawUrl: DS.attr('string'),
 
     bucketId: function() {
         return this.get('bucket').get('bucketId');
     }.property('bucket'),
 
     bucketTypeId: function() {
-        return this.get('bucket').get('bucketTypeId');
+        return this.get('bucketType').get('bucketTypeId');
     }.property('bucket'),
 
     causalContext: function() {
         return this.get('headers').other['x-riak-vclock'];
     }.property('headers'),
 
-    cluster: function() {
-        return this.get('bucket').get('cluster');
-    }.property('bucket'),
-
     clusterId: function() {
-        return this.get('bucket').get('clusterId');
+        return this.get('cluster').get('clusterId');
     }.property('bucket'),
 
     contentType: function() {
@@ -88,3 +94,5 @@ export default DS.Model.extend({
         return this.get('markedDeleted') || deletedOnRiak;
     }.property('markedDeleted', 'headers')
 });
+
+export default RiakObject;

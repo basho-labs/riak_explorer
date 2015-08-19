@@ -1,7 +1,29 @@
 <div class="container">
+    <div class="crumb-trail">
+    {{link-cluster cluster=object.cluster}}
+    /
+    {{link-bucket-type bucketType=object.bucketType}}
+    /
+    {{link-bucket bucket=object.bucket}}
+    /
+    </div>
+
     <div class="row">
-        <div class="col-md-8">
-            <strong>{{object.key}}</strong>
+        <div class="col-md-12 text-center">
+            <div class="cluster-resource-header center-block">
+                <span class="glyphicon glyphicon-tag cluster-resource-icon"
+                    aria-hidden="true"></span>
+                <span>{{object.key}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
             {{#if isEditing}}
                 (Editing)
                 <br />
@@ -14,7 +36,7 @@
                 {{edit-object object=object}}
             {{/if}}
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
             Deleted:
             {{#if object.isDeleted}}
                 <strong>Yes</strong>
@@ -27,8 +49,7 @@
         </div>
     </div>
 </div>
-<br />
-{{crumb-trail model=object}}
+
 <br />
 <div class="container">
     <div class="row">
