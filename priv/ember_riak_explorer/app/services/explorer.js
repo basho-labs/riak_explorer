@@ -112,22 +112,21 @@ function deleteBucket(bucket) {
         '/bucket_types/' + bucket.get('bucketTypeId') +
         '/buckets/' + bucket.get('bucketId');
 
-    var request = new Ember.RSVP.Promise(function(resolve, reject) {
+    return new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.$.ajax({
             type: "DELETE",
-            url: url
-        }).then(
-            function(data, textStatus, jqXHR) {
+            url: url,
+            success: function(data, textStatus, jqXHR) {
                 resolve(jqXHR.status);
             },
-            function(jqXHR, textStatus) {
-                reject(textStatus);
+            error: function(jqXHR, textStatus) {
+                if(jqXHR.status === 202 && textStatus === 'parsererror') {
+                    resolve(jqXHR.status);
+                } else {
+                    reject(textStatus);
+                }
             }
-        );
-    });
-
-    return request.catch(function(error) {
-        console.log('Error deleting riak bucket: %O', error);
+        });
     });
 }
 
@@ -187,63 +186,39 @@ function getIndexes(clusterId) {
     return request;
 }
 
-function getKeyList(clusterId, bucketTypeId, bucketId, store) {
+function getKeyList(bucket, store) {
+    var clusterId = bucket.get('clusterId');
+    var bucketTypeId = bucket.get('bucketTypeId');
+    var bucketId = bucket.get('bucketId');
+    var explorer = this;
+
     var url = '/explore/clusters/' + clusterId +
         '/bucket_types/' + bucketTypeId + '/buckets/' +
         bucketId + '/keys' ;
-        console.log('Retrieving key list, url: %s', url);
-    var explorerService = this;
+        // console.log('Retrieving key list, url: %s', url);
 
-    var keyListRequest = new Ember.RSVP.Promise(function(resolve) {
-        Ember.$.ajax( url, { dataType: "json" } ).then(
-            function(data) {  // Success
-                resolve(data);
-            },
-            function(jqXHR) { // Error
-                if(jqXHR.status === 404) {
-                    // Empty cache (need to kick off a refresh)
-                    keyCacheRefresh(clusterId, bucketTypeId, bucketId);
-                    // Results in returning an empty (Loading..) key list
-                    resolve(null);
-                } else {
-                    // Some other error
-                    // reject(textStatus);
-                    resolve(null);
-                }
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+        var ajaxHash = {
+            url: url,
+            dataType: 'json',
+            type: 'GET'
+        };
+        ajaxHash.success = function(data) { // Success, key list returned
+            bucket.set('isKeyListLoaded', true);
+            resolve(explorer.createKeyList(data, bucket, store));
+        };
+        ajaxHash.error = function(jqXHR, textStatus) {
+            if(jqXHR.status === 404) {
+                // Empty cache (need to kick off a refresh)
+                keyCacheRefresh(clusterId, bucketTypeId, bucketId);
+                // Results in returning an empty (Loading..) key list
+                Ember.run(null, reject, null);
+            } else {
+                // Some other error
+                Ember.run(null, reject, textStatus);
             }
-        );
-    });
-
-    return this.getBucket(clusterId, bucketTypeId, bucketId, store).then(function(bucket) {
-        return keyListRequest.then(
-            function(data) {
-                if(!data) {
-                    return store.createRecord('key-list', {
-                        bucket: bucket,
-                        cluster: bucket.get('cluster')
-                    });
-                }
-                var keyList = data.keys.keys.map(function(key) {
-                    var obj = store.createRecord('riak-object', {
-                        key: key,
-                        bucket: bucket
-                    });
-                    if(explorerService.wasKeyDeleted(obj)) {
-                        obj.set('markedDeleted', true);
-                    }
-                    return obj;
-                });
-                return store.createRecord('key-list', {
-                    bucket: bucket,
-                    cluster: bucket.get('cluster'),
-                    created: data.keys.created,
-                    count: data.keys.count,
-                    keys: keyList,
-                    total: data.keys.total,
-                    isLoaded: true
-                });
-            }
-        );
+        };
+        Ember.$.ajax(ajaxHash);
     });
 }
 
@@ -353,18 +328,6 @@ function markDeletedKey(object) {
     bucketTypeDelCache.buckets[bucketId].keysDeleted[key] = true;
 }
 
-function wasKeyDeleted(object) {
-    var clusterId = object.get('clusterId');
-    var bucketTypeId = object.get('bucketTypeId');
-    var bucketId = object.get('bucketId');
-    var key = object.get('key');
-    var bucketTypeDelCache = this.deletedCacheFor(clusterId, bucketTypeId);
-    if(!bucketTypeDelCache.buckets[bucketId]) {
-        return false;
-    }
-    return bucketTypeDelCache.buckets[bucketId].keysDeleted[key];
-}
-
 function keyCacheRefresh(clusterId, bucketTypeId, bucketId) {
     // For the moment, 'riak_kv' is the only implemented source of
     // cache refresh
@@ -432,6 +395,34 @@ export default Ember.Service.extend({
             count: data.buckets.count,
             created: data.buckets.created,
             isLoaded: true
+        });
+    },
+
+    createKeyList: function(data, bucket, store) {
+        var explorer = this;
+        if(!data) {
+            return store.createRecord('key-list', {
+                bucket: bucket,
+                cluster: bucket.get('cluster')
+            });
+        }
+        var keyList = data.keys.keys.map(function(key) {
+            var obj = store.createRecord('riak-object', {
+                key: key,
+                bucket: bucket
+            });
+            if(explorer.wasObjectDeleted(obj)) {
+                obj.set('markedDeleted', true);
+            }
+            return obj;
+        });
+        return store.createRecord('key-list', {
+            bucket: bucket,
+            cluster: bucket.get('cluster'),
+            created: data.keys.created,
+            count: data.keys.count,
+            keys: keyList,
+            total: data.keys.total
         });
     },
 
@@ -526,7 +517,7 @@ export default Ember.Service.extend({
             });
     },
 
-    getBucketTypeWithList: function(bucketType, cluster, store) {
+    getBucketTypeWithBucketList: function(bucketType, cluster, store) {
         return this.getBucketList(cluster, bucketType, store)
             .then(function(bucketList) {
                 bucketType.set('bucketList', bucketList);
@@ -548,6 +539,14 @@ export default Ember.Service.extend({
         } else {
             return cluster.get('bucketTypes');
         }
+    },
+
+    getBucketWithKeyList: function(bucket, store) {
+        return this.getKeyList(bucket, store)
+            .then(function(keyList) {
+                bucket.set('keyList', keyList);
+                return bucket;
+            });
     },
 
     getCluster: function(clusterId, store) {
@@ -583,5 +582,15 @@ export default Ember.Service.extend({
 
     saveObject: saveObject,
 
-    wasKeyDeleted: wasKeyDeleted
+    wasObjectDeleted: function(object) {
+        var clusterId = object.get('clusterId');
+        var bucketTypeId = object.get('bucketTypeId');
+        var bucketId = object.get('bucketId');
+        var key = object.get('key');
+        var bucketTypeDelCache = this.deletedCacheFor(clusterId, bucketTypeId);
+        if(!bucketTypeDelCache.buckets[bucketId]) {
+            return false;
+        }
+        return bucketTypeDelCache.buckets[bucketId].keysDeleted[key];
+    }
 });

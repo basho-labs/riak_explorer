@@ -16,12 +16,7 @@ export default Ember.Controller.extend({
 
             // Once the delete has been issued,
             // return to the bucket's Key List view.
-            this.transitionToRoute('key_list',
-                { queryParams: {
-                    cluster_id: object.get('clusterId'),
-                    bucket_type_id: object.get('bucketTypeId'),
-                    bucket_id: object.get('bucketId')
-                }});
+            this.transitionToRoute('bucket', object.get('bucket'));
         }
     }
 });

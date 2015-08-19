@@ -20,8 +20,12 @@ export default CachedList.extend({
         return this.get('cluster').get('clusterId');
     }.property('cluster'),
 
+    hasKeys: function() {
+        return this.get('count') > 0;
+    }.property('count'),
+
     showDeleteKeys: function() {
-        return this.get('cluster').developmentMode &&
-            this.get('keys').length > 0;
-    }.property('keys')
+        return this.get('cluster').get('developmentMode') &&
+            this.get('hasKeys');
+    }.property('cluster', 'count')
 });

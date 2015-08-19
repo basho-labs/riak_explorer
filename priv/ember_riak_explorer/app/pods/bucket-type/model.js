@@ -1,6 +1,6 @@
 import DS from 'ember-data';
 
-export default DS.Model.extend({
+var BucketType = DS.Model.extend({
     cluster: DS.belongsTo('cluster'),
 
     bucketList: DS.belongsTo('bucket-list'),
@@ -33,3 +33,5 @@ export default DS.Model.extend({
     // {"allow_mult":false, "basic_quorum":false, ... }
     props: DS.belongsTo('bucket-props')
 });
+
+export default BucketType;

@@ -2,8 +2,13 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
     model: function(params) {
-        return this.explorer.getBucket(params.clusterId,
-            params.bucketTypeId, params.bucketId, this.store);
+        var explorer = this.explorer;
+        var store = this.store;
+        return explorer.getBucket(params.clusterId,
+                params.bucketTypeId, params.bucketId, store)
+            .then(function(bucket) {
+                return explorer.getBucketWithKeyList(bucket, store);
+            });
     },
 
     setupController: function(controller, model) {
@@ -17,6 +22,10 @@ export default Ember.Route.extend({
                 .then(function(bucketProps) {
                     model.set('props', bucketProps);
                 });
+        }
+        // Start fetching the key list
+        if(!model.get('isKeyListLoaded')) {
+            controller.pollForModel(model, 3000);
         }
     }
 });

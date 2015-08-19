@@ -1,5 +1,6 @@
 <div class="crumb-trail">
-    {{link-cluster cluster=model.cluster}} /
+    {{link-cluster cluster=model.cluster}}
+    /
     <div class="cluster-resource-header center-block">
         <span class="glyphicon glyphicon-inbox cluster-resource-icon"
             aria-hidden="true"></span>
@@ -9,7 +10,7 @@
 
 <div class="container bucket-properties center-block">
 {{#if model.props}}
-    {{bucket-properties model=model}}
+    {{bucket-properties model=model title='Bucket Type'}}
 {{else}}
     Properties not loaded.
 {{/if}}

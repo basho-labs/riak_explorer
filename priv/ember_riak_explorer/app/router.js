@@ -12,7 +12,6 @@ export default Router.map(function() {
     { path: '/cluster/:clusterId/bucket_type/:bucketTypeId' });
   this.route('bucket',
     { path: '/cluster/:clusterId/bucket_type/:bucketTypeId/bucket/:bucketId' });
-  this.route('key_list');
   this.route('riak_ping');
   this.route('node_stats');
   this.route('riak-object');

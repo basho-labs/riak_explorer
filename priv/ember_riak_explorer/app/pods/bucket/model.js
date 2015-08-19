@@ -1,13 +1,17 @@
 import DS from 'ember-data';
 
-export default DS.Model.extend({
-    name: DS.attr('string'),
+var Bucket = DS.Model.extend({
     cluster: DS.belongsTo('cluster'),
 
     bucketType: DS.belongsTo('bucket-type'),
 
-    // {"allow_mult":false, "basic_quorum":false, ... }
-    props: DS.attr(),
+    isKeyListLoaded: DS.attr('boolean', { defaultValue: false }),
+
+    keyList: DS.belongsTo('key-list'),
+
+    name: DS.attr('string'),
+
+    props: DS.belongsTo('bucket-props'),
 
     bucketId: function() {
         return this.get('name');
@@ -21,6 +25,10 @@ export default DS.Model.extend({
         return this.get('cluster').get('clusterId');
     }.property('cluster'),
 
+    isActive: function() {
+        return this.get('props').get('isActive');
+    }.property('props'),
+
     propsList: function() {
         if(!this.get('props')) {
             return [];
@@ -28,3 +36,5 @@ export default DS.Model.extend({
         return this.get('props').get('propsList');
     }.property('props')
 });
+
+export default Bucket;

@@ -8,22 +8,48 @@
             aria-hidden="true"></span>
         <span>{{model.bucketId}}</span>
     </div>
-
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Value</th>
-        </tr>
-    </thead>
-    <tbody>
-{{#each model.propsList as |prop|}}
-        <tr>
-            <td>{{prop.key}}</td>
-            <td>{{prop.value}}</td>
-        </tr>
-{{/each}}
-    </tbody>
-</table>
+<div class="container bucket-properties center-block">
+{{#if model.props}}
+    {{bucket-properties model=model title='Bucket'}}
+{{else}}
+    Properties not loaded.
+{{/if}}
+</div>
+
+<h4>Key List</h4>
+
+{{#if model.isKeyListLoaded}}
+    <div class="container" style="margin-top: 2em;">
+        <div class="row">
+            <div>
+            Cache created: {{model.keyList.created}}
+            {{#if model.cluster.developmentMode}}
+                {{refresh-keys action="refreshKeys" bucket=model}}
+            {{/if}}
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: 2em;">
+        Displaying
+        <strong>{{model.keyList.count}}</strong>
+        keys out of
+        <strong>{{model.keyList.total}}</strong>
+        total.
+        {{#if model.keyList.showDeleteKeys}}
+            <button type="button" class="btn btn-xs btn-danger"
+                    {{action 'deleteBucket' model}}>
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                Delete Listed Objects</button>
+        {{/if}}
+
+    </div>
+
+    <div class="container" style="padding-top: 2em;">
+        {{#riak-keys deleteObject="deleteObject" keys=model.keyList.keys}}{{/riak-keys}}
+    </div>
+{{else}}
+    {{loading-spinner}}
+{{/if}}

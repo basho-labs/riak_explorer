@@ -3,7 +3,7 @@ import DS from 'ember-data';
 /**
 * Represents a Riak cluster as a whole.
 */
-export default DS.Model.extend({
+var Cluster = DS.Model.extend({
     activeBucketTypes: function() {
         return this.get('bucketTypes').filterBy('isActive');
     }.property('bucketTypes'),
@@ -42,3 +42,5 @@ export default DS.Model.extend({
         return '/riak/clusters/' + this.get('id');
     }.property('id')
 });
+
+export default Cluster;

@@ -9,7 +9,7 @@ export default Ember.Route.extend({
 
         return this.explorer.getBucketType(clusterId, bucketTypeId, store)
             .then(function(bucketType) {
-                return explorer.getBucketTypeWithList(bucketType,
+                return explorer.getBucketTypeWithBucketList(bucketType,
                     bucketType.get('cluster'), store);
             });
     },

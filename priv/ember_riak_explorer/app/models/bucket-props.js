@@ -2,8 +2,11 @@ import DS from 'ember-data';
 import Ember from 'ember';
 import objectToArray from '../utils/riak-util';
 
-
-export default DS.Model.extend({
+/**
+Unifies the Bucket Type properties and Bucket Properties
+*/
+var BucketProps = DS.Model.extend({
+    // Raw object from JSON payload
     // {"allow_mult":false, "basic_quorum":false, ... }
     props: DS.attr(),
 
@@ -132,3 +135,5 @@ export default DS.Model.extend({
         return warnings;
     }.property('props')
 });
+
+export default BucketProps;
