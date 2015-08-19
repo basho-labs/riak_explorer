@@ -1,10 +1,8 @@
 # Riak Explorer
 
-Riak Explorer is a tool designed for development environments only (do not run it on a production system). 
-
 Riak Explorer provides browsing and admin capabilities for [Riak KV](http://basho.com/products/riak-kv/), a distributed NoSQL key-value data store that offers high availability, fault tolerance, operational simplicity, and scalability. 
 
-Riak Explorer is useful while in a development environment. It includes convenient methods to browse Bucket Types, Buckets, Keys, view and edit Riak Objects, and more.
+Riak Explorer is useful while in a development or production. It includes convenient methods to browse Bucket Types, Buckets, Keys, view and edit Riak Objects, and more. To prevent heavy I/O requests from key listings, be sure to edit the config file to reflect the environment as [explained in Using Riak Explorer](#using-riak-explorer).
 
 
 * [Installation](#installation)
@@ -34,6 +32,10 @@ Riak Explorer is useful while in a development environment. It includes convenie
 For more about this architecture, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## Using Riak Explorer
+Riak Explorer is a tool designed for both development and production environments. 
+
+TODO - elaborate on development vs production configuration.
+
 
 #### API
 
@@ -114,7 +116,7 @@ Explanation:
 For specifics on builds, visit [DEVELOPMENT.md](DEVELOPMENT.md).
 
 
-* Whether your contribution is for a bug fix or a feature request, **create an [Issue](https://github.com/basho/vagrant-zombie-riak/issues)** and let us know what you are thinking.
+* Whether your contribution is for a bug fix or a feature request, **create an [Issue](https://github.com/basho/riak_explorer/issues)** and let us know what you are thinking.
 * **For bugs**, if you have already found a fix, feel free to submit a Pull Request referencing the Issue you created.
 * **For feature requests**, we want to improve upon the library incrementally which means small changes at a time. In order ensure your PR can be reviewed in a timely manner, please keep PRs small, e.g. <10 files and <500 lines changed. If you think this is unrealistic, then mention that within the Issue and we can discuss it.
 
