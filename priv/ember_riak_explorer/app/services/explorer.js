@@ -501,11 +501,20 @@ export default Ember.Service.extend({
     getBucketProps: function(clusterId, bucketTypeId, bucketId, store) {
         var propsUrl = this.getClusterProxyUrl(clusterId) + '/types/' +
                 bucketTypeId + '/buckets/' + bucketId + '/props';
-
-        return Ember.$.ajax( propsUrl, { dataType: "json" } )
-            .then(function(data) {
-                return store.createRecord('bucket-props', data.props);
-            });
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+            var ajaxHash = {
+                url: propsUrl,
+                dataType: 'json',
+                type: 'GET'
+            };
+            ajaxHash.success = function(data) {
+                resolve(store.createRecord('bucket-props', data));
+            };
+            ajaxHash.error = function(jqXHR) {
+                Ember.run(null, reject, jqXHR);
+            };
+            Ember.$.ajax(ajaxHash);
+        });
     },
 
     getBucketType: function(clusterId, bucketTypeId, store) {

@@ -11,9 +11,9 @@ export default Ember.Route.extend({
         // When user follows a bucket link from the Bucket Type view,
         //   the props are not yet initialized. Also, the model()
         //   function, above, is not called. Handle this case.
-        if(Ember.isEmpty(model.get('propsList'))) {
+        if(Ember.isEmpty(model.get('props'))) {
             this.explorer.getBucketProps(model.get('clusterId'),
-                    model.get('bucketTypeId'), model.get('bucketId'))
+                    model.get('bucketTypeId'), model.get('bucketId'), this.store)
                 .then(function(bucketProps) {
                     model.set('props', bucketProps);
                 });

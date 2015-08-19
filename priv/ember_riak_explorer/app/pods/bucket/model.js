@@ -1,9 +1,8 @@
 import DS from 'ember-data';
-import objectToArray from '../../utils/riak-util';
 
 export default DS.Model.extend({
     name: DS.attr('string'),
-    cluster: DS.attr(),
+    cluster: DS.belongsTo('cluster'),
 
     bucketType: DS.belongsTo('bucket-type'),
 
@@ -26,6 +25,6 @@ export default DS.Model.extend({
         if(!this.get('props')) {
             return [];
         }
-        return objectToArray(this.get('props'));
+        return this.get('props').get('propsList');
     }.property('props')
 });

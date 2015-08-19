@@ -1701,13 +1701,13 @@ define('ember-riak-explorer/pods/bucket/controller', ['exports', 'ember'], funct
 	exports['default'] = Ember['default'].Controller.extend({});
 
 });
-define('ember-riak-explorer/pods/bucket/model', ['exports', 'ember-data', 'ember-riak-explorer/utils/riak-util'], function (exports, DS, objectToArray) {
+define('ember-riak-explorer/pods/bucket/model', ['exports', 'ember-data'], function (exports, DS) {
 
     'use strict';
 
     exports['default'] = DS['default'].Model.extend({
         name: DS['default'].attr('string'),
-        cluster: DS['default'].attr(),
+        cluster: DS['default'].belongsTo('cluster'),
 
         bucketType: DS['default'].belongsTo('bucket-type'),
 
@@ -1730,7 +1730,7 @@ define('ember-riak-explorer/pods/bucket/model', ['exports', 'ember-data', 'ember
             if (!this.get('props')) {
                 return [];
             }
-            return objectToArray['default'](this.get('props'));
+            return this.get('props').get('propsList');
         }).property('props')
     });
 
@@ -1749,8 +1749,8 @@ define('ember-riak-explorer/pods/bucket/route', ['exports', 'ember'], function (
             // When user follows a bucket link from the Bucket Type view,
             //   the props are not yet initialized. Also, the model()
             //   function, above, is not called. Handle this case.
-            if (Ember['default'].isEmpty(model.get('propsList'))) {
-                this.explorer.getBucketProps(model.get('clusterId'), model.get('bucketTypeId'), model.get('bucketId')).then(function (bucketProps) {
+            if (Ember['default'].isEmpty(model.get('props'))) {
+                this.explorer.getBucketProps(model.get('clusterId'), model.get('bucketTypeId'), model.get('bucketId'), this.store).then(function (bucketProps) {
                     model.set('props', bucketProps);
                 });
             }
@@ -3599,9 +3599,19 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
 
         getBucketProps: function getBucketProps(clusterId, bucketTypeId, bucketId, store) {
             var propsUrl = this.getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' + bucketId + '/props';
-
-            return Ember['default'].$.ajax(propsUrl, { dataType: "json" }).then(function (data) {
-                return store.createRecord('bucket-props', data.props);
+            return new Ember['default'].RSVP.Promise(function (resolve, reject) {
+                var ajaxHash = {
+                    url: propsUrl,
+                    dataType: 'json',
+                    type: 'GET'
+                };
+                ajaxHash.success = function (data) {
+                    resolve(store.createRecord('bucket-props', data));
+                };
+                ajaxHash.error = function (jqXHR) {
+                    Ember['default'].run(null, reject, jqXHR);
+                };
+                Ember['default'].$.ajax(ajaxHash);
             });
         },
 
@@ -13068,7 +13078,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+4736869f"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+28a6ebd3"});
 }
 
 /* jshint ignore:end */
