@@ -13,13 +13,18 @@ export default Router.map(function() {
     this.route('bucket',
         { path: '/cluster/:clusterId/bucket_type/:bucketTypeId/bucket/:bucketId' });
     this.route('riak-object',
-        { path: '/cluster/:clusterId/bucket_type/:bucketTypeId/bucket/:bucketId/keys/:key' });
-  this.route('riak_ping');
-  this.route('node_stats');
-  this.route('riak-object-edit');
-  this.route('error', { path: '/error' }, function() {
-    this.route('unknown');
-    this.route('cluster-not-found');
-    this.route('object-not-found');
-  });
+        { path: '/cluster/:clusterId/bucket_type/:bucketTypeId/bucket/:bucketId/keys/:key' },
+        function() {
+            this.route('edit');
+        });
+    this.route('riak-object.edit',
+        { path: '/cluster/:clusterId/bucket_type/:bucketTypeId/bucket/:bucketId/keys/:key/edit' });
+
+    this.route('riak_ping');
+    this.route('node_stats');
+    this.route('error', { path: '/error' }, function() {
+        this.route('unknown');
+        this.route('cluster-not-found');
+        this.route('object-not-found');
+    });
 });

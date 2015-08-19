@@ -1,16 +1,16 @@
-{{#object-location object=model.obj isEditing=true}}{{/object-location}}
+{{#object-location object=model isEditing=true}}{{/object-location}}
 
 <br />
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            {{#object-headers-edit headers=model.obj.headersIndexes
+            {{#object-headers-edit headers=model.headersIndexes
                 title='Secondary Indexes'}}{{/object-headers-edit}}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {{#object-headers-edit headers=model.obj.headersCustom
+            {{#object-headers-edit headers=model.headersCustom
                 title='Custom Headers'}}{{/object-headers-edit}}
         </div>
     </div>
@@ -22,19 +22,19 @@
     <div class="row">
         <div class="col-md-12 form-group">
             <label for='contentType'>Content Type:</label>
-            {{input value=model.obj.contentType id='contentType' class="form-control"}}
+            {{input value=model.contentType id='contentType' class="form-control"}}
         </div>
     </div>
 </div>
 
 <br />
 <div class="container">
-    {{textarea value=model.obj.contents autofocus=true rows=20 cols=100}}
+    {{textarea value=model.contents autofocus=true rows=20 cols=100}}
 </div>
 <div class="container">
     <button type="button" class="btn btn-md btn-primary"
-            {{action 'saveObject' model.obj}}>
+            {{action 'saveObject' model}}>
         Save</button>
 </div>
 
-{{#object-version object=model.obj}}{{/object-version}}
+{{#object-version object=model}}{{/object-version}}

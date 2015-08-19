@@ -27,9 +27,7 @@
             {{#if isEditing}}
                 (Editing)
                 <br />
-                {{#link-to 'riak-object' (query-params cluster_id=object.clusterId
-                        bucket_type_id=object.bucketTypeId bucket_id=object.bucketId
-                        object_key=object.key)
+                {{#link-to 'riak-object' object
                         classNames='btn btn-xs btn-default' }}
                     Cancel{{/link-to}}
             {{else}}
