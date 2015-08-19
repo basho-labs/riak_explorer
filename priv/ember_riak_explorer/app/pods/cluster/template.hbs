@@ -1,12 +1,12 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12 text-center">
-            <div class="cluster-resource-header center-block"
-                    title="Cluster: {{model.clusterId}}">
-                <img src="assets/images/riak.png" class="cluster-resource-icon"
-                    title="Cluster: {{model.clusterId}}"/>
-                <span title="Cluster: {{model.clusterId}}">
-                    {{model.clusterId}}</span>
+            <div class="cluster-resource-header center-block">
+                <img src="assets/images/riak.png" class="cluster-resource-icon" />
+                <span>
+                    {{model.clusterId}}
+                    {{#if model.developmentMode}}(Dev){{/if}}
+                </span>
             </div>
         </div>
     </div>
