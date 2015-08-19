@@ -1728,6 +1728,10 @@ define('ember-riak-explorer/pods/bucket/model', ['exports', 'ember-data'], funct
             return this.get('props').get('isActive');
         }).property('props'),
 
+        index: (function () {
+            return this.get('cluster').get('indexes').findBy('name', this.get('props').get('searchIndexName'));
+        }).property('cluster'),
+
         propsList: (function () {
             if (!this.get('props')) {
                 return [];
@@ -12942,7 +12946,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+c9160e20"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+f2bb9c38"});
 }
 
 /* jshint ignore:end */

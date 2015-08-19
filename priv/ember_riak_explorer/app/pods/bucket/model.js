@@ -29,6 +29,11 @@ var Bucket = DS.Model.extend({
         return this.get('props').get('isActive');
     }.property('props'),
 
+    index: function() {
+        return this.get('cluster').get('indexes')
+            .findBy('name', this.get('props').get('searchIndexName'));
+    }.property('cluster'),
+
     propsList: function() {
         if(!this.get('props')) {
             return [];
