@@ -1,24 +1,41 @@
-# riak_explorer
+# Riak Explorer
 
-Riak Explorer provides browsing and admin capabilities that are useful while in
-development mode. It provides a convenient method to browse Bucket Types,
-Buckets, Keys, view and edit Riak Objects, and more.
+Riak Explorer provides browsing and admin capabilities for [Riak KV](http://basho.com/products/riak-kv/), a distributed NoSQL key-value data store that offers high availability, fault tolerance, operational simplicity, and scalability. 
 
-*Front-end GUI:* Ember.js
+Riak Explorer is useful while in a development or production. It includes convenient methods to browse Bucket Types, Buckets, Keys, view and edit Riak Objects, and more. To prevent heavy I/O requests from key listings, be sure to edit the config file to reflect the environment as [explained in Using Riak Explorer](#using-riak-explorer).
 
-*Back-end:* Erlang + WebMachine serving a REST API.
+
+* [Installation](#installation)
+* [System Architecture](#architecture)
+* [Using Riak Explorer](#using-riak-explorer)
+* [Development / Contributing](#development--contributing)
+
 
 ## Installation
 
-1. Download and extract [http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz (Mac OS X)](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) or [http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz (Ubuntu 14.04)](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz)
+1. Download and extract [This file on Mac OS X](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) or [this binary for Ubuntu 14.04](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz). 
+     * *Note: If you'd like to support further OSes, please [open an Issue](https://github.com/basho-labs/riak_explorer/issues)*
 
-2. Verify settings in `etc/riak_explorer.conf`
+1. Extract the tar file and `cd` into the directory
 
-4. `./bin/riak_explorer start|console|attach|stop` - Controls the riak_explorer Erlang application
+2. Verify the default settings in `etc/riak_explorer.conf` will work for your configuration (primarily that port 9000 is available on your host)
 
-4. Navigate to [http://localhost:9000/](http://localhost:9000/) to test
+4. Run `bin/riak_explorer start` start the `riak_explorer` application
 
-## Usage
+4. Navigate to [http://localhost:9000/](http://localhost:9000/) to see the interface
+
+## System Architecture
+
+*Front-end GUI:* [Ember.js](http://emberjs.com/)  
+*Back-end:* [Erlang](http://www.erlang.org/) is the primary development language and [WebMachine](http://webmachine.github.io/) is used to serve a RESTful API
+
+For more about this architecture, see [DEVELOPMENT.md](DEVELOPMENT.md).
+
+## Using Riak Explorer
+Riak Explorer is a tool designed for both development and production environments. 
+
+TODO - elaborate on development vs production configuration.
+
 
 #### API
 
@@ -94,83 +111,30 @@ Explanation:
     * `$resource`: A list of valid `resources` for a given module can be found in `explore.resources`
 * `explore.resources`: A list of available operations or resources specific to the route; Example: `ping` for the `/explore` route.
 
-## Developer Instructions
-Riak Explorer uses Erlang on the server side (to serve the REST API and to talk
-to Riak), and Ember.js on the client side. Ember itself uses Node.js for
-[command-line tasks](http://www.ember-cli.com).
+## Development / Contributing
 
-#### Full Stack
+For specifics on builds, visit [DEVELOPMENT.md](DEVELOPMENT.md).
 
-1. `make` - Loads and compiles all dependencies (depends on `erl`, `npm`, `ember-cli`, and `bower`)
 
-2. `make rel` - Performs release tasks, creates `rel/riak_explorer`
+* Whether your contribution is for a bug fix or a feature request, **create an [Issue](https://github.com/basho/riak_explorer/issues)** and let us know what you are thinking.
+* **For bugs**, if you have already found a fix, feel free to submit a Pull Request referencing the Issue you created.
+* **For feature requests**, we want to improve upon the library incrementally which means small changes at a time. In order ensure your PR can be reviewed in a timely manner, please keep PRs small, e.g. <10 files and <500 lines changed. If you think this is unrealistic, then mention that within the Issue and we can discuss it.
 
-3. `make stage` - Enables faster development cycles; Only needs to be run once to set up lib and static web symlinks
+Once you're ready to contribute code back to this repo, start with these steps: 
 
-4. Verify settings in `rel/riak_explorer/etc/riak_explorer.conf`
+* Fork the appropriate sub-projects that are affected by your change
+* Create a topic branch for your change and checkout that branch
+     `git checkout -b some-topic-branch`
+* Make your changes and run the test suite if one is provided (see below)
+* Commit your changes and push them to your fork
+* Open a pull request for the appropriate project
+* Contributors will review your pull request, suggest changes, and merge it when it’s ready and/or offer feedback
+* To report a bug or issue, please open a new issue against this repository
 
-5. `./rel/riak_explorer/bin/riak_explorer start|console|attach|stop` - Controls the riak_explorer Erlang applicaiton
+You can [read the full guidelines for bug reporting and code contributions](http://docs.basho.com/riak/latest/community/bugs/) on the Riak Docs. 
 
-#### Erlang
+And **thank you!** Your contribution is incredibly important to us. It'd be great for you to add it to a current or past community release note [here](https://github.com/basho-labs/the-riak-community/tree/master/release-notes).
 
-1. `make compile-backend` | `make recompile-backend` - Loads and compiles the webmachine app dependencies
-
-2. `make test-backend` - Recompiles `src` and executes unit tests
-
-3. `make itest-backend` - Recompiles `src`, executes integration tests (run `./rel/riak_explorer/bin/riak_explorer start` first)
-
-#####Environment
-
-* [Install Erlang](http://docs.basho.com/riak/latest/ops/building/installing/erlang/)
-* [Install Riak](http://docs.basho.com/riak/latest/ops/building/installing/)
-
-#### Ember.js
-The Ember app lives in `priv/ember_riak_explorer`, and follows the standard
-[ember-cli folder layout conventions](http://www.ember-cli.com/#folder-layout).
-
-1. `make compile-frontend` | `make recompile-backend` - Loads and compiles the Ember.js app dependencies (depends on `npm`, `ember-cli`, and `bower`)
-
-2. `make test-frontend` - Runs `ember test`
-
-#####Environment
-
-* (Optional) Install [nvm](https://github.com/creationix/nvm), the Node.js Version Manager.
-    The provided [install script](https://github.com/creationix/nvm#install-script)
-    is easiest:
-
-    ```
-    curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | bash
-    ```
-
-    (After installing via script above, either reopen your terminal or
-    `source ~/.bashrc`).
-
-    Using `nvm` is optional - you can install [Node.js](https://nodejs.org/)
-    directly from the website. However, much like with Ruby and `rvm`, it's
-    easier to upgrade and manage Node.js versions using this tool.
-
-    This enables you to:
-
-    * `nvm ls-remote` - View what Node.js versions are available to install
-    * `nvm install stable` - Install latest stable version
-        of Node.js (`v0.12.2` at the moment)
-    * `nvm alias default stable` - Tells `nvm` to use the stable version by
-        default (for all new terminal sessions)
-
-* Use `npm` (Node.js Package Manager) to install the `ember-cli` package.
-    (If you did `nvm install stable` above, you now have `npm` installed.)
-
-    ```
-    npm install -g ember-cli
-    ```
-
-    (The `-g` flag means "install it globally")
-
-* Install the `phantomjs` package, for headless browser unit testing
-
-    ```
-    npm install -g phantomjs
-    ```
 
 #### Related Projects
 - [riak_control](https://github.com/basho/riak_control)
