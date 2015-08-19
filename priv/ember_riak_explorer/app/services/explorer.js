@@ -149,7 +149,7 @@ function getKeyList(bucket, store) {
                 // Empty cache (need to kick off a refresh)
                 keyCacheRefresh(clusterId, bucketTypeId, bucketId);
                 // Results in returning an empty (Loading..) key list
-                Ember.run(null, reject, null);
+                Ember.run(null, resolve, null);
             } else {
                 // Some other error
                 Ember.run(null, reject, textStatus);

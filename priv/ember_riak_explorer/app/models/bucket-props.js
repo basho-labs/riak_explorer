@@ -24,6 +24,16 @@ var BucketProps = DS.Model.extend({
         return this.get('props').allow_mult;
     }.property('props'),
 
+    dataTypeName: function() {
+        var name;
+        if(this.get('isCRDT')) {
+            name = this.get('props').datatype;
+        }
+        if(name) {
+            return name.capitalize();
+        }
+    }.property('props'),
+
     // Pre-commit or post-commit hooks enabled
     hasCommitHooks: function() {
         var hasPrecommit = !Ember.isEmpty(this.get('props').precommit);
@@ -39,14 +49,30 @@ var BucketProps = DS.Model.extend({
         return this.get('props').active;
     }.property('props'),
 
+    isCounter: function() {
+        return this.get('dataTypeName') === 'Counter';
+    }.property('props'),
+
+    isCRDT: function() {
+        return this.get('props').datatype;
+    }.property('props'),
+
     // Last Write Wins optimization
     isLWW: function() {
         return this.get('props').last_write_wins;
     }.property('props'),
 
+    isMap: function() {
+        return this.get('dataTypeName') === 'Map';
+    }.property('props'),
+
     // Has a Riak Search index been associated with this bucket type
     isSearchIndexed: function() {
         return this.get('searchIndexName');
+    }.property('props'),
+
+    isSet: function() {
+        return this.get('dataTypeName') === 'Set';
     }.property('props'),
 
     isStronglyConsistent: function() {
@@ -67,6 +93,17 @@ var BucketProps = DS.Model.extend({
         if(this.get('isStronglyConsistent')) {
             return 'Strongly Consistent';
         }
+        // if(this.get('isCRDT')) {
+            if(this.get('isCounter')) {
+                return 'Convergent, Pairwise Maximum Wins';
+            }
+            if(this.get('isMap')) {
+                return 'Convergent, Add/Update Wins Over Remove';
+            }
+            if(this.get('isSet')) {
+                return 'Convergent, Add Wins Over Remove';
+            }
+        // }
         if(this.get('allowMult')) {
             return 'Causal Context (Siblings Enabled)';
         }
@@ -85,7 +122,11 @@ var BucketProps = DS.Model.extend({
     // What type of objects are stored (default, search indexed, CRDTs)
     objectType: function() {
         var type = [];
-        type.push('Default');
+        if(this.get('isCRDT')) {
+            type.push(this.get('dataTypeName'));
+        } else {
+            type.push('Default');
+        }
         if(this.get('isSearchIndexed')) {
             type.push('Search Indexed');
         }
