@@ -156,23 +156,6 @@ function deleteObject(object) {
     });
 }
 
-function getBucketProps(clusterId, bucketTypeId, bucketId, store) {
-    var clusterRequest = store.findRecord('cluster', clusterId);
-    var propsUrl = getClusterProxyUrl(clusterId) + '/types/' +
-            bucketTypeId + '/buckets/' + bucketId + '/props';
-    var propsRequest = Ember.$.ajax( propsUrl, { dataType: "json" } );
-    return clusterRequest.then(function(cluster) {
-        return propsRequest.then(function(data) {
-            return store.createRecord('bucket', {
-                name: bucketId,
-                bucketTypeId: bucketTypeId,
-                cluster: cluster,
-                props: data.props
-            });
-        });
-    });
-}
-
 function getClusterProxyUrl(clusterId) {
     return '/riak/clusters/'+clusterId;
 }
@@ -437,8 +420,8 @@ export default Ember.Service.extend({
         var bucketList = data.buckets.buckets.map(function(bucketName) {
             return store.createRecord('bucket', {
                 name: bucketName,
-                clusterId: cluster.get('clusterId'),
-                bucketTypeId: bucketType.get('bucketTypeId')
+                cluster: cluster,
+                bucketType: bucketType
             });
         });
         return store.createRecord('bucket-list', {
@@ -459,14 +442,20 @@ export default Ember.Service.extend({
     deleteBucket: deleteBucket,
 
     getBucket: function(clusterId, bucketTypeId, bucketId, store) {
-        return store.findRecord('cluster', clusterId).then(function(cluster) {
-            return store.createRecord('bucket', {
-                name: bucketId,
-                bucketTypeId: bucketTypeId,
-                cluster: cluster,
-                clusterId: clusterId
+        var self = this;
+        console.log('in get bucket');
+        return self.getBucketType(clusterId, bucketTypeId, store)
+            .then(function(bucketType) {
+                return self.getBucketProps(clusterId, bucketTypeId, bucketId)
+                    .then(function(bucketProps) {
+                        return store.createRecord('bucket', {
+                            name: bucketId,
+                            bucketType: bucketType,
+                            cluster: bucketType.get('cluster'),
+                            props: bucketProps
+                        });
+                    });
             });
-        });
     },
 
     getBucketList: function(cluster, bucketType, store) {
@@ -510,14 +499,22 @@ export default Ember.Service.extend({
         });
     },
 
+    getBucketProps: function(clusterId, bucketTypeId, bucketId) {
+        var propsUrl = this.getClusterProxyUrl(clusterId) + '/types/' +
+                bucketTypeId + '/buckets/' + bucketId + '/props';
+
+        return Ember.$.ajax( propsUrl, { dataType: "json" } )
+            .then(function(data) {
+                return data.props;
+            });
+    },
+
     getBucketType: function(clusterId, bucketTypeId, store) {
         var self = this;
         return self.getCluster(clusterId, store)
             .then(function(cluster) {
-                var bucketType = cluster.get('bucketTypes')
+                return cluster.get('bucketTypes')
                     .findBy('originalId', bucketTypeId);
-
-                return self.getBucketTypeWithList(bucketType, cluster, store);
             });
     },
 
@@ -560,8 +557,6 @@ export default Ember.Service.extend({
                 });
             });
     },
-
-    getBucketProps: getBucketProps,
 
     getClusterProxyUrl: getClusterProxyUrl,
 

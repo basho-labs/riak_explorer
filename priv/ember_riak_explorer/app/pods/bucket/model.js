@@ -1,10 +1,11 @@
 import DS from 'ember-data';
-import objectToArray from '../utils/riak-util';
+import objectToArray from '../../utils/riak-util';
 
 export default DS.Model.extend({
     name: DS.attr('string'),
     cluster: DS.attr(),
-    bucketTypeId: DS.attr(),
+
+    bucketType: DS.belongsTo('bucket-type'),
 
     // {"allow_mult":false, "basic_quorum":false, ... }
     props: DS.attr(),
@@ -12,6 +13,10 @@ export default DS.Model.extend({
     bucketId: function() {
         return this.get('name');
     }.property('name'),
+
+    bucketTypeId: function() {
+        return this.get('bucketType').get('bucketTypeId');
+    }.property('cluster'),
 
     clusterId: function() {
         return this.get('cluster').get('clusterId');

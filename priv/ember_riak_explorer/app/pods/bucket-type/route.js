@@ -2,8 +2,16 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
     model: function(params) {
-        return this.explorer.getBucketType(params.clusterId,
-            params.bucketTypeId, this.store);
+        var clusterId = params.clusterId;
+        var bucketTypeId = params.bucketTypeId;
+        var explorer = this.explorer;
+        var store = this.store;
+
+        return this.explorer.getBucketType(clusterId, bucketTypeId, store)
+            .then(function(bucketType) {
+                return explorer.getBucketTypeWithList(bucketType,
+                    bucketType.get('cluster'), store);
+            });
     },
 
     setupController: function(controller, model) {

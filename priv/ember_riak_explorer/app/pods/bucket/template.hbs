@@ -1,0 +1,29 @@
+<div class="crumb-trail">
+    {{link-cluster cluster=model.cluster}}
+    /
+    {{link-bucket-type bucketType=model.bucketType}}
+    /
+    <div class="cluster-resource-header center-block">
+        <span class="glyphicon glyphicon-folder-close cluster-resource-icon"
+            aria-hidden="true"></span>
+        <span>{{model.bucketId}}</span>
+    </div>
+
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+{{#each model.propsList as |prop|}}
+        <tr>
+            <td>{{prop.key}}</td>
+            <td>{{prop.value}}</td>
+        </tr>
+{{/each}}
+    </tbody>
+</table>
