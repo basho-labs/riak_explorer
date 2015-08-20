@@ -1029,6 +1029,81 @@ define('ember-riak-explorer/models/link', ['exports', 'ember-data'], function (e
     });
 
 });
+define('ember-riak-explorer/models/object-metadata', ['exports', 'ember-data'], function (exports, DS) {
+
+    'use strict';
+
+    var ObjectMetadata = DS['default'].Model.extend({
+        headers: DS['default'].attr(null, {
+            defaultValue: {
+                custom: [], // x-riak-meta-*
+                indexes: [], // x-riak-index-*
+                other: {} // everything else
+            }
+        }),
+
+        causalContext: (function () {
+            return this.get('headers').other['x-riak-vclock'];
+        }).property('headers'),
+
+        contentType: (function () {
+            return this.get('headers').other['content-type'];
+        }).property('headers'),
+
+        dateLastModified: (function () {
+            return this.get('headers').other['last-modified'];
+        }).property('headers'),
+
+        // When this object was loaded from Riak via an HTTP request
+        dateLoaded: (function () {
+            return this.get('headers').other['date'];
+        }).property('headers'),
+
+        etag: (function () {
+            return this.get('headers').other['etag'];
+        }).property('headers'),
+
+        headersCustom: (function () {
+            return this.get('headers').custom;
+        }).property('headers'),
+
+        /**
+        * Return the necessary headers when saving an object via HTTP PUT
+        */
+        headersForUpdate: (function () {
+            // Start with the causal context
+            var headers = {
+                'X-Riak-Vclock': this.get('headers').other['x-riak-vclock']
+            };
+            var header;
+            var i;
+            // Add the 2i indexes, if applicable
+            var indexes = this.get('headersIndexes');
+            for (i = 0; i < indexes.length; i++) {
+                header = indexes[i];
+                headers[header.key] = header.value;
+            }
+            // Add the user-defined custom headers
+            var customHeaders = this.get('headersCustom');
+            for (i = 0; i < customHeaders.length; i++) {
+                header = customHeaders[i];
+                headers[header.key] = header.value;
+            }
+            return headers;
+        }).property('headers'),
+
+        headersIndexes: (function () {
+            return this.get('headers').indexes;
+        }).property('headers'),
+
+        isDeleted: (function () {
+            return this.get('headers').other['x-riak-deleted'];
+        }).property('headers')
+    });
+
+    exports['default'] = ObjectMetadata;
+
+});
 define('ember-riak-explorer/models/route', ['exports', 'ember-data'], function (exports, DS) {
 
     'use strict';
@@ -3272,9 +3347,9 @@ define('ember-riak-explorer/pods/riak-object/edit/template', ['exports'], functi
       },
       statements: [
         ["block","object-location",[],["object",["subexpr","@mut",[["get","model",["loc",[null,[1,26],[1,31]]]]],[],[]],"isEditing",true],0,null,["loc",[null,[1,0],[1,68]]]],
-        ["block","object-headers-edit",[],["headers",["subexpr","@mut",[["get","model.headersIndexes",["loc",[null,[7,43],[7,63]]]]],[],[]],"title","Secondary Indexes"],1,null,["loc",[null,[7,12],[8,67]]]],
-        ["block","object-headers-edit",[],["headers",["subexpr","@mut",[["get","model.headersCustom",["loc",[null,[13,43],[13,62]]]]],[],[]],"title","Custom Headers"],2,null,["loc",[null,[13,12],[14,64]]]],
-        ["inline","input",[],["value",["subexpr","@mut",[["get","model.contentType",["loc",[null,[25,26],[25,43]]]]],[],[]],"id","contentType","class","form-control"],["loc",[null,[25,12],[25,83]]]],
+        ["block","object-headers-edit",[],["headers",["subexpr","@mut",[["get","model.metadata.headersIndexes",["loc",[null,[7,43],[7,72]]]]],[],[]],"title","Secondary Indexes"],1,null,["loc",[null,[7,12],[8,67]]]],
+        ["block","object-headers-edit",[],["headers",["subexpr","@mut",[["get","model.metadata.headersCustom",["loc",[null,[13,43],[13,71]]]]],[],[]],"title","Custom Headers"],2,null,["loc",[null,[13,12],[14,64]]]],
+        ["inline","input",[],["value",["subexpr","@mut",[["get","model.metadata.contentType",["loc",[null,[25,26],[25,52]]]]],[],[]],"id","metadata.contentType","class","form-control"],["loc",[null,[25,12],[25,101]]]],
         ["inline","textarea",[],["value",["subexpr","@mut",[["get","model.contents",["loc",[null,[32,21],[32,35]]]]],[],[]],"autofocus",true,"rows",20,"cols",100],["loc",[null,[32,4],[32,69]]]],
         ["element","action",["saveObject",["get","model",["loc",[null,[36,34],[36,39]]]]],[],["loc",[null,[36,12],[36,41]]]],
         ["block","object-version",[],["object",["subexpr","@mut",[["get","model",["loc",[null,[40,25],[40,30]]]]],[],[]]],3,null,["loc",[null,[40,0],[40,51]]]]
@@ -3299,8 +3374,6 @@ define('ember-riak-explorer/pods/riak-object/model', ['exports', 'ember-data'], 
 
         contents: DS['default'].attr(),
 
-        headers: DS['default'].attr(),
-
         isLoaded: DS['default'].attr('boolean', { defaultValue: false }),
 
         key: DS['default'].attr('string'),
@@ -3308,6 +3381,9 @@ define('ember-riak-explorer/pods/riak-object/model', ['exports', 'ember-data'], 
         // This object was marked as deleted by Explorer UI,
         //  but may show up in key list cache.
         markedDeleted: DS['default'].attr('boolean', { defaultValue: false }),
+
+        // Headers
+        metadata: DS['default'].belongsTo('object-metadata'),
 
         rawUrl: DS['default'].attr('string'),
 
@@ -3319,71 +3395,17 @@ define('ember-riak-explorer/pods/riak-object/model', ['exports', 'ember-data'], 
             return this.get('bucketType').get('bucketTypeId');
         }).property('bucket'),
 
-        causalContext: (function () {
-            return this.get('headers').other['x-riak-vclock'];
-        }).property('headers'),
-
         clusterId: (function () {
             return this.get('cluster').get('clusterId');
         }).property('bucket'),
 
-        contentType: (function () {
-            return this.get('headers').other['content-type'];
-        }).property('headers'),
-
-        dateLastModified: (function () {
-            return this.get('headers').other['last-modified'];
-        }).property('headers'),
-
-        // When this object was loaded from Riak via an HTTP request
-        dateLoaded: (function () {
-            return this.get('headers').other['date'];
-        }).property('headers'),
-
-        etag: (function () {
-            return this.get('headers').other['etag'];
-        }).property('headers'),
-
-        headersCustom: (function () {
-            return this.get('headers').custom;
-        }).property('headers'),
-
-        /**
-        * Return the necessary headers when saving an object via HTTP PUT
-        */
-        headersForUpdate: (function () {
-            // Start with the causal context
-            var headers = {
-                'X-Riak-Vclock': this.get('headers').other['x-riak-vclock']
-            };
-            var header;
-            var i;
-            // Add the 2i indexes, if applicable
-            var indexes = this.get('headersIndexes');
-            for (i = 0; i < indexes.length; i++) {
-                header = indexes[i];
-                headers[header.key] = header.value;
-            }
-            // Add the user-defined custom headers
-            var customHeaders = this.get('headersCustom');
-            for (i = 0; i < customHeaders.length; i++) {
-                header = customHeaders[i];
-                headers[header.key] = header.value;
-            }
-            return headers;
-        }).property('headers'),
-
-        headersIndexes: (function () {
-            return this.get('headers').indexes;
-        }).property('headers'),
-
         isDeleted: (function () {
             var deletedOnRiak = false;
-            if (this.get('headers')) {
-                deletedOnRiak = this.get('headers').other['x-riak-deleted'];
+            if (this.get('metadata')) {
+                deletedOnRiak = this.get('metadata').get('isDeleted');
             }
             return this.get('markedDeleted') || deletedOnRiak;
-        }).property('markedDeleted', 'headers')
+        }).property('markedDeleted', 'metadata')
     });
 
     exports['default'] = RiakObject;
@@ -3759,10 +3781,10 @@ define('ember-riak-explorer/pods/riak-object/template', ['exports'], function (e
           return morphs;
         },
         statements: [
-          ["block","object-headers",[],["headers",["subexpr","@mut",[["get","model.headersIndexes",["loc",[null,[8,42],[8,62]]]]],[],[]],"title","Secondary Indexes"],0,null,["loc",[null,[8,16],[9,66]]]],
-          ["block","object-headers",[],["headers",["subexpr","@mut",[["get","model.headersCustom",["loc",[null,[14,42],[14,61]]]]],[],[]],"title","Custom Headers"],1,null,["loc",[null,[14,16],[15,63]]]],
+          ["block","object-headers",[],["headers",["subexpr","@mut",[["get","model.metadata.headersIndexes",["loc",[null,[8,42],[8,71]]]]],[],[]],"title","Secondary Indexes"],0,null,["loc",[null,[8,16],[9,66]]]],
+          ["block","object-headers",[],["headers",["subexpr","@mut",[["get","model.metadata.headersCustom",["loc",[null,[14,42],[14,70]]]]],[],[]],"title","Custom Headers"],1,null,["loc",[null,[14,16],[15,63]]]],
           ["attribute","href",["concat",[["get","model.rawUrl",["loc",[null,[25,27],[25,39]]]]]]],
-          ["content","model.contentType",["loc",[null,[30,33],[30,54]]]],
+          ["content","model.metadata.contentType",["loc",[null,[30,33],[30,63]]]],
           ["block","if",[["get","model.contents",["loc",[null,[35,10],[35,24]]]]],[],2,null,["loc",[null,[35,4],[37,11]]]],
           ["block","object-version",[],["object",["subexpr","@mut",[["get","model",["loc",[null,[39,29],[39,34]]]]],[],[]]],3,null,["loc",[null,[39,4],[39,55]]]]
         ],
@@ -4425,7 +4447,6 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
                     bucket: bucket,
                     bucketType: bucket.get('bucketType'),
                     cluster: bucket.get('cluster'),
-                    headers: explorer.emptyObjectHeaders(),
                     isLoaded: false
                 });
                 if (explorer.wasObjectDeleted(obj)) {
@@ -4444,18 +4465,27 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
         },
 
         createObjectFromAjax: function createObjectFromAjax(key, bucket, rawHeader, responseText, store, url) {
-            var headers = this.parseHeaderString(rawHeader);
-            var contents = displayContentsForType(headers, responseText);
+            var metadata = this.createObjectMetadata(rawHeader, store);
+            var contents = displayContentsForType(metadata.get('headers'), responseText);
 
             return store.createRecord('riak-object', {
                 key: key,
                 bucket: bucket,
                 bucketType: bucket.get('bucketType'),
                 cluster: bucket.get('cluster'),
-                headers: headers,
+                metadata: metadata,
                 isLoaded: true,
                 contents: contents,
                 rawUrl: url
+            });
+        },
+
+        createObjectMetadata: function createObjectMetadata(rawHeader, store) {
+            if (!rawHeader) {
+                return store.createRecord('object-metadata');
+            }
+            return store.createRecord('object-metadata', {
+                headers: this.parseHeaderString(rawHeader)
             });
         },
 
@@ -4464,14 +4494,6 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
         deleteObject: deleteObject,
 
         deleteBucket: deleteBucket,
-
-        emptyObjectHeaders: function emptyObjectHeaders() {
-            return {
-                custom: [], // x-riak-meta-*
-                indexes: [], // x-riak-index-*
-                other: {} // everything else
-            };
-        },
 
         getBucket: function getBucket(clusterId, bucketTypeId, bucketId, store) {
             var self = this;
@@ -4605,7 +4627,13 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
         getNodes: getNodes,
 
         getRiakObject: function getRiakObject(clusterId, bucketTypeId, bucket, key, store) {
-            var url = getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' + bucket.get('bucketId') + '/keys/' + key;
+            var url;
+            if (bucket.get('props').get('isCRDT')) {
+                url = getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' + bucket.get('bucketId') + '/datatypes/' + key;
+            } else {
+                // Regular Riak object
+                url = getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' + bucket.get('bucketId') + '/keys/' + key;
+            }
             var explorer = this;
 
             return new Ember['default'].RSVP.Promise(function (resolve, reject) {
@@ -4656,9 +4684,6 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             var indexes = [];
             var custom = [];
 
-            if (!headerString) {
-                return this.emptyObjectHeaders();
-            }
             var headerLines = headerString.split("\r\n");
 
             for (var i = 0; i < headerLines.length; i++) {
@@ -9733,11 +9758,11 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
             "loc": {
               "source": null,
               "start": {
-                "line": 30,
+                "line": 28,
                 "column": 16
               },
               "end": {
-                "line": 32,
+                "line": 30,
                 "column": 26
               }
             },
@@ -9766,11 +9791,11 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
           "loc": {
             "source": null,
             "start": {
-              "line": 27,
+              "line": 25,
               "column": 12
             },
             "end": {
-              "line": 33,
+              "line": 31,
               "column": 12
             }
           },
@@ -9799,7 +9824,7 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
           return morphs;
         },
         statements: [
-          ["block","link-to",["riak-object",["get","object",["loc",[null,[30,41],[30,47]]]]],["classNames","btn btn-xs btn-default"],0,null,["loc",[null,[30,16],[32,38]]]]
+          ["block","link-to",["riak-object",["get","object",["loc",[null,[28,41],[28,47]]]]],["classNames","btn btn-xs btn-default"],0,null,["loc",[null,[28,16],[30,38]]]]
         ],
         locals: [],
         templates: [child0]
@@ -9812,11 +9837,11 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
           "loc": {
             "source": null,
             "start": {
-              "line": 33,
+              "line": 31,
               "column": 12
             },
             "end": {
-              "line": 35,
+              "line": 33,
               "column": 12
             }
           },
@@ -9841,7 +9866,7 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
           return morphs;
         },
         statements: [
-          ["inline","edit-object",[],["object",["subexpr","@mut",[["get","object",["loc",[null,[34,37],[34,43]]]]],[],[]]],["loc",[null,[34,16],[34,45]]]]
+          ["inline","edit-object",[],["object",["subexpr","@mut",[["get","object",["loc",[null,[32,37],[32,43]]]]],[],[]]],["loc",[null,[32,16],[32,45]]]]
         ],
         locals: [],
         templates: []
@@ -9854,11 +9879,11 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
           "loc": {
             "source": null,
             "start": {
-              "line": 39,
+              "line": 37,
               "column": 12
             },
             "end": {
-              "line": 41,
+              "line": 39,
               "column": 12
             }
           },
@@ -9895,11 +9920,11 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
             "loc": {
               "source": null,
               "start": {
-                "line": 43,
+                "line": 41,
                 "column": 16
               },
               "end": {
-                "line": 45,
+                "line": 43,
                 "column": 16
               }
             },
@@ -9924,7 +9949,7 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
             return morphs;
           },
           statements: [
-            ["inline","delete-object",[],["action","deleteObject","object",["subexpr","@mut",[["get","object",["loc",[null,[44,65],[44,71]]]]],[],[]]],["loc",[null,[44,20],[44,73]]]]
+            ["inline","delete-object",[],["action","deleteObject","object",["subexpr","@mut",[["get","object",["loc",[null,[42,65],[42,71]]]]],[],[]]],["loc",[null,[42,20],[42,73]]]]
           ],
           locals: [],
           templates: []
@@ -9936,11 +9961,11 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
           "loc": {
             "source": null,
             "start": {
-              "line": 41,
+              "line": 39,
               "column": 12
             },
             "end": {
-              "line": 46,
+              "line": 44,
               "column": 12
             }
           },
@@ -9964,7 +9989,7 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
           return morphs;
         },
         statements: [
-          ["block","unless",[["get","isEditing",["loc",[null,[43,26],[43,35]]]]],[],0,null,["loc",[null,[43,16],[45,27]]]]
+          ["block","unless",[["get","isEditing",["loc",[null,[41,26],[41,35]]]]],[],0,null,["loc",[null,[41,16],[43,27]]]]
         ],
         locals: [],
         templates: [child0]
@@ -9980,7 +10005,7 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
             "column": 0
           },
           "end": {
-            "line": 63,
+            "line": 61,
             "column": 0
           }
         },
@@ -10047,10 +10072,6 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("br");
         dom.appendChild(el0, el1);
         var el1 = dom.createTextNode("\n\n");
         dom.appendChild(el0, el1);
@@ -10141,8 +10162,8 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element0 = dom.childAt(fragment, [0]);
         var element1 = dom.childAt(element0, [1]);
-        var element2 = dom.childAt(fragment, [4, 1]);
-        var element3 = dom.childAt(fragment, [8, 1]);
+        var element2 = dom.childAt(fragment, [2, 1]);
+        var element3 = dom.childAt(fragment, [6, 1]);
         var morphs = new Array(8);
         morphs[0] = dom.createMorphAt(element1,1,1);
         morphs[1] = dom.createMorphAt(element1,3,3);
@@ -10159,10 +10180,10 @@ define('ember-riak-explorer/templates/components/object-location', ['exports'], 
         ["inline","link-bucket-type",[],["bucketType",["subexpr","@mut",[["get","object.bucketType",["loc",[null,[5,34],[5,51]]]]],[],[]]],["loc",[null,[5,4],[5,53]]]],
         ["inline","link-bucket",[],["bucket",["subexpr","@mut",[["get","object.bucket",["loc",[null,[7,25],[7,38]]]]],[],[]]],["loc",[null,[7,4],[7,40]]]],
         ["content","object.key",["loc",[null,[16,22],[16,36]]]],
-        ["block","if",[["get","isEditing",["loc",[null,[27,18],[27,27]]]]],[],0,1,["loc",[null,[27,12],[35,19]]]],
-        ["block","if",[["get","object.isDeleted",["loc",[null,[39,18],[39,34]]]]],[],2,3,["loc",[null,[39,12],[46,19]]]],
-        ["content","object.dateLastModified",["loc",[null,[56,12],[56,39]]]],
-        ["content","object.dateLoaded",["loc",[null,[59,25],[59,46]]]]
+        ["block","if",[["get","isEditing",["loc",[null,[25,18],[25,27]]]]],[],0,1,["loc",[null,[25,12],[33,19]]]],
+        ["block","if",[["get","object.isDeleted",["loc",[null,[37,18],[37,34]]]]],[],2,3,["loc",[null,[37,12],[44,19]]]],
+        ["content","object.metadata.dateLastModified",["loc",[null,[54,12],[54,48]]]],
+        ["content","object.metadata.dateLoaded",["loc",[null,[57,25],[57,55]]]]
       ],
       locals: [],
       templates: [child0, child1, child2, child3]
@@ -10264,8 +10285,8 @@ define('ember-riak-explorer/templates/components/object-version', ['exports'], f
         return morphs;
       },
       statements: [
-        ["content","object.causalContext",["loc",[null,[8,12],[8,36]]]],
-        ["content","object.etag",["loc",[null,[12,12],[12,27]]]]
+        ["content","object.metadata.causalContext",["loc",[null,[8,12],[8,45]]]],
+        ["content","object.metadata.etag",["loc",[null,[12,12],[12,36]]]]
       ],
       locals: [],
       templates: []
@@ -12498,6 +12519,16 @@ define('ember-riak-explorer/tests/models/link.jshint', function () {
   });
 
 });
+define('ember-riak-explorer/tests/models/object-metadata.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - models');
+  test('models/object-metadata.js should pass jshint', function() { 
+    ok(true, 'models/object-metadata.js should pass jshint.'); 
+  });
+
+});
 define('ember-riak-explorer/tests/models/route.jshint', function () {
 
   'use strict';
@@ -13004,6 +13035,32 @@ define('ember-riak-explorer/tests/unit/models/bucket-type-test.jshint', function
   });
 
 });
+define('ember-riak-explorer/tests/unit/models/object-metadata-test', ['ember-qunit'], function (ember_qunit) {
+
+  'use strict';
+
+  ember_qunit.moduleForModel('object-metadata', 'Unit | Model | object metadata', {
+    // Specify the other units that are required for this test.
+    needs: []
+  });
+
+  ember_qunit.test('it exists', function (assert) {
+    var model = this.subject();
+    // var store = this.store();
+    assert.ok(!!model);
+  });
+
+});
+define('ember-riak-explorer/tests/unit/models/object-metadata-test.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - unit/models');
+  test('unit/models/object-metadata-test.js should pass jshint', function() { 
+    ok(true, 'unit/models/object-metadata-test.js should pass jshint.'); 
+  });
+
+});
 define('ember-riak-explorer/tests/unit/routes/application-test', ['ember-qunit'], function (ember_qunit) {
 
   'use strict';
@@ -13232,7 +13289,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+caad537e"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.3"});
 }
 
 /* jshint ignore:end */

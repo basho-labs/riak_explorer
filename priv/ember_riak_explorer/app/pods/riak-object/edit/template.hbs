@@ -4,13 +4,13 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            {{#object-headers-edit headers=model.headersIndexes
+            {{#object-headers-edit headers=model.metadata.headersIndexes
                 title='Secondary Indexes'}}{{/object-headers-edit}}
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {{#object-headers-edit headers=model.headersCustom
+            {{#object-headers-edit headers=model.metadata.headersCustom
                 title='Custom Headers'}}{{/object-headers-edit}}
         </div>
     </div>
@@ -22,7 +22,7 @@
     <div class="row">
         <div class="col-md-12 form-group">
             <label for='contentType'>Content Type:</label>
-            {{input value=model.contentType id='contentType' class="form-control"}}
+            {{input value=model.metadata.contentType id='metadata.contentType' class="form-control"}}
         </div>
     </div>
 </div>

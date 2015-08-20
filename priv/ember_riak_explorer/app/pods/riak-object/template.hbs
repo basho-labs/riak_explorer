@@ -5,13 +5,13 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                {{#object-headers headers=model.headersIndexes
+                {{#object-headers headers=model.metadata.headersIndexes
                     title='Secondary Indexes'}}{{/object-headers}}
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                {{#object-headers headers=model.headersCustom
+                {{#object-headers headers=model.metadata.headersCustom
                     title='Custom Headers'}}{{/object-headers}}
             </div>
         </div>
@@ -27,7 +27,7 @@
                     View raw</a>
             </div>
             <div class="col-md-10">
-                Content Type: <b>{{model.contentType}}</b>
+                Content Type: <b>{{model.metadata.contentType}}</b>
             </div>
         </div>
     </div>

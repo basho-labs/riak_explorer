@@ -300,7 +300,6 @@ export default Ember.Service.extend({
                 bucket: bucket,
                 bucketType: bucket.get('bucketType'),
                 cluster: bucket.get('cluster'),
-                headers: explorer.emptyObjectHeaders(),
                 isLoaded: false
             });
             if(explorer.wasObjectDeleted(obj)) {
@@ -318,19 +317,30 @@ export default Ember.Service.extend({
         });
     },
 
-    createObjectFromAjax: function(key, bucket, rawHeader, responseText, store, url) {
-        var headers = this.parseHeaderString(rawHeader);
-        var contents = displayContentsForType(headers, responseText);
+    createObjectFromAjax: function(key, bucket, rawHeader,
+                responseText, store, url) {
+        var metadata = this.createObjectMetadata(rawHeader, store);
+        var contents = displayContentsForType(metadata.get('headers'),
+            responseText);
 
         return store.createRecord('riak-object', {
             key: key,
             bucket: bucket,
             bucketType: bucket.get('bucketType'),
             cluster: bucket.get('cluster'),
-            headers: headers,
+            metadata: metadata,
             isLoaded: true,
             contents: contents,
             rawUrl: url
+        });
+    },
+
+    createObjectMetadata: function(rawHeader, store) {
+        if (!rawHeader) {
+            return store.createRecord('object-metadata');
+        }
+        return store.createRecord('object-metadata', {
+            headers: this.parseHeaderString(rawHeader)
         });
     },
 
@@ -339,14 +349,6 @@ export default Ember.Service.extend({
     deleteObject: deleteObject,
 
     deleteBucket: deleteBucket,
-
-    emptyObjectHeaders: function() {
-        return {
-            custom: [],     // x-riak-meta-*
-            indexes: [],    // x-riak-index-*
-            other: {}       // everything else
-        };
-    },
 
     getBucket: function(clusterId, bucketTypeId, bucketId, store) {
         var self = this;
@@ -491,8 +493,15 @@ export default Ember.Service.extend({
     getNodes: getNodes,
 
     getRiakObject: function(clusterId, bucketTypeId, bucket, key, store) {
-        var url = getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' +
-               bucket.get('bucketId') + '/keys/' + key;
+        var url;
+        if(bucket.get('props').get('isCRDT')) {
+            url = getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' +
+                   bucket.get('bucketId') + '/datatypes/' + key;
+        } else {
+            // Regular Riak object
+            url = getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' +
+                   bucket.get('bucketId') + '/keys/' + key;
+        }
         var explorer = this;
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -546,9 +555,6 @@ export default Ember.Service.extend({
         var indexes = [];
         var custom = [];
 
-        if (!headerString) {
-          return this.emptyObjectHeaders();
-        }
         var headerLines = headerString.split("\r\n");
 
         for (var i = 0; i < headerLines.length; i++) {
