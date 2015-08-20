@@ -1,9 +1,9 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-    queryParams: ['cluster_id', 'bucket_type_id', 'bucket_id', 'object_key'],
-    cluster_id: null,
-    bucket_type_id: null,
-    bucket_id: null,
-    object_key: null
+    queryParams: ['clusterId', 'bucketTypeId', 'bucketId', 'key'],
+    clusterId: null,
+    bucketTypeId: null,
+    bucketId: null,
+    key: null
 });

@@ -595,11 +595,11 @@ define('ember-riak-explorer/controllers/error/object-not-found', ['exports', 'em
     'use strict';
 
     exports['default'] = Ember['default'].Controller.extend({
-        queryParams: ['cluster_id', 'bucket_type_id', 'bucket_id', 'object_key'],
-        cluster_id: null,
-        bucket_type_id: null,
-        bucket_id: null,
-        object_key: null
+        queryParams: ['clusterId', 'bucketTypeId', 'bucketId', 'key'],
+        clusterId: null,
+        bucketTypeId: null,
+        bucketId: null,
+        key: null
     });
 
 });
@@ -3316,6 +3316,9 @@ define('ember-riak-explorer/pods/riak-object/route', ['exports', 'ember'], funct
         actions: {
             error: function error(_error, transition) {
                 if (_error && _error.status === 404) {
+                    transition.queryParams = transition.params['riak-object'];
+                    console.log('transition: %O', transition);
+                    // transition.queryParams.cluster_id =
                     this.transitionTo('error.object-not-found', transition);
                 } else {
                     // Unknown error, bubble error event up to routes/application.js
@@ -3654,27 +3657,22 @@ define('ember-riak-explorer/routes/error/object-not-found', ['exports', 'ember']
 
     exports['default'] = Ember['default'].Route.extend({
         queryParams: {
-            cluster_id: {
+            clusterId: {
                 refreshModel: true
             },
-            bucket_type_id: {
+            bucketTypeId: {
                 refreshModel: true
             },
-            bucket_id: {
+            bucketId: {
                 refreshModel: true
             },
-            object_key: {
+            key: {
                 refreshModel: true
             }
         },
 
         model: function model(params) {
-            return {
-                clusterId: params.cluster_id,
-                bucketTypeId: params.bucket_type_id,
-                bucketId: params.bucket_id,
-                key: params.object_key
-            };
+            return params;
         }
     });
 
@@ -11617,7 +11615,7 @@ define('ember-riak-explorer/templates/error/object-not-found', ['exports'], func
             "column": 0
           },
           "end": {
-            "line": 13,
+            "line": 22,
             "column": 0
           }
         },
@@ -11634,6 +11632,25 @@ define('ember-riak-explorer/templates/error/object-not-found', ['exports'], func
         dom.appendChild(el1, el2);
         var el2 = dom.createElement("h2");
         var el3 = dom.createTextNode("404 Object Not Found");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2,"class","crumb-trail");
+        var el3 = dom.createTextNode("\n    cluster: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    /\n    bucketType: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    /\n    bucket: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    /\n    ");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n\n    ");
@@ -11656,11 +11673,7 @@ define('ember-riak-explorer/templates/error/object-not-found', ['exports'], func
         var el3 = dom.createTextNode("\n    ");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
+        var el2 = dom.createTextNode("\n\n\n");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
         var el1 = dom.createTextNode("\n");
@@ -11669,14 +11682,19 @@ define('ember-riak-explorer/templates/error/object-not-found', ['exports'], func
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element0 = dom.childAt(fragment, [0]);
-        var morphs = new Array(2);
-        morphs[0] = dom.createMorphAt(dom.childAt(element0, [3, 1, 1]),0,0);
-        morphs[1] = dom.createMorphAt(element0,5,5);
+        var element1 = dom.childAt(element0, [3]);
+        var morphs = new Array(4);
+        morphs[0] = dom.createMorphAt(element1,1,1);
+        morphs[1] = dom.createMorphAt(element1,3,3);
+        morphs[2] = dom.createMorphAt(element1,5,5);
+        morphs[3] = dom.createMorphAt(dom.childAt(element0, [5, 1, 1]),0,0);
         return morphs;
       },
       statements: [
-        ["content","model.key",["loc",[null,[7,24],[7,37]]]],
-        ["inline","crumb-trail",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[11,24],[11,29]]]]],[],[]]],["loc",[null,[11,4],[11,31]]]]
+        ["content","model.clusterId",["loc",[null,[5,13],[5,32]]]],
+        ["content","model.bucketTypeId",["loc",[null,[7,16],[7,38]]]],
+        ["content","model.bucketId",["loc",[null,[9,12],[9,30]]]],
+        ["content","model.key",["loc",[null,[16,24],[16,37]]]]
       ],
       locals: [],
       templates: []
@@ -13871,7 +13889,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+457e764b"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+a96648c7"});
 }
 
 /* jshint ignore:end */

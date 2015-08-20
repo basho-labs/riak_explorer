@@ -1,12 +1,19 @@
 <div class="container text-center">
     <h2>404 Object Not Found</h2>
 
+    <div class="crumb-trail">
+    cluster: {{model.clusterId}}
+    /
+    type: {{model.bucketTypeId}}
+    /
+    bucket: {{model.bucketId}}
+    /
+    </div>
+
     <div class="container">
         <div class="row key">
                 key:
                 <strong>{{model.key}}</strong>
         </div>
     </div>
-
-    {{crumb-trail model=model}}
 </div>
