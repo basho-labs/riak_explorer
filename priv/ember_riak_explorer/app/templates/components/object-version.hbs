@@ -1,15 +1,27 @@
 <br />
 <div class="container">
-    <h4>Version Details</h4>
-
     <div class="row">
         <div class="col-md-7">
             <strong>Causal Context:</strong>
             {{object.metadata.causalContext}}
         </div>
         <div class="col-md-5">
+            <strong>Page loaded:</strong>
+            {{object.metadata.dateLoaded}}
+        </div>
+    </div>
+</div>
+
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-md-7">
             <strong>ETag:</strong>
             {{object.metadata.etag}}
+        </div>
+        <div class="col-md-5">
+            <strong>Last Modified:</strong>
+            {{object.metadata.dateLastModified}}
         </div>
     </div>
 </div>

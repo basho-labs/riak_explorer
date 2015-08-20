@@ -1,0 +1,55 @@
+<div class="container">
+    <div class="object-contents">
+        <div class="object-contents-header">
+            <div class="object-contents-info">
+                {{#if isEditing}}
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for='contentType'>Content Type:</label>
+                            {{input value=model.metadata.contentType
+                                id='metadata.contentType' class="form-control"}}
+                        </div>
+                    </form>
+                {{else}}
+                    <b>{{model.metadata.contentType}}</b>
+                {{/if}}
+            </div>
+            <div class="object-contents-actions">
+                    {{#if isEditing}}
+                        (Editing)
+                        {{#link-to 'riak-object' model
+                                classNames='btn btn-xs btn-default' }}
+                            Cancel{{/link-to}}
+                    {{else}}
+                        <a href="{{model.rawUrl}}" class="btn btn-sm btn-primary">
+                            <span class="glyphicon glyphicon-download"
+                                aria-hidden="true"></span>
+                            View raw
+                        </a>
+
+                        {{edit-object object=model}}
+
+                        {{delete-object action="deleteObject" object=model}}
+                    {{/if}}
+            </div>
+        </div>
+        <div class="object-contents-body">
+            {{#if isEditing}}
+                <form>
+                    <div class="form-group">
+                    {{textarea class="form-control" value=model.contents rows=20
+                        autofocus=true}}
+                    </div>
+                    <button type="button" class="btn btn-md btn-primary"
+                            {{action 'saveObject' model}}>
+                        Save</button>
+                </form>
+            {{else}}
+                {{#if model.contents}}
+                <code>{{model.contents}}</code>
+                {{/if}}
+            {{/if}}
+        </div>
+    </div>
+</div>
+<br />

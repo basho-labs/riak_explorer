@@ -6,6 +6,7 @@ export default Ember.Controller.extend({
     actions: {
         saveObject: function(object) {
             this.get('explorer').saveObject(object);
+            object.set('isLoaded', false);
             this.transitionToRoute('riak-object', object);
         }
     }

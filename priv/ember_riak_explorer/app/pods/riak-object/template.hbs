@@ -1,40 +1,10 @@
-{{#object-location object=model isEditing=false}}{{/object-location}}
+{{#object-location object=model}}{{/object-location}}
 
 <br />
 {{#if model.isLoaded}}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                {{#object-headers headers=model.metadata.headersIndexes
-                    title='Secondary Indexes'}}{{/object-headers}}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                {{#object-headers headers=model.metadata.headersCustom
-                    title='Custom Headers'}}{{/object-headers}}
-            </div>
-        </div>
-    </div>
+    {{object-metadata metadata=model.metadata isEditing=false}}
 
-    <br />
-    <div class="container">
-        <h4>Contents</h4>
-        <div class="row">
-            <div class="col-md-2">
-                <a href="{{model.rawUrl}}" class="btn btn-xs btn-primary">
-                    <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
-                    View raw</a>
-            </div>
-            <div class="col-md-10">
-                Content Type: <b>{{model.metadata.contentType}}</b>
-            </div>
-        </div>
-    </div>
-    <br />
-    {{#if model.contents}}
-    <pre><code>{{model.contents}}</code></pre>
-    {{/if}}
+    {{object-contents model=model isEditing=false deleteObject="deleteObject"}}
 
     {{#object-version object=model}}{{/object-version}}
 {{else}}

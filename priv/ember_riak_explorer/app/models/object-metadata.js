@@ -40,7 +40,7 @@ var ObjectMetadata = DS.Model.extend({
     headersForUpdate: function() {
         // Start with the causal context
         var headers = {
-            'X-Riak-Vclock': this.get('headers').other['x-riak-vclock']
+            'X-Riak-Vclock': this.get('causalContext')
         };
         var header;
         var i;

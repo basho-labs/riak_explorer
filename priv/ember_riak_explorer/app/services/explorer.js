@@ -72,11 +72,13 @@ function deleteObject(object) {
             object.get('bucketTypeId') + '/buckets/' +
             object.get('bucketId') + '/keys/' + object.get('key');
 
+    object.set('markedDeleted', true);
+
     var request = new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.$.ajax({
             type: "DELETE",
             url: url,
-            headers: { 'X-Riak-Vclock': object.get('headers').other['x-riak-vclock'] }
+            headers: { 'X-Riak-Vclock': object.get('metadata').get('causalContext') }
         }).then(
             function(data, textStatus, jqXHR) {
                 resolve(jqXHR.status);
@@ -233,9 +235,9 @@ function saveObject(object) {
         Ember.$.ajax({
             type: "PUT",
             processData: false,
-            contentType: object.get('contentType'),
+            contentType: object.get('metadata').get('contentType'),
             url: url,
-            headers: object.get('headersForUpdate'),
+            headers: object.get('metadata').get('headersForUpdate'),
             data: object.get('contents')
         }).then(
             function(data, textStatus, jqXHR) {

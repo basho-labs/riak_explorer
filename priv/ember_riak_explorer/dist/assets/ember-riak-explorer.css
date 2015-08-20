@@ -1,3 +1,7 @@
+body {
+    word-wrap: break-word;
+}
+
 th{background: #FFF}
 tr:nth-child(even) {background: #FFF}
 tr:nth-child(odd) {background: #EEE}
@@ -67,4 +71,49 @@ tr:nth-child(odd) {background: #EEE}
 }
 .property-row {
     padding: 0.5em 1em;
+}
+
+.object-contents {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    margin-bottom: 15px;
+    margin-top: 20px;
+    width: 95%;
+    position: relative;
+}
+
+.object-contents-header {
+    background-color: #e7ecee;
+    border-bottom: 1px solid #d8d8d8;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    padding: 5px 10px;
+    line-height: 30px;
+}
+
+.object-contents-header::before {
+    content: "";
+    display: table;
+}
+
+.object-contents-header::after {
+    clear: both;
+    content: "";
+    display: table;
+}
+
+.object-contents-actions {
+    float: right;
+    /*padding-top: 3px;*/
+}
+
+.object-contents-info {
+    float: left;
+    font-family: Consolas,"Liberation Mono",Courier,monospace;
+    font-size: 12px;
+}
+
+.object-contents-body {
+    background-color: #f7f7f7;
+    padding: 20px;
 }

@@ -1,40 +1,10 @@
-{{#object-location object=model isEditing=true}}{{/object-location}}
+{{#object-location object=model}}{{/object-location}}
 
 <br />
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            {{#object-headers-edit headers=model.metadata.headersIndexes
-                title='Secondary Indexes'}}{{/object-headers-edit}}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            {{#object-headers-edit headers=model.metadata.headersCustom
-                title='Custom Headers'}}{{/object-headers-edit}}
-        </div>
-    </div>
-</div>
+{{#if model.isLoaded}}
+    {{object-metadata metadata=model.metadata isEditing=true}}
 
-<br />
-<div class="container">
-    <h4>Content</h4>
-    <div class="row">
-        <div class="col-md-12 form-group">
-            <label for='contentType'>Content Type:</label>
-            {{input value=model.metadata.contentType id='metadata.contentType' class="form-control"}}
-        </div>
-    </div>
-</div>
-
-<br />
-<div class="container">
-    {{textarea value=model.contents autofocus=true rows=20 cols=100}}
-</div>
-<div class="container">
-    <button type="button" class="btn btn-md btn-primary"
-            {{action 'saveObject' model}}>
-        Save</button>
-</div>
-
-{{#object-version object=model}}{{/object-version}}
+    {{object-contents model=model isEditing=true saveObject="saveObject"}}
+{{else}}
+    {{loading-spinner}}
+{{/if}}
