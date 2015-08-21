@@ -565,62 +565,6 @@ export default Ember.Service.extend({
         });
     },
 
-    decrementCounter: function(object) {
-        var bucket = object.get('bucket');
-        var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' +
-            bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') +
-            '/datatypes/' + object.get('key');
-
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-            var ajaxHash = {
-                contentType: 'application/json',
-                type: 'POST',
-                data: JSON.stringify({decrement: object.get('decrementBy')}),
-                dataType: 'json',
-                url: url,
-                success: function(data) {
-                    resolve(data);
-                },
-                error: function(jqXHR) {
-                    if(jqXHR.status === 204) {
-                        resolve(jqXHR.status);
-                    } else {
-                        reject(jqXHR);
-                    }
-                }
-            };
-            Ember.$.ajax(ajaxHash);
-        });
-    },
-
-    incrementCounter: function(object) {
-        var bucket = object.get('bucket');
-        var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' +
-            bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') +
-            '/datatypes/' + object.get('key');
-
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-            var ajaxHash = {
-                contentType: 'application/json',
-                type: 'POST',
-                data: JSON.stringify({increment: object.get('incrementBy')}),
-                dataType: 'json',
-                url: url,
-                success: function(data) {
-                    resolve(data);
-                },
-                error: function(jqXHR) {
-                    if(jqXHR.status === 204) {
-                        resolve(jqXHR.status);
-                    } else {
-                        reject(jqXHR);
-                    }
-                }
-            };
-            Ember.$.ajax(ajaxHash);
-        });
-    },
-
     keyCacheRefresh: keyCacheRefresh,
 
     markDeletedKey: markDeletedKey,
@@ -670,6 +614,38 @@ export default Ember.Service.extend({
     },
 
     saveObject: saveObject,
+
+    updateCounter: function(object, operationType) {
+        var bucket = object.get('bucket');
+        var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' +
+            bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') +
+            '/datatypes/' + object.get('key');
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+            var ajaxHash = {
+                contentType: 'application/json',
+                type: 'POST',
+                dataType: 'json',
+                url: url,
+                success: function(data) {
+                    resolve(data);
+                },
+                error: function(jqXHR) {
+                    if(jqXHR.status === 204) {
+                        resolve(jqXHR.status);
+                    } else {
+                        reject(jqXHR);
+                    }
+                }
+            };
+            if(operationType === 'increment') {
+                ajaxHash.data = JSON.stringify({increment: object.get('incrementBy')});
+            } else {
+                ajaxHash.data = JSON.stringify({decrement: object.get('decrementBy')});
+            }
+            Ember.$.ajax(ajaxHash);
+        });
+    },
 
     wasObjectDeleted: function(object) {
         var clusterId = object.get('clusterId');

@@ -3085,12 +3085,12 @@ define('ember-riak-explorer/pods/riak-object/counter/controller', ['exports', 'e
     var RiakObjectCounterController = RiakObjectController['default'].extend({
         actions: {
             incrementCounter: function incrementCounter(object) {
-                this.get('explorer').incrementCounter(object);
+                this.get('explorer').updateCounter(object, 'increment');
 
                 object.increment(object.get('incrementBy'));
             },
             decrementCounter: function decrementCounter(object) {
-                this.get('explorer').decrementCounter(object);
+                this.get('explorer').updateCounter(object, 'decrement');
 
                 object.decrement(object.get('decrementBy'));
             },
@@ -3130,14 +3130,16 @@ define('ember-riak-explorer/pods/riak-object/counter/model', ['exports', 'ember-
             return this.get('contents').value;
         }).property('contents'),
 
-        increment: function increment(amount) {
-            var newValue = this.get('contents').value + amount;
-            this.set('contents', { value: newValue });
-        },
         decrement: function decrement(amount) {
             var newValue = this.get('contents').value - amount;
             this.set('contents', { value: newValue });
         },
+
+        increment: function increment(amount) {
+            var newValue = this.get('contents').value + amount;
+            this.set('contents', { value: newValue });
+        },
+
         decrementBy: DS['default'].attr('integer', { defaultValue: 1 }),
 
         incrementBy: DS['default'].attr('integer', { defaultValue: 1 })
@@ -4681,32 +4683,6 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             });
         },
 
-        incrementCounter: function incrementCounter(object) {
-            var bucket = object.get('bucket');
-            var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' + bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') + '/datatypes/' + object.get('key');
-
-            return new Ember['default'].RSVP.Promise(function (resolve, reject) {
-                var ajaxHash = {
-                    contentType: 'application/json',
-                    type: 'POST',
-                    data: JSON.stringify({ increment: object.get('incrementBy') }),
-                    dataType: 'json',
-                    url: url,
-                    success: function success(data) {
-                        resolve(data);
-                    },
-                    error: function error(jqXHR) {
-                        if (jqXHR.status === 204) {
-                            resolve(jqXHR.status);
-                        } else {
-                            reject(jqXHR);
-                        }
-                    }
-                };
-                Ember['default'].$.ajax(ajaxHash);
-            });
-        },
-
         keyCacheRefresh: keyCacheRefresh,
 
         markDeletedKey: markDeletedKey,
@@ -4756,6 +4732,36 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
         },
 
         saveObject: saveObject,
+
+        updateCounter: function updateCounter(object, operationType) {
+            var bucket = object.get('bucket');
+            var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' + bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') + '/datatypes/' + object.get('key');
+
+            return new Ember['default'].RSVP.Promise(function (resolve, reject) {
+                var ajaxHash = {
+                    contentType: 'application/json',
+                    type: 'POST',
+                    dataType: 'json',
+                    url: url,
+                    success: function success(data) {
+                        resolve(data);
+                    },
+                    error: function error(jqXHR) {
+                        if (jqXHR.status === 204) {
+                            resolve(jqXHR.status);
+                        } else {
+                            reject(jqXHR);
+                        }
+                    }
+                };
+                if (operationType === 'increment') {
+                    ajaxHash.data = JSON.stringify({ increment: object.get('incrementBy') });
+                } else {
+                    ajaxHash.data = JSON.stringify({ decrement: object.get('decrementBy') });
+                }
+                Ember['default'].$.ajax(ajaxHash);
+            });
+        },
 
         wasObjectDeleted: function wasObjectDeleted(object) {
             var clusterId = object.get('clusterId');
@@ -14772,7 +14778,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+33ba9268"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+54d7e85f"});
 }
 
 /* jshint ignore:end */

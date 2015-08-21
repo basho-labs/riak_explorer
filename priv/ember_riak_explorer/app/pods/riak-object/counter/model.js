@@ -14,14 +14,16 @@ var RiakCounterObject = RiakObject.extend({
         return this.get('contents').value;
     }.property('contents'),
 
-    increment: function(amount) {
-        var newValue = this.get('contents').value + amount;
-        this.set('contents', {value: newValue});
-    },
     decrement: function(amount) {
         var newValue = this.get('contents').value - amount;
         this.set('contents', {value: newValue});
     },
+
+    increment: function(amount) {
+        var newValue = this.get('contents').value + amount;
+        this.set('contents', {value: newValue});
+    },
+
     decrementBy: DS.attr('integer', {defaultValue: 1}),
 
     incrementBy: DS.attr('integer', {defaultValue: 1})
