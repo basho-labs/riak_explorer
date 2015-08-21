@@ -1,17 +1,14 @@
 import Ember from 'ember';
 
-export default Ember.Route.extend({
+var RiakObjectEditRoute = Ember.Route.extend({
         model: function(params) {
-            var clusterId = params.clusterId;
-            var bucketTypeId = params.bucketTypeId;
-            var bucketId = params.bucketId;
-            var key = params.key;
             var explorer = this.explorer;
             var store = this.store;
-            return explorer.getBucket(clusterId, bucketTypeId, bucketId, store)
+            return explorer.getBucket(params.clusterId,
+                    params.bucketTypeId, params.bucketId, store)
                 .then(function(bucket) {
-                    return explorer.getRiakObject(clusterId,
-                        bucketTypeId, bucket, key, store);
+                    return explorer.getRiakObject(bucket, params.key, store);
                 });
         }
 });
+export default RiakObjectEditRoute;

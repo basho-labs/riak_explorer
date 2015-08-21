@@ -296,8 +296,14 @@ export default Ember.Service.extend({
                 cluster: bucket.get('cluster')
             });
         }
+        var modelName;
+        if(bucket.get('props').get('isCounter')) {
+            modelName = 'riak-object.counter';
+        } else {
+            modelName = 'riak-object';
+        }
         var keyList = data.keys.keys.map(function(key) {
-            var obj = store.createRecord('riak-object', {
+            var obj = store.createRecord(modelName, {
                 key: key,
                 bucket: bucket,
                 bucketType: bucket.get('bucketType'),
@@ -324,8 +330,13 @@ export default Ember.Service.extend({
         var metadata = this.createObjectMetadata(rawHeader, store);
         var contents = displayContentsForType(metadata.get('headers'),
             responseText);
-
-        return store.createRecord('riak-object', {
+        var modelName;
+        if(bucket.get('props').get('isCounter')) {
+            modelName = 'riak-object.counter';
+        } else {
+            modelName = 'riak-object';
+        }
+        return store.createRecord(modelName, {
             key: key,
             bucket: bucket,
             bucketType: bucket.get('bucketType'),
@@ -494,32 +505,45 @@ export default Ember.Service.extend({
     // Return all nodes for a particular cluster
     getNodes: getNodes,
 
-    getRiakObject: function(clusterId, bucketTypeId, bucket, key, store) {
-        var url;
-        if(bucket.get('props').get('isCRDT')) {
-            url = getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' +
-                   bucket.get('bucketId') + '/datatypes/' + key;
-        } else {
-            // Regular Riak object
-            url = getClusterProxyUrl(clusterId) + '/types/' + bucketTypeId + '/buckets/' +
-                   bucket.get('bucketId') + '/keys/' + key;
-        }
+    getRiakObject: function(bucket, key, store) {
         var explorer = this;
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
             var ajaxHash = {
                 type: "GET",
-                processData: false,
                 cache: false,
-                url: url,
                 headers: { 'Accept': '*/*, multipart/mixed' }
             };
+
+            var processData;
             var headerString;
-            ajaxHash.success = function(data, textStatus, jqXHR) {
-                headerString = jqXHR.getAllResponseHeaders();
-                resolve(explorer.createObjectFromAjax(key, bucket, headerString,
-                    jqXHR.responseText, store, url));
-            };
+            var contents;
+            var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' +
+                bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId');
+            if(bucket.get('props').get('isCRDT')) {
+                url = url + '/datatypes/' + key;
+                processData = true;  // Parse the payload as JSON
+                ajaxHash.dataType = 'json';
+                ajaxHash.success = function(data, textStatus, jqXHR) {
+                    headerString = jqXHR.getAllResponseHeaders();
+                    contents = data;  // Parsed json
+                    resolve(explorer.createObjectFromAjax(key, bucket, headerString,
+                        contents, store, url));
+                };
+            } else {
+                // Regular Riak object
+                url = url + '/keys/' + key;
+                processData = false;
+                ajaxHash.success = function(data, textStatus, jqXHR) {
+                    headerString = jqXHR.getAllResponseHeaders();
+                    contents = jqXHR.responseText;  // Unparsed payload
+                    resolve(explorer.createObjectFromAjax(key, bucket, headerString,
+                        contents, store, url));
+                };
+            }
+            ajaxHash.processData = processData;
+            ajaxHash.url = url;
+
             ajaxHash.error = function(jqXHR, textStatus) {
                 if(jqXHR.status === 200 && textStatus === 'parsererror') {
                     // jQuery tries to parse JSON objects, and throws
@@ -535,6 +559,62 @@ export default Ember.Service.extend({
                         jqXHR.responseText, store, url));
                 } else {
                     reject(jqXHR);
+                }
+            };
+            Ember.$.ajax(ajaxHash);
+        });
+    },
+
+    decrementCounter: function(object) {
+        var bucket = object.get('bucket');
+        var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' +
+            bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') +
+            '/datatypes/' + object.get('key');
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+            var ajaxHash = {
+                contentType: 'application/json',
+                type: 'POST',
+                data: JSON.stringify({decrement: object.get('decrementBy')}),
+                dataType: 'json',
+                url: url,
+                success: function(data) {
+                    resolve(data);
+                },
+                error: function(jqXHR) {
+                    if(jqXHR.status === 204) {
+                        resolve(jqXHR.status);
+                    } else {
+                        reject(jqXHR);
+                    }
+                }
+            };
+            Ember.$.ajax(ajaxHash);
+        });
+    },
+
+    incrementCounter: function(object) {
+        var bucket = object.get('bucket');
+        var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' +
+            bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') +
+            '/datatypes/' + object.get('key');
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+            var ajaxHash = {
+                contentType: 'application/json',
+                type: 'POST',
+                data: JSON.stringify({increment: object.get('incrementBy')}),
+                dataType: 'json',
+                url: url,
+                success: function(data) {
+                    resolve(data);
+                },
+                error: function(jqXHR) {
+                    if(jqXHR.status === 204) {
+                        resolve(jqXHR.status);
+                    } else {
+                        reject(jqXHR);
+                    }
                 }
             };
             Ember.$.ajax(ajaxHash);

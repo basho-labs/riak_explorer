@@ -9,8 +9,13 @@
                     {{#if obj.markedDeleted}}
                         <strike>{{obj.key}}</strike>
                     {{else}}
-                        {{#link-to 'riak-object' obj}}
-                            {{obj.key}}{{/link-to}}
+                        {{#if obj.bucket.props.isCounter}}
+                            {{#link-to 'riak-object.counter' obj}}
+                                {{obj.key}}{{/link-to}}
+                        {{else}}
+                            {{#link-to 'riak-object' obj}}
+                                {{obj.key}}{{/link-to}}
+                        {{/if}}
                     {{/if}}
                 </div>
             </div>

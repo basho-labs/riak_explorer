@@ -2,17 +2,7 @@
     <div class="object-contents">
         <div class="object-contents-header">
             <div class="object-contents-info">
-                {{#if isEditing}}
-                    <form class="form-inline">
-                        <div class="form-group">
-                            <label for='contentType'>Content Type:</label>
-                            {{input value=model.metadata.contentType
-                                id='metadata.contentType' class="form-control"}}
-                        </div>
-                    </form>
-                {{else}}
-                    <b>{{model.metadata.contentType}}</b>
-                {{/if}}
+                Counter
             </div>
             <div class="object-contents-actions">
                     {{#if isEditing}}
@@ -44,9 +34,30 @@
                         Save</button>
                 </form>
             {{else}}
-                {{#if model.contentsForDisplay}}
-                <code>{{model.contentsForDisplay}}</code>
-                {{/if}}
+                <form class="form-inline">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <span class="value-counter">{{model.contentsForDisplay}}</span>
+                        </div>
+                        <div class="col-md-6" style="vertical-align: middle;">
+                            +
+                            {{input value=model.incrementBy
+                                id='incrementBy' class="form-control input-increment"}}
+
+                            <button type="button" class="btn btn-md btn-primary"
+                                    {{action 'incrementCounter' model}}>
+                                Increment</button>
+                            /
+                            -
+                            {{input value=model.decrementBy
+                                id='decrementBy' class="form-control input-increment"}}
+
+                            <button type="button" class="btn btn-md btn-primary"
+                                    {{action 'decrementCounter' model}}>
+                                Decrement</button>
+                        </div>
+                    </div>
+                </form>
             {{/if}}
         </div>
         <div class="object-contents-footer">

@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-export default Ember.Controller.extend({
+var RiakObjectEditController = Ember.Controller.extend({
     explorer: Ember.inject.service('explorer'),
 
     actions: {
@@ -11,3 +11,4 @@ export default Ember.Controller.extend({
         }
     }
 });
+export default RiakObjectEditController;

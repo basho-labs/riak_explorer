@@ -31,9 +31,21 @@ var RiakObject = DS.Model.extend({
         return this.get('bucketType').get('bucketTypeId');
     }.property('bucket'),
 
+    canBeEdited: function() {
+        return true;
+    }.property(),
+
+    canBeViewedRaw: function() {
+        return true;
+    }.property(),
+
     clusterId: function() {
         return this.get('cluster').get('clusterId');
     }.property('bucket'),
+
+    contentsForDisplay: function() {
+        return this.get('contents');
+    }.property('contents'),
 
     isDeleted: function() {
         var deletedOnRiak = false;

@@ -1,0 +1,9 @@
+{{#object-location object=model}}{{/object-location}}
+
+<br />
+{{#if model.isLoaded}}
+    {{object-contents-counter model=model deleteObject="deleteObject"
+        incrementCounter="incrementCounter" decrementCounter="decrementCounter"}}
+{{else}}
+    {{loading-spinner}}
+{{/if}}
