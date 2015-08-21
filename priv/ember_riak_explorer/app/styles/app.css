@@ -137,3 +137,9 @@ tr:nth-child(odd) {background: #EEE}
     width: 5em;
     vertical-align: middle;
 }
+
+.divider {
+    font-size: 150%;
+    margin: 0px 10px;
+    vertical-align: middle;
+}

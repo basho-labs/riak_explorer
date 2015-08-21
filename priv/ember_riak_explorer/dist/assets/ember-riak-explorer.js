@@ -4657,32 +4657,6 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             });
         },
 
-        decrementCounter: function decrementCounter(object) {
-            var bucket = object.get('bucket');
-            var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' + bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') + '/datatypes/' + object.get('key');
-
-            return new Ember['default'].RSVP.Promise(function (resolve, reject) {
-                var ajaxHash = {
-                    contentType: 'application/json',
-                    type: 'POST',
-                    data: JSON.stringify({ decrement: object.get('decrementBy') }),
-                    dataType: 'json',
-                    url: url,
-                    success: function success(data) {
-                        resolve(data);
-                    },
-                    error: function error(jqXHR) {
-                        if (jqXHR.status === 204) {
-                            resolve(jqXHR.status);
-                        } else {
-                            reject(jqXHR);
-                        }
-                    }
-                };
-                Ember['default'].$.ajax(ajaxHash);
-            });
-        },
-
         keyCacheRefresh: keyCacheRefresh,
 
         markDeletedKey: markDeletedKey,
@@ -9661,7 +9635,7 @@ define('ember-riak-explorer/templates/components/object-contents-counter', ['exp
               "column": 12
             },
             "end": {
-              "line": 61,
+              "line": 63,
               "column": 12
             }
           },
@@ -9699,7 +9673,7 @@ define('ember-riak-explorer/templates/components/object-contents-counter', ['exp
           var el3 = dom.createElement("div");
           dom.setAttribute(el3,"class","col-md-6");
           dom.setAttribute(el3,"style","vertical-align: middle;");
-          var el4 = dom.createTextNode("\n                            +\n                            ");
+          var el4 = dom.createTextNode("\n                            ");
           dom.appendChild(el3, el4);
           var el4 = dom.createComment("");
           dom.appendChild(el3, el4);
@@ -9708,10 +9682,23 @@ define('ember-riak-explorer/templates/components/object-contents-counter', ['exp
           var el4 = dom.createElement("button");
           dom.setAttribute(el4,"type","button");
           dom.setAttribute(el4,"class","btn btn-md btn-primary");
+          var el5 = dom.createTextNode("\n                                ");
+          dom.appendChild(el4, el5);
+          var el5 = dom.createElement("span");
+          dom.setAttribute(el5,"class","glyphicon glyphicon-plus");
+          dom.setAttribute(el5,"aria-hidden","true");
+          dom.appendChild(el4, el5);
           var el5 = dom.createTextNode("\n                                Increment");
           dom.appendChild(el4, el5);
           dom.appendChild(el3, el4);
-          var el4 = dom.createTextNode("\n                            /\n                            -\n                            ");
+          var el4 = dom.createTextNode("\n                                \n                            ");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createElement("span");
+          dom.setAttribute(el4,"class","divider");
+          var el5 = dom.createTextNode("/");
+          dom.appendChild(el4, el5);
+          dom.appendChild(el3, el4);
+          var el4 = dom.createTextNode("\n\n                            ");
           dom.appendChild(el3, el4);
           var el4 = dom.createComment("");
           dom.appendChild(el3, el4);
@@ -9720,6 +9707,12 @@ define('ember-riak-explorer/templates/components/object-contents-counter', ['exp
           var el4 = dom.createElement("button");
           dom.setAttribute(el4,"type","button");
           dom.setAttribute(el4,"class","btn btn-md btn-primary");
+          var el5 = dom.createTextNode("\n                                ");
+          dom.appendChild(el4, el5);
+          var el5 = dom.createElement("span");
+          dom.setAttribute(el5,"class","glyphicon glyphicon-minus");
+          dom.setAttribute(el5,"aria-hidden","true");
+          dom.appendChild(el4, el5);
           var el5 = dom.createTextNode("\n                                Decrement");
           dom.appendChild(el4, el5);
           dom.appendChild(el3, el4);
@@ -9740,21 +9733,21 @@ define('ember-riak-explorer/templates/components/object-contents-counter', ['exp
           var element0 = dom.childAt(fragment, [1, 1]);
           var element1 = dom.childAt(element0, [3]);
           var element2 = dom.childAt(element1, [3]);
-          var element3 = dom.childAt(element1, [7]);
+          var element3 = dom.childAt(element1, [9]);
           var morphs = new Array(5);
           morphs[0] = dom.createMorphAt(dom.childAt(element0, [1, 1]),0,0);
           morphs[1] = dom.createMorphAt(element1,1,1);
           morphs[2] = dom.createElementMorph(element2);
-          morphs[3] = dom.createMorphAt(element1,5,5);
+          morphs[3] = dom.createMorphAt(element1,7,7);
           morphs[4] = dom.createElementMorph(element3);
           return morphs;
         },
         statements: [
           ["content","model.contentsForDisplay",["loc",[null,[40,56],[40,84]]]],
-          ["inline","input",[],["value",["subexpr","@mut",[["get","model.incrementBy",["loc",[null,[44,42],[44,59]]]]],[],[]],"id","incrementBy","class","form-control input-increment"],["loc",[null,[44,28],[45,87]]]],
-          ["element","action",["incrementCounter",["get","model",["loc",[null,[48,64],[48,69]]]]],[],["loc",[null,[48,36],[48,71]]]],
-          ["inline","input",[],["value",["subexpr","@mut",[["get","model.decrementBy",["loc",[null,[52,42],[52,59]]]]],[],[]],"id","decrementBy","class","form-control input-increment"],["loc",[null,[52,28],[53,87]]]],
-          ["element","action",["decrementCounter",["get","model",["loc",[null,[56,64],[56,69]]]]],[],["loc",[null,[56,36],[56,71]]]]
+          ["inline","input",[],["value",["subexpr","@mut",[["get","model.incrementBy",["loc",[null,[43,42],[43,59]]]]],[],[]],"id","incrementBy","class","form-control input-increment"],["loc",[null,[43,28],[44,87]]]],
+          ["element","action",["incrementCounter",["get","model",["loc",[null,[47,64],[47,69]]]]],[],["loc",[null,[47,36],[47,71]]]],
+          ["inline","input",[],["value",["subexpr","@mut",[["get","model.decrementBy",["loc",[null,[53,42],[53,59]]]]],[],[]],"id","decrementBy","class","form-control input-increment"],["loc",[null,[53,28],[54,87]]]],
+          ["element","action",["decrementCounter",["get","model",["loc",[null,[57,64],[57,69]]]]],[],["loc",[null,[57,36],[57,71]]]]
         ],
         locals: [],
         templates: []
@@ -9770,7 +9763,7 @@ define('ember-riak-explorer/templates/components/object-contents-counter', ['exp
             "column": 0
           },
           "end": {
-            "line": 69,
+            "line": 71,
             "column": 0
           }
         },
@@ -9864,8 +9857,8 @@ define('ember-riak-explorer/templates/components/object-contents-counter', ['exp
       },
       statements: [
         ["block","if",[["get","isEditing",["loc",[null,[8,26],[8,35]]]]],[],0,1,["loc",[null,[8,20],[22,27]]]],
-        ["block","if",[["get","isEditing",["loc",[null,[26,18],[26,27]]]]],[],2,3,["loc",[null,[26,12],[61,19]]]],
-        ["content","model.metadata.dateLoaded",["loc",[null,[64,42],[64,71]]]]
+        ["block","if",[["get","isEditing",["loc",[null,[26,18],[26,27]]]]],[],2,3,["loc",[null,[26,12],[63,19]]]],
+        ["content","model.metadata.dateLoaded",["loc",[null,[66,42],[66,71]]]]
       ],
       locals: [],
       templates: [child0, child1, child2, child3]
@@ -14778,7 +14771,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+54d7e85f"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+afa2c260"});
 }
 
 /* jshint ignore:end */

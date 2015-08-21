@@ -40,20 +40,22 @@
                             <span class="value-counter">{{model.contentsForDisplay}}</span>
                         </div>
                         <div class="col-md-6" style="vertical-align: middle;">
-                            +
                             {{input value=model.incrementBy
                                 id='incrementBy' class="form-control input-increment"}}
 
                             <button type="button" class="btn btn-md btn-primary"
                                     {{action 'incrementCounter' model}}>
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                                 Increment</button>
-                            /
-                            -
+                                
+                            <span class="divider">/</span>
+
                             {{input value=model.decrementBy
                                 id='decrementBy' class="form-control input-increment"}}
 
                             <button type="button" class="btn btn-md btn-primary"
                                     {{action 'decrementCounter' model}}>
+                                <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
                                 Decrement</button>
                         </div>
                     </div>
