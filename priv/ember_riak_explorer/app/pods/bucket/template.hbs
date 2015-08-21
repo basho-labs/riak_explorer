@@ -1,7 +1,10 @@
 <div class="crumb-trail">
-    {{link-cluster cluster=model.cluster}}
+
+    {{link.link-cluster cluster=model.cluster}}
     /
-    {{link-bucket-type bucketType=model.bucketType}}
+    <div style="display: inline-block;">
+    {{link.bucket-type bucketType=model.bucketType}}
+    </div>
     /
     <div class="cluster-resource-header center-block">
         <span class="glyphicon glyphicon-folder-close cluster-resource-icon"
@@ -26,7 +29,7 @@
             <div>
             Cache created: {{model.keyList.created}}
             {{#if model.cluster.developmentMode}}
-                {{refresh-keys action="refreshKeys" bucket=model}}
+                {{button.refresh-keys action="refreshKeys" bucket=model}}
             {{/if}}
             </div>
         </div>

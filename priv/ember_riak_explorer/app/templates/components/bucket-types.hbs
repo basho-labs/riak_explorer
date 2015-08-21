@@ -11,11 +11,7 @@
 {{#each bucketTypes as |bt|}}
     <tr>
         <td>
-            {{#link-to 'bucket-type' bt
-                    classNames='btn btn-sm btn-block btn-primary cluster-resource-link' }}
-                <span class="glyphicon glyphicon-inbox cluster-resource-icon"
-                    aria-hidden="true"></span>
-                {{bt.bucketTypeId}}{{/link-to}}
+            {{link.bucket-type bucketType=bt btnBlock=true}}
         </td>
         <td>
             {{bt.props.objectType}}

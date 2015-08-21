@@ -5,8 +5,6 @@ export default Ember.Route.extend({
         error: function(error, transition) {
             if (error && error.status === 404) {
                 transition.queryParams = transition.params['riak-object'];
-                console.log('transition: %O', transition);
-                // transition.queryParams.cluster_id =
                 this.transitionTo('error.object-not-found', transition);
             } else {
                 // Unknown error, bubble error event up to routes/application.js

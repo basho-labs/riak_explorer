@@ -1,11 +1,15 @@
 <div class="container">
     <div class="crumb-trail">
-    {{link-cluster cluster=object.cluster}}
-    /
-    {{link-bucket-type bucketType=object.bucketType}}
-    /
-    {{link-bucket bucket=object.bucket}}
-    /
+        {{link.link-cluster cluster=object.cluster}}
+        /
+        <div style="display: inline-block;">
+            {{link.bucket-type bucketType=object.bucketType}}
+        </div>
+        /
+        <div style="display: inline-block;">
+            {{link.link-bucket bucket=object.bucket}}
+        </div>
+        /
     </div>
 
     <div class="row">
