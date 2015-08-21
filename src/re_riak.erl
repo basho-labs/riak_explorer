@@ -390,12 +390,16 @@ put_keys(Node, BucketType, Bucket, Keys) ->
 %%%===================================================================
 
 http_listener(Node) ->
-    {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, http]),
-    [{http_listener, list_to_binary(Ip ++ ":" ++ integer_to_list(Port))}].
+    NodeStr = atom_to_list(Node),
+    [_,Addr] = string:tokens(NodeStr, "@"),
+    {ok,[{_,Port}]} = remote(Node, application, get_env, [riak_api, http]),
+    [{http_listener, list_to_binary(Addr ++ ":" ++ integer_to_list(Port))}].
 
 pb_listener(Node) ->
-    {ok,[{Ip,Port}]} = remote(Node, application, get_env, [riak_api, pb]),
-    [{pb_listener, list_to_binary(Ip ++ ":" ++ integer_to_list(Port))}].
+    NodeStr = atom_to_list(Node),
+    [_,Addr] = string:tokens(NodeStr, "@"),
+    {ok,[{_,Port}]} = remote(Node, application, get_env, [riak_api, pb]),
+    [{pb_listener, list_to_binary(Addr ++ ":" ++ integer_to_list(Port))}].
 
 bucket_types(Node) ->
     load_patch(Node),
