@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-export default Ember.Route.extend({
+var RiakObjectRoute = Ember.Route.extend({
     actions: {
         error: function(error, transition) {
             if (error && error.status === 404) {
@@ -14,24 +14,19 @@ export default Ember.Route.extend({
     },
 
     model: function(params) {
-        var clusterId = params.clusterId;
-        var bucketTypeId = params.bucketTypeId;
-        var bucketId = params.bucketId;
-        var key = params.key;
         var explorer = this.explorer;
         var store = this.store;
-        return explorer.getBucket(clusterId, bucketTypeId, bucketId, store)
+        return explorer.getBucket(params.clusterId,
+                params.bucketTypeId, params.bucketId, store)
             .then(function(bucket) {
-                return explorer.getRiakObject(clusterId,
-                    bucketTypeId, bucket, key, store);
+                return explorer.getRiakObject(bucket, params.key, store);
             });
     },
 
     setupController: function(controller, model) {
         this._super(controller, model);
         if(!model.get('isLoaded')) {
-            this.explorer.getRiakObject(model.get('clusterId'),
-                    model.get('bucketTypeId'), model.get('bucket'),
+            this.explorer.getRiakObject(model.get('bucket'),
                     model.get('key'), this.store)
                 .then(function(object) {
                     controller.set('model', object);
@@ -39,3 +34,4 @@ export default Ember.Route.extend({
         }
     }
 });
+export default RiakObjectRoute;

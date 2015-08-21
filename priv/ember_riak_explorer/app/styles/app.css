@@ -117,3 +117,23 @@ tr:nth-child(odd) {background: #EEE}
     background-color: #f7f7f7;
     padding: 20px;
 }
+
+.object-contents-footer {
+    background-color: #e7ecee;
+    border-top: 1px solid #d8d8d8;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    padding: 5px 10px;
+    line-height: 30px;
+    font-family: Consolas,"Liberation Mono",Courier,monospace;
+    font-size: 11px;
+}
+
+.value-counter {
+    font-size: 200%;
+}
+
+.form-inline .input-increment {
+    width: 5em;
+    vertical-align: middle;
+}

@@ -1,7 +1,7 @@
 import DS from 'ember-data';
 import CachedList from "./cached-list";
 
-export default CachedList.extend({
+var KeyList = CachedList.extend({
     bucket: DS.attr(),
     cluster: DS.attr(),
 
@@ -29,3 +29,4 @@ export default CachedList.extend({
             this.get('hasKeys');
     }.property('cluster', 'count')
 });
+export default KeyList;
