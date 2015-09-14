@@ -1,0 +1,9 @@
+{{#object-location object=model}}{{/object-location}}
+
+<br />
+{{#if model.isLoaded}}
+    {{object-contents-set model=model deleteObject="deleteObject"
+        removeElement="removeElement" addElement="addElement"}}
+{{else}}
+    {{loading-spinner}}
+{{/if}}

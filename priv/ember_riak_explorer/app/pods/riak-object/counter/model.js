@@ -2,6 +2,9 @@ import DS from 'ember-data';
 import RiakObject from "../model";
 
 var RiakCounterObject = RiakObject.extend({
+    /**
+    Can this object type be edited directly, in a text box?
+    */
     canBeEdited: function() {
         return false;
     }.property(),

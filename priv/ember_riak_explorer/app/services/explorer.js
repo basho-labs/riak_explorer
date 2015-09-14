@@ -296,12 +296,8 @@ export default Ember.Service.extend({
                 cluster: bucket.get('cluster')
             });
         }
-        var modelName;
-        if(bucket.get('props').get('isCounter')) {
-            modelName = 'riak-object.counter';
-        } else {
-            modelName = 'riak-object';
-        }
+        var modelName = bucket.get('objectModelName');
+
         var keyList = data.keys.keys.map(function(key) {
             var obj = store.createRecord(modelName, {
                 key: key,
@@ -330,12 +326,8 @@ export default Ember.Service.extend({
         var metadata = this.createObjectMetadata(rawHeader, store);
         var contents = displayContentsForType(metadata.get('headers'),
             responseText);
-        var modelName;
-        if(bucket.get('props').get('isCounter')) {
-            modelName = 'riak-object.counter';
-        } else {
-            modelName = 'riak-object';
-        }
+        var modelName = bucket.get('objectModelName');
+
         return store.createRecord(modelName, {
             key: key,
             bucket: bucket,
@@ -642,6 +634,38 @@ export default Ember.Service.extend({
                 ajaxHash.data = JSON.stringify({increment: object.get('incrementBy')});
             } else {
                 ajaxHash.data = JSON.stringify({decrement: object.get('decrementBy')});
+            }
+            Ember.$.ajax(ajaxHash);
+        });
+    },
+
+    updateSet: function(object, item, operationType) {
+        var bucket = object.get('bucket');
+        var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' +
+            bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') +
+            '/datatypes/' + object.get('key');
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+            var ajaxHash = {
+                contentType: 'application/json',
+                type: 'POST',
+                dataType: 'json',
+                url: url,
+                success: function(data) {
+                    resolve(data);
+                },
+                error: function(jqXHR) {
+                    if(jqXHR.status === 204) {
+                        resolve(jqXHR.status);
+                    } else {
+                        reject(jqXHR);
+                    }
+                }
+            };
+            if(operationType === 'remove') {
+                ajaxHash.data = JSON.stringify({remove: item});
+            } else if(operationType === 'addElement') {
+                ajaxHash.data = JSON.stringify({add: item});
             }
             Ember.$.ajax(ajaxHash);
         });

@@ -34,6 +34,16 @@ var Bucket = DS.Model.extend({
             .findBy('name', this.get('props').get('searchIndexName'));
     }.property('cluster'),
 
+    objectModelName: function() {
+        if(this.get('props').get('isCounter')) {
+            return 'riak-object.counter';
+        }
+        if(this.get('props').get('isSet')) {
+            return 'riak-object.set';
+        }
+        return 'riak-object';
+    }.property('props'),
+
     propsList: function() {
         if(!this.get('props')) {
             return [];

@@ -1,0 +1,15 @@
+{{#if isEditing}}
+    (Editing)
+    {{#link-to 'riak-object' model
+            classNames='btn btn-xs btn-default' }}
+        Cancel{{/link-to}}
+{{else}}
+    {{#if model.canBeViewedRaw}}
+        {{button.object-view-raw object=model}}
+    {{/if}}
+    {{#if model.canBeEdited}}
+        {{button.edit-object object=model}}
+    {{/if}}
+    {{button.delete-object action="deleteObject"
+        object=model}}
+{{/if}}

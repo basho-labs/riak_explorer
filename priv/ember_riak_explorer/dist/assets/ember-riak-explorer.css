@@ -6,6 +6,10 @@ th{background: #FFF}
 tr:nth-child(even) {background: #FFF}
 tr:nth-child(odd) {background: #EEE}
 
+.nowrap {
+  white-space: nowrap;
+}
+
 .loading {
     padding-top: 3em;
     padding-bottom: 3em;
@@ -131,6 +135,23 @@ tr:nth-child(odd) {background: #EEE}
 
 .value-counter {
     font-size: 200%;
+}
+
+.set-contents-list {
+    width: 100%;
+    border-left: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.set-contents-list div.set-element-row:nth-child(even) {
+    background-color: #eee;
+}
+.set-element-row {
+    border-bottom: 1px solid #ccc;
+    padding: 0.5em 0px;
+}
+.set-element {
+    font-size: 110%;
 }
 
 .form-inline .input-increment {

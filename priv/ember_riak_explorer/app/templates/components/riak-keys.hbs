@@ -6,17 +6,7 @@
         <div class="container">
             <div class="row">
                 <div>
-                    {{#if obj.markedDeleted}}
-                        <strike>{{obj.key}}</strike>
-                    {{else}}
-                        {{#if obj.bucket.props.isCounter}}
-                            {{#link-to 'riak-object.counter' obj}}
-                                {{obj.key}}{{/link-to}}
-                        {{else}}
-                            {{#link-to 'riak-object' obj}}
-                                {{obj.key}}{{/link-to}}
-                        {{/if}}
-                    {{/if}}
+                    {{link.link-object obj=obj}}
                 </div>
             </div>
         </div>

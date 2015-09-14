@@ -31,10 +31,18 @@ var RiakObject = DS.Model.extend({
         return this.get('bucketType').get('bucketTypeId');
     }.property('bucket'),
 
+    /**
+    Can this object type be edited directly, in a text box?
+    @return {Boolean}
+    */
     canBeEdited: function() {
         return true;
     }.property(),
 
+    /**
+    Can this object be viewed/downloaded directly from the browser?
+    @return {Boolean}
+    */
     canBeViewedRaw: function() {
         return true;
     }.property(),
