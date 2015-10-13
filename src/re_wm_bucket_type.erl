@@ -24,11 +24,13 @@
 -export([service_available/2,
          allowed_methods/2,
          content_types_provided/2,
+         content_types_accepted/2,
          resource_exists/2,
+         accept_content/2,
          provide_jsonapi_content/2,
          provide_content/2]).
 
--record(ctx, {cluster, node, bucket_type, resource, id, response=undefined}).
+-record(ctx, {cluster, node, bucket_type, resource, id, method, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
@@ -36,11 +38,13 @@
 -define(noNode(),
     #ctx{node=[{error, no_nodes}]}).
 -define(listBucketTypes(),
-    #ctx{bucket_type=undefined}).
+    #ctx{method='GET', bucket_type=undefined}).
 -define(bucketTypeInfo(BucketType),
-    #ctx{bucket_type=BucketType, resource=undefined}).
+    #ctx{method='GET', bucket_type=BucketType, resource=undefined}).
+-define(createBucketType(BucketType),
+    #ctx{method='PUT', bucket_type=BucketType, resource=undefined}).
 -define(bucketTypeResource(BucketType, Resource),
-    #ctx{bucket_type=BucketType, resource=Resource}).
+    #ctx{method='GET', bucket_type=BucketType, resource=Resource}).
 
 %%%===================================================================
 %%% API
@@ -79,12 +83,18 @@ service_available(RD, Ctx0) ->
         resource = wrq:path_info(resource, RD),
         bucket_type = wrq:path_info(bucket_type, RD),
         node = wrq:path_info(node, RD),
-        cluster = wrq:path_info(cluster, RD)},
+        cluster = wrq:path_info(cluster, RD),
+        method = wrq:method(RD)},
     {true, RD, Ctx1#ctx{node = node_from_context(Ctx1)}}.
 
 allowed_methods(RD, Ctx) ->
-    Methods = ['GET'],
+    Methods = ['GET', 'PUT'],
     {Methods, RD, Ctx}.
+
+content_types_accepted(RD, Ctx) ->
+    Types = [{"application/json", accept_content},
+             {"application/vnd.api+json", accept_content}],
+    {Types, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
     Types = [{"application/json", provide_content},
@@ -97,6 +107,8 @@ resource_exists(RD, Ctx=?listBucketTypes()) ->
     Node = Ctx#ctx.node,
     Response = re_riak:bucket_types(Node),
     {true, RD, Ctx#ctx{id=bucket_types, response=Response}};
+resource_exists(RD, Ctx=?createBucketType(_)) ->
+    {true, RD, Ctx};
 resource_exists(RD, Ctx=?bucketTypeInfo(BucketType)) ->
     Id = list_to_binary(BucketType),
     Response = [{bucket_types, [{id,Id}, {props, []}]}],
@@ -112,6 +124,16 @@ resource_exists(RD, Ctx=?bucketTypeResource(BucketType, Resource)) ->
             {false, RD, Ctx}
     end;
 resource_exists(RD, Ctx) ->
+    {false, RD, Ctx}.
+
+accept_content(RD, Ctx=?createBucketType(BucketType)) ->
+    Node = Ctx#ctx.node,
+    RawValue = wrq:req_body(RD),
+    case re_riak:create_bucket_type(Node, BucketType, RawValue) of
+        ok -> {true, RD, Ctx};
+        error -> {false, RD, Ctx}
+    end;
+accept_content(RD, Ctx) ->
     {false, RD, Ctx}.
 
 provide_content(RD, Ctx=#ctx{response=undefined}) ->

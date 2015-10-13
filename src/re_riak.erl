@@ -57,7 +57,8 @@
 
 -export([http_listener/1,
          pb_listener/1,
-         bucket_types/1]).
+         bucket_types/1,
+         create_bucket_type/3]).
 
 -export([cluster_id_for_node/1,
          clusters/0,
@@ -405,6 +406,19 @@ bucket_types(Node) ->
     load_patch(Node),
     List = remote(Node, re_riak_patch, bucket_types, []),
     [{bucket_types, List}].
+
+create_bucket_type(Node, BucketType, RawValue) ->
+    % Props = case mochijson2:decode(RawValue) of
+    %     {struct, [{<<"props", _/binary>>, {struct, Props1}}]} ->
+    % Result = riak_core_bucket_type:create(Type, Props),
+    case remote(Node, riak_kv_console, bucket_type_create, [[BucketType, RawValue]]) of
+        ok ->
+            case riak_core_bucket_type:activate(list_to_binary(BucketType)) of
+                ok -> ok;
+                {error, _} -> error
+            end;
+        error -> error
+    end.
 
 %%%===================================================================
 %%% Cluster API
