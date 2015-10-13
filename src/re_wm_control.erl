@@ -45,7 +45,7 @@ resources() ->
     [].
 
 routes() ->
-    Base = [?RE_CONTROL_ROUTE],
+    Base = re_config:base_route(?RE_CONTROL_ROUTE),
 
     Clusters       = Base ++ ["clusters"],
     Cluster        = Clusters ++ [cluster],
@@ -101,7 +101,7 @@ service_available(RD, Ctx0) ->
     Ctx1 = Ctx0#ctx{
         node = wrq:path_info(node, RD),
         cluster = wrq:path_info(cluster, RD),
-        command = lists:nth(4, string:tokens(wrq:path(RD), "/")),
+        command = lists:nth(length(re_config:base_route("")) + 3, string:tokens(wrq:path(RD), "/")),
         node1 = maybe_atomize(wrq:path_info(node1, RD)),
         node2 = maybe_atomize(wrq:path_info(node2, RD))
     },

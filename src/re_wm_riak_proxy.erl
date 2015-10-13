@@ -36,8 +36,8 @@ resources() ->
     [].
 
 routes() ->
-    CProxy = [?RE_RIAK_PROXY_ROUTE, "clusters", cluster, '*'],
-    Proxy = [?RE_RIAK_PROXY_ROUTE, "nodes", node, '*'],
+    CProxy = re_config:base_route(?RE_RIAK_PROXY_ROUTE) ++ ["clusters", cluster, '*'],
+    Proxy = re_config:base_route(?RE_RIAK_PROXY_ROUTE) ++ ["nodes", node, '*'],
     [CProxy, Proxy].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
@@ -115,6 +115,6 @@ wm_to_ibrowse_method(Method) when is_atom(Method) ->
 
 fix_location([], _) -> [];
 fix_location([{"Location", RiakDataPath}|Rest], Cluster) ->
-    [{"Location", re_config:url()++?RE_RIAK_PROXY_ROUTE++"/clusters/"++atom_to_list(Cluster)++RiakDataPath}|Rest];
+    [{"Location", re_config:url()++re_config:base_route()++"/"++?RE_RIAK_PROXY_ROUTE++"/clusters/"++atom_to_list(Cluster)++RiakDataPath}|Rest];
 fix_location([H|T], Cluster) ->
     [H|fix_location(T, Cluster)].

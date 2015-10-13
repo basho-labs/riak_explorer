@@ -19,7 +19,9 @@
 %% -------------------------------------------------------------------
 
 -module(re_config).
--export([data_dir/0,
+-export([base_route/0,
+         base_route/1,
+         data_dir/0,
          resources/0,
          dispatch/0,
          development_mode/0,
@@ -43,8 +45,21 @@
 %%% API
 %%%===================================================================
 
+base_route() ->
+    case code:is_loaded(riak_core) of
+        false -> "";
+        _ -> "admin"
+    end.
+
+base_route(SubRoute) ->
+    case code:is_loaded(riak_core) of
+        false -> [SubRoute];
+        _ -> [base_route(), SubRoute]
+    end.
+
 data_dir() ->
-    {ok, Dir} = application:get_env(riak_explorer, platform_data_dir),
+    Def = "./data",
+    Dir = application:get_env(riak_explorer, platform_data_dir, Def),
     Dir.
 
 resources() ->
@@ -140,7 +155,13 @@ set_adhoc_cluster(Node) ->
     end.
 
 clusters() ->
-    {ok, Clusters} = application:get_env(riak_explorer, clusters),
+    DefNode = case code:is_loaded(riak_core) of
+        false -> "riak@127.0.0.1";
+        _ -> atom_to_list(node())
+    end,
+    Def = [{default,[{riak_node,DefNode},
+           {development_mode,true}]}],
+    Clusters = application:get_env(riak_explorer, clusters, Def),
     Clusters.
 
 cluster(Cluster) ->

@@ -22,6 +22,7 @@
 %%% Macros
 %%%===================================================================
 
+-define(RE_ADMIN_ROUTE, "admin").
 -define(RE_BASE_ROUTE, "explore").
 -define(RE_CONTROL_ROUTE, "control").
 -define(RE_RIAK_PROXY_ROUTE, "riak").

@@ -39,11 +39,11 @@
 %%% API
 %%%===================================================================
 
-resources() -> 
+resources() ->
     [].
 
 routes() ->
-    Static = ['*'],
+    Static = re_config:base_route('*'),
     [Static].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
@@ -61,7 +61,7 @@ service_available(RD, Ctx0=#ctx{web_root=WebRoot}) ->
     {Resource1, Response} = get_response(filelib:is_regular(Resource0), WebRoot, Resource0),
     Ctx1 = Ctx0#ctx{resource=Resource1, response=Response},
     {true, RD, Ctx1}.
-    
+
 allowed_methods(RD, Ctx) ->
     {['HEAD', 'GET'], RD, Ctx}.
 
@@ -107,7 +107,7 @@ rel_resource_name(N) -> N.
 get_response(false, WebRoot, _) ->
     Resource = get_resource(WebRoot, ?RE_DEFAULT_INDEX),
     get_response(true, WebRoot, Resource);
-get_response(true, _, Resource) -> 
+get_response(true, _, Resource) ->
     {ok, Response} = file:read_file(Resource),
     {Resource, Response}.
 

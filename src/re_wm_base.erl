@@ -49,7 +49,7 @@ resources() ->
      {jobs, [riak_explorer, jobs]}].
 
 routes() ->
-    Base = [?RE_BASE_ROUTE],
+    Base = re_config:base_route(?RE_BASE_ROUTE),
     BaseResource = Base ++ [resource],
     [BaseResource, Base].
 
