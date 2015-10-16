@@ -3,15 +3,6 @@
 
 /* jshint ignore:end */
 
-define('ember-riak-explorer/acceptance-tests/main', ['exports', 'ember-cli-sri/acceptance-tests/main'], function (exports, main) {
-
-	'use strict';
-
-
-
-	exports['default'] = main['default'];
-
-});
 define('ember-riak-explorer/adapters/application', ['exports', 'ember-riak-explorer/adapters/explorer-resource'], function (exports, ExplorerResourceAdapter) {
 
 	'use strict';
@@ -19,12 +10,12 @@ define('ember-riak-explorer/adapters/application', ['exports', 'ember-riak-explo
 	exports['default'] = ExplorerResourceAdapter['default'].extend({});
 
 });
-define('ember-riak-explorer/adapters/explorer-resource', ['exports', 'ember-data', 'ember'], function (exports, DS, Ember) {
+define('ember-riak-explorer/adapters/explorer-resource', ['exports', 'ember-data', 'ember', 'ember-riak-explorer/config/environment'], function (exports, DS, Ember, config) {
 
     'use strict';
 
     var ExplorerResourceAdapter = DS['default'].RESTAdapter.extend({
-        namespace: 'explore',
+        namespace: config['default'].baseURL + 'explore',
 
         /**
           Builds a URL for a given type and optional ID.
@@ -540,6 +531,87 @@ define('ember-riak-explorer/components/object-contents-counter', ['exports', 'em
     });
 
 });
+define('ember-riak-explorer/components/object-contents-map', ['exports', 'ember'], function (exports, Ember) {
+
+  'use strict';
+
+  exports['default'] = Ember['default'].Component.extend({
+    elementToAdd: null,
+
+    actions: {
+      deleteObject: function deleteObject(object) {
+        // Send action to parent controller
+        this.sendAction('deleteObject', object);
+      }
+    }
+  });
+
+});
+define('ember-riak-explorer/components/object-contents-registers', ['exports', 'ember'], function (exports, Ember) {
+
+    'use strict';
+
+    exports['default'] = Ember['default'].Component.extend({
+        explorer: Ember['default'].inject.service('explorer'),
+        store: Ember['default'].inject.service('store'),
+
+        /**
+         * @property fieldToAddName
+         * @type {String}
+         */
+        fieldToAddName: null,
+
+        /**
+         * @property fieldToAddValue
+         * @type {String}
+         */
+        fieldToAddValue: null,
+
+        actions: {
+            /**
+             * The user has clicked on the 'Add Register' button.
+             * Creates a `RiakObjectRegister` object and adds it to this map's
+             *    registers list.
+             * @event addRegister
+             * @param model {RiakObjectMap}
+             */
+            addRegister: function addRegister(model) {
+                var value = this.get('fieldToAddValue');
+                if (!value) {
+                    return; // Registers must have non-empty values
+                }
+                var newRegister = this.get('store').createRecord('riak-object.register', {
+                    name: this.get('fieldToAddName'),
+                    value: value
+                });
+                newRegister.normalizeName();
+                this.get('explorer').updateDataType(model, 'addRegister', newRegister);
+                model.addRegister(newRegister);
+                // Reset the UI fields
+                this.set('fieldToAddName', null);
+                this.set('fieldToAddValue', null);
+            },
+
+            editRegister: function editRegister(model, register) {
+                // Send its action to parent controller
+                this.sendAction('editField', model, register);
+            },
+
+            /**
+             * The user has clicked on the Delete Register button.
+             * Removes the specified register from this map.
+             * @event removeRegister
+             * @param model {RiakObjectMap} Current map
+             * @param register {RiakObjectRegister} Register to be removed
+             */
+            removeRegister: function removeRegister(model, register) {
+                this.get('explorer').updateDataType(model, 'removeRegister', register);
+                model.removeRegister(register);
+            }
+        }
+    });
+
+});
 define('ember-riak-explorer/components/object-contents-set', ['exports', 'ember'], function (exports, Ember) {
 
     'use strict';
@@ -773,7 +845,8 @@ define('ember-riak-explorer/initializers/export-application-global', ['exports',
 
   exports.initialize = initialize;
 
-  function initialize(container, application) {
+  function initialize() {
+    var application = arguments[1] || arguments[0];
     if (config['default'].exportApplicationGlobal !== false) {
       var value = config['default'].exportApplicationGlobal;
       var globalName;
@@ -796,8 +869,6 @@ define('ember-riak-explorer/initializers/export-application-global', ['exports',
       }
     }
   }
-
-  ;
 
   exports['default'] = {
     name: 'export-application-global',
@@ -1236,518 +1307,6 @@ define('ember-riak-explorer/models/route', ['exports', 'ember-data'], function (
     });
 
 });
-define('ember-riak-explorer/pods/bucket-type/controller', ['exports', 'ember'], function (exports, Ember) {
-
-    'use strict';
-
-    var BucketTypeController = Ember['default'].Controller.extend({
-        explorer: Ember['default'].inject.service('explorer'),
-
-        // delay in milliseconds
-        pollForModel: function pollForModel(bucketType, delay) {
-            var self = this;
-            Ember['default'].run.later(function () {
-                // console.log('controller: scheduling to refreshModel');
-                self.refreshModel(bucketType);
-            }, delay);
-        },
-
-        refreshModel: function refreshModel(bucketType) {
-            var self = this;
-            // console.log("Refreshing model %O", bucketType);
-            self.get('explorer').getBucketList(bucketType.get('cluster'), bucketType, self.store).then(function (updatedBucketList) {
-                // console.log('loaded bucket list: %O', updatedBucketList);
-                var model = self.get('model');
-                model.set('bucketList', updatedBucketList);
-                if (!model.get('isBucketListLoaded')) {
-                    self.pollForModel(model, 3000);
-                }
-            });
-        },
-
-        actions: {
-            refreshBuckets: function refreshBuckets(bucketType) {
-                var clusterId = bucketType.get('clusterId');
-                var bucketTypeId = bucketType.get('bucketTypeId');
-
-                this.get('model').set('isBucketListLoaded', false);
-                this.get('explorer').bucketCacheRefresh(clusterId, bucketTypeId);
-                this.pollForModel(this.get('model'), 3000);
-            }
-        }
-    });
-
-    exports['default'] = BucketTypeController;
-
-});
-define('ember-riak-explorer/pods/bucket-type/model', ['exports', 'ember-data'], function (exports, DS) {
-
-    'use strict';
-
-    var BucketType = DS['default'].Model.extend({
-        cluster: DS['default'].belongsTo('cluster'),
-
-        bucketList: DS['default'].belongsTo('bucket-list'),
-
-        isBucketListLoaded: DS['default'].attr('boolean', { defaultValue: false }),
-
-        bucketTypeId: (function () {
-            return this.get('originalId');
-        }).property('originalId'),
-
-        clusterId: (function () {
-            return this.get('cluster').get('clusterId');
-        }).property('cluster'),
-
-        index: (function () {
-            return this.get('cluster').get('indexes').findBy('name', this.get('props').get('searchIndexName'));
-        }).property('cluster'),
-
-        isActive: (function () {
-            return this.get('props').get('isActive');
-        }).property('props'),
-
-        isInactive: (function () {
-            return !this.get('props').get('isActive');
-        }).property('props'),
-
-        name: (function () {
-            return this.get('id');
-        }).property('id'),
-
-        originalId: DS['default'].attr('string'),
-
-        // {"allow_mult":false, "basic_quorum":false, ... }
-        props: DS['default'].belongsTo('bucket-props')
-    });
-
-    exports['default'] = BucketType;
-
-});
-define('ember-riak-explorer/pods/bucket-type/route', ['exports', 'ember'], function (exports, Ember) {
-
-    'use strict';
-
-    exports['default'] = Ember['default'].Route.extend({
-        model: function model(params) {
-            var clusterId = params.clusterId;
-            var bucketTypeId = params.bucketTypeId;
-            var explorer = this.explorer;
-            var store = this.store;
-
-            return this.explorer.getBucketType(clusterId, bucketTypeId, store).then(function (bucketType) {
-                return explorer.getBucketTypeWithBucketList(bucketType, bucketType.get('cluster'), store);
-            });
-        },
-
-        setupController: function setupController(controller, model) {
-            this._super(controller, model);
-
-            if (!model.get('isBucketListLoaded')) {
-                controller.pollForModel(model, 3000);
-            }
-        }
-    });
-
-});
-define('ember-riak-explorer/pods/bucket-type/template', ['exports'], function (exports) {
-
-  'use strict';
-
-  exports['default'] = Ember.HTMLBars.template((function() {
-    var child0 = (function() {
-      return {
-        meta: {
-          "revision": "Ember@1.13.5",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 12,
-              "column": 0
-            },
-            "end": {
-              "line": 14,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
-        },
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
-          return morphs;
-        },
-        statements: [
-          ["inline","bucket-properties",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[13,30],[13,35]]]]],[],[]],"title","Bucket Type"],["loc",[null,[13,4],[13,57]]]]
-        ],
-        locals: [],
-        templates: []
-      };
-    }());
-    var child1 = (function() {
-      return {
-        meta: {
-          "revision": "Ember@1.13.5",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 14,
-              "column": 0
-            },
-            "end": {
-              "line": 16,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
-        },
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    Properties not loaded.\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes() { return []; },
-        statements: [
-
-        ],
-        locals: [],
-        templates: []
-      };
-    }());
-    var child2 = (function() {
-      var child0 = (function() {
-        return {
-          meta: {
-            "revision": "Ember@1.13.5",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 26,
-                "column": 12
-              },
-              "end": {
-                "line": 28,
-                "column": 12
-              }
-            },
-            "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
-          },
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("                ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
-            return morphs;
-          },
-          statements: [
-            ["inline","button.refresh-buckets",[],["action","refreshBuckets","bucketType",["subexpr","@mut",[["get","model",["loc",[null,[27,76],[27,81]]]]],[],[]]],["loc",[null,[27,16],[27,83]]]]
-          ],
-          locals: [],
-          templates: []
-        };
-      }());
-      var child1 = (function() {
-        return {
-          meta: {
-            "revision": "Ember@1.13.5",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 42,
-                "column": 8
-              },
-              "end": {
-                "line": 44,
-                "column": 8
-              }
-            },
-            "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
-          },
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes() { return []; },
-          statements: [
-
-          ],
-          locals: [],
-          templates: []
-        };
-      }());
-      return {
-        meta: {
-          "revision": "Ember@1.13.5",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 21,
-              "column": 0
-            },
-            "end": {
-              "line": 46,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
-        },
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          dom.setAttribute(el1,"class","container");
-          dom.setAttribute(el1,"style","margin-top: 2em;");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("div");
-          dom.setAttribute(el2,"class","row");
-          var el3 = dom.createTextNode("\n            ");
-          dom.appendChild(el2, el3);
-          var el3 = dom.createElement("div");
-          var el4 = dom.createTextNode("\n            Cache created: ");
-          dom.appendChild(el3, el4);
-          var el4 = dom.createComment("");
-          dom.appendChild(el3, el4);
-          var el4 = dom.createTextNode("\n");
-          dom.appendChild(el3, el4);
-          var el4 = dom.createComment("");
-          dom.appendChild(el3, el4);
-          var el4 = dom.createTextNode("            ");
-          dom.appendChild(el3, el4);
-          dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode("\n        ");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n\n    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          dom.setAttribute(el1,"class","container");
-          dom.setAttribute(el1,"style","margin-top: 2em;");
-          var el2 = dom.createTextNode("\n        Displaying\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("strong");
-          var el3 = dom.createComment("");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        buckets out of\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("strong");
-          var el3 = dom.createComment("");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        total.\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n\n    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          dom.setAttribute(el1,"class","container");
-          dom.setAttribute(el1,"style","padding-top: 2em;");
-          var el2 = dom.createTextNode("\n");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1, 1, 1]);
-          var element1 = dom.childAt(fragment, [3]);
-          var morphs = new Array(5);
-          morphs[0] = dom.createMorphAt(element0,1,1);
-          morphs[1] = dom.createMorphAt(element0,3,3);
-          morphs[2] = dom.createMorphAt(dom.childAt(element1, [1]),0,0);
-          morphs[3] = dom.createMorphAt(dom.childAt(element1, [3]),0,0);
-          morphs[4] = dom.createMorphAt(dom.childAt(fragment, [5]),1,1);
-          return morphs;
-        },
-        statements: [
-          ["content","model.bucketList.created",["loc",[null,[25,27],[25,55]]]],
-          ["block","if",[["get","model.cluster.developmentMode",["loc",[null,[26,18],[26,47]]]]],[],0,null,["loc",[null,[26,12],[28,19]]]],
-          ["content","model.bucketList.count",["loc",[null,[35,16],[35,42]]]],
-          ["content","model.bucketList.total",["loc",[null,[37,16],[37,42]]]],
-          ["block","riak-buckets",[],["bucketList",["subexpr","@mut",[["get","model.bucketList",["loc",[null,[42,35],[42,51]]]]],[],[]],"cluster",["subexpr","@mut",[["get","model.cluster",["loc",[null,[42,60],[42,73]]]]],[],[]],"bucketTypeId",["subexpr","@mut",[["get","model.bucketTypeId",["loc",[null,[43,25],[43,43]]]]],[],[]]],1,null,["loc",[null,[42,8],[44,25]]]]
-        ],
-        locals: [],
-        templates: [child0, child1]
-      };
-    }());
-    var child3 = (function() {
-      return {
-        meta: {
-          "revision": "Ember@1.13.5",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 46,
-              "column": 0
-            },
-            "end": {
-              "line": 48,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
-        },
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
-          return morphs;
-        },
-        statements: [
-          ["content","loading-spinner",["loc",[null,[47,4],[47,23]]]]
-        ],
-        locals: [],
-        templates: []
-      };
-    }());
-    return {
-      meta: {
-        "revision": "Ember@1.13.5",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 49,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
-      },
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1,"class","crumb-trail");
-        var el2 = dom.createTextNode("\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n    /\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2,"class","cluster-resource-header center-block");
-        var el3 = dom.createTextNode("\n        ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("span");
-        dom.setAttribute(el3,"class","glyphicon glyphicon-inbox cluster-resource-icon");
-        dom.setAttribute(el3,"aria-hidden","true");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n        ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("span");
-        var el4 = dom.createComment("");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1,"class","container bucket-properties center-block");
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("h4");
-        var el2 = dom.createTextNode("Bucket List");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element2 = dom.childAt(fragment, [0]);
-        var morphs = new Array(4);
-        morphs[0] = dom.createMorphAt(element2,1,1);
-        morphs[1] = dom.createMorphAt(dom.childAt(element2, [3, 3]),0,0);
-        morphs[2] = dom.createMorphAt(dom.childAt(fragment, [2]),1,1);
-        morphs[3] = dom.createMorphAt(fragment,6,6,contextualElement);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [
-        ["inline","link.link-cluster",[],["cluster",["subexpr","@mut",[["get","model.cluster",["loc",[null,[2,32],[2,45]]]]],[],[]]],["loc",[null,[2,4],[2,47]]]],
-        ["content","model.bucketTypeId",["loc",[null,[7,14],[7,36]]]],
-        ["block","if",[["get","model.props",["loc",[null,[12,6],[12,17]]]]],[],0,1,["loc",[null,[12,0],[16,7]]]],
-        ["block","if",[["get","model.isBucketListLoaded",["loc",[null,[21,6],[21,30]]]]],[],2,3,["loc",[null,[21,0],[48,7]]]]
-      ],
-      locals: [],
-      templates: [child0, child1, child2, child3]
-    };
-  }()));
-
-});
 define('ember-riak-explorer/pods/bucket/controller', ['exports', 'ember'], function (exports, Ember) {
 
     'use strict';
@@ -1841,6 +1400,9 @@ define('ember-riak-explorer/pods/bucket/model', ['exports', 'ember-data'], funct
             }
             if (this.get('props').get('isSet')) {
                 return 'riak-object.set';
+            }
+            if (this.get('props').get('isMap')) {
+                return 'riak-object.map';
             }
             return 'riak-object';
         }).property('props'),
@@ -2357,7 +1919,519 @@ define('ember-riak-explorer/pods/bucket/template', ['exports'], function (export
   }()));
 
 });
-define('ember-riak-explorer/pods/cluster/model', ['exports', 'ember-data'], function (exports, DS) {
+define('ember-riak-explorer/pods/bucket-type/controller', ['exports', 'ember'], function (exports, Ember) {
+
+    'use strict';
+
+    var BucketTypeController = Ember['default'].Controller.extend({
+        explorer: Ember['default'].inject.service('explorer'),
+
+        // delay in milliseconds
+        pollForModel: function pollForModel(bucketType, delay) {
+            var self = this;
+            Ember['default'].run.later(function () {
+                // console.log('controller: scheduling to refreshModel');
+                self.refreshModel(bucketType);
+            }, delay);
+        },
+
+        refreshModel: function refreshModel(bucketType) {
+            var self = this;
+            // console.log("Refreshing model %O", bucketType);
+            self.get('explorer').getBucketList(bucketType.get('cluster'), bucketType, self.store).then(function (updatedBucketList) {
+                // console.log('loaded bucket list: %O', updatedBucketList);
+                var model = self.get('model');
+                model.set('bucketList', updatedBucketList);
+                if (!model.get('isBucketListLoaded')) {
+                    self.pollForModel(model, 3000);
+                }
+            });
+        },
+
+        actions: {
+            refreshBuckets: function refreshBuckets(bucketType) {
+                var clusterId = bucketType.get('clusterId');
+                var bucketTypeId = bucketType.get('bucketTypeId');
+
+                this.get('model').set('isBucketListLoaded', false);
+                this.get('explorer').bucketCacheRefresh(clusterId, bucketTypeId);
+                this.pollForModel(this.get('model'), 3000);
+            }
+        }
+    });
+
+    exports['default'] = BucketTypeController;
+
+});
+define('ember-riak-explorer/pods/bucket-type/model', ['exports', 'ember-data'], function (exports, DS) {
+
+    'use strict';
+
+    var BucketType = DS['default'].Model.extend({
+        cluster: DS['default'].belongsTo('cluster'),
+
+        bucketList: DS['default'].belongsTo('bucket-list'),
+
+        isBucketListLoaded: DS['default'].attr('boolean', { defaultValue: false }),
+
+        bucketTypeId: (function () {
+            return this.get('originalId');
+        }).property('originalId'),
+
+        clusterId: (function () {
+            return this.get('cluster').get('clusterId');
+        }).property('cluster'),
+
+        index: (function () {
+            return this.get('cluster').get('indexes').findBy('name', this.get('props').get('searchIndexName'));
+        }).property('cluster'),
+
+        isActive: (function () {
+            return this.get('props').get('isActive');
+        }).property('props'),
+
+        isInactive: (function () {
+            return !this.get('props').get('isActive');
+        }).property('props'),
+
+        name: (function () {
+            return this.get('id');
+        }).property('id'),
+
+        originalId: DS['default'].attr('string'),
+
+        // {"allow_mult":false, "basic_quorum":false, ... }
+        props: DS['default'].belongsTo('bucket-props')
+    });
+
+    exports['default'] = BucketType;
+
+});
+define('ember-riak-explorer/pods/bucket-type/route', ['exports', 'ember'], function (exports, Ember) {
+
+    'use strict';
+
+    exports['default'] = Ember['default'].Route.extend({
+        model: function model(params) {
+            var clusterId = params.clusterId;
+            var bucketTypeId = params.bucketTypeId;
+            var explorer = this.explorer;
+            var store = this.store;
+
+            return this.explorer.getBucketType(clusterId, bucketTypeId, store).then(function (bucketType) {
+                return explorer.getBucketTypeWithBucketList(bucketType, bucketType.get('cluster'), store);
+            });
+        },
+
+        setupController: function setupController(controller, model) {
+            this._super(controller, model);
+
+            if (!model.get('isBucketListLoaded')) {
+                controller.pollForModel(model, 3000);
+            }
+        }
+    });
+
+});
+define('ember-riak-explorer/pods/bucket-type/template', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports['default'] = Ember.HTMLBars.template((function() {
+    var child0 = (function() {
+      return {
+        meta: {
+          "revision": "Ember@1.13.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 12,
+              "column": 0
+            },
+            "end": {
+              "line": 14,
+              "column": 0
+            }
+          },
+          "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("    ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
+          return morphs;
+        },
+        statements: [
+          ["inline","bucket-properties",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[13,30],[13,35]]]]],[],[]],"title","Bucket Type"],["loc",[null,[13,4],[13,57]]]]
+        ],
+        locals: [],
+        templates: []
+      };
+    }());
+    var child1 = (function() {
+      return {
+        meta: {
+          "revision": "Ember@1.13.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 14,
+              "column": 0
+            },
+            "end": {
+              "line": 16,
+              "column": 0
+            }
+          },
+          "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("    Properties not loaded.\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes() { return []; },
+        statements: [
+
+        ],
+        locals: [],
+        templates: []
+      };
+    }());
+    var child2 = (function() {
+      var child0 = (function() {
+        return {
+          meta: {
+            "revision": "Ember@1.13.5",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 26,
+                "column": 12
+              },
+              "end": {
+                "line": 28,
+                "column": 12
+              }
+            },
+            "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
+          },
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("                ");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createComment("");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+            var morphs = new Array(1);
+            morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
+            return morphs;
+          },
+          statements: [
+            ["inline","button.refresh-buckets",[],["action","refreshBuckets","bucketType",["subexpr","@mut",[["get","model",["loc",[null,[27,76],[27,81]]]]],[],[]]],["loc",[null,[27,16],[27,83]]]]
+          ],
+          locals: [],
+          templates: []
+        };
+      }());
+      var child1 = (function() {
+        return {
+          meta: {
+            "revision": "Ember@1.13.5",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 42,
+                "column": 8
+              },
+              "end": {
+                "line": 44,
+                "column": 8
+              }
+            },
+            "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
+          },
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() { return []; },
+          statements: [
+
+          ],
+          locals: [],
+          templates: []
+        };
+      }());
+      return {
+        meta: {
+          "revision": "Ember@1.13.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 21,
+              "column": 0
+            },
+            "end": {
+              "line": 46,
+              "column": 0
+            }
+          },
+          "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("    ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("div");
+          dom.setAttribute(el1,"class","container");
+          dom.setAttribute(el1,"style","margin-top: 2em;");
+          var el2 = dom.createTextNode("\n        ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("div");
+          dom.setAttribute(el2,"class","row");
+          var el3 = dom.createTextNode("\n            ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("div");
+          var el4 = dom.createTextNode("\n            Cache created: ");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createComment("");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createTextNode("\n");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createComment("");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createTextNode("            ");
+          dom.appendChild(el3, el4);
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n        ");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n    ");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n\n    ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("div");
+          dom.setAttribute(el1,"class","container");
+          dom.setAttribute(el1,"style","margin-top: 2em;");
+          var el2 = dom.createTextNode("\n        Displaying\n        ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("strong");
+          var el3 = dom.createComment("");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n        buckets out of\n        ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("strong");
+          var el3 = dom.createComment("");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n        total.\n    ");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n\n    ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("div");
+          dom.setAttribute(el1,"class","container");
+          dom.setAttribute(el1,"style","padding-top: 2em;");
+          var el2 = dom.createTextNode("\n");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("    ");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element0 = dom.childAt(fragment, [1, 1, 1]);
+          var element1 = dom.childAt(fragment, [3]);
+          var morphs = new Array(5);
+          morphs[0] = dom.createMorphAt(element0,1,1);
+          morphs[1] = dom.createMorphAt(element0,3,3);
+          morphs[2] = dom.createMorphAt(dom.childAt(element1, [1]),0,0);
+          morphs[3] = dom.createMorphAt(dom.childAt(element1, [3]),0,0);
+          morphs[4] = dom.createMorphAt(dom.childAt(fragment, [5]),1,1);
+          return morphs;
+        },
+        statements: [
+          ["content","model.bucketList.created",["loc",[null,[25,27],[25,55]]]],
+          ["block","if",[["get","model.cluster.developmentMode",["loc",[null,[26,18],[26,47]]]]],[],0,null,["loc",[null,[26,12],[28,19]]]],
+          ["content","model.bucketList.count",["loc",[null,[35,16],[35,42]]]],
+          ["content","model.bucketList.total",["loc",[null,[37,16],[37,42]]]],
+          ["block","riak-buckets",[],["bucketList",["subexpr","@mut",[["get","model.bucketList",["loc",[null,[42,35],[42,51]]]]],[],[]],"cluster",["subexpr","@mut",[["get","model.cluster",["loc",[null,[42,60],[42,73]]]]],[],[]],"bucketTypeId",["subexpr","@mut",[["get","model.bucketTypeId",["loc",[null,[43,25],[43,43]]]]],[],[]]],1,null,["loc",[null,[42,8],[44,25]]]]
+        ],
+        locals: [],
+        templates: [child0, child1]
+      };
+    }());
+    var child3 = (function() {
+      return {
+        meta: {
+          "revision": "Ember@1.13.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 46,
+              "column": 0
+            },
+            "end": {
+              "line": 48,
+              "column": 0
+            }
+          },
+          "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("    ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
+          return morphs;
+        },
+        statements: [
+          ["content","loading-spinner",["loc",[null,[47,4],[47,23]]]]
+        ],
+        locals: [],
+        templates: []
+      };
+    }());
+    return {
+      meta: {
+        "revision": "Ember@1.13.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 49,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/pods/bucket-type/template.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1,"class","crumb-trail");
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n    /\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2,"class","cluster-resource-header center-block");
+        var el3 = dom.createTextNode("\n        ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("span");
+        dom.setAttribute(el3,"class","glyphicon glyphicon-inbox cluster-resource-icon");
+        dom.setAttribute(el3,"aria-hidden","true");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n        ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("span");
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1,"class","container bucket-properties center-block");
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Bucket List");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element2 = dom.childAt(fragment, [0]);
+        var morphs = new Array(4);
+        morphs[0] = dom.createMorphAt(element2,1,1);
+        morphs[1] = dom.createMorphAt(dom.childAt(element2, [3, 3]),0,0);
+        morphs[2] = dom.createMorphAt(dom.childAt(fragment, [2]),1,1);
+        morphs[3] = dom.createMorphAt(fragment,6,6,contextualElement);
+        dom.insertBoundary(fragment, null);
+        return morphs;
+      },
+      statements: [
+        ["inline","link.link-cluster",[],["cluster",["subexpr","@mut",[["get","model.cluster",["loc",[null,[2,32],[2,45]]]]],[],[]]],["loc",[null,[2,4],[2,47]]]],
+        ["content","model.bucketTypeId",["loc",[null,[7,14],[7,36]]]],
+        ["block","if",[["get","model.props",["loc",[null,[12,6],[12,17]]]]],[],0,1,["loc",[null,[12,0],[16,7]]]],
+        ["block","if",[["get","model.isBucketListLoaded",["loc",[null,[21,6],[21,30]]]]],[],2,3,["loc",[null,[21,0],[48,7]]]]
+      ],
+      locals: [],
+      templates: [child0, child1, child2, child3]
+    };
+  }()));
+
+});
+define('ember-riak-explorer/pods/cluster/model', ['exports', 'ember-data', 'ember-riak-explorer/config/environment'], function (exports, DS, config) {
 
     'use strict';
 
@@ -2396,8 +2470,10 @@ define('ember-riak-explorer/pods/cluster/model', ['exports', 'ember-data'], func
 
         // URL which Explorer uses to forward requests to the Riak cluster
         // Currently in the form of /riak/clusters/$clusterId
+        // This is used to link to Search schemas, on the Cluster view.
+        // Having the config and url here is hacky, but no good alternatives.
         proxyUrl: (function () {
-            return '/riak/clusters/' + this.get('id');
+            return config['default'].baseURL + 'riak/clusters/' + this.get('id');
         }).property('id')
     });
 
@@ -3160,12 +3236,12 @@ define('ember-riak-explorer/pods/riak-object/counter/controller', ['exports', 'e
     var RiakObjectCounterController = RiakObjectController['default'].extend({
         actions: {
             incrementCounter: function incrementCounter(object) {
-                this.get('explorer').updateCounter(object, 'increment');
+                this.get('explorer').updateDataType(object, 'increment');
 
                 object.increment(object.get('incrementBy'));
             },
             decrementCounter: function decrementCounter(object) {
-                this.get('explorer').updateCounter(object, 'decrement');
+                this.get('explorer').updateDataType(object, 'decrement');
 
                 object.decrement(object.get('decrementBy'));
             },
@@ -3190,39 +3266,79 @@ define('ember-riak-explorer/pods/riak-object/counter/controller', ['exports', 'e
 });
 define('ember-riak-explorer/pods/riak-object/counter/model', ['exports', 'ember-data', 'ember-riak-explorer/pods/riak-object/model'], function (exports, DS, RiakObject) {
 
-    'use strict';
+  'use strict';
 
-    var RiakCounterObject = RiakObject['default'].extend({
-        /**
-        Can this object type be edited directly, in a text box?
-        */
-        canBeEdited: (function () {
-            return false;
-        }).property(),
+  var RiakObjectCounter = RiakObject['default'].extend({
+    /**
+     * Can this object type be edited directly, in a text box?
+     * @property canBeEdited
+     * @readOnly
+     * @default false
+     * @type {Boolean}
+     */
+    canBeEdited: (function () {
+      return false;
+    }).property(),
 
-        canBeViewedRaw: (function () {
-            return false;
-        }).property(),
+    /**
+     * Can this object be viewed/downloaded directly from the browser?
+     * @property canBeViewedRaw
+     * @readOnly
+     * @default false
+     * @type {Boolean}
+     */
+    canBeViewedRaw: (function () {
+      return false;
+    }).property(),
 
-        contentsForDisplay: (function () {
-            return this.get('contents').value;
-        }).property('contents'),
+    /**
+     * The JSON string representation of the Counter value.
+     * @method contentsForDisplay
+     * @return {String}
+     */
+    contentsForDisplay: (function () {
+      return this.get('contents').value;
+    }).property('contents'),
 
-        decrement: function decrement(amount) {
-            var newValue = this.get('contents').value - amount;
-            this.set('contents', { value: newValue });
-        },
+    /**
+     * Decrements the counter by the specified amount.
+     * @method decrement
+     * @param {Number} amount
+     * @async
+     */
+    decrement: function decrement(amount) {
+      var newValue = this.get('contents').value - amount;
+      this.set('contents', { value: newValue });
+    },
 
-        increment: function increment(amount) {
-            var newValue = this.get('contents').value + amount;
-            this.set('contents', { value: newValue });
-        },
+    /**
+     * Increments the counter by the specified amount.
+     * @method increment
+     * @param {Number} amount
+     * @async
+     */
+    increment: function increment(amount) {
+      var newValue = this.get('contents').value + amount;
+      this.set('contents', { value: newValue });
+    },
 
-        decrementBy: DS['default'].attr('integer', { defaultValue: 1 }),
+    /**
+     * The amount to decrement the counter by.
+     * @property decrementBy
+     * @type {Number}
+     * @private
+     */
+    decrementBy: DS['default'].attr('integer', { defaultValue: 1 }),
 
-        incrementBy: DS['default'].attr('integer', { defaultValue: 1 })
-    });
-    exports['default'] = RiakCounterObject;
+    /**
+     * The amount to increment the counter by.
+     * @property incrementBy
+     * @type {Number}
+     * @private
+     */
+    incrementBy: DS['default'].attr('integer', { defaultValue: 1 })
+  });
+  exports['default'] = RiakObjectCounter;
 
 });
 define('ember-riak-explorer/pods/riak-object/counter/route', ['exports', 'ember-riak-explorer/pods/riak-object/route'], function (exports, RiakObjectRoute) {
@@ -3617,70 +3733,507 @@ define('ember-riak-explorer/pods/riak-object/edit/template', ['exports'], functi
   }()));
 
 });
-define('ember-riak-explorer/pods/riak-object/model', ['exports', 'ember-data'], function (exports, DS) {
+define('ember-riak-explorer/pods/riak-object/map/controller', ['exports', 'ember', 'ember-riak-explorer/pods/riak-object/controller'], function (exports, Ember, RiakObjectController) {
 
     'use strict';
 
-    var RiakObject = DS['default'].Model.extend({
+    var RiakObjectMapController = RiakObjectController['default'].extend({
+        actions: {
+            /**
+            Polls the server to refresh the model
+            (kicks off a delayed call to +refreshModel+)
+            @method pollForModel
+            @param {RiakMapObject} model
+            @param {Integer} delay Delay in milliseconds
+            */
+            pollForModel: function pollForModel(model, delay) {
+                var self = this;
+                Ember['default'].run.later(function () {
+                    self.refreshModel(model);
+                }, delay);
+            },
 
-        bucket: DS['default'].belongsTo('bucket'),
+            /**
+            Reloads the model from the server, updates the controller with it.
+            @method refreshModel
+            @param {RiakMapObject} model
+            */
+            refreshModel: function refreshModel(model) {
+                var controller = this;
+                controller.get('explorer').getRiakObject(model.get('bucket'), model.get('key'), controller.store).then(function (model) {
+                    controller.set('model', model);
+                });
+            }
+        }
+    });
+    exports['default'] = RiakObjectMapController;
 
-        bucketType: DS['default'].belongsTo('bucket-type'),
+});
+define('ember-riak-explorer/pods/riak-object/map/model', ['exports', 'ember-riak-explorer/pods/riak-object/model', 'ember'], function (exports, RiakObject, Ember) {
 
-        cluster: DS['default'].belongsTo('cluster'),
+    'use strict';
 
-        contents: DS['default'].attr(),
-
-        isLoaded: DS['default'].attr('boolean', { defaultValue: false }),
-
-        key: DS['default'].attr('string'),
-
-        // This object was marked as deleted by Explorer UI,
-        //  but may show up in key list cache.
-        markedDeleted: DS['default'].attr('boolean', { defaultValue: false }),
-
-        // Headers
-        metadata: DS['default'].belongsTo('object-metadata'),
-
-        rawUrl: DS['default'].attr('string'),
-
-        bucketId: (function () {
-            return this.get('bucket').get('bucketId');
-        }).property('bucket'),
-
-        bucketTypeId: (function () {
-            return this.get('bucketType').get('bucketTypeId');
-        }).property('bucket'),
+    var RiakObjectMap = RiakObject['default'].extend({
+        /**
+         * Adds a register to this Map.
+         * @method addRegister
+         * @param {RiakObjectRegister} field
+         */
+        addRegister: function addRegister(field) {
+            var registers = this.get('registers');
+            registers[field.get('name')] = field;
+            this.set('registers', registers);
+            this.notifyPropertyChange('contents');
+        },
 
         /**
-        Can this object type be edited directly, in a text box?
-        */
+         * Can this object type be edited directly, in a text box?
+         * @property canBeEdited
+         * @readOnly
+         * @default false
+         * @type {Boolean}
+         */
         canBeEdited: (function () {
-            return true;
+            return false;
         }).property(),
 
+        /**
+         * Can this object be viewed/downloaded directly from the browser?
+         * @property canBeViewedRaw
+         * @readOnly
+         * @default false
+         * @type {Boolean}
+         */
         canBeViewedRaw: (function () {
-            return true;
+            return false;
         }).property(),
 
-        clusterId: (function () {
-            return this.get('cluster').get('clusterId');
-        }).property('bucket'),
-
+        /**
+         * The JSON string representation of the Map contents.
+         * @method contentsForDisplay
+         * @return {String}
+         */
         contentsForDisplay: (function () {
-            return this.get('contents');
+            return JSON.stringify(this.get('contents'));
         }).property('contents'),
 
-        isDeleted: (function () {
-            var deletedOnRiak = false;
-            if (this.get('metadata')) {
-                deletedOnRiak = this.get('metadata').get('isDeleted');
+        /**
+         * Hash table of registers (`RiakObjectRegister` instances) for this map,
+         *     keyed by field name.
+         * @property registers
+         * @type {Object}
+         */
+        registers: Ember['default'].computed('contents', {
+            get: function get() {
+                return this.get('contents').registers;
+            },
+            set: function set(key, value) {
+                var contents = this.get('contents');
+                contents.registers = value;
+                this.set('contents', contents);
             }
-            return this.get('markedDeleted') || deletedOnRiak;
-        }).property('markedDeleted', 'metadata')
-    });
+        }),
 
-    exports['default'] = RiakObject;
+        /**
+         * Returns a list of Registers for this map, sorted by field name.
+         * @method registersList
+         * @return {Array}
+         */
+        registersList: (function registersList() {
+            var list = [];
+            var registers = this.get('registers');
+            for (var fieldName in registers) {
+                list.push(registers[fieldName]);
+            }
+            return list.sortBy('name');
+        }).property('registers'),
+
+        /**
+         * Removes (deletes) a register from this Map.
+         * @method removeRegister
+         * @param {RiakObjectRegister} field
+         */
+        removeRegister: function removeRegister(field) {
+            var registers = this.get('registers');
+            if (field.get('name') in registers) {
+                delete registers[field.get('name')];
+            }
+            this.set('registers', registers);
+            this.notifyPropertyChange('contents');
+        }
+    });
+    exports['default'] = RiakObjectMap;
+
+});
+define('ember-riak-explorer/pods/riak-object/map/route', ['exports', 'ember-riak-explorer/pods/riak-object/route'], function (exports, RiakObjectRoute) {
+
+	'use strict';
+
+	var RiakObjectMapRoute = RiakObjectRoute['default'].extend({});
+	exports['default'] = RiakObjectMapRoute;
+
+});
+define('ember-riak-explorer/pods/riak-object/map/template', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports['default'] = Ember.HTMLBars.template((function() {
+    var child0 = (function() {
+      return {
+        meta: {
+          "revision": "Ember@1.13.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 33
+            }
+          },
+          "moduleName": "ember-riak-explorer/pods/riak-object/map/template.hbs"
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes() { return []; },
+        statements: [
+
+        ],
+        locals: [],
+        templates: []
+      };
+    }());
+    var child1 = (function() {
+      return {
+        meta: {
+          "revision": "Ember@1.13.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 4,
+              "column": 0
+            },
+            "end": {
+              "line": 6,
+              "column": 0
+            }
+          },
+          "moduleName": "ember-riak-explorer/pods/riak-object/map/template.hbs"
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("    ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
+          return morphs;
+        },
+        statements: [
+          ["inline","object-contents-map",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[5,32],[5,37]]]]],[],[]],"deleteObject","deleteObject"],["loc",[null,[5,4],[5,67]]]]
+        ],
+        locals: [],
+        templates: []
+      };
+    }());
+    var child2 = (function() {
+      return {
+        meta: {
+          "revision": "Ember@1.13.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 6,
+              "column": 0
+            },
+            "end": {
+              "line": 8,
+              "column": 0
+            }
+          },
+          "moduleName": "ember-riak-explorer/pods/riak-object/map/template.hbs"
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("    ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
+          return morphs;
+        },
+        statements: [
+          ["content","loading-spinner",["loc",[null,[7,4],[7,23]]]]
+        ],
+        locals: [],
+        templates: []
+      };
+    }());
+    return {
+      meta: {
+        "revision": "Ember@1.13.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 9,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/pods/riak-object/map/template.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("br");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(2);
+        morphs[0] = dom.createMorphAt(fragment,0,0,contextualElement);
+        morphs[1] = dom.createMorphAt(fragment,4,4,contextualElement);
+        dom.insertBoundary(fragment, 0);
+        dom.insertBoundary(fragment, null);
+        return morphs;
+      },
+      statements: [
+        ["block","object-location",[],["object",["subexpr","@mut",[["get","model",["loc",[null,[1,26],[1,31]]]]],[],[]]],0,null,["loc",[null,[1,0],[1,53]]]],
+        ["block","if",[["get","model.isLoaded",["loc",[null,[4,6],[4,20]]]]],[],1,2,["loc",[null,[4,0],[8,7]]]]
+      ],
+      locals: [],
+      templates: [child0, child1, child2]
+    };
+  }()));
+
+});
+define('ember-riak-explorer/pods/riak-object/model', ['exports', 'ember-data'], function (exports, DS) {
+
+  'use strict';
+
+  var RiakObject = DS['default'].Model.extend({
+    /**
+     * Riak Bucket in which this object lives.
+     * @property bucket
+     * @type Bucket
+     * @writeOnce
+     */
+    bucket: DS['default'].belongsTo('bucket'),
+
+    /**
+     * Riak Bucket Type in which this object lives.
+     * @property bucketType
+     * @type BucketType
+     * @writeOnce
+     */
+    bucketType: DS['default'].belongsTo('bucket-type'),
+
+    /**
+     * Riak cluster in which this object lives.
+     * @property cluster
+     * @type Cluster
+     * @writeOnce
+     */
+    cluster: DS['default'].belongsTo('cluster'),
+
+    /**
+     * The value/contents of the object.
+     * @property contents
+     * @type Object
+     */
+    contents: DS['default'].attr(),
+
+    /**
+     * Has the object been fully loaded from the server?
+     * @property isLoaded
+     * @type Boolean
+     * @default false
+     */
+    isLoaded: DS['default'].attr('boolean', { defaultValue: false }),
+
+    /**
+     * The object's primary key.
+     * @property key
+     * @type String
+     * @writeOnce
+     */
+    key: DS['default'].attr('string'),
+
+    // This object was marked as deleted by Explorer UI,
+    //  but may show up in key list cache.
+    markedDeleted: DS['default'].attr('boolean', { defaultValue: false }),
+
+    /**
+     * Riak object headers/metadata.
+     * @property metadata
+     * @type ObjectMetadata
+     */
+    metadata: DS['default'].belongsTo('object-metadata'),
+
+    /**
+     * The URL to fetch the raw contents of the object directly from server.
+     * Used with the 'View Raw' button.
+     * @property rawUrl
+     * @type String
+     * @writeOnce
+     */
+    rawUrl: DS['default'].attr('string'),
+
+    /**
+     * @property bucketId
+     * @type String
+     */
+    bucketId: (function () {
+      return this.get('bucket').get('bucketId');
+    }).property('bucket'),
+
+    /**
+     * @property bucketTypeId
+     * @type String
+     */
+    bucketTypeId: (function () {
+      return this.get('bucketType').get('bucketTypeId');
+    }).property('bucket'),
+
+    /**
+     * Can this object type be edited directly, in a text box?
+     * @property canBeEdited
+     * @readOnly
+     * @default true
+     * @type {Boolean}
+     */
+    canBeEdited: (function () {
+      return true;
+    }).property(),
+
+    /**
+     * Can this object be viewed/downloaded directly from the browser?
+     * @property canBeViewedRaw
+     * @readOnly
+     * @default true
+     * @type {Boolean}
+     */
+    canBeViewedRaw: (function () {
+      return true;
+    }).property(),
+
+    /**
+     * @property clusterId
+     * @type String
+     */
+    clusterId: (function () {
+      return this.get('cluster').get('clusterId');
+    }).property('bucket'),
+
+    /**
+     * Returns a browser-displayable representation of the object value,
+     *     if possible (based on the object's `contentType`).
+     * @method contentsForDisplay
+     * @return {String|Null}
+     */
+    contentsForDisplay: (function () {
+      var contentType = this.get('metadata').get('contentType');
+      var displayContents;
+      // Determine whether this is browser-displayable contents
+      if (contentType.startsWith('text') || contentType.startsWith('application/json') || contentType.startsWith('application/xml') || contentType.startsWith('multipart/mixed')) {
+        displayContents = this.get('contents');
+      } else {
+        displayContents = null;
+      }
+      return displayContents;
+    }).property('contents', 'metadata'),
+
+    /**
+     * Returns true if the object has been deleted either on the server
+     *    or via the Explorer app.
+     * @method isDeleted
+     * @return {Boolean}
+     */
+    isDeleted: (function () {
+      var deletedOnRiak = false;
+      if (this.get('metadata')) {
+        deletedOnRiak = this.get('metadata').get('isDeleted');
+      }
+      return this.get('markedDeleted') || deletedOnRiak;
+    }).property('markedDeleted', 'metadata')
+  });
+
+  exports['default'] = RiakObject;
+
+});
+define('ember-riak-explorer/pods/riak-object/register/model', ['exports', 'ember-data'], function (exports, DS) {
+
+  'use strict';
+
+  var RiakObjectRegister = DS['default'].Model.extend({
+    /**
+     * Name of the register field (has to end in `_register`).
+     * @property name
+     * @type String
+     * @readOnly
+     */
+    name: DS['default'].attr('string'),
+
+    /**
+     * Convenience method to make sure that a user-provided field name
+     *    ends in `_register` (as is required by the HTTP API)
+     * @method normalizeName
+     */
+    normalizeName: function normalizeName() {
+      var name = this.get('name');
+      if (!name.endsWith('_register')) {
+        this.set('name', name + '_register');
+      }
+    },
+
+    /**
+     * Value/contents of the register field.
+     *   Technically this is an Erlang 'binary' value (a byte array).
+     *   However, we'll be dealing with it as a string.
+     * @property value
+     * @type String
+     */
+    value: DS['default'].attr('string')
+  });
+  exports['default'] = RiakObjectRegister;
 
 });
 define('ember-riak-explorer/pods/riak-object/route', ['exports', 'ember'], function (exports, Ember) {
@@ -3726,29 +4279,48 @@ define('ember-riak-explorer/pods/riak-object/set/controller', ['exports', 'ember
 
     var RiakObjectSetController = RiakObjectController['default'].extend({
         actions: {
+            /**
+            Adds element from the textbox to the set.
+            @param {RiakSetObject} model
+            @param {String} newItem Element to be added
+            */
             addElement: function addElement(model, newItem) {
-                this.get('explorer').updateSet(model, newItem, 'addElement');
+                this.get('explorer').updateDataType(model, 'addElement', newItem);
 
                 model.addElement(newItem);
             },
 
-            // delay in milliseconds
-            pollForModel: function pollForModel(object, delay) {
+            /**
+            Polls the server to refresh the model
+            (kicks off a delayed call to +refreshModel+)
+            @param {RiakSetObject} model
+            @param {Integer} delay Delay in milliseconds
+            */
+            pollForModel: function pollForModel(model, delay) {
                 var self = this;
                 Ember['default'].run.later(function () {
-                    self.refreshModel(object);
+                    self.refreshModel(model);
                 }, delay);
             },
 
-            refreshModel: function refreshModel(object) {
+            /**
+            Reloads the model from the server, updates the controller with it.
+            @param {RiakSetObject} model
+            */
+            refreshModel: function refreshModel(model) {
                 var controller = this;
-                controller.get('explorer').getRiakObject(object.get('bucket'), object.get('key'), controller.store).then(function (object) {
-                    controller.set('model', object);
+                controller.get('explorer').getRiakObject(model.get('bucket'), model.get('key'), controller.store).then(function (model) {
+                    controller.set('model', model);
                 });
             },
 
+            /**
+            Removes specified element from the set.
+            @param {RiakSetObject} model
+            @param {String} item Element to be removed
+            */
             removeElement: function removeElement(model, item) {
-                this.get('explorer').updateSet(model, item, 'remove');
+                this.get('explorer').updateDataType(model, 'remove', item);
 
                 model.removeElement(item);
             }
@@ -3761,10 +4333,12 @@ define('ember-riak-explorer/pods/riak-object/set/model', ['exports', 'ember-riak
 
     'use strict';
 
-    var RiakSetObject = RiakObject['default'].extend({
+    var RiakObjectSet = RiakObject['default'].extend({
         /**
-        Add a given element to the set's contents
-        */
+         * Adds a given element to the set's contents.
+         * @method addElement
+         * @param {String} item Element to be added
+         */
         addElement: function addElement(item) {
             if (!item) {
                 return;
@@ -3775,20 +4349,41 @@ define('ember-riak-explorer/pods/riak-object/set/model', ['exports', 'ember-riak
         },
 
         /**
-        Can this object type be edited directly, in a text box?
-        */
+         * Can this object type be edited directly, in a text box?
+         * @property canBeEdited
+         * @readOnly
+         * @default false
+         * @type {Boolean}
+         */
         canBeEdited: (function () {
             return false;
         }).property(),
 
+        /**
+         * Can this object be viewed/downloaded directly from the browser?
+         * @property canBeViewedRaw
+         * @readOnly
+         * @default false
+         * @type {Boolean}
+         */
         canBeViewedRaw: (function () {
             return false;
         }).property(),
 
+        /**
+         * The JSON string representation of the Set contents.
+         * @method contentsForDisplay
+         * @return {String}
+         */
         contentsForDisplay: (function () {
             return this.get('contents').value;
         }).property('contents'),
 
+        /**
+         * Removes a given element from the set's contents.
+         * @method removeElement
+         * @param {String} item Element to be removed
+         */
         removeElement: function removeElement(item) {
             var set = this.get('contents').value;
             var index = set.indexOf(item);
@@ -3798,7 +4393,7 @@ define('ember-riak-explorer/pods/riak-object/set/model', ['exports', 'ember-riak
             this.set('contents', { value: set });
         }
     });
-    exports['default'] = RiakSetObject;
+    exports['default'] = RiakObjectSet;
 
 });
 define('ember-riak-explorer/pods/riak-object/set/route', ['exports', 'ember-riak-explorer/pods/riak-object/route'], function (exports, RiakObjectRoute) {
@@ -4232,6 +4827,7 @@ define('ember-riak-explorer/router', ['exports', 'ember', 'ember-riak-explorer/c
         this.route('riak-object.edit', { path: '/cluster/:clusterId/bucket_type/:bucketTypeId/bucket/:bucketId/key/:key/edit' });
         this.route('riak-object.counter', { path: '/cluster/:clusterId/bucket_type/:bucketTypeId/bucket/:bucketId/counter/:key' });
         this.route('riak-object.set', { path: '/cluster/:clusterId/bucket_type/:bucketTypeId/bucket/:bucketId/set/:key' });
+        this.route('riak-object.map', { path: '/cluster/:clusterId/bucket_type/:bucketTypeId/bucket/:bucketId/map/:key' });
         this.route('riak_ping');
         this.route('node_stats');
         this.route('error', { path: '/error' }, function () {
@@ -4314,15 +4910,15 @@ define('ember-riak-explorer/routes/error/unknown', ['exports', 'ember'], functio
 	exports['default'] = Ember['default'].Route.extend({});
 
 });
-define('ember-riak-explorer/routes/explorer-api', ['exports', 'ember'], function (exports, Ember) {
+define('ember-riak-explorer/routes/explorer-api', ['exports', 'ember', 'ember-riak-explorer/config/environment'], function (exports, Ember, config) {
 
     'use strict';
 
     exports['default'] = Ember['default'].Route.extend({
         model: function model() {
             var serviceName = 'Riak Explorer';
-            var pingUrl = '/explore/ping';
-            var propsUrl = '/explore/props';
+            var pingUrl = config['default'].baseURL + 'explore/ping';
+            var propsUrl = config['default'].baseURL + 'explore/props';
 
             return new Ember['default'].RSVP.hash({
                 service: serviceName,
@@ -4341,7 +4937,7 @@ define('ember-riak-explorer/routes/index', ['exports', 'ember'], function (expor
 	exports['default'] = Ember['default'].Route.extend({});
 
 });
-define('ember-riak-explorer/routes/node-stats', ['exports', 'ember', 'ember-riak-explorer/utils/riak-util'], function (exports, Ember, objectToArray) {
+define('ember-riak-explorer/routes/node-stats', ['exports', 'ember'], function (exports, Ember) {
 
     'use strict';
 
@@ -4353,15 +4949,7 @@ define('ember-riak-explorer/routes/node-stats', ['exports', 'ember', 'ember-riak
         },
 
         model: function model(params) {
-            var propsUrl = '/riak/nodes/' + params.node_id + '/stats';
-            var propsResult = Ember['default'].$.ajax(propsUrl, { dataType: "json" });
-            return propsResult.then(function (data) {
-                var statsArray = objectToArray['default'](data);
-                return {
-                    node: params.node_id,
-                    stats: statsArray
-                };
-            });
+            return this.explorer.getNodeStats(params.node_id);
         }
     });
 
@@ -4378,26 +4966,7 @@ define('ember-riak-explorer/routes/riak-ping', ['exports', 'ember'], function (e
         },
 
         model: function model(params) {
-            var url = '/riak/nodes/' + params.node_id + '/ping';
-
-            var result = Ember['default'].$.ajax({ url: url }); // returns a Promise obj
-            return result.then(
-            // Success
-            function (data) {
-                return {
-                    message: 'Available (' + data + ')'
-                };
-            },
-            // Error
-            function (error) {
-                return {
-                    message: 'Unavailable. Error encountered: ' + error.message
-                };
-            }).fail(function (error) {
-                return {
-                    message: 'Unavailable. Error encountered: ' + error.message
-                };
-            });
+            return this.explorer.getNodePing(params.node_id);
         }
     });
 
@@ -4472,242 +5041,13 @@ define('ember-riak-explorer/serializers/application', ['exports', 'ember-data', 
     });
 
 });
-define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (exports, Ember) {
+define('ember-riak-explorer/services/explorer', ['exports', 'ember', 'ember-riak-explorer/config/environment', 'ember-riak-explorer/utils/riak-util'], function (exports, Ember, config, objectToArray) {
 
     'use strict';
 
-    function bucketCacheRefresh(clusterId, bucketTypeId) {
-        // For the moment, 'riak_kv' is the only implemented source of
-        // cache refresh
-        var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId + '/refresh_buckets/source/riak_kv';
-        return cacheRefresh(url);
-    }
-
-    /**
-    * Refresh a key list cache or bucket list cache on the Explorer API side
-    */
-    function cacheRefresh(url) {
-        return new Ember['default'].RSVP.Promise(function (resolve, reject) {
-            Ember['default'].$.ajax({
-                type: "POST",
-                url: url
-            }).then(function (data, textStatus, jqXHR) {
-                resolve(jqXHR.status);
-            }, function (jqXHR, textStatus) {
-                if (jqXHR.status === 202 && textStatus === 'parsererror') {
-                    // Server responds with 202 Accepted, and empty body
-                    resolve(jqXHR.status);
-                }
-                reject(textStatus);
-            });
-        });
-    }
-
-    function displayContentsForType(headers, contents) {
-        var contentType = headers.other['content-type'];
-        var displayContents;
-        // Determine whether this is browser-displayable contents
-        if (contentType.startsWith('text') || contentType.startsWith('application/json') || contentType.startsWith('application/xml') || contentType.startsWith('multipart/mixed')) {
-            displayContents = contents;
-        }
-        return displayContents;
-    }
-
-    function deleteBucket(bucket) {
-        var url = '/explore/clusters/' + bucket.get('clusterId') + '/bucket_types/' + bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId');
-
-        return new Ember['default'].RSVP.Promise(function (resolve, reject) {
-            Ember['default'].$.ajax({
-                type: "DELETE",
-                url: url,
-                success: function success(data, textStatus, jqXHR) {
-                    resolve(jqXHR.status);
-                },
-                error: function error(jqXHR, textStatus) {
-                    if (jqXHR.status === 202 && textStatus === 'parsererror') {
-                        resolve(jqXHR.status);
-                    } else {
-                        reject(textStatus);
-                    }
-                }
-            });
-        });
-    }
-
-    function deleteObject(object) {
-        var url = getClusterProxyUrl(object.get('clusterId')) + '/types/' + object.get('bucketTypeId') + '/buckets/' + object.get('bucketId') + '/keys/' + object.get('key');
-
-        object.set('markedDeleted', true);
-
-        var request = new Ember['default'].RSVP.Promise(function (resolve, reject) {
-            Ember['default'].$.ajax({
-                type: "DELETE",
-                url: url,
-                headers: { 'X-Riak-Vclock': object.get('metadata').get('causalContext') }
-            }).then(function (data, textStatus, jqXHR) {
-                resolve(jqXHR.status);
-            }, function (jqXHR, textStatus) {
-                reject(textStatus);
-            });
-        });
-
-        return request['catch'](function (error) {
-            console.log('Error deleting riak object: %O', error);
-        });
-    }
-
-    function getClusterProxyUrl(clusterId) {
-        return '/riak/clusters/' + clusterId;
-    }
-
-    function getIndexes(clusterId) {
-        var url = getClusterProxyUrl(clusterId) + '/search/index';
-
-        var request = new Ember['default'].RSVP.Promise(function (resolve, reject) {
-            Ember['default'].$.ajax({
-                type: "GET",
-                url: url
-            }).then(
-            // Success
-            function (data) {
-                resolve(data);
-            },
-            // Error
-            function (jqXHR, textStatus) {
-                if (jqXHR.status === 404) {
-                    // No indexes found, simply return an empty list
-                    resolve([]);
-                } else {
-                    // Some other error
-                    reject(textStatus);
-                }
-            });
-        });
-        return request;
-    }
-
-    function getKeyList(bucket, store) {
-        var clusterId = bucket.get('clusterId');
-        var bucketTypeId = bucket.get('bucketTypeId');
-        var bucketId = bucket.get('bucketId');
-        var explorer = this;
-
-        var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId + '/buckets/' + bucketId + '/keys';
-        // console.log('Retrieving key list, url: %s', url);
-
-        return new Ember['default'].RSVP.Promise(function (resolve, reject) {
-            var ajaxHash = {
-                url: url,
-                dataType: 'json',
-                type: 'GET'
-            };
-            ajaxHash.success = function (data) {
-                // Success, key list returned
-                bucket.set('isKeyListLoaded', true);
-                resolve(explorer.createKeyList(data, bucket, store));
-            };
-            ajaxHash.error = function (jqXHR, textStatus) {
-                if (jqXHR.status === 404) {
-                    // Empty cache (need to kick off a refresh)
-                    keyCacheRefresh(clusterId, bucketTypeId, bucketId);
-                    // Results in returning an empty (Loading..) key list
-                    Ember['default'].run(null, resolve, null);
-                } else {
-                    // Some other error
-                    Ember['default'].run(null, reject, textStatus);
-                }
-            };
-            Ember['default'].$.ajax(ajaxHash);
-        });
-    }
-
-    function getNodes(clusterId) {
-        var url = '/explore/clusters/' + clusterId + '/nodes';
-
-        var request = new Ember['default'].RSVP.Promise(function (resolve, reject) {
-            Ember['default'].$.ajax({
-                type: "GET",
-                url: url
-            }).then(
-            // Success
-            function (data) {
-                resolve(data.nodes);
-            },
-            // Error
-            function (jqXHR, textStatus) {
-                if (jqXHR.status === 404) {
-                    // No nodes found, simply return an empty list
-                    resolve([]);
-                } else {
-                    // Some other error
-                    reject(textStatus);
-                }
-            });
-        });
-        return request;
-    }
-
-    // Fetch the cache of Deleted keys/buckets for a
-    //  given cluster and bucket type. Initialize objects whenever missing.
-    function deletedCacheFor(clusterId, bucketTypeId) {
-        if (!this.deleted.clusters[clusterId]) {
-            this.deleted.clusters[clusterId] = { types: {} };
-        }
-        if (!this.deleted.clusters[clusterId].types[bucketTypeId]) {
-            this.deleted.clusters[clusterId].types[bucketTypeId] = { buckets: {} };
-        }
-        return this.deleted.clusters[clusterId].types[bucketTypeId];
-    }
-
-    function markDeletedKey(object) {
-        var clusterId = object.get('clusterId');
-        var bucketTypeId = object.get('bucketTypeId');
-        var bucketId = object.get('bucketId');
-        var key = object.get('key');
-
-        var bucketTypeDelCache = this.deletedCacheFor(clusterId, bucketTypeId);
-
-        if (!bucketTypeDelCache.buckets[bucketId]) {
-            bucketTypeDelCache.buckets[bucketId] = {
-                keysDeleted: {},
-                bucketDeleted: false
-            };
-        }
-
-        bucketTypeDelCache.buckets[bucketId].keysDeleted[key] = true;
-    }
-
-    function keyCacheRefresh(clusterId, bucketTypeId, bucketId) {
-        // For the moment, 'riak_kv' is the only implemented source of
-        // cache refresh
-        var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId + '/buckets/' + bucketId + '/refresh_keys/source/riak_kv';
-        return cacheRefresh(url);
-    }
-
-    function saveObject(object) {
-        var url = getClusterProxyUrl(object.get('clusterId')) + '/types/' + object.get('bucketTypeId') + '/buckets/' + object.get('bucketId') + '/keys/' + object.get('key');
-
-        var request = new Ember['default'].RSVP.Promise(function (resolve, reject) {
-            Ember['default'].$.ajax({
-                type: "PUT",
-                processData: false,
-                contentType: object.get('metadata').get('contentType'),
-                url: url,
-                headers: object.get('metadata').get('headersForUpdate'),
-                data: object.get('contents')
-            }).then(function (data, textStatus, jqXHR) {
-                resolve(jqXHR.status);
-            }, function (jqXHR, textStatus) {
-                reject(textStatus);
-            });
-        });
-
-        return request['catch'](function (error) {
-            console.log('Error saving riak object: %O', error);
-        });
-    }
-
     exports['default'] = Ember['default'].Service.extend({
+        apiURL: config['default'].baseURL,
+
         name: 'explorer',
         availableIn: ['controllers', 'routes'],
 
@@ -4716,7 +5056,73 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             clusters: {}
         },
 
-        bucketCacheRefresh: bucketCacheRefresh,
+        bucketCacheRefresh: function bucketCacheRefresh(clusterId, bucketTypeId) {
+            // For the moment, 'riak_kv' is the only implemented source of
+            // cache refresh
+            var url = this.apiURL + 'explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId + '/refresh_buckets/source/riak_kv';
+            return this.cacheRefresh(url);
+        },
+
+        /**
+        * Refresh a key list cache or bucket list cache on the Explorer API side
+        */
+        cacheRefresh: function cacheRefresh(url) {
+            return new Ember['default'].RSVP.Promise(function (resolve, reject) {
+                Ember['default'].$.ajax({
+                    type: "POST",
+                    url: url
+                }).then(function (data, textStatus, jqXHR) {
+                    resolve(jqXHR.status);
+                }, function (jqXHR, textStatus) {
+                    if (jqXHR.status === 202 && textStatus === 'parsererror') {
+                        // Server responds with 202 Accepted, and empty body
+                        resolve(jqXHR.status);
+                    }
+                    reject(textStatus);
+                });
+            });
+        },
+
+        /**
+         * @method collectMapFields
+         * @param {Object} payload Value of the JSON payload of an HTTP GET
+         *                   to the map object
+         * @param {DS.Store} store
+         * @return {Object} A hash of fields indexed by CRDT type and field name.
+         */
+        collectMapFields: function collectMapFields(payload, store) {
+            var contents = {
+                counters: {},
+                flags: {},
+                registers: {},
+                sets: {},
+                maps: {}
+            };
+            var field;
+
+            for (var fieldName in payload) {
+                if (fieldName.endsWith('_counter')) {
+                    contents.counters[fieldName] = payload[fieldName];
+                }
+                if (fieldName.endsWith('_flag')) {
+                    contents.flags[fieldName] = payload[fieldName];
+                }
+                if (fieldName.endsWith('_register')) {
+                    field = store.createRecord('riak-object.register', {
+                        name: fieldName,
+                        value: payload[fieldName]
+                    });
+                    contents.registers[fieldName] = field;
+                }
+                if (fieldName.endsWith('_set')) {
+                    contents.sets[fieldName] = payload[fieldName];
+                }
+                if (fieldName.endsWith('_map')) {
+                    contents.maps[fieldName] = this.collectMapFields(payload[fieldName]);
+                }
+            }
+            return contents;
+        },
 
         compositeId: function compositeId(clusterId, bucketTypeId) {
             return clusterId + '/' + bucketTypeId;
@@ -4774,10 +5180,20 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             });
         },
 
-        createObjectFromAjax: function createObjectFromAjax(key, bucket, rawHeader, responseText, store, url) {
+        createObjectContents: function createObjectContents(bucket, payload, store) {
+            var contents;
+            if (bucket.get('props').get('isMap')) {
+                contents = this.collectMapFields(payload.value, store);
+            } else {
+                contents = payload;
+            }
+            return contents;
+        },
+
+        createObjectFromAjax: function createObjectFromAjax(key, bucket, rawHeader, payload, store, url) {
             var metadata = this.createObjectMetadata(rawHeader, store);
-            var contents = displayContentsForType(metadata.get('headers'), responseText);
             var modelName = bucket.get('objectModelName');
+            var contents = this.createObjectContents(bucket, payload, store);
 
             return store.createRecord(modelName, {
                 key: key,
@@ -4800,11 +5216,102 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             });
         },
 
-        deletedCacheFor: deletedCacheFor,
+        /**
+         * Composes the JSON action object for the specified operation type for use
+         *    with the Riak Data Type HTTP API.
+         *
+         * @method dataTypeActionFor
+         * @param {RiakObjectCounter|RiakObjectMap|RiakObjectSet} object
+         * @param {String} operationType
+         * @param {String|RiakObjectRegister|RiakObjectFlag} item
+         */
+        dataTypeActionFor: function dataTypeActionFor(object, operationType, item) {
+            var bucket = object.get('bucket');
+            var operation;
+            if (bucket.get('props').get('isCounter')) {
+                if (operationType === 'increment') {
+                    operation = { increment: object.get('incrementBy') };
+                } else {
+                    operation = { decrement: object.get('decrementBy') };
+                }
+            } else if (bucket.get('props').get('isSet')) {
+                if (operationType === 'remove') {
+                    operation = { remove: item };
+                } else if (operationType === 'addElement') {
+                    operation = { add: item };
+                }
+            } else if (bucket.get('props').get('isMap')) {
+                if (operationType === 'removeRegister') {
+                    operation = { remove: item.get('name') };
+                } else if (operationType === 'addRegister') {
+                    var update = {};
+                    update[item.get('name')] = item.get('value');
+                    operation = {
+                        update: update
+                    };
+                }
+            }
+            if (!operation) {
+                console.log('Error: unsupported operationType %s', operationType);
+            }
 
-        deleteObject: deleteObject,
+            return JSON.stringify(operation);
+        },
 
-        deleteBucket: deleteBucket,
+        deleteBucket: function deleteBucket(bucket) {
+            var url = this.apiURL + 'explore/clusters/' + bucket.get('clusterId') + '/bucket_types/' + bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId');
+
+            return new Ember['default'].RSVP.Promise(function (resolve, reject) {
+                Ember['default'].$.ajax({
+                    type: "DELETE",
+                    url: url,
+                    success: function success(data, textStatus, jqXHR) {
+                        resolve(jqXHR.status);
+                    },
+                    error: function error(jqXHR, textStatus) {
+                        if (jqXHR.status === 202 && textStatus === 'parsererror') {
+                            resolve(jqXHR.status);
+                        } else {
+                            reject(textStatus);
+                        }
+                    }
+                });
+            });
+        },
+
+        // Fetch the cache of Deleted keys/buckets for a
+        //  given cluster and bucket type. Initialize objects whenever missing.
+        deletedCacheFor: function deletedCacheFor(clusterId, bucketTypeId) {
+            if (!this.deleted.clusters[clusterId]) {
+                this.deleted.clusters[clusterId] = { types: {} };
+            }
+            if (!this.deleted.clusters[clusterId].types[bucketTypeId]) {
+                this.deleted.clusters[clusterId].types[bucketTypeId] = { buckets: {} };
+            }
+            return this.deleted.clusters[clusterId].types[bucketTypeId];
+        },
+
+        deleteObject: function deleteObject(object) {
+            var url = this.getClusterProxyUrl(object.get('clusterId')) + '/types/' + object.get('bucketTypeId') + '/buckets/' + object.get('bucketId') + '/keys/' + object.get('key');
+
+            object.set('markedDeleted', true);
+
+            var request = new Ember['default'].RSVP.Promise(function (resolve, reject) {
+                Ember['default'].$.ajax({
+                    type: "DELETE",
+                    url: url,
+                    headers: { 'X-Riak-Vclock': object.get('metadata').get('causalContext') }
+                }).then(function (data, textStatus, jqXHR) {
+                    resolve(jqXHR.status);
+                }, function (jqXHR, textStatus) {
+                    reject(textStatus);
+                });
+            });
+
+            return request['catch'](function (error) {
+                console.log('Error deleting riak object: %O', error);
+            });
+        },
 
         getBucket: function getBucket(clusterId, bucketTypeId, bucketId, store) {
             var self = this;
@@ -4824,7 +5331,7 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             console.log('Refreshing buckets for bucketType: %O', bucketType);
             var clusterId = cluster.get('clusterId');
             var bucketTypeId = bucketType.get('bucketTypeId');
-            var url = '/explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId + '/buckets';
+            var url = this.apiURL + 'explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId + '/buckets';
             var explorer = this;
 
             return new Ember['default'].RSVP.Promise(function (resolve, reject) {
@@ -4844,7 +5351,7 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
                     if (jqXHR.status === 404) {
                         // Kick off a Cache Refresh, and repeat the getBucketList request
                         console.log("kicking off cache refresh...");
-                        bucketCacheRefresh(clusterId, bucketTypeId);
+                        explorer.bucketCacheRefresh(clusterId, bucketTypeId);
                         // Return an empty (Loading..) list. Controller will poll to
                         // refresh it, later
                         var emptyList = store.createRecord('bucket-list', {
@@ -4928,14 +5435,132 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             });
         },
 
-        getClusterProxyUrl: getClusterProxyUrl,
+        getClusterProxyUrl: function getClusterProxyUrl(clusterId) {
+            return this.apiURL + 'riak/clusters/' + clusterId;
+        },
 
-        getIndexes: getIndexes,
+        getIndexes: function getIndexes(clusterId) {
+            var url = this.getClusterProxyUrl(clusterId) + '/search/index';
 
-        getKeyList: getKeyList,
+            var request = new Ember['default'].RSVP.Promise(function (resolve, reject) {
+                Ember['default'].$.ajax({
+                    type: "GET",
+                    url: url
+                }).then(
+                // Success
+                function (data) {
+                    resolve(data);
+                },
+                // Error
+                function (jqXHR, textStatus) {
+                    if (jqXHR.status === 404) {
+                        // No indexes found, simply return an empty list
+                        resolve([]);
+                    } else {
+                        // Some other error
+                        reject(textStatus);
+                    }
+                });
+            });
+            return request;
+        },
+
+        getKeyList: function getKeyList(bucket, store) {
+            var clusterId = bucket.get('clusterId');
+            var bucketTypeId = bucket.get('bucketTypeId');
+            var bucketId = bucket.get('bucketId');
+            var explorer = this;
+
+            var url = this.apiURL + 'explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId + '/buckets/' + bucketId + '/keys';
+            // console.log('Retrieving key list, url: %s', url);
+
+            return new Ember['default'].RSVP.Promise(function (resolve, reject) {
+                var ajaxHash = {
+                    url: url,
+                    dataType: 'json',
+                    type: 'GET'
+                };
+                ajaxHash.success = function (data) {
+                    // Success, key list returned
+                    bucket.set('isKeyListLoaded', true);
+                    resolve(explorer.createKeyList(data, bucket, store));
+                };
+                ajaxHash.error = function (jqXHR, textStatus) {
+                    if (jqXHR.status === 404) {
+                        // Empty cache (need to kick off a refresh)
+                        explorer.keyCacheRefresh(clusterId, bucketTypeId, bucketId);
+                        // Results in returning an empty (Loading..) key list
+                        Ember['default'].run(null, resolve, null);
+                    } else {
+                        // Some other error
+                        Ember['default'].run(null, reject, textStatus);
+                    }
+                };
+                Ember['default'].$.ajax(ajaxHash);
+            });
+        },
+
+        getNodePing: function getNodePing(nodeId) {
+            var url = this.apiURL + 'riak/nodes/' + nodeId + '/ping';
+
+            var result = Ember['default'].$.ajax({ url: url }); // returns a Promise obj
+            return result.then(
+            // Success
+            function (data) {
+                return {
+                    message: 'Available (' + data + ')'
+                };
+            },
+            // Error
+            function (error) {
+                return {
+                    message: 'Unavailable. Error encountered: ' + error.message
+                };
+            }).fail(function (error) {
+                return {
+                    message: 'Unavailable. Error encountered: ' + error.message
+                };
+            });
+        },
 
         // Return all nodes for a particular cluster
-        getNodes: getNodes,
+        getNodes: function getNodes(clusterId) {
+            var url = this.apiURL + 'explore/clusters/' + clusterId + '/nodes';
+
+            var request = new Ember['default'].RSVP.Promise(function (resolve, reject) {
+                Ember['default'].$.ajax({
+                    type: "GET",
+                    url: url
+                }).then(
+                // Success
+                function (data) {
+                    resolve(data.nodes);
+                },
+                // Error
+                function (jqXHR, textStatus) {
+                    if (jqXHR.status === 404) {
+                        // No nodes found, simply return an empty list
+                        resolve([]);
+                    } else {
+                        // Some other error
+                        reject(textStatus);
+                    }
+                });
+            });
+            return request;
+        },
+
+        getNodeStats: function getNodeStats(nodeId) {
+            var propsUrl = this.apiURL + 'riak/nodes/' + nodeId + '/stats';
+            var propsResult = Ember['default'].$.ajax(propsUrl, { dataType: "json" });
+            return propsResult.then(function (data) {
+                var statsArray = objectToArray['default'](data);
+                return {
+                    node: nodeId,
+                    stats: statsArray
+                };
+            });
+        },
 
         getRiakObject: function getRiakObject(bucket, key, store) {
             var explorer = this;
@@ -4950,7 +5575,7 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
                 var processData;
                 var headerString;
                 var contents;
-                var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' + bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId');
+                var url = explorer.getClusterProxyUrl(bucket.get('clusterId')) + '/types/' + bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId');
                 if (bucket.get('props').get('isCRDT')) {
                     url = url + '/datatypes/' + key;
                     processData = true; // Parse the payload as JSON
@@ -4992,9 +5617,30 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             });
         },
 
-        keyCacheRefresh: keyCacheRefresh,
+        keyCacheRefresh: function keyCacheRefresh(clusterId, bucketTypeId, bucketId) {
+            // For the moment, 'riak_kv' is the only implemented source of
+            // cache refresh
+            var url = this.apiURL + 'explore/clusters/' + clusterId + '/bucket_types/' + bucketTypeId + '/buckets/' + bucketId + '/refresh_keys/source/riak_kv';
+            return this.cacheRefresh(url);
+        },
 
-        markDeletedKey: markDeletedKey,
+        markDeletedKey: function markDeletedKey(object) {
+            var clusterId = object.get('clusterId');
+            var bucketTypeId = object.get('bucketTypeId');
+            var bucketId = object.get('bucketId');
+            var key = object.get('key');
+
+            var bucketTypeDelCache = this.deletedCacheFor(clusterId, bucketTypeId);
+
+            if (!bucketTypeDelCache.buckets[bucketId]) {
+                bucketTypeDelCache.buckets[bucketId] = {
+                    keysDeleted: {},
+                    bucketDeleted: false
+                };
+            }
+
+            bucketTypeDelCache.buckets[bucketId].keysDeleted[key] = true;
+        },
 
         /**
         * XmlHttpRequest's getAllResponseHeaders() method returns a string of response
@@ -5040,41 +5686,41 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
             };
         },
 
-        saveObject: saveObject,
+        saveObject: function saveObject(object) {
+            var url = this.getClusterProxyUrl(object.get('clusterId')) + '/types/' + object.get('bucketTypeId') + '/buckets/' + object.get('bucketId') + '/keys/' + object.get('key');
 
-        updateCounter: function updateCounter(object, operationType) {
-            var bucket = object.get('bucket');
-            var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' + bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') + '/datatypes/' + object.get('key');
-
-            return new Ember['default'].RSVP.Promise(function (resolve, reject) {
-                var ajaxHash = {
-                    contentType: 'application/json',
-                    type: 'POST',
-                    dataType: 'json',
+            var request = new Ember['default'].RSVP.Promise(function (resolve, reject) {
+                Ember['default'].$.ajax({
+                    type: "PUT",
+                    processData: false,
+                    contentType: object.get('metadata').get('contentType'),
                     url: url,
-                    success: function success(data) {
-                        resolve(data);
-                    },
-                    error: function error(jqXHR) {
-                        if (jqXHR.status === 204) {
-                            resolve(jqXHR.status);
-                        } else {
-                            reject(jqXHR);
-                        }
-                    }
-                };
-                if (operationType === 'increment') {
-                    ajaxHash.data = JSON.stringify({ increment: object.get('incrementBy') });
-                } else {
-                    ajaxHash.data = JSON.stringify({ decrement: object.get('decrementBy') });
-                }
-                Ember['default'].$.ajax(ajaxHash);
+                    headers: object.get('metadata').get('headersForUpdate'),
+                    data: object.get('contents')
+                }).then(function (data, textStatus, jqXHR) {
+                    resolve(jqXHR.status);
+                }, function (jqXHR, textStatus) {
+                    reject(textStatus);
+                });
+            });
+
+            return request['catch'](function (error) {
+                console.log('Error saving riak object: %O', error);
             });
         },
 
-        updateSet: function updateSet(object, item, operationType) {
+        /**
+         * Performs an update AJAX operation to the Riak Data Type HTTP API endpoint
+         *
+         * @method updateDataType
+         * @param {RiakObjectCounter|RiakObjectMap|RiakObjectSet} object
+         * @param {String} operationType
+         * @param {String|RiakObjectRegister|RiakObjectFlag} item
+         */
+        updateDataType: function updateDataType(object, operationType, item) {
             var bucket = object.get('bucket');
-            var url = getClusterProxyUrl(bucket.get('clusterId')) + '/types/' + bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') + '/datatypes/' + object.get('key');
+            var url = this.getClusterProxyUrl(bucket.get('clusterId')) + '/types/' + bucket.get('bucketTypeId') + '/buckets/' + bucket.get('bucketId') + '/datatypes/' + object.get('key');
+            var self = this;
 
             return new Ember['default'].RSVP.Promise(function (resolve, reject) {
                 var ajaxHash = {
@@ -5082,6 +5728,7 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
                     type: 'POST',
                     dataType: 'json',
                     url: url,
+                    data: self.dataTypeActionFor(object, operationType, item),
                     success: function success(data) {
                         resolve(data);
                     },
@@ -5093,11 +5740,6 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember'], function (
                         }
                     }
                 };
-                if (operationType === 'remove') {
-                    ajaxHash.data = JSON.stringify({ remove: item });
-                } else if (operationType === 'addElement') {
-                    ajaxHash.data = JSON.stringify({ add: item });
-                }
                 Ember['default'].$.ajax(ajaxHash);
             });
         },
@@ -9784,6 +10426,88 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
             templates: [child0]
           };
         }());
+        var child2 = (function() {
+          var child0 = (function() {
+            return {
+              meta: {
+                "revision": "Ember@1.13.5",
+                "loc": {
+                  "source": null,
+                  "start": {
+                    "line": 12,
+                    "column": 12
+                  },
+                  "end": {
+                    "line": 12,
+                    "column": 57
+                  }
+                },
+                "moduleName": "ember-riak-explorer/templates/components/link/link-object.hbs"
+              },
+              arity: 0,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createComment("");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                var morphs = new Array(1);
+                morphs[0] = dom.createMorphAt(fragment,0,0,contextualElement);
+                dom.insertBoundary(fragment, 0);
+                dom.insertBoundary(fragment, null);
+                return morphs;
+              },
+              statements: [
+                ["content","obj.key",["loc",[null,[12,46],[12,57]]]]
+              ],
+              locals: [],
+              templates: []
+            };
+          }());
+          return {
+            meta: {
+              "revision": "Ember@1.13.5",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 11,
+                  "column": 8
+                },
+                "end": {
+                  "line": 13,
+                  "column": 8
+                }
+              },
+              "moduleName": "ember-riak-explorer/templates/components/link/link-object.hbs"
+            },
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("            ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createComment("");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(fragment,1,1,contextualElement);
+              return morphs;
+            },
+            statements: [
+              ["block","link-to",["riak-object.map",["get","obj",["loc",[null,[12,41],[12,44]]]]],[],0,null,["loc",[null,[12,12],[12,69]]]]
+            ],
+            locals: [],
+            templates: [child0]
+          };
+        }());
         return {
           meta: {
             "revision": "Ember@1.13.5",
@@ -9794,7 +10518,7 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
                 "column": 4
               },
               "end": {
-                "line": 11,
+                "line": 14,
                 "column": 4
               }
             },
@@ -9809,22 +10533,26 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
             dom.appendChild(el0, el1);
             var el1 = dom.createComment("");
             dom.appendChild(el0, el1);
+            var el1 = dom.createComment("");
+            dom.appendChild(el0, el1);
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(2);
+            var morphs = new Array(3);
             morphs[0] = dom.createMorphAt(fragment,0,0,contextualElement);
             morphs[1] = dom.createMorphAt(fragment,1,1,contextualElement);
+            morphs[2] = dom.createMorphAt(fragment,2,2,contextualElement);
             dom.insertBoundary(fragment, 0);
             dom.insertBoundary(fragment, null);
             return morphs;
           },
           statements: [
             ["block","if",[["get","obj.bucket.props.isCounter",["loc",[null,[5,14],[5,40]]]]],[],0,null,["loc",[null,[5,8],[7,15]]]],
-            ["block","if",[["get","obj.bucket.props.isSet",["loc",[null,[8,14],[8,36]]]]],[],1,null,["loc",[null,[8,8],[10,15]]]]
+            ["block","if",[["get","obj.bucket.props.isSet",["loc",[null,[8,14],[8,36]]]]],[],1,null,["loc",[null,[8,8],[10,15]]]],
+            ["block","if",[["get","obj.bucket.props.isMap",["loc",[null,[11,14],[11,36]]]]],[],2,null,["loc",[null,[11,8],[13,15]]]]
           ],
           locals: [],
-          templates: [child0, child1]
+          templates: [child0, child1, child2]
         };
       }());
       var child1 = (function() {
@@ -9835,11 +10563,11 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 12,
+                  "line": 15,
                   "column": 8
                 },
                 "end": {
-                  "line": 12,
+                  "line": 15,
                   "column": 49
                 }
               },
@@ -9862,7 +10590,7 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
               return morphs;
             },
             statements: [
-              ["content","obj.key",["loc",[null,[12,38],[12,49]]]]
+              ["content","obj.key",["loc",[null,[15,38],[15,49]]]]
             ],
             locals: [],
             templates: []
@@ -9874,11 +10602,11 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
             "loc": {
               "source": null,
               "start": {
-                "line": 11,
+                "line": 14,
                 "column": 4
               },
               "end": {
-                "line": 13,
+                "line": 16,
                 "column": 4
               }
             },
@@ -9903,7 +10631,7 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
             return morphs;
           },
           statements: [
-            ["block","link-to",["riak-object",["get","obj",["loc",[null,[12,33],[12,36]]]]],[],0,null,["loc",[null,[12,8],[12,61]]]]
+            ["block","link-to",["riak-object",["get","obj",["loc",[null,[15,33],[15,36]]]]],[],0,null,["loc",[null,[15,8],[15,61]]]]
           ],
           locals: [],
           templates: [child0]
@@ -9919,7 +10647,7 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
               "column": 0
             },
             "end": {
-              "line": 14,
+              "line": 17,
               "column": 0
             }
           },
@@ -9942,7 +10670,7 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
           return morphs;
         },
         statements: [
-          ["block","if",[["get","obj.bucket.props.isCRDT",["loc",[null,[4,10],[4,33]]]]],[],0,1,["loc",[null,[4,4],[13,11]]]]
+          ["block","if",[["get","obj.bucket.props.isCRDT",["loc",[null,[4,10],[4,33]]]]],[],0,1,["loc",[null,[4,4],[16,11]]]]
         ],
         locals: [],
         templates: [child0, child1]
@@ -9958,7 +10686,7 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
             "column": 0
           },
           "end": {
-            "line": 15,
+            "line": 18,
             "column": 0
           }
         },
@@ -9981,7 +10709,7 @@ define('ember-riak-explorer/templates/components/link/link-object', ['exports'],
         return morphs;
       },
       statements: [
-        ["block","if",[["get","obj.markedDeleted",["loc",[null,[1,6],[1,23]]]]],[],0,1,["loc",[null,[1,0],[14,7]]]]
+        ["block","if",[["get","obj.markedDeleted",["loc",[null,[1,6],[1,23]]]]],[],0,1,["loc",[null,[1,0],[17,7]]]]
       ],
       locals: [],
       templates: [child0, child1]
@@ -10641,6 +11369,420 @@ define('ember-riak-explorer/templates/components/object-contents-counter', ['exp
       ],
       locals: [],
       templates: []
+    };
+  }()));
+
+});
+define('ember-riak-explorer/templates/components/object-contents-map', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports['default'] = Ember.HTMLBars.template((function() {
+    var child0 = (function() {
+      return {
+        meta: {
+          "revision": "Ember@1.13.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 16,
+              "column": 10
+            },
+            "end": {
+              "line": 18,
+              "column": 10
+            }
+          },
+          "moduleName": "ember-riak-explorer/templates/components/object-contents-map.hbs"
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("          ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("code");
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]),0,0);
+          return morphs;
+        },
+        statements: [
+          ["content","model.contentsForDisplay",["loc",[null,[17,16],[17,44]]]]
+        ],
+        locals: [],
+        templates: []
+      };
+    }());
+    return {
+      meta: {
+        "revision": "Ember@1.13.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 26,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/components/object-contents-map.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1,"class","container");
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2,"class","object-contents");
+        var el3 = dom.createTextNode("\n        ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3,"class","object-contents-header");
+        var el4 = dom.createTextNode("\n            ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4,"class","object-contents-info");
+        var el5 = dom.createTextNode("\n                Map\n            ");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n            ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4,"class","object-contents-actions");
+        var el5 = dom.createTextNode("\n                ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n            ");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n        ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n        ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3,"class","object-contents-body");
+        var el4 = dom.createTextNode("\n            ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("form");
+        dom.setAttribute(el4,"class","form-inline");
+        var el5 = dom.createTextNode("\n                ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n            ");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n\n");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("        ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n        ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3,"class","object-contents-footer");
+        var el4 = dom.createTextNode("\n            ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("strong");
+        var el5 = dom.createTextNode("Page loaded:");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode(" ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n        ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("br");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element0 = dom.childAt(fragment, [0, 1]);
+        var element1 = dom.childAt(element0, [3]);
+        var morphs = new Array(4);
+        morphs[0] = dom.createMorphAt(dom.childAt(element0, [1, 3]),1,1);
+        morphs[1] = dom.createMorphAt(dom.childAt(element1, [1]),1,1);
+        morphs[2] = dom.createMorphAt(element1,3,3);
+        morphs[3] = dom.createMorphAt(dom.childAt(element0, [5]),3,3);
+        return morphs;
+      },
+      statements: [
+        ["inline","object-actions",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[8,39],[8,44]]]]],[],[]],"deleteObject","deleteObject"],["loc",[null,[8,16],[8,74]]]],
+        ["inline","object-contents-registers",[],["model",["subexpr","@mut",[["get","model",["loc",[null,[13,50],[13,55]]]]],[],[]]],["loc",[null,[13,16],[13,57]]]],
+        ["block","if",[["get","model.contentsForDisplay",["loc",[null,[16,16],[16,40]]]]],[],0,null,["loc",[null,[16,10],[18,17]]]],
+        ["content","model.metadata.dateLoaded",["loc",[null,[21,42],[21,71]]]]
+      ],
+      locals: [],
+      templates: [child0]
+    };
+  }()));
+
+});
+define('ember-riak-explorer/templates/components/object-contents-registers', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports['default'] = Ember.HTMLBars.template((function() {
+    var child0 = (function() {
+      return {
+        meta: {
+          "revision": "Ember@1.13.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 4,
+              "column": 4
+            },
+            "end": {
+              "line": 25,
+              "column": 4
+            }
+          },
+          "moduleName": "ember-riak-explorer/templates/components/object-contents-registers.hbs"
+        },
+        arity: 1,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("        ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("div");
+          dom.setAttribute(el1,"class","row set-element-row");
+          var el2 = dom.createTextNode("\n            ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("div");
+          dom.setAttribute(el2,"class","col-md-1");
+          var el3 = dom.createTextNode("\n                ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("button");
+          dom.setAttribute(el3,"type","button");
+          dom.setAttribute(el3,"class","btn btn-xs btn-danger");
+          var el4 = dom.createTextNode("\n                  ");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createElement("span");
+          dom.setAttribute(el4,"class","glyphicon glyphicon-trash");
+          dom.setAttribute(el4,"aria-hidden","true");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createTextNode("\n                ");
+          dom.appendChild(el3, el4);
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n            ");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n            ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("div");
+          dom.setAttribute(el2,"class","col-md-3 field-label");
+          var el3 = dom.createTextNode("\n                ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("strong");
+          var el4 = dom.createComment("");
+          dom.appendChild(el3, el4);
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n            ");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n            ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("div");
+          dom.setAttribute(el2,"class","col-md-8");
+          var el3 = dom.createTextNode("\n                ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("button");
+          dom.setAttribute(el3,"type","button");
+          dom.setAttribute(el3,"class","btn btn-xs btn-primary");
+          var el4 = dom.createTextNode("\n                  ");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createElement("span");
+          dom.setAttribute(el4,"class","glyphicon glyphicon-pencil");
+          dom.setAttribute(el4,"aria-hidden","true");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createTextNode("\n                ");
+          dom.appendChild(el3, el4);
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n                ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("code");
+          var el4 = dom.createTextNode("\n                ");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createComment("");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createTextNode("\n                ");
+          dom.appendChild(el3, el4);
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n            ");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n        ");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element0 = dom.childAt(fragment, [1]);
+          var element1 = dom.childAt(element0, [1, 1]);
+          var element2 = dom.childAt(element0, [5]);
+          var element3 = dom.childAt(element2, [1]);
+          var morphs = new Array(4);
+          morphs[0] = dom.createElementMorph(element1);
+          morphs[1] = dom.createMorphAt(dom.childAt(element0, [3, 1]),0,0);
+          morphs[2] = dom.createElementMorph(element3);
+          morphs[3] = dom.createMorphAt(dom.childAt(element2, [3]),1,1);
+          return morphs;
+        },
+        statements: [
+          ["element","action",["removeRegister",["get","model",["loc",[null,[8,48],[8,53]]]],["get","register",["loc",[null,[8,54],[8,62]]]]],[],["loc",[null,[8,22],[8,64]]]],
+          ["content","register.name",["loc",[null,[13,24],[13,41]]]],
+          ["element","action",["editRegister",["get","model",["loc",[null,[17,46],[17,51]]]],["get","register",["loc",[null,[17,52],[17,60]]]]],[],["loc",[null,[17,22],[17,62]]]],
+          ["content","register.value",["loc",[null,[21,16],[21,34]]]]
+        ],
+        locals: ["register"],
+        templates: []
+      };
+    }());
+    return {
+      meta: {
+        "revision": "Ember@1.13.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 40,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/components/object-contents-registers.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1,"class","container set-contents-list");
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("h5");
+        var el3 = dom.createTextNode("Registers (");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(")");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2,"class","row set-element-row");
+        var el3 = dom.createTextNode("\n        ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3,"class","col-md-4 text-right");
+        var el4 = dom.createTextNode("\n            ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n        ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n        ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3,"class","col-md-8");
+        var el4 = dom.createTextNode("\n            ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n            ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("button");
+        dom.setAttribute(el4,"type","button");
+        dom.setAttribute(el4,"class","btn btn-sm btn-primary");
+        var el5 = dom.createTextNode("\n                ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("span");
+        dom.setAttribute(el5,"class","glyphicon glyphicon-plus");
+        dom.setAttribute(el5,"aria-hidden","true");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n                Add Register");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n        ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element4 = dom.childAt(fragment, [0]);
+        var element5 = dom.childAt(element4, [5]);
+        var element6 = dom.childAt(element5, [3]);
+        var element7 = dom.childAt(element6, [3]);
+        var morphs = new Array(5);
+        morphs[0] = dom.createMorphAt(dom.childAt(element4, [1]),1,1);
+        morphs[1] = dom.createMorphAt(element4,3,3);
+        morphs[2] = dom.createMorphAt(dom.childAt(element5, [1]),1,1);
+        morphs[3] = dom.createMorphAt(element6,1,1);
+        morphs[4] = dom.createElementMorph(element7);
+        return morphs;
+      },
+      statements: [
+        ["content","model.registersList.length",["loc",[null,[2,19],[2,49]]]],
+        ["block","each",[["get","model.registersList",["loc",[null,[4,12],[4,31]]]]],[],0,null,["loc",[null,[4,4],[25,13]]]],
+        ["inline","input",[],["value",["subexpr","@mut",[["get","fieldToAddName",["loc",[null,[29,26],[29,40]]]]],[],[]],"class","form-control","placeholder","field name"],["loc",[null,[29,12],[29,88]]]],
+        ["inline","input",[],["value",["subexpr","@mut",[["get","fieldToAddValue",["loc",[null,[32,26],[32,41]]]]],[],[]],"class","form-control","placeholder","value"],["loc",[null,[32,12],[32,84]]]],
+        ["element","action",["addRegister",["get","model",["loc",[null,[34,43],[34,48]]]]],[],["loc",[null,[34,20],[34,50]]]]
+      ],
+      locals: [],
+      templates: [child0]
     };
   }()));
 
@@ -14056,6 +15198,26 @@ define('ember-riak-explorer/tests/components/object-contents-counter.jshint', fu
   });
 
 });
+define('ember-riak-explorer/tests/components/object-contents-map.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - components');
+  test('components/object-contents-map.js should pass jshint', function() { 
+    ok(true, 'components/object-contents-map.js should pass jshint.'); 
+  });
+
+});
+define('ember-riak-explorer/tests/components/object-contents-registers.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - components');
+  test('components/object-contents-registers.js should pass jshint', function() { 
+    ok(true, 'components/object-contents-registers.js should pass jshint.'); 
+  });
+
+});
 define('ember-riak-explorer/tests/components/object-contents-set.jshint', function () {
 
   'use strict';
@@ -14649,36 +15811,6 @@ define('ember-riak-explorer/tests/models/route.jshint', function () {
   });
 
 });
-define('ember-riak-explorer/tests/pods/bucket-type/controller.jshint', function () {
-
-  'use strict';
-
-  module('JSHint - pods/bucket-type');
-  test('pods/bucket-type/controller.js should pass jshint', function() { 
-    ok(true, 'pods/bucket-type/controller.js should pass jshint.'); 
-  });
-
-});
-define('ember-riak-explorer/tests/pods/bucket-type/model.jshint', function () {
-
-  'use strict';
-
-  module('JSHint - pods/bucket-type');
-  test('pods/bucket-type/model.js should pass jshint', function() { 
-    ok(true, 'pods/bucket-type/model.js should pass jshint.'); 
-  });
-
-});
-define('ember-riak-explorer/tests/pods/bucket-type/route.jshint', function () {
-
-  'use strict';
-
-  module('JSHint - pods/bucket-type');
-  test('pods/bucket-type/route.js should pass jshint', function() { 
-    ok(true, 'pods/bucket-type/route.js should pass jshint.'); 
-  });
-
-});
 define('ember-riak-explorer/tests/pods/bucket/controller.jshint', function () {
 
   'use strict';
@@ -14706,6 +15838,36 @@ define('ember-riak-explorer/tests/pods/bucket/route.jshint', function () {
   module('JSHint - pods/bucket');
   test('pods/bucket/route.js should pass jshint', function() { 
     ok(true, 'pods/bucket/route.js should pass jshint.'); 
+  });
+
+});
+define('ember-riak-explorer/tests/pods/bucket-type/controller.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - pods/bucket-type');
+  test('pods/bucket-type/controller.js should pass jshint', function() { 
+    ok(true, 'pods/bucket-type/controller.js should pass jshint.'); 
+  });
+
+});
+define('ember-riak-explorer/tests/pods/bucket-type/model.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - pods/bucket-type');
+  test('pods/bucket-type/model.js should pass jshint', function() { 
+    ok(true, 'pods/bucket-type/model.js should pass jshint.'); 
+  });
+
+});
+define('ember-riak-explorer/tests/pods/bucket-type/route.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - pods/bucket-type');
+  test('pods/bucket-type/route.js should pass jshint', function() { 
+    ok(true, 'pods/bucket-type/route.js should pass jshint.'); 
   });
 
 });
@@ -14789,6 +15951,36 @@ define('ember-riak-explorer/tests/pods/riak-object/edit/route.jshint', function 
   });
 
 });
+define('ember-riak-explorer/tests/pods/riak-object/map/controller.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - pods/riak-object/map');
+  test('pods/riak-object/map/controller.js should pass jshint', function() { 
+    ok(true, 'pods/riak-object/map/controller.js should pass jshint.'); 
+  });
+
+});
+define('ember-riak-explorer/tests/pods/riak-object/map/model.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - pods/riak-object/map');
+  test('pods/riak-object/map/model.js should pass jshint', function() { 
+    ok(true, 'pods/riak-object/map/model.js should pass jshint.'); 
+  });
+
+});
+define('ember-riak-explorer/tests/pods/riak-object/map/route.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - pods/riak-object/map');
+  test('pods/riak-object/map/route.js should pass jshint', function() { 
+    ok(true, 'pods/riak-object/map/route.js should pass jshint.'); 
+  });
+
+});
 define('ember-riak-explorer/tests/pods/riak-object/model.jshint', function () {
 
   'use strict';
@@ -14796,6 +15988,16 @@ define('ember-riak-explorer/tests/pods/riak-object/model.jshint', function () {
   module('JSHint - pods/riak-object');
   test('pods/riak-object/model.js should pass jshint', function() { 
     ok(true, 'pods/riak-object/model.js should pass jshint.'); 
+  });
+
+});
+define('ember-riak-explorer/tests/pods/riak-object/register/model.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - pods/riak-object/register');
+  test('pods/riak-object/register/model.js should pass jshint', function() { 
+    ok(true, 'pods/riak-object/register/model.js should pass jshint.'); 
   });
 
 });
@@ -15459,7 +16661,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+a61f30e5"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+0c9f4b1b"});
 }
 
 /* jshint ignore:end */

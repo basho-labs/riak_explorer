@@ -154,6 +154,11 @@ tr:nth-child(odd) {background: #EEE}
     font-size: 110%;
 }
 
+.field-label {
+    text-align: right;
+    font-weight: bold;
+}
+
 .form-inline .input-increment {
     width: 5em;
     vertical-align: middle;
