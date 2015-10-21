@@ -1,6 +1,6 @@
 # Riak Explorer
 
-Riak Explorer provides browsing and admin capabilities for [Riak KV](http://basho.com/products/riak-kv/), a distributed NoSQL key-value data store that offers high availability, fault tolerance, operational simplicity, and scalability. 
+Riak Explorer provides browsing and admin capabilities for [Riak KV](http://basho.com/products/riak-kv/), a distributed NoSQL key-value data store that offers high availability, fault tolerance, operational simplicity, and scalability.
 
 Riak Explorer is useful while in a development or production. It includes convenient methods to browse Bucket Types, Buckets, Keys, view and edit Riak Objects, and more. To prevent heavy I/O requests from key listings, be sure to edit the config file to reflect the environment as [explained in Using Riak Explorer](#using-riak-explorer).
 
@@ -13,12 +13,12 @@ Riak Explorer is useful while in a development or production. It includes conven
 
 ## Installation
 
-1. Download and extract [This file on Mac OS X](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) or [this binary for Ubuntu 14.04](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz). 
+1. Download and extract [This file on Mac OS X](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) or [this file for Ubuntu 14.04](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz).
      * *Note: If you'd like to support further OSes, please [open an Issue](https://github.com/basho-labs/riak_explorer/issues)*
 
 1. Extract the tar file and `cd` into the directory
 
-2. Verify the default settings in `etc/riak_explorer.conf` will work for your configuration (primarily that port 9000 is available on your host)
+2. Verify the default settings in `etc/riak_explorer.conf` will work for your configuration (primarily that port 9000 is available on your host). Pay special attention to development mode settings, this should be `off` for use with a production environment to prevent accidental keylistings.
 
 4. Run `bin/riak_explorer start` start the `riak_explorer` application
 
@@ -30,12 +30,6 @@ Riak Explorer is useful while in a development or production. It includes conven
 *Back-end:* [Erlang](http://www.erlang.org/) is the primary development language and [WebMachine](http://webmachine.github.io/) is used to serve a RESTful API
 
 For more about this architecture, see [DEVELOPMENT.md](DEVELOPMENT.md).
-
-## Using Riak Explorer
-Riak Explorer is a tool designed for both development and production environments. 
-
-TODO - elaborate on development vs production configuration.
-
 
 #### API
 
@@ -115,12 +109,11 @@ Explanation:
 
 For specifics on builds, visit [DEVELOPMENT.md](DEVELOPMENT.md).
 
-
 * Whether your contribution is for a bug fix or a feature request, **create an [Issue](https://github.com/basho/riak_explorer/issues)** and let us know what you are thinking.
 * **For bugs**, if you have already found a fix, feel free to submit a Pull Request referencing the Issue you created.
 * **For feature requests**, we want to improve upon the library incrementally which means small changes at a time. In order ensure your PR can be reviewed in a timely manner, please keep PRs small, e.g. <10 files and <500 lines changed. If you think this is unrealistic, then mention that within the Issue and we can discuss it.
 
-Once you're ready to contribute code back to this repo, start with these steps: 
+Once you're ready to contribute code back to this repo, start with these steps:
 
 * Fork the appropriate sub-projects that are affected by your change
 * Create a topic branch for your change and checkout that branch
@@ -131,12 +124,12 @@ Once you're ready to contribute code back to this repo, start with these steps:
 * Contributors will review your pull request, suggest changes, and merge it when it’s ready and/or offer feedback
 * To report a bug or issue, please open a new issue against this repository
 
-You can [read the full guidelines for bug reporting and code contributions](http://docs.basho.com/riak/latest/community/bugs/) on the Riak Docs. 
+You can [read the full guidelines for bug reporting and code contributions](http://docs.basho.com/riak/latest/community/bugs/) on the Riak Docs.
 
 And **thank you!** Your contribution is incredibly important to us. It'd be great for you to add it to a current or past community release note [here](https://github.com/basho-labs/the-riak-community/tree/master/release-notes).
 
-
 #### Related Projects
+- [riak-explorer-gui](https://github.com/basho-labs/riak-explorer-gui)
 - [riak_control](https://github.com/basho/riak_control)
 - [rekon](https://github.com/basho/rekon) (old bucket / object explorer gui)
 - [riak_cs_control](https://github.com/basho/riak_cs_control)
