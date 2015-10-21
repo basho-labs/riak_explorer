@@ -16661,7 +16661,7 @@ catch(err) {
 if (runningTests) {
   require("ember-riak-explorer/tests/test-helper");
 } else {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+0c9f4b1b"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+6aadb69b"});
 }
 
 /* jshint ignore:end */
