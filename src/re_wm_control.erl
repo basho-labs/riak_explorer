@@ -64,6 +64,7 @@ routes() ->
     CClear         = Cluster ++ ["clear"],
     CStatus        = Cluster ++ ["status"],
     CRingReady     = Cluster ++ ["ringready"],
+    CTransfers     = Cluster ++ ["transfers"],
 
     Nodes         = Base ++ ["nodes"],
     Node          = Nodes ++ [node],
@@ -82,11 +83,12 @@ routes() ->
     Clear         = Node ++ ["clear"],
     Status        = Node ++ ["status"],
     RingReady     = Node ++ ["ringready"],
+    Transfers     = Node ++ ["transfers"],
 
     [CRepair, CJoin,CLeave2,CSJoin,CSLeave,CSLeave2,CForceRemove,CReplace,CSReplace,
-     CForceReplace,CPlan,CCommit,CClear,CStatus,CRingReady] ++
+     CForceReplace,CPlan,CCommit,CClear,CStatus,CRingReady,CTransfers] ++
     [Repair, Join,Leave2,SJoin,SLeave,SLeave2,ForceRemove,Replace,SReplace,
-     ForceReplace,Plan,Commit,Clear,Status,RingReady].
+     ForceReplace,Plan,Commit,Clear,Status,RingReady,Transfers].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -133,6 +135,8 @@ resource_exists(RD, Ctx=?command(Command)) ->
             {true, re_riak:status(Node)};
         "ringready" ->
             {true, re_riak:ringready(Node)};
+        "transfers" ->
+            {true, re_riak:transfers(Node)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
