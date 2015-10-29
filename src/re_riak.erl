@@ -37,7 +37,8 @@
          clear/1,
          commit/1,
          status/1,
-         ringready/1]).
+         ringready/1,
+         transfers/1]).
 
 -export([client/1,
          get_json/3,
@@ -269,6 +270,80 @@ ringready(Node) ->
             {error, {nodes_down, Down}} ->
                 [{control, [{ready, false},{error, [{nodes_down, Down}]}]}]
         end
+    catch
+        Exception:Reason ->
+            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+            [{control, [{error, Error}]}]
+    end.
+
+datetime_str({_Mega, _Secs, _Micro}=Now) ->
+    datetime_str(calendar:now_to_datetime(Now));
+datetime_str({{Year, Month, Day}, {Hour, Min, Sec}}) ->
+    list_to_binary(lists:flatten(io_lib:format("~4..0B-~2..0B-~2..0B ~2..0B:~2..0B:~2..0B",
+                                 [Year,Month,Day,Hour,Min,Sec]))).
+
+get_active_transfers({{Mod, Partion}, Node, outbound, active, _Status}) ->
+    {Mod, Partion, Node};
+get_active_transfers({status_v2, Status}) ->
+    Type = proplists:get_value(type, Status),
+    Mod = proplists:get_value(mod, Status),
+    SrcPartition = proplists:get_value(src_partition, Status),
+    TargetPartition = proplists:get_value(target_partition, Status),
+    StartTS = datetime_str(proplists:get_value(start_ts, Status)),
+    SrcNode = proplists:get_value(src_node, Status),
+    TargetNode = proplists:get_value(target_node, Status),
+    Stats = case proplists:get_value(stats, Status) of
+                no_stats ->
+                    [no_stats];
+                StatsPropList ->
+                    ObjsS = proplists:get_value(objs_per_s, StatsPropList),
+                    BytesS = proplists:get_value(bytes_per_s, StatsPropList),
+                    LastUpdate = proplists:get_value(last_update, StatsPropList),
+                    Objs = proplists:get_value(objs_total, StatsPropList),
+                    Size = proplists:get_value(size, StatsPropList),
+                    DonePctDecimal = proplists:get_value(pct_done_decimal, StatsPropList),
+                    [{objs_per_s, ObjsS},
+                     {bytes_per_s, BytesS},
+                     {last_update, LastUpdate},
+                     {objs_total, Objs},
+                     {size, Size},
+                     {pct_done_decimal, DonePctDecimal}]
+            end,
+    case Type of
+        repair ->
+            [{src_node, SrcNode},
+             {target_node, TargetNode},
+             {type, Type},
+             {mod, Mod},
+             {src_partition, SrcPartition},
+             {target_partition, TargetPartition},
+             {start_ts, StartTS},
+             {stats, Stats}];
+        _ ->
+            [{src_node, SrcNode},
+             {target_node, TargetNode},
+             {type, Type},
+             {mod, Mod},
+             {target_partition, TargetPartition},
+             {start_ts, StartTS},
+             {stats, Stats}]
+    end.
+
+transfers(Node) ->
+    try
+        {Down, Pending} = remote(Node, riak_core_status, transfers, []),
+        F = fun({waiting_to_handoff, WaitingNode, Count}, {Waiting, Stopped}) ->
+                    {[{WaitingNode, Count} | Waiting], Stopped};
+               ({stopped, StoppedNode, Count}, {Waiting, Stopped}) ->
+                    {Waiting, [{StoppedNode, Count} | Stopped]}
+        end,
+        {Waiting, Stopped} = lists:foldl(F, {[], []}, Pending),
+        {Xfers, Down} = remote(Node, riak_core_status, all_active_transfers, []),
+        ActiveTransfers = [get_active_transfers(Xfer) || Xfer <- lists:flatten(Xfers)],
+        [{control, [{down, Down},
+                    {waiting_to_handoff, Waiting},
+                    {stopped, Stopped},
+                    {active, ActiveTransfers}]}]
     catch
         Exception:Reason ->
             Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
