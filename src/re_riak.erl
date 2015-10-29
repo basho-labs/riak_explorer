@@ -38,7 +38,8 @@
          commit/1,
          status/1,
          ringready/1,
-         transfers/1]).
+         transfers/1,
+         aae_status/1]).
 
 -export([client/1,
          get_json/3,
@@ -344,6 +345,28 @@ transfers(Node) ->
                     {waiting_to_handoff, Waiting},
                     {stopped, Stopped},
                     {active, ActiveTransfers}]}]
+    catch
+        Exception:Reason ->
+            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+            [{control, [{error, Error}]}]
+    end.
+
+aae_status(Node) ->
+    try
+        ExchangeInfo = remote(Node, riak_kv_entropy_info, compute_exchange_info, []),
+        Exchanges = [[{index, Index},
+                      {last_ts, datetime_str(LastTS)},
+                      {all_ts, datetime_str(AllTS)}] || {Index, LastTS, AllTS, _Repairs} <- ExchangeInfo],
+        TreeInfo = remote(Node, riak_kv_entropy_info, compute_tree_info, []),
+        Trees = [[{index, Index},
+                  {built_ts, datetime_str(BuiltTS)}] || {Index, BuiltTS} <- TreeInfo],
+        KeysRepaired = [[{index, Index},
+                         {last, Last},
+                         {max, Max},
+                         {mean, Mean}] || {Index, _, _, {Last,_Min,Max,Mean}} <- ExchangeInfo],
+        [{control, [{exchanges, Exchanges},
+                    {entropy_trees, Trees},
+                    {keys_repaired, KeysRepaired}]}]
     catch
         Exception:Reason ->
             Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
