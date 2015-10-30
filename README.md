@@ -65,6 +65,8 @@ In addition to the web interface, there is also an API exposed at [http://localh
 /explore/$resource (Resources: [routes,props,jobs,ping])
 /control/clusters/$cluster/ringready
 /control/clusters/$cluster/status
+/control/clusters/$cluster/transfers
+/control/clusters/$cluster/aae-status
 /control/clusters/$cluster/clear
 /control/clusters/$cluster/commit
 /control/clusters/$cluster/plan
@@ -76,6 +78,8 @@ In addition to the web interface, there is also an API exposed at [http://localh
 /control/clusters/$cluster/join/$node1
 /control/nodes/$node/ringready
 /control/nodes/$node/status
+/control/nodes/$node/transfers
+/control/nodes/$node/aae-status
 /control/nodes/$node/clear
 /control/nodes/$node/commit
 /control/nodes/$node/plan
