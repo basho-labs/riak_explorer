@@ -28,14 +28,14 @@
          provide_jsonapi_content/2,
          provide_content/2]).
 
--record(ctx, {cluster, node, command, node1, node2, id, response=undefined}).
+-record(ctx, {cluster, node, command, arg1, arg2, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
--define(command(Command), #ctx{command=Command,node1=undefined,node2=undefined}).
--define(command(Command, Node1), #ctx{command=Command,node1=Node1,node2=undefined}).
--define(command(Command, Node1, Node2), #ctx{command=Command,node1=Node1,node2=Node2}).
+-define(command(Command), #ctx{command=Command,arg1=undefined,arg2=undefined}).
+-define(command(Command, Arg1), #ctx{command=Command,arg1=Arg1,arg2=undefined}).
+-define(command(Command, Arg1, Arg2), #ctx{command=Command,arg1=Arg1,arg2=Arg2}).
 
 %%%===================================================================
 %%% API
@@ -50,15 +50,15 @@ routes() ->
     Clusters       = Base ++ ["clusters"],
     Cluster        = Clusters ++ [cluster],
     CRepair        = Cluster ++ ["repair"],
-    CJoin          = Cluster ++ ["join"] ++ [node1],
-    CLeave2        = Cluster ++ ["leave"] ++ [node1],
-    CSJoin         = Cluster ++ ["staged-join"] ++ [node1],
+    CJoin          = Cluster ++ ["join"] ++ [arg1],
+    CLeave2        = Cluster ++ ["leave"] ++ [arg1],
+    CSJoin         = Cluster ++ ["staged-join"] ++ [arg1],
     CSLeave        = Cluster ++ ["staged-leave"],
-    CSLeave2       = Cluster ++ ["staged-leave"] ++ [node1],
-    CForceRemove   = Cluster ++ ["force-remove"] ++ [node1],
-    CReplace       = Cluster ++ ["replace"] ++ [node1] ++ [node2],
-    CSReplace      = Cluster ++ ["staged-replace"] ++ [node1] ++ [node2],
-    CForceReplace  = Cluster ++ ["force-replace"] ++ [node1] ++ [node2],
+    CSLeave2       = Cluster ++ ["staged-leave"] ++ [arg1],
+    CForceRemove   = Cluster ++ ["force-remove"] ++ [arg1],
+    CReplace       = Cluster ++ ["replace"] ++ [arg1] ++ [arg2],
+    CSReplace      = Cluster ++ ["staged-replace"] ++ [arg1] ++ [arg2],
+    CForceReplace  = Cluster ++ ["force-replace"] ++ [arg1] ++ [arg2],
     CPlan          = Cluster ++ ["plan"],
     CCommit        = Cluster ++ ["commit"],
     CClear         = Cluster ++ ["clear"],
@@ -70,15 +70,15 @@ routes() ->
     Nodes         = Base ++ ["nodes"],
     Node          = Nodes ++ [node],
     Repair        = Node ++ ["repair"],
-    Join          = Node ++ ["join"] ++ [node1],
-    Leave2        = Node ++ ["leave"] ++ [node1],
-    SJoin         = Node ++ ["staged-join"] ++ [node1],
+    Join          = Node ++ ["join"] ++ [arg1],
+    Leave2        = Node ++ ["leave"] ++ [arg1],
+    SJoin         = Node ++ ["staged-join"] ++ [arg1],
     SLeave        = Node ++ ["staged-leave"],
-    SLeave2       = Node ++ ["staged-leave"] ++ [node1],
-    ForceRemove   = Node ++ ["force-remove"] ++ [node1],
-    Replace       = Node ++ ["replace"] ++ [node1] ++ [node2],
-    SReplace      = Node ++ ["staged-replace"] ++ [node1] ++ [node2],
-    ForceReplace  = Node ++ ["force-replace"] ++ [node1] ++ [node2],
+    SLeave2       = Node ++ ["staged-leave"] ++ [arg1],
+    ForceRemove   = Node ++ ["force-remove"] ++ [arg1],
+    Replace       = Node ++ ["replace"] ++ [arg1] ++ [arg2],
+    SReplace      = Node ++ ["staged-replace"] ++ [arg1] ++ [arg2],
+    ForceReplace  = Node ++ ["force-replace"] ++ [arg1] ++ [arg2],
     Plan          = Node ++ ["plan"],
     Commit        = Node ++ ["commit"],
     Clear         = Node ++ ["clear"],
@@ -106,8 +106,8 @@ service_available(RD, Ctx0) ->
         node = wrq:path_info(node, RD),
         cluster = wrq:path_info(cluster, RD),
         command = lists:nth(length(re_config:base_route("")) + 3, string:tokens(wrq:path(RD), "/")),
-        node1 = maybe_atomize(wrq:path_info(node1, RD)),
-        node2 = maybe_atomize(wrq:path_info(node2, RD))
+        arg1 = maybe_atomize(wrq:path_info(arg1, RD)),
+        arg2 = maybe_atomize(wrq:path_info(arg2, RD))
     },
     {true, RD, Ctx1#ctx{node = node_from_context(Ctx1)}}.
 
@@ -144,31 +144,31 @@ resource_exists(RD, Ctx=?command(Command)) ->
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
-resource_exists(RD, Ctx=?command(Command, Node1)) ->
+resource_exists(RD, Ctx=?command(Command, Arg1)) ->
     Node = Ctx#ctx.node,
     {Exists, Response} = case Command of
         "join" ->
-            {true, re_riak:join(Node, Node1)};
+            {true, re_riak:join(Node, Arg1)};
         "staged-join" ->
-            {true, re_riak:staged_join(Node, Node1)};
+            {true, re_riak:staged_join(Node, Arg1)};
         "leave" ->
-            {true, re_riak:leave(Node, Node1)};
+            {true, re_riak:leave(Node, Arg1)};
         "staged-leave" ->
-            {true, re_riak:staged_leave(Node, Node1)};
+            {true, re_riak:staged_leave(Node, Arg1)};
         "force-remove" ->
-            {true, re_riak:force_remove(Node, Node1)};
+            {true, re_riak:force_remove(Node, Arg1)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
-resource_exists(RD, Ctx=?command(Command, Node1, Node2)) ->
+resource_exists(RD, Ctx=?command(Command, Arg1, Arg2)) ->
     Node = Ctx#ctx.node,
     {Exists, Response} = case Command of
         "staged-replace" ->
-            {true, re_riak:staged_replace(Node, Node1, Node2)};
+            {true, re_riak:staged_replace(Node, Arg1, Arg2)};
         "replace" ->
-            {true, re_riak:replace(Node, Node1, Node2)};
+            {true, re_riak:replace(Node, Arg1, Arg2)};
         "force-replace" ->
-            {true, re_riak:force_replace(Node, Node1, Node2)};
+            {true, re_riak:force_replace(Node, Arg1, Arg2)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
