@@ -44,7 +44,8 @@
 -export([repl_clustername/1,
          repl_clustername/2,
          repl_connections/1,
-         repl_connect/3]).
+         repl_connect/3,
+         repl_disconnect/2]).
 
 -export([client/1,
          get_json/3,
@@ -438,6 +439,14 @@ repl_connect(Node, Host, Port) ->
                          _ = remote(Node, riak_repl_console, connect, [[atom_to_list(Host), atom_to_list(Port)]]),
                          [{control, [{success, ok}]}]
                  end).
+
+repl_disconnect(Node, ClusterName) ->
+    handle_error(fun () ->
+                         ensure_repl_available(Node),
+                         _ = remote(Node, riak_repl_console, disconnect, [[atom_to_list(ClusterName)]]),
+                         [{control, [{success, ok}]}]
+                 end).
+
 %%%===================================================================
 %%% Riak Client API
 %%%===================================================================
