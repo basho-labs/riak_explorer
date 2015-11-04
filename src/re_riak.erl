@@ -99,19 +99,15 @@ repair(Node) ->
     [{control, Result}].
 
 force_replace(Node, Node1, Node2) ->
-    try
-        Response = remote(Node, riak_core_claimant, force_replace, [Node1, Node2]),
-        case Response of
-            ok ->
-                [{control, [{success, ok}]}];
-            {error, R} ->
-                [{control, [{error, R}]}]
-        end
-    catch
-        Exception:Reason ->
-            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
-            [{control, [{error, Error}]}]
-    end.
+    handle_error(fun () ->
+                         Response = remote(Node, riak_core_claimant, force_replace, [Node1, Node2]),
+                         case Response of
+                             ok ->
+                                 [{control, [{success, ok}]}];
+                             {error, R} ->
+                                 [{control, [{error, R}]}]
+                         end
+                 end).
 
 replace(Node, Node1, Node2) ->
     force_replace(Node, Node1, Node2),
@@ -119,19 +115,15 @@ replace(Node, Node1, Node2) ->
     commit(Node).
 
 staged_replace(Node, Node1, Node2) ->
-    try
-        Response = remote(Node, riak_core_claimant, replace, [Node1, Node2]),
-        case Response of
-            ok ->
-                [{control, [{success, ok}]}];
-            {error, R} ->
-                [{control, [{error, R}]}]
-        end
-    catch
-        Exception:Reason ->
-            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
-            [{control, [{error, Error}]}]
-    end.
+    handle_error(fun () ->
+                         Response = remote(Node, riak_core_claimant, replace, [Node1, Node2]),
+                         case Response of
+                             ok ->
+                                 [{control, [{success, ok}]}];
+                             {error, R} ->
+                                 [{control, [{error, R}]}]
+                         end
+                 end).
 
 join(Node, Node1) ->
     Response = remote(Node, riak_core, join, [Node1]),
@@ -151,37 +143,29 @@ staged_join(Node, Node1) ->
         leave(Node, Node1).
 
 leave(Node, Node1) ->
-    try
-        Response = remote(Node, riak_core, remove, [Node1]),
-        case Response of
-            ok ->
-                [{control, [{success, ok}]}];
-            {error, R} ->
-                [{control, [{error, R}]}]
-        end
-    catch
-        Exception:Reason ->
-            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
-            [{control, [{error, Error}]}]
-    end.
+    handle_error(fun () ->
+                         Response = remote(Node, riak_core, remove, [Node1]),
+                         case Response of
+                             ok ->
+                                 [{control, [{success, ok}]}];
+                             {error, R} ->
+                                 [{control, [{error, R}]}]
+                         end
+                 end).
 
 staged_leave(Node) ->
     staged_leave(Node, Node).
 
 staged_leave(Node, Node1) ->
-    try
-        Response = remote(Node, riak_core_claimant, leave_member, [Node1]),
-        case Response of
-            ok ->
-                [{control, [{success, ok}]}];
-            {error, R} ->
-                [{control, [{error, R}]}]
-        end
-    catch
-        Exception:Reason ->
-            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
-            [{control, [{error, Error}]}]
-    end.
+    handle_error(fun () ->
+                         Response = remote(Node, riak_core_claimant, leave_member, [Node1]),
+                         case Response of
+                             ok ->
+                                 [{control, [{success, ok}]}];
+                             {error, R} ->
+                                 [{control, [{error, R}]}]
+                         end
+                 end).
 
 plan(Node) ->
     Response = remote(Node, riak_core_claimant, plan, []),
@@ -206,17 +190,13 @@ commit(Node) ->
     end.
 
 clear(Node) ->
-    try
-        Response = remote(Node, riak_core_claimant, clear, []),
-        case Response of
-            ok -> [{control, [{success, ok}]}];
-            _ -> [{control, [{error, unkown}]}]
-        end
-    catch
-        Exception:Reason ->
-            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
-            [{control, [{error, Error}]}]
-    end.
+    handle_error(fun () ->
+                         Response = remote(Node, riak_core_claimant, clear, []),
+                         case Response of
+                             ok -> [{control, [{success, ok}]}];
+                             _ -> [{control, [{error, unkown}]}]
+                         end
+                 end).
 
 status(Node) ->
     {ok, Ring} = remote(Node, riak_core_ring_manager, get_my_ring, []),
@@ -261,21 +241,17 @@ status(Node) ->
         {down, Down}]}].
 
 ringready(Node) ->
-    try
-        Response = remote(Node, riak_core_status, ringready, []),
-        case Response of
-            {ok, Nodes} ->
-                [{control, [{ready, true},{nodes, Nodes}]}];
-            {error, {different_owners, N1, N2}} ->
-                [{control, [{ready, false},{error, [{different_owners, [N1, N2]}]}]}];
-            {error, {nodes_down, Down}} ->
-                [{control, [{ready, false},{error, [{nodes_down, Down}]}]}]
-        end
-    catch
-        Exception:Reason ->
-            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
-            [{control, [{error, Error}]}]
-    end.
+    handle_error(fun () ->
+                         Response = remote(Node, riak_core_status, ringready, []),
+                         case Response of
+                             {ok, Nodes} ->
+                                 [{control, [{ready, true},{nodes, Nodes}]}];
+                             {error, {different_owners, N1, N2}} ->
+                                 [{control, [{ready, false},{error, [{different_owners, [N1, N2]}]}]}];
+                             {error, {nodes_down, Down}} ->
+                                 [{control, [{ready, false},{error, [{nodes_down, Down}]}]}]
+                         end
+                 end).
 
 datetime_str({_Mega, _Secs, _Micro}=Now) ->
     datetime_str(calendar:now_to_datetime(Now));
@@ -331,47 +307,39 @@ get_active_transfers({status_v2, Status}) ->
     end.
 
 transfers(Node) ->
-    try
-        {Down, Pending} = remote(Node, riak_core_status, transfers, []),
-        F = fun({waiting_to_handoff, WaitingNode, Count}, {Waiting, Stopped}) ->
-                    {[{WaitingNode, Count} | Waiting], Stopped};
-               ({stopped, StoppedNode, Count}, {Waiting, Stopped}) ->
-                    {Waiting, [{StoppedNode, Count} | Stopped]}
-        end,
-        {Waiting, Stopped} = lists:foldl(F, {[], []}, Pending),
-        {Xfers, Down} = remote(Node, riak_core_status, all_active_transfers, []),
-        ActiveTransfers = [get_active_transfers(Xfer) || Xfer <- lists:flatten(Xfers)],
-        [{control, [{down, Down},
-                    {waiting_to_handoff, Waiting},
-                    {stopped, Stopped},
-                    {active, ActiveTransfers}]}]
-    catch
-        Exception:Reason ->
-            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
-            [{control, [{error, Error}]}]
-    end.
+    handle_error(fun () ->
+                         {Down, Pending} = remote(Node, riak_core_status, transfers, []),
+                         F = fun({waiting_to_handoff, WaitingNode, Count}, {Waiting, Stopped}) ->
+                                     {[{WaitingNode, Count} | Waiting], Stopped};
+                                ({stopped, StoppedNode, Count}, {Waiting, Stopped}) ->
+                                     {Waiting, [{StoppedNode, Count} | Stopped]}
+                             end,
+                         {Waiting, Stopped} = lists:foldl(F, {[], []}, Pending),
+                         {Xfers, Down} = remote(Node, riak_core_status, all_active_transfers, []),
+                         ActiveTransfers = [get_active_transfers(Xfer) || Xfer <- lists:flatten(Xfers)],
+                         [{control, [{down, Down},
+                                     {waiting_to_handoff, Waiting},
+                                     {stopped, Stopped},
+                                     {active, ActiveTransfers}]}]
+                 end).
 
 aae_status(Node) ->
-    try
-        ExchangeInfo = remote(Node, riak_kv_entropy_info, compute_exchange_info, []),
-        Exchanges = [[{index, Index},
-                      {last_ts, datetime_str(LastTS)},
-                      {all_ts, datetime_str(AllTS)}] || {Index, LastTS, AllTS, _Repairs} <- ExchangeInfo],
-        TreeInfo = remote(Node, riak_kv_entropy_info, compute_tree_info, []),
-        Trees = [[{index, Index},
-                  {built_ts, datetime_str(BuiltTS)}] || {Index, BuiltTS} <- TreeInfo],
-        KeysRepaired = [[{index, Index},
-                         {last, Last},
-                         {max, Max},
-                         {mean, Mean}] || {Index, _, _, {Last,_Min,Max,Mean}} <- ExchangeInfo],
-        [{control, [{exchanges, Exchanges},
-                    {entropy_trees, Trees},
-                    {keys_repaired, KeysRepaired}]}]
-    catch
-        Exception:Reason ->
-            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
-            [{control, [{error, Error}]}]
-    end.
+    handle_error(fun () ->
+                         ExchangeInfo = remote(Node, riak_kv_entropy_info, compute_exchange_info, []),
+                         Exchanges = [[{index, Index},
+                                       {last_ts, datetime_str(LastTS)},
+                                       {all_ts, datetime_str(AllTS)}] || {Index, LastTS, AllTS, _Repairs} <- ExchangeInfo],
+                         TreeInfo = remote(Node, riak_kv_entropy_info, compute_tree_info, []),
+                         Trees = [[{index, Index},
+                                   {built_ts, datetime_str(BuiltTS)}] || {Index, BuiltTS} <- TreeInfo],
+                         KeysRepaired = [[{index, Index},
+                                          {last, Last},
+                                          {max, Max},
+                                          {mean, Mean}] || {Index, _, _, {Last,_Min,Max,Mean}} <- ExchangeInfo],
+                         [{control, [{exchanges, Exchanges},
+                                     {entropy_trees, Trees},
+                                     {keys_repaired, KeysRepaired}]}]
+                 end).
 
 %%%===================================================================
 %%% Riak Client API
@@ -611,6 +579,17 @@ safe_rpc(Node, Module, Function, Args, Timeout) ->
     catch
         'EXIT':{noproc, _NoProcDetails} ->
             {badrpc, rpc_process_down}
+    end.
+
+handle_error(Action) ->
+    try
+        Action()
+    catch
+        Exception:Reason ->
+            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+            lager:info("~p:~p", [Exception, Reason]),
+            lager:info("Backtrace: ~p", [erlang:get_stacktrace()]),
+            [{control, [{error, Error}]}]
     end.
 
 find_cluster_by_id(_, []) ->
