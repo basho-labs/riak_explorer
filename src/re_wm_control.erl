@@ -197,6 +197,8 @@ resource_exists(RD, Ctx=?command(Command)) ->
             {true, re_riak:transfers(Node)};
         "aae-status" ->
             {true, re_riak:aae_status(Node)};
+        "repl-clustername" ->
+            {true, re_riak:repl_clustername(Node)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
@@ -213,6 +215,8 @@ resource_exists(RD, Ctx=?command(Command, Arg1)) ->
             {true, re_riak:staged_leave(Node, Arg1)};
         "force-remove" ->
             {true, re_riak:force_remove(Node, Arg1)};
+        "repl-clustername" ->
+            {true, re_riak:repl_clustername(Node, Arg1)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};

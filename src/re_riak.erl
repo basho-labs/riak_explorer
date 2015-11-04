@@ -41,6 +41,8 @@
          transfers/1,
          aae_status/1]).
 
+-export([repl_clustername/1,
+         repl_clustername/2]).
 -export([client/1,
          get_json/3,
          put_json/4,
@@ -339,6 +341,33 @@ aae_status(Node) ->
                          [{control, [{exchanges, Exchanges},
                                      {entropy_trees, Trees},
                                      {keys_repaired, KeysRepaired}]}]
+                 end).
+
+%%%===================================================================
+%%% Control -- Riak Repl API
+%%%===================================================================
+ensure_repl_available(Node) ->
+    case remote(Node, code, is_loaded, [riak_repl_console]) of
+        false -> throw(not_implemented);
+        _ -> ok
+    end.
+
+repl_clustername(Node) ->
+    handle_error(fun () ->
+                         %% Exceptions vs return codes, oh my!
+                         ensure_repl_available(Node),
+                         ClusterName = list_to_binary(remote(Node, riak_core_connection, symbolic_clustername, [])),
+                         [{control, [{clustername, ClusterName}]}]
+                 end).
+
+%% Note that this has the effect of outputting "Setting clustername to $clustername"
+%% to stdout on the Riak process
+repl_clustername(Node, ClusterName) ->
+    handle_error(fun () ->
+                         ensure_repl_available(Node),
+                         %% The function expects the argument to be in a list
+                         _ = remote(Node, riak_repl_console, clustername, [[atom_to_list(ClusterName)]]),
+                         [{control, [{success, ok}]}]
                  end).
 
 %%%===================================================================
