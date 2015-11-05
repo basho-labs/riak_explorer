@@ -231,6 +231,8 @@ resource_exists(RD, Ctx=?command(Command, Arg1, Arg2)) ->
             {true, re_riak:replace(Node, Arg1, Arg2)};
         "force-replace" ->
             {true, re_riak:force_replace(Node, Arg1, Arg2)};
+        "repl-connect" ->
+            {true, re_riak:repl_connect(Node, Arg1, Arg2)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};

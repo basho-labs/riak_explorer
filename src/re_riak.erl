@@ -43,7 +43,9 @@
 
 -export([repl_clustername/1,
          repl_clustername/2,
-         repl_connections/1]).
+         repl_connections/1,
+         repl_connect/3]).
+
 -export([client/1,
          get_json/3,
          put_json/4,
@@ -428,6 +430,14 @@ repl_connections(Node) ->
                          [{control, [{connections, Connections}]}]
                  end).
 
+%% Note this has the effect of outputting a log message in the normal case
+%% and error messages to the stdout of the Riak process if there are issues.
+repl_connect(Node, Host, Port) ->
+    handle_error(fun () ->
+                         ensure_repl_available(Node),
+                         _ = remote(Node, riak_repl_console, connect, [[atom_to_list(Host), atom_to_list(Port)]]),
+                         [{control, [{success, ok}]}]
+                 end).
 %%%===================================================================
 %%% Riak Client API
 %%%===================================================================
