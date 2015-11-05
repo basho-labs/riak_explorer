@@ -42,7 +42,8 @@
          aae_status/1]).
 
 -export([repl_clustername/1,
-         repl_clustername/2]).
+         repl_clustername/2,
+         repl_connections/1]).
 -export([client/1,
          get_json/3,
          put_json/4,
@@ -368,6 +369,63 @@ repl_clustername(Node, ClusterName) ->
                          %% The function expects the argument to be in a list
                          _ = remote(Node, riak_repl_console, clustername, [[atom_to_list(ClusterName)]]),
                          [{control, [{success, ok}]}]
+                 end).
+
+string_of_ipaddr({IP, Port}) ->
+    list_to_binary(lists:flatten(io_lib:format("~s:~p", [IP, Port]))).
+
+choose_best_addr({cluster_by_addr, {IP,Port}}, _ClientAddr) ->
+    string_of_ipaddr({IP,Port});
+choose_best_addr({cluster_by_name, _}, ClientAddr) ->
+    string_of_ipaddr(ClientAddr).
+
+string_of_remote({cluster_by_addr, {IP,Port}}) ->
+    string_of_ipaddr({IP,Port});
+string_of_remote({cluster_by_name, ClusterName}) when is_list(ClusterName) ->
+    list_to_binary(ClusterName);
+string_of_remote({cluster_by_name, ClusterName}) ->
+    ClusterName;
+%% Temporary, until bug is fixed in Riak Repl that returns just the cluster name instead of
+%% the remote tuple
+string_of_remote(ClusterName) when is_list(ClusterName) ->
+    list_to_binary(ClusterName);
+string_of_remote(ClusterName) ->
+    ClusterName.
+
+%% Get info about this sink
+%% Remote :: {ip,port} | ClusterName
+get_cluster_conn(Node, {Remote,Pid}) ->
+    ConnName = string_of_remote(Remote),
+    PidStr = list_to_binary(io_lib:format("~p", [Pid])),
+    %% try to get status from Pid of cluster control channel.
+    %% if we haven't connected successfully yet, it will time out, which we will fail
+    %% fast for since it's a local process, not a remote one.
+    try remote(Node, riak_core_cluster_conn, status, [Pid, 2]) of
+        {Pid, status, {ClientAddr, _Transport, Name, Members}} ->
+            IPs = [string_of_ipaddr(Addr) || Addr <- Members],
+            CAddr = choose_best_addr(Remote, ClientAddr),
+            NameStr = if is_list(Name) -> list_to_binary(Name); true -> Name end,
+            [{connection_name, ConnName},
+             {name, NameStr},
+             {pid, PidStr},
+             {ips, IPs},
+             {caddr, CAddr}];
+        {_StateName, SRemote} ->
+            [{connection_name, ConnName},
+             {name, ""},
+             {pid, PidStr},
+             {remote, string_of_remote(SRemote)}]
+    catch
+        'EXIT':{timeout, _} ->
+            {badrpc, timeout}
+    end.
+
+repl_connections(Node) ->
+    handle_error(fun () ->
+                         ensure_repl_available(Node),
+                         {ok, Conns} = remote(Node, riak_core_cluster_mgr, get_connections, []),
+                         Connections = [get_cluster_conn(Node, Conn) || Conn <- Conns],
+                         [{control, [{connections, Connections}]}]
                  end).
 
 %%%===================================================================

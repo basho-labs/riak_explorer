@@ -199,6 +199,8 @@ resource_exists(RD, Ctx=?command(Command)) ->
             {true, re_riak:aae_status(Node)};
         "repl-clustername" ->
             {true, re_riak:repl_clustername(Node)};
+        "repl-connections" ->
+            {true, re_riak:repl_connections(Node)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
