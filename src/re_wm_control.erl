@@ -201,6 +201,10 @@ resource_exists(RD, Ctx=?command(Command)) ->
             {true, re_riak:repl_clustername(Node)};
         "repl-connections" ->
             {true, re_riak:repl_connections(Node)};
+        "repl-realtime-start" ->
+            {true, re_riak:repl_realtime_start(Node)};
+        "repl-realtime-stop" ->
+            {true, re_riak:repl_realtime_stop(Node)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
@@ -221,6 +225,14 @@ resource_exists(RD, Ctx=?command(Command, Arg1)) ->
             {true, re_riak:repl_clustername(Node, Arg1)};
         "repl-disconnect" ->
             {true, re_riak:repl_disconnect(Node, Arg1)};
+        "repl-realtime-enable" ->
+            {true, re_riak:repl_realtime_enable(Node, Arg1)};
+        "repl-realtime-disable" ->
+            {true, re_riak:repl_realtime_disable(Node, Arg1)};
+        "repl-realtime-start" ->
+            {true, re_riak:repl_realtime_start(Node, Arg1)};
+        "repl-realtime-stop" ->
+            {true, re_riak:repl_realtime_stop(Node, Arg1)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};

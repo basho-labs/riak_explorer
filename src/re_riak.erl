@@ -45,7 +45,13 @@
          repl_clustername/2,
          repl_connections/1,
          repl_connect/3,
-         repl_disconnect/2]).
+         repl_disconnect/2,
+         repl_realtime_enable/2,
+         repl_realtime_disable/2,
+         repl_realtime_start/1,
+         repl_realtime_start/2,
+         repl_realtime_stop/1,
+         repl_realtime_stop/2]).
 
 -export([client/1,
          get_json/3,
@@ -446,6 +452,35 @@ repl_disconnect(Node, ClusterName) ->
                          _ = remote(Node, riak_repl_console, disconnect, [[atom_to_list(ClusterName)]]),
                          [{control, [{success, ok}]}]
                  end).
+
+repl_command(Node, Protocol, Command, ClusterName) ->
+     handle_error(fun () ->
+                          ensure_repl_available(Node),
+                          Args = case ClusterName of
+                                     [] -> [[Command]];
+                                     ClusterName -> [[atom_to_list(ClusterName)]]
+                                 end,
+                         _ = remote(Node, riak_repl_console, Protocol, Args),
+                         [{control, [{success, ok}]}]
+                 end).
+
+repl_realtime_enable(Node, ClusterName) ->
+    repl_command(Node, realtime, "enable", ClusterName).
+
+repl_realtime_disable(Node, ClusterName) ->
+    repl_command(Node, realtime, "disable", ClusterName).
+
+repl_realtime_start(Node, ClusterName) ->
+    repl_command(Node, realtime, "start", ClusterName).
+
+repl_realtime_start(Node) ->
+    repl_command(Node, realtime, "start", []).
+
+repl_realtime_stop(Node, ClusterName) ->
+    repl_command(Node, realtime, "stop", ClusterName).
+
+repl_realtime_stop(Node) ->
+    repl_command(Node, realtime, "stop", []).
 
 %%%===================================================================
 %%% Riak Client API
