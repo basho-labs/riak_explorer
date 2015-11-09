@@ -1,8 +1,15 @@
 # Riak Explorer
 
-Riak Explorer provides browsing and admin capabilities for [Riak KV](http://basho.com/products/riak-kv/), a distributed NoSQL key-value data store that offers high availability, fault tolerance, operational simplicity, and scalability.
+Riak Explorer provides browsing and admin capabilities for [Riak
+KV](http://basho.com/products/riak-kv/), a distributed NoSQL key-value data
+store that offers high availability, fault tolerance, operational simplicity,
+and scalability.
 
-Riak Explorer is useful while in a development or production. It includes convenient methods to browse Bucket Types, Buckets, Keys, view and edit Riak Objects, and more. To prevent heavy I/O requests from key listings, be sure to edit the config file to reflect the environment as [explained in Using Riak Explorer](#using-riak-explorer).
+Riak Explorer is useful while in a development or production. It includes
+convenient methods to browse Bucket Types, Buckets, Keys, view and edit Riak
+Objects, and more. To prevent heavy I/O requests from key listings, be sure to
+edit the config file to reflect the environment as [explained in Using Riak
+Explorer](#using-riak-explorer).
 
 * [Installation](#installation)
 * [System Architecture](#architecture)
@@ -11,40 +18,143 @@ Riak Explorer is useful while in a development or production. It includes conven
 
 ## Installation
 
-The easiest way to install Riak Explorer is to use one of the pre-compiled
-packages below. These include both the Erlang backend API code (this repository),
-and the front-end Ember.js GUI code (from
+### Installing from pre-built Package
+
+The easiest way to install Riak Explorer (for non-developers) is to use one of
+the pre-compiled packages below. These include both the Erlang backend API code
+(this repository), and the front-end Ember.js GUI code (from
 [riak-explorer-gui](https://github.com/basho-labs/riak-explorer-gui)).
-For developer install instructions, see the
-[Development / Contributing](#development--contributing)
-section, below.
 
 1. Download and extract [This file on Mac OS X](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) or [this file for Ubuntu 14.04](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz).
      * *Note: If you'd like to support further OSes, please [open an Issue](https://github.com/basho-labs/riak_explorer/issues)*
 
 1. Extract the tar file and `cd` into the directory
 
-2. Verify the default settings in `etc/riak_explorer.conf` will work for your configuration (primarily that port 9000 is available on your host). Pay special attention to development mode settings, this should be `off` for use with a production environment to prevent accidental keylistings.
+2. Verify the default settings in `rel/riak_explorer/etc/riak_explorer.conf`
+    will work for your configuration (primarily that port 9000 is available on your
+    host). Pay special attention to development mode settings, this should be `off`
+    for use with a production environment to prevent accidental keylistings.
 
-4. Run `bin/riak_explorer start` start the `riak_explorer` application
+4. Run `rel/riak_explorer/bin/riak_explorer start` start the `riak_explorer`
+    application
 
-4. Navigate to [http://localhost:9000/](http://localhost:9000/) to see the interface
+4. Navigate to [http://localhost:9000/](http://localhost:9000/) to see the
+    interface
+
+### Installing the Dev Environment
+
+For developer install instructions (and contribution guidelines), see the
+[Development / Contributing](#development--contributing) section, below.
 
 ## System Architecture
 
 *Front-end GUI:* [Ember.js](http://emberjs.com/).
     See [riak-explorer-gui](https://github.com/basho-labs/riak-explorer-gui)
-    repository for the front-end code.
+    repository for the front-end code and setup instructions.
 
 *Back-end:* [Erlang](http://www.erlang.org/) is the primary development language
     and [WebMachine](http://webmachine.github.io/) is used to serve a RESTful
-    API.
+    API (and, optionally, to serve the Ember.js GUI app).
 
-For more about this architecture, see [DEVELOPMENT.md](DEVELOPMENT.md).
+### Development Mode
 
-#### API
+The concept of "Development Mode" is crucial to Riak Explorer.
 
-In addition to the web interface, there is also an API exposed at [http://localhost:9000/explore](http://localhost:9000/explore). Following are the available routes (these can also be obtained from `/explore/routes`):
+Because Explorer allows users to perform operations that are disastrous in
+production (such as List Keys or List Buckets operations), the app is careful
+to enable those operations *only in Development Mode*. This setting is
+toggled in the Explorer config file, on a per-cluster basis.
+
+If you take a look in `rel/riak_explorer/etc/riak_explorer.conf`, you will see
+a line like:
+
+```
+clusters.default.development_mode = on
+```
+
+This means that the `default` cluster has Dev Mode *enabled*, and *WILL* allow
+prohibitive operations such as Streaming List Keys. Operators are strongly
+encouraged to either:
+
+a. Not point Explorer at production clusters, or
+
+b. If used with production clusters, be sure to set `development_mode = off` for
+    that cluster.
+
+### Key and Bucket List Caches (in Dev Mode only)
+
+Even in Dev Mode, Explorer tries not to run Key and Bucket listing operations
+more than necessary. To that end, the API runs the List command once (per bucket
+type, and per bucket, the first time it encounters them) and then *caches* the
+result in a text file, on disk. The GUI app user, when browsing buckets, only
+interacts with those caches.
+
+The interaction with the API goes like this (omitting the `localhost:9000` part
+from the URLs, for brevity):
+
+```bash
+# The first time you try to list buckets in the 'default' bucket type
+# (cache is empty)
+curl /explore/clusters/default/bucket_types/default/buckets
+# -> HTTP 404 Not Found
+
+# The app then *refreshes* the cache from a Streaming List Buckets operation
+# by issuing an HTTP POST request to the `refresh_buckets` endpoint
+# As expected, this operation may take some time, depending on how much data
+# is in a cluster.
+curl -XPOST \
+  /explore/clusters/default/bucket_types/default/refresh_buckets/source/riak_kv
+# -> HTTP 202 Accepted
+
+# While the cache refresh runs, apps can poll the `jobs` endpoint to see when
+# it's completed
+curl /explore/clusters/default/bucket_types/default/jobs
+
+# The app can then re-try the bucket list
+curl /explore/clusters/default/bucket_types/default/buckets
+# -> HTTP 200 OK
+# ['bucket1', 'bucket2', etc...]
+
+# To Refresh the cache, POST to the appropriate refresh endpoint as above
+```
+
+### Explorer API endpoints
+
+Take a look at the listing of Explorer API resources below. The three types of
+API endpoints available are:
+
+1. The **Riak proxy** endpoints, `/riak/nodes/` and `/riak/clusters/`. The app
+    uses these endpoints to make calls to the plain [Riak HTTP
+    API](http://docs.basho.com/riak/latest/dev/references/http/). The proxy
+    endpoints are used for several reasons, primarily due to CORS issues
+    (on the Riak API side).
+
+    So, for example, `curl localhost:9000/riak/nodes/riak@127.0.0.1/ping`
+    proxies the request to that specific node's [ping HTTP API](http://docs.basho.com/riak/latest/dev/references/http/ping/).
+
+    Similarly, using `curl localhost:9000/riak/clusters/default/ping`
+    proxies the request to the *cluster* (which also ends up going to that same
+    node, since this cluster just has one node in it).
+
+    In general, it is preferable to use the `clusters/` proxy endpoint (unless
+    you specifically want to access an individual node's REST API).
+
+2. **Explorer** endpoints, at `/explorer/`. Think of it as an enhancement to
+    Riak's own HTTP API, to fill in missing functionality. For example,
+    the plain Riak API doesn't have a 'list bucket types' functionality --
+    that can only be done via `riak-admin` CLI. The Explorer endpoints enable
+    this, at `/explore/clusters/$cluster/bucket_types`.
+
+3. **Control** endpoints at `/control/`. These provide a REST API to cluster
+    operations that are normally available only through the [Riak Admin
+    CLI](http://docs.basho.com/riak/latest/ops/running/tools/riak-admin/)
+    (for example, `riak-admin cluster join`).
+
+#### Full API Listing
+
+Riak Explorer exposes a REST API (by default located at [http://localhost:9000/explore](http://localhost:9000/explore)).
+
+Following are the available routes (these can also be obtained from `/explore/routes`):
 
 ```
 /explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/keys/$key
@@ -122,7 +232,8 @@ Explanation:
 
 ## Development / Contributing
 
-For specifics on builds, visit [DEVELOPMENT.md](DEVELOPMENT.md).
+For developer installation instructions and environment setup, visit
+[DEVELOPMENT.md](DEVELOPMENT.md).
 
 * Whether your contribution is for a bug fix or a feature request, **create an [Issue](https://github.com/basho/riak_explorer/issues)** and let us know what you are thinking.
 * **For bugs**, if you have already found a fix, feel free to submit a Pull Request referencing the Issue you created.
