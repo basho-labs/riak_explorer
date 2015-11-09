@@ -209,6 +209,18 @@ resource_exists(RD, Ctx=?command(Command)) ->
             {true, re_riak:repl_fullsync_start(Node)};
         "repl-fullsync-stop" ->
             {true, re_riak:repl_fullsync_stop(Node)};
+        "repl-clusterstats" ->
+            {true, re_riak:repl_clusterstats(Node)};
+        "repl-clusterstats-cluster_mgr" ->
+            {true, re_riak:repl_clusterstats_cluster_mgr(Node)};
+        "repl-clusterstats-fs_coordinate" ->
+            {true, re_riak:repl_clusterstats_fs_coordinate(Node)};
+        "repl-clusterstats-fullsync" ->
+            {true, re_riak:repl_clusterstats_fullsync(Node)};
+        "repl-clusterstats-proxy_get" ->
+            {true, re_riak:repl_clusterstats_proxy_get(Node)};
+        "repl-clusterstats-realtime" ->
+            {true, re_riak:repl_clusterstats_realtime(Node)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
@@ -259,6 +271,8 @@ resource_exists(RD, Ctx=?command(Command, Arg1, Arg2)) ->
             {true, re_riak:force_replace(Node, Arg1, Arg2)};
         "repl-connect" ->
             {true, re_riak:repl_connect(Node, Arg1, Arg2)};
+        "repl-clusterstats" ->
+            {true, re_riak:repl_clusterstats(Node, Arg1, Arg2)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};

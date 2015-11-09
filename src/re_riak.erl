@@ -57,7 +57,14 @@
          repl_fullsync_start/1,
          repl_fullsync_start/2,
          repl_fullsync_stop/1,
-         repl_fullsync_stop/2]).
+         repl_fullsync_stop/2,
+         repl_clusterstats/1,
+         repl_clusterstats/3,
+         repl_clusterstats_cluster_mgr/1,
+         repl_clusterstats_fs_coordinate/1,
+         repl_clusterstats_fullsync/1,
+         repl_clusterstats_proxy_get/1,
+         repl_clusterstats_realtime/1]).
 
 -export([client/1,
          get_json/3,
@@ -505,6 +512,47 @@ repl_fullsync_stop(Node, ClusterName) ->
 
 repl_fullsync_stop(Node) ->
     repl_command(Node, fullsync, "stop", []).
+
+repl_clusterstats(Node) ->
+    handle_error(fun () ->
+                         ensure_repl_available(Node),
+                         CMStats = remote(Node, riak_repl_console, cluster_mgr_stats, []),
+                         CConnStats = remote(Node, riak_core_connection_mgr_stats, get_consolidated_stats, []),
+                         [{control, [{clusterstats, CMStats ++ CConnStats}]}]
+                 end).
+
+repl_clusterstats(Node, Host, PortAtom) ->
+    handle_error(fun () ->
+                         ensure_repl_available(Node),
+                         IP = atom_to_list(Host),
+                         {Port, _Rest} = string:to_integer(atom_to_list(PortAtom)),
+                         CConnStats = remote(Node, riak_core_connection_mgr_stats, get_stats_by_ip, [{IP,Port}]),
+                         CMStats = remote(Node, riak_repl_console, cluster_mgr_stats, []),
+                         [{control, [{clusterstats, CMStats ++ CConnStats}]}]
+                 end).
+
+clusterstats_protocol(Node, Protocol) ->
+     handle_error(fun () ->
+                          ensure_repl_available(Node),
+                          CConnStats = remote(Node, riak_core_connection_mgr_stats, get_stats_by_protocol, [Protocol]),
+                          CMStats = remote(Node, riak_repl_console, cluster_mgr_stats, []),
+                          [{control, [{clusterstats, CMStats ++ CConnStats}]}]
+                  end).
+
+repl_clusterstats_cluster_mgr(Node) ->
+    clusterstats_protocol(Node, cluster_mgr).
+
+repl_clusterstats_fs_coordinate(Node) ->
+    clusterstats_protocol(Node, fs_coordinate).
+
+repl_clusterstats_fullsync(Node) ->
+    clusterstats_protocol(Node, fullsync).
+
+repl_clusterstats_proxy_get(Node) ->
+    clusterstats_protocol(Node, proxy_get).
+
+repl_clusterstats_realtime(Node) ->
+    clusterstats_protocol(Node, realtime).
 
 %%%===================================================================
 %%% Riak Client API
