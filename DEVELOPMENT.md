@@ -16,18 +16,12 @@ The GUI is optional; you can run the API as a standalone add-on to Riak.
 These instructions assume that you have Erlang installed, and Riak installed
 and started.
 
-It's also helpful to locate Riak's `basho-patches` directory. If your Riak
-is installed locally from source (or from the Mac OS X app), it will be located
-at `<path to Riak install>/lib/basho-patches`. If you installed it on a server
-OS from package, see the [basho-patches section](http://docs.basho.com/riak/latest/ops/upgrading/rolling-upgrades/#Basho-Patches)
-of the online docs. This directory allows hot-loading of custom Erlang modules
-into Riak, and that's exactly the mechanism the Explorer API will be using.
-
 #### Compile the API code
 
 1. `make` - Loads and compiles all dependencies (depends on `erl`)
 
-2. `make rel` - Performs release tasks, creates `rel/riak_explorer`
+2. `make rel` - Performs release tasks, creates `rel/riak_explorer`,
+    where its executable and config files will be located.
 
 3. `make stage` - Enables faster development cycles; Only needs to be run once to set up lib and static web symlinks
 
@@ -58,13 +52,48 @@ double-check that Riak's Erlang cookie matches Explorer's cookie.)
     empty, make sure Riak is started, and the node id and Erlang cookie are
     correct.
 
+#### Running Explorer from within Riak (W.I.P.)
+
+(work in progress, to be expanded)
+
+First, locate the path to your Riak `lib` directory (as well as `lib/basho-patches`,
+within it). If your Riak
+is installed locally from source (or from the Mac OS X app), it will be located
+at `<path to Riak install>/lib`. If you installed it on a server
+OS from package, see the [basho-patches section](http://docs.basho.com/riak/latest/ops/upgrading/rolling-upgrades/#Basho-Patches) for an idea of where Riak `lib/` is installed.
+
+(#TODO - explain where Riak's `priv/` is located).
+
+Let's export these locations to variables in your terminal session, to make the
+instructions easier. (The instructions below are for a local Mac OS X install
+from `Riak.app`.)
+
+```bash
+export RIAK_PATH=/Applications/Riak.app/Contents/Resources/riak-2.1.0
+export RIAK_LIB=$RIAK_PATH/lib
+export RIAK_PRIV=$RIAK_PATH/priv
+```
+
+The `basho-patches` directory will be located within `$RIAK_LIB`. This directory
+allows hot-loading of custom Erlang modules into Riak, and that's exactly the
+mechanism the Explorer API will be using.
+
+1. `make riak-addon`
+
+2. `cp rel/riak-addon/ebin/* $RIAK_LIB/basho-patches/`
+
+3. `rm -rf $RIAK_PRIV/*`  <- are we sure this part doesn't get rid of anything
+    necessary?
+
+4. `cp -R rel/riak-addon/priv/* $RIAK_PRIV`
+
 #### Run the Tests
 
 8. `make test` - Recompiles `src` and executes unit tests
 
 9. `make itest` - Recompiles `src`, executes integration tests (run `./rel/riak_explorer/bin/riak_explorer start` first)
 
-## Requirements - Explorer GUI (optional)
+## Developer Instructions - Explorer GUI (optional)
 
 For instructions on how to install the front-end GUI (and its dependencies),
 see the README at
