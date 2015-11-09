@@ -51,7 +51,13 @@
          repl_realtime_start/1,
          repl_realtime_start/2,
          repl_realtime_stop/1,
-         repl_realtime_stop/2]).
+         repl_realtime_stop/2,
+         repl_fullsync_enable/2,
+         repl_fullsync_disable/2,
+         repl_fullsync_start/1,
+         repl_fullsync_start/2,
+         repl_fullsync_stop/1,
+         repl_fullsync_stop/2]).
 
 -export([client/1,
          get_json/3,
@@ -481,6 +487,24 @@ repl_realtime_stop(Node, ClusterName) ->
 
 repl_realtime_stop(Node) ->
     repl_command(Node, realtime, "stop", []).
+
+repl_fullsync_enable(Node, ClusterName) ->
+    repl_command(Node, fullsync, "enable", ClusterName).
+
+repl_fullsync_disable(Node, ClusterName) ->
+    repl_command(Node, fullsync, "disable", ClusterName).
+
+repl_fullsync_start(Node, ClusterName) ->
+    repl_command(Node, fullsync, "start", ClusterName).
+
+repl_fullsync_start(Node) ->
+    repl_command(Node, fullsync, "start", []).
+
+repl_fullsync_stop(Node, ClusterName) ->
+    repl_command(Node, fullsync, "stop", ClusterName).
+
+repl_fullsync_stop(Node) ->
+    repl_command(Node, fullsync, "stop", []).
 
 %%%===================================================================
 %%% Riak Client API

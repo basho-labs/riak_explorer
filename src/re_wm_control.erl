@@ -89,7 +89,7 @@ routes() ->
     CFullsyncStart   = Cluster ++ ["repl-fullsync-start"],
     CFullsyncStart2  = Cluster ++ ["repl-fullsync-start"] ++ [arg1],
     CFullsyncStop    = Cluster ++ ["repl-fullsync-stop"],
-    CFullsyncStop2    = Cluster ++ ["repl-fullsync-stop"] ++ [arg1],
+    CFullsyncStop2   = Cluster ++ ["repl-fullsync-stop"] ++ [arg1],
 
     Nodes           = Base ++ ["nodes"],
     Node            = Nodes ++ [node],
@@ -205,6 +205,10 @@ resource_exists(RD, Ctx=?command(Command)) ->
             {true, re_riak:repl_realtime_start(Node)};
         "repl-realtime-stop" ->
             {true, re_riak:repl_realtime_stop(Node)};
+        "repl-fullsync-start" ->
+            {true, re_riak:repl_fullsync_start(Node)};
+        "repl-fullsync-stop" ->
+            {true, re_riak:repl_fullsync_stop(Node)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
@@ -233,6 +237,14 @@ resource_exists(RD, Ctx=?command(Command, Arg1)) ->
             {true, re_riak:repl_realtime_start(Node, Arg1)};
         "repl-realtime-stop" ->
             {true, re_riak:repl_realtime_stop(Node, Arg1)};
+        "repl-fullsync-enable" ->
+            {true, re_riak:repl_fullsync_enable(Node, Arg1)};
+        "repl-fullsync-disable" ->
+            {true, re_riak:repl_fullsync_disable(Node, Arg1)};
+        "repl-fullsync-start" ->
+            {true, re_riak:repl_fullsync_start(Node, Arg1)};
+        "repl-fullsync-stop" ->
+            {true, re_riak:repl_fullsync_stop(Node, Arg1)};
         _ -> {false, undefined}
     end,
     {Exists, RD, Ctx#ctx{id=list_to_atom(Command), response=Response}};
