@@ -4,14 +4,20 @@ Riak Explorer provides browsing and admin capabilities for [Riak KV](http://bash
 
 Riak Explorer is useful while in a development or production. It includes convenient methods to browse Bucket Types, Buckets, Keys, view and edit Riak Objects, and more. To prevent heavy I/O requests from key listings, be sure to edit the config file to reflect the environment as [explained in Using Riak Explorer](#using-riak-explorer).
 
-
 * [Installation](#installation)
 * [System Architecture](#architecture)
 * [Using Riak Explorer](#using-riak-explorer)
 * [Development / Contributing](#development--contributing)
 
-
 ## Installation
+
+The easiest way to install Riak Explorer is to use one of the pre-compiled
+packages below. These include both the Erlang backend API code (this repository),
+and the front-end Ember.js GUI code (from
+[riak-explorer-gui](https://github.com/basho-labs/riak-explorer-gui)).
+For developer install instructions, see the
+[Development / Contributing](#development--contributing)
+section, below.
 
 1. Download and extract [This file on Mac OS X](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) or [this file for Ubuntu 14.04](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz).
      * *Note: If you'd like to support further OSes, please [open an Issue](https://github.com/basho-labs/riak_explorer/issues)*
@@ -26,8 +32,13 @@ Riak Explorer is useful while in a development or production. It includes conven
 
 ## System Architecture
 
-*Front-end GUI:* [Ember.js](http://emberjs.com/)  
-*Back-end:* [Erlang](http://www.erlang.org/) is the primary development language and [WebMachine](http://webmachine.github.io/) is used to serve a RESTful API
+*Front-end GUI:* [Ember.js](http://emberjs.com/).
+    See [riak-explorer-gui](https://github.com/basho-labs/riak-explorer-gui)
+    repository for the front-end code.
+
+*Back-end:* [Erlang](http://www.erlang.org/) is the primary development language
+    and [WebMachine](http://webmachine.github.io/) is used to serve a RESTful
+    API.
 
 For more about this architecture, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
@@ -133,7 +144,11 @@ You can [read the full guidelines for bug reporting and code contributions](http
 And **thank you!** Your contribution is incredibly important to us. It'd be great for you to add it to a current or past community release note [here](https://github.com/basho-labs/the-riak-community/tree/master/release-notes).
 
 #### Related Projects
-- [riak-explorer-gui](https://github.com/basho-labs/riak-explorer-gui)
-- [riak_control](https://github.com/basho/riak_control)
-- [rekon](https://github.com/basho/rekon) (old bucket / object explorer gui)
-- [riak_cs_control](https://github.com/basho/riak_cs_control)
+- [riak-explorer-gui](https://github.com/basho-labs/riak-explorer-gui) - the
+    front-end Ember.js GUI code to go along with the Explorer API.
+- [riak_control](https://github.com/basho/riak_control) - legacy official Riak
+    GUI
+- [riak_cs_control](https://github.com/basho/riak_cs_control) - legacy official
+    Riak S2 (Riak CS) GUI
+- [rekon](https://github.com/basho/rekon) (old bucket / object explorer gui) -
+    legacy unofficial Javascript Riak GUI.
