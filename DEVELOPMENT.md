@@ -42,11 +42,11 @@ double-check that Riak's Erlang cookie matches Explorer's cookie.)
     Starts the `riak_explorer` Erlang API, as well as the Webmachine web server
     that will be serving the Ember.js GUI's HTTP and AJAX requests.
 
-6. `curl localhost:9000/explorer/ping` - Test that Explorer is up and running.
+6. `curl localhost:9000/explore/ping` - Test that Explorer is up and running.
     By default, Explorer listens on port `9000` (you can change this in
     `riak_explorer.conf`).
 
-7. `curl localhost:9000/explorer/clusters/default/nodes` - Test to make sure
+7. `curl localhost:9000/explore/clusters/default/nodes` - Test to make sure
     Explorer can connect to the default cluster. You should see a response like
     `{"nodes":[{"id":"riak@127.0.0.1"}], ...` If the list of nodes comes back
     empty, make sure Riak is started, and the node id and Erlang cookie are
