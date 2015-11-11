@@ -278,6 +278,84 @@ Explanation:
     * `$resource`: A list of valid `resources` for a given module can be found in `explore.resources`
 * `explore.resources`: A list of available operations or resources specific to the route; Example: `ping` for the `/explore` route.
 
+## Seed Data (For developers and testers)
+
+Some suggestions on how to create some sample data, to try out the Explorer GUI.
+
+1. Set up a couple of clusters in `riak_explorer.conf`. Have one or more with
+    `development_mode = on`, and one or more with it set to `off` (meaning, in
+    production mode).
+
+2. Enable Search in Riak's config file (`riak.conf`). Set up a [Search
+    Index](http://docs.basho.com/riak/latest/dev/using/search/#Simple-Setup).
+    For example, to create a search index named `test-users-idx` that uses
+    the default schema, do a PUT from the command-line (assuming your Riak
+    node is available on `localhost`, using the default HTTP port `8098`):
+
+    ```
+    curl -XPUT http://localhost:8098/search/index/test-users-idx
+    ```
+
+3. Set up a `users` Bucket Type, and associate it with the `users-idx` Search
+    index created above:
+
+    ```
+    riak-admin bucket-type create test-users '{"props":{"search_index":"test-users-idx"}}'
+    riak-admin bucket-type activate test-users
+    ```
+
+4. Create and activate a Bucket Type for each main [Riak Data
+    Type](http://docs.basho.com/riak/latest/dev/using/data-types/):
+
+    ```
+    riak-admin bucket-type create maps '{"props":{"datatype":"map"}}'
+    riak-admin bucket-type create sets '{"props":{"datatype":"set"}}'
+    riak-admin bucket-type create counters '{"props":{"datatype":"counter"}}'
+    ```
+
+5. Create and activate a `test-carts` Bucket Type, with [Siblings](http://docs.basho.com/riak/latest/dev/using/conflict-resolution/#Siblings)
+    enabled:
+
+    ```
+    riak-admin bucket-type create test-carts '{"props":{"allow_mult":true}}'
+    ```
+
+6. Insert some sample Counter type objects, say to the `test-page-loads` bucket:
+
+  ```
+  curl localhost:8098/types/counters/buckets/test-page-loads/datatypes/page123 -XPOST \
+    -H "Content-Type: application/json" \
+    -d '{"increment": 5}'
+
+  curl localhost:8098/types/counters/buckets/test-page-loads/datatypes/page456 -XPOST \
+    -H "Content-Type: application/json" \
+    -d '{"increment": 1}'
+  ```
+
+6. Insert some sample Set type objects, say to the `test-cities-visited` bucket:
+
+  ```
+  curl localhost:8098/types/sets/buckets/test-cities-visited/datatypes/user123 -XPOST \
+    -H "Content-Type: application/json" \
+    -d '{"add_all":["Toronto", "Montreal", "Quebec", "New York City"]}'
+
+  curl localhost:8098/types/sets/buckets/test-cities-visited/datatypes/user456 -XPOST \
+    -H "Content-Type: application/json" \
+    -d '{"add_all":["Washington D.C.", "Los Angeles", "Las Vegas"]}'
+  ```
+
+6. Insert some sample Map type objects, say to the 'test-tweets' bucket:
+
+  ```
+  curl localhost:8098/types/maps/buckets/test-tweets/datatypes/user123 -XPOST \
+    -H "Content-Type: application/json" \
+    -d '{"update":{ "favorited_flag": "disable", "id_str_register": "240859602684612608", "favourites_count_counter": 24, "entities_map":{ "update": { "urls_set":{ "add_all": ["url1", "url2", "url3"]}} }  }}'
+
+  curl localhost:8098/types/maps/buckets/test-tweets/datatypes/user456 -XPOST \
+    -H "Content-Type: application/json" \
+    -d '{"update":{ "favorited_flag": "enable", "id_str_register": "240859602699912715", "favourites_count_counter": 1, "entities_map":{ "update": { "urls_set":{ "add_all": ["url4", "url5", "url6"]}} }  }}'
+  ```
+
 ## Development / Contributing
 
 For developer installation instructions and environment setup, visit
