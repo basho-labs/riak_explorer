@@ -309,8 +309,11 @@ Some suggestions on how to create some sample data, to try out the Explorer GUI.
 
     ```
     riak-admin bucket-type create maps '{"props":{"datatype":"map"}}'
+    riak-admin bucket-type activate maps
     riak-admin bucket-type create sets '{"props":{"datatype":"set"}}'
+    riak-admin bucket-type activate sets
     riak-admin bucket-type create counters '{"props":{"datatype":"counter"}}'
+    riak-admin bucket-type activate counters
     ```
 
 5. Create and activate a `test-carts` Bucket Type, with [Siblings](http://docs.basho.com/riak/latest/dev/using/conflict-resolution/#Siblings)
@@ -344,7 +347,7 @@ Some suggestions on how to create some sample data, to try out the Explorer GUI.
     -d '{"add_all":["Washington D.C.", "Los Angeles", "Las Vegas"]}'
   ```
 
-6. Insert some sample Map type objects, say to the 'test-tweets' bucket:
+6. Insert some sample Map type objects, say to the `test-tweets` bucket:
 
   ```
   curl localhost:8098/types/maps/buckets/test-tweets/datatypes/user123 -XPOST \
