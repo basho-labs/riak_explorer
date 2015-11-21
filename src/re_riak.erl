@@ -278,6 +278,8 @@ ringready(Node) ->
                          end
                  end).
 
+datetime_str(undefined) ->
+    null;
 datetime_str({_Mega, _Secs, _Micro}=Now) ->
     datetime_str(calendar:now_to_datetime(Now));
 datetime_str({{Year, Month, Day}, {Hour, Min, Sec}}) ->
