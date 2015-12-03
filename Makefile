@@ -41,6 +41,23 @@ riak-addon:
 	cp -R ebin/* rel/riak-addon/ebin/
 	cp -R priv/* rel/riak-addon/priv/
 
+# Build steps for posterity
+## From riak_explorer
+# git checkout master && git pull && git checkout riak-addon-master && git pull origin master
+## From riak-explorer-gui
+# git checkout master && git pull && git checkout riak-addon-master && git pull origin master && make && rm -rf ../riak_explorer/priv/ember_riak_explorer/dist/* && cp dist/* ../riak_explorer/priv/ember_riak_explorer/dist/
+## From riak_explorer
+# make riak-addon && git checkout master
+## From riak-explorer-gui
+# git checkout master && make && rm -rf ../riak_explorer/priv/ember_riak_explorer/dist/* && cp dist/* ../riak_explorer/priv/ember_riak_explorer/dist/
+## From riak_explorer
+# make rel
+
+## Package steps for posterity
+## From riak_explorer
+# make package-mac
+# make deploy-mac
+
 # Deployment
 deploy-mac:
 	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_darwin_amd64.tar.gz s3://riak-tools/
