@@ -25,21 +25,35 @@ the pre-compiled packages below. These include both the Erlang backend API code
 (this repository), and the front-end Ember.js GUI code (from
 [riak-explorer-gui](https://github.com/basho-labs/riak-explorer-gui)).
 
-1. Download and extract [This file on Mac OS X](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) or [this file for Ubuntu 14.04](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz).
+#### Standalone Version
+
+1. Download and extract [riak_explorer_darwin_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) for Mac OSX or [riak_explorer_linux_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz) for Ubuntu 14.04.
      * *Note: If you'd like to support further OSes, please [open an Issue](https://github.com/basho-labs/riak_explorer/issues)*
 
-1. Extract the tar file and `cd` into the directory
+2. Extract the tar file and `cd` into the directory
 
-2. Verify the default settings in `rel/riak_explorer/etc/riak_explorer.conf`
+3. Verify the default settings in `rel/riak_explorer/etc/riak_explorer.conf`
     will work for your configuration (primarily that port 9000 is available on your
     host). Pay special attention to development mode settings, this should be `off`
     for use with a production environment to prevent accidental keylistings.
 
-4. Run `rel/riak_explorer/bin/riak_explorer start` start the `riak_explorer`
+4. Run `rel/riak_explorer/bin/riak_explorer start` to start the `riak_explorer`
     application
 
-4. Navigate to [http://localhost:9000/](http://localhost:9000/) to see the
+5. Navigate to [http://localhost:9000/](http://localhost:9000/) to see the
     interface
+
+#### Riak Patch Version
+
+1. Download and extract [riak_explorer_addon_darwin_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_addon_darwin_amd64.tar.gz) for Mac OSX or [riak_explorer_addon_linux_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_addon_linux_amd64.tar.gz) for Ubuntu 14.04.
+
+2. Extract the tar file and `cd` into the directory
+
+3. Locate your Riak installation and `cp -R priv /path/to/riak/priv`, `cp -R ebin/* /path/to/riak/lib/basho-patches/`
+
+4. Run `rel/riak/bin/riak start`
+
+5. Navigate to [http://localhost:8098/admin](http://localhost:8098/admin) to see the interface
 
 ### Installing the Dev Environment
 

@@ -47,10 +47,12 @@ riak-addon:
 ## From riak-explorer-gui
 # git checkout master && git pull && git checkout riak-addon-master && git pull origin master && make && rm -rf ../riak_explorer/priv/ember_riak_explorer/dist/* && cp -R dist/* ../riak_explorer/priv/ember_riak_explorer/dist/
 ## From riak_explorer
+# git commit -a -m "udating gui" && git push origin riak-addon-master
 # make riak-addon && git checkout master
 ## From riak-explorer-gui
 # git checkout master && make && rm -rf ../riak_explorer/priv/ember_riak_explorer/dist/* && cp -R dist/* ../riak_explorer/priv/ember_riak_explorer/dist/
 ## From riak_explorer
+# git commit -a -m "udating gui" && git push origin master
 # make rel
 
 ## Package steps for posterity
@@ -73,12 +75,12 @@ clean-package:
 package-mac: clean-package
 	cd rel && tar -zcvf riak_explorer_darwin_amd64.tar.gz riak_explorer
 	mv rel/riak_explorer_darwin_amd64.tar.gz $(BUILD_DIR)/
-	cd rel && riak_explorer_addon_darwin_amd64.tar.gz riak-addon
+	cd rel && tar -zcvf riak_explorer_addon_darwin_amd64.tar.gz riak-addon
 	mv rel/riak_explorer_addon_darwin_amd64.tar.gz $(BUILD_DIR)/
 package-trusty64:
 	cd vagrant/ubuntu/trusty64 && vagrant up
 package-linux: clean-package
 	cd rel && tar -zcvf riak_explorer_linux_amd64.tar.gz riak_explorer
 	mv rel/riak_explorer_linux_amd64.tar.gz $(BUILD_DIR)/
-	cd rel && riak_explorer_addon_linux_amd64.tar.gz riak-addon
+	cd rel && tar -zcvf riak_explorer_addon_linux_amd64.tar.gz riak-addon
 	mv rel/riak_explorer_addon_linux_amd64.tar.gz $(BUILD_DIR)/
