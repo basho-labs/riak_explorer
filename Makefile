@@ -45,11 +45,11 @@ riak-addon:
 ## From riak_explorer
 # git checkout master && git pull && git checkout riak-addon-master && git pull origin master
 ## From riak-explorer-gui
-# git checkout master && git pull && git checkout riak-addon-master && git pull origin master && make && rm -rf ../riak_explorer/priv/ember_riak_explorer/dist/* && cp dist/* ../riak_explorer/priv/ember_riak_explorer/dist/
+# git checkout master && git pull && git checkout riak-addon-master && git pull origin master && make && rm -rf ../riak_explorer/priv/ember_riak_explorer/dist/* && cp -R dist/* ../riak_explorer/priv/ember_riak_explorer/dist/
 ## From riak_explorer
 # make riak-addon && git checkout master
 ## From riak-explorer-gui
-# git checkout master && make && rm -rf ../riak_explorer/priv/ember_riak_explorer/dist/* && cp dist/* ../riak_explorer/priv/ember_riak_explorer/dist/
+# git checkout master && make && rm -rf ../riak_explorer/priv/ember_riak_explorer/dist/* && cp -R dist/* ../riak_explorer/priv/ember_riak_explorer/dist/
 ## From riak_explorer
 # make rel
 
