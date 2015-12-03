@@ -44,10 +44,10 @@ riak-addon:
 # Deployment
 deploy-mac:
 	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_darwin_amd64.tar.gz s3://riak-tools/
+	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_addon_darwin_amd64.tar.gz s3://riak-tools/
 deploy-linux:
 	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_linux_amd64.tar.gz s3://riak-tools/
-deploy-linux-riak:
-	cd $(BUILD_DIR) && s3cmd put --acl-public riak_linux_amd64.tar.gz s3://riak-tools/
+	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_addon_linux_amd64.tar.gz s3://riak-tools/
 
 # Packaging
 clean-package:
@@ -56,8 +56,12 @@ clean-package:
 package-mac: clean-package
 	cd rel && tar -zcvf riak_explorer_darwin_amd64.tar.gz riak_explorer
 	mv rel/riak_explorer_darwin_amd64.tar.gz $(BUILD_DIR)/
+	cd rel && riak_explorer_addon_darwin_amd64.tar.gz riak-addon
+	mv rel/riak_explorer_addon_darwin_amd64.tar.gz $(BUILD_DIR)/
 package-trusty64:
 	cd vagrant/ubuntu/trusty64 && vagrant up
 package-linux: clean-package
 	cd rel && tar -zcvf riak_explorer_linux_amd64.tar.gz riak_explorer
 	mv rel/riak_explorer_linux_amd64.tar.gz $(BUILD_DIR)/
+	cd rel && riak_explorer_addon_linux_amd64.tar.gz riak-addon
+	mv rel/riak_explorer_addon_linux_amd64.tar.gz $(BUILD_DIR)/
