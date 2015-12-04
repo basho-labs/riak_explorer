@@ -143,7 +143,7 @@ resource_exists(RD, Ctx=?listBuckets(BucketType)) ->
     case re_riak:list_buckets(Node, BucketType) of
         ok ->
             {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
-        {error, already_started} ->
+        [{error, already_started}] ->
             {{halt, 102}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
         {error, developer_mode_off} ->
             {{halt, 403}, RD, Ctx}
@@ -154,7 +154,7 @@ resource_exists(RD, Ctx=?deleteBucket(BucketType, Bucket)) ->
     case re_riak:delete_bucket(Node, BucketType, Bucket) of
         ok ->
             {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
-        {error, already_started} ->
+        [{error, already_started}] ->
             {{halt, 102}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
         {error, developer_mode_off} ->
             {{halt, 403}, RD, Ctx}
