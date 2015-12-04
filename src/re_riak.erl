@@ -713,9 +713,21 @@ cluster_id_for_node(Node) ->
         [{id, Id}|_] -> Id
     end.
 
+riak_type_for_node(Node) ->
+    case remote(Node, code, is_loaded, [riak_repl_console]) of
+        false -> oss;
+        _ -> ee
+    end.
+
+cluster_info({C, _}) ->
+    Node = re_config:riak_node(C),
+    [{id,C},
+     {riak_node, Node},
+     {development_mode, re_config:development_mode(C)},
+     {riak_type, riak_type_for_node(Node)}].
 clusters() ->
     Clusters = re_config:clusters(),
-    Mapped = lists:map(fun({C, _}) -> [{id,C}, {riak_node, re_config:riak_node(C)}, {development_mode, re_config:development_mode(C)}] end, Clusters),
+    Mapped = [cluster_info(Cluster) || Cluster <- Clusters],
     [{clusters, Mapped}].
 
 cluster(Id) ->
