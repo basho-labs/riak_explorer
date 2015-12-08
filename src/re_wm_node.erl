@@ -45,18 +45,19 @@
 %%%===================================================================
 
 resources() ->
-    [].
+    [{config, [re_riak, node_config]}].
 
 routes() ->
     Base = lists:last(re_wm_base:routes()),
     BaseNodes = Base ++ ["nodes"],
     BaseNode = BaseNodes ++ [node],
+    NodeResource = BaseNode ++ [resource],
 
     Cluster = lists:last(re_wm_cluster:routes()),
     Nodes = Cluster ++ ["nodes"],
     Node = Nodes ++ [node],
-    NodeResource = Node ++ [resource],
-    [Nodes, NodeResource, Node, BaseNode].
+    ClusterNodeResource = Node ++ [resource],
+    [Nodes, ClusterNodeResource, Node, NodeResource, BaseNode].
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -111,7 +112,14 @@ resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
     case proplists:get_value(Id, resources()) of
         [M,F] ->
             Response = M:F(Cluster, Node),
-            {true, RD, Ctx#ctx{id=Id, response=Response}};
+            case Response of
+                [{error, not_found, Message}] ->
+                    {{halt, 404},
+                     wrq:set_resp_headers([], wrq:set_resp_body(mochijson2:encode(Message), RD)),
+                     Ctx};
+                _ ->
+                    {true, RD, Ctx#ctx{id=Id, response=Response}}
+            end;
         _ ->
             {false, RD, Ctx}
     end;
