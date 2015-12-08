@@ -21,7 +21,10 @@
 -module(re_riak_patch).
 -export([
   version/0,
-  bucket_types/0]).
+  bucket_types/0,
+  riak_version/0,
+  tail_log/2,
+  get_config/1]).
 
 -include("riak_explorer.hrl").
 
@@ -30,16 +33,85 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 2.
+version() -> 3.
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
   List0 = [[{name, <<"default">>},{props, [{active, true} | format_props(riak_core_bucket_props:defaults(), [])]}]],
   fetch_types(It, List0).
 
+riak_version() ->
+    LibDir = app_helper:get_env(riak_core, platform_lib_dir),
+    EnvFile = filename:join([LibDir, "env.sh"]),
+    {ok, Device} = file:open(EnvFile, read),
+    Proc = fun(Entry, Accum) ->
+        case re:run(Entry, "^APP_VERSION=(.*)", [{capture, all_but_first, list}]) of
+            {match, [Version]} -> list_to_binary(Version);
+            _ -> Accum
+        end
+    end,
+    for_each_line(Device, Proc, notfound).
+
+tail_log(Name, NumLines) ->
+    LogDir = app_helper:get_env(riak_core, platform_log_dir),
+    LogFile = filename:join([LogDir, Name]),
+    TotalLines = count_lines(LogFile),
+    case file:open(LogFile, read) of
+        {error,enoent} ->
+            {0, []};
+        {ok, Device} ->
+            Proc = fun(Entry, {Current,Num,Total,Accum}) ->
+            case {Current, Num, Total} of
+                {C, N, T} when C > T -> {C+1, N, T, Accum};
+                {C, N, T} when C =< (T - N) -> {C+1, N, T, Accum};
+                {C, N, T} when C > (T - N) ->
+                    B = re:replace(Entry, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
+                    {C+1, N, T, [list_to_binary(B)|Accum]}
+            end
+        end,
+        {_,_,_,Lines} = for_each_line(Device, Proc, {0,NumLines,TotalLines,[]}),
+        {TotalLines, Lines}
+    end.
+
+get_config(Name) ->
+    EtcDir = app_helper:get_env(riak_core, platform_etc_dir),
+    EtcFile = filename:join([EtcDir, Name]),
+    case file:open(EtcFile, read) of
+        {error,enoent} ->
+            [<<"">>];
+        {ok, Device} ->
+            Proc = fun(Entry, Accum) ->
+                B = re:replace(Entry, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
+                [list_to_binary(B)|Accum]
+            end,
+            Lines = for_each_line(Device, Proc, ""),
+            lists:reverse(Lines)
+    end.
+
+
 %%%===================================================================
 %%% Private
 %%%===================================================================
+
+count_lines(Name) ->
+    case file:open(Name, read) of
+        {error,enoent} ->
+            0;
+        {ok, Device} ->
+            Proc = fun(_, NumLines) ->
+                NumLines + 1
+            end,
+            for_each_line(Device, Proc, 0)
+    end.
+
+for_each_line(Device, Proc, Accum) ->
+  case io:get_line(Device, "") of
+      eof  ->
+          file:close(Device), Accum;
+      Line ->
+          NewAccum = Proc(Line, Accum),
+          for_each_line(Device, Proc, NewAccum)
+  end.
 
 fetch_types(It, Acc) ->
     case riak_core_bucket_type:itr_done(It) of

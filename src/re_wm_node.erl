@@ -25,10 +25,11 @@
          allowed_methods/2,
          content_types_provided/2,
          resource_exists/2,
+         provide_text_content/2,
          provide_jsonapi_content/2,
          provide_content/2]).
 
--record(ctx, {cluster, node, resource, id, response=undefined}).
+-record(ctx, {cluster, rows, node, resource, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
@@ -45,7 +46,13 @@
 %%%===================================================================
 
 resources() ->
-    [].
+    [{console_log, [re_riak, tail_console, rows]},
+     {crash_log, [re_riak, tail_crash, rows]},
+     {erlang_log, [re_riak, tail_erlang, rows]},
+     {error_log, [re_riak, tail_error, rows]},
+     {runerl_log, [re_riak, tail_runerl, rows]},
+     {riak_conf, [re_riak, riak_conf]},
+     {advanced_conf, [re_riak, advanced_conf]}].
 
 routes() ->
     Base = lists:last(re_wm_base:routes()),
@@ -71,7 +78,8 @@ service_available(RD, Ctx0) ->
     Ctx1 = Ctx0#ctx{
         resource = wrq:path_info(resource, RD),
         cluster = maybe_atomize(wrq:path_info(cluster, RD)),
-        node = maybe_atomize(wrq:path_info(node, RD))},
+        node = maybe_atomize(wrq:path_info(node, RD)),
+        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD))},
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
@@ -80,6 +88,7 @@ allowed_methods(RD, Ctx) ->
 
 content_types_provided(RD, Ctx) ->
     Types = [{"application/json", provide_content},
+             {"plain/text", provide_text_content},
              {"application/vnd.api+json", provide_jsonapi_content}],
     {Types, RD, Ctx}.
 
@@ -100,15 +109,17 @@ resource_exists(RD, Ctx=?nodeInfo(Cluster0, Node)) ->
     end,
     case re_riak:node_exists(Cluster, Node) of
         true ->
-            Id = list_to_binary(Node),
-            Response = [{nodes, [{id,Id}, {props, []}]}],
-            {true, RD, Ctx#ctx{id=node, response=Response}};
+            Response = [{nodes, re_riak:node_info(Node)}],
+            {true, RD, Ctx#ctx{id=Node, response=Response}};
         false ->
             {false, RD, Ctx}
     end;
 resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
+        [M, F, rows] ->
+            Response = M:F(Node, Ctx#ctx.rows),
+            {true, RD, Ctx#ctx{id=Id, response=Response}};
         [M,F] ->
             Response = M:F(Cluster, Node),
             {true, RD, Ctx#ctx{id=Id, response=Response}};
@@ -117,6 +128,19 @@ resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
     end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
+
+provide_text_content(RD, Ctx=#ctx{response=undefined}) ->
+    {"", RD, Ctx};
+provide_text_content(RD, Ctx=#ctx{response=[{_, Objects}]}) ->
+    case proplists:get_value(lines, Objects) of
+        undefined ->
+            provide_content(RD, Ctx);
+        Lines ->
+            UnbinaryLines = lists:map(fun(A) -> binary_to_list(A) end, Lines),
+            LineSep = io_lib:nl(),
+            Text = [string:join(UnbinaryLines, LineSep), LineSep],
+            {Text, RD, Ctx}
+    end.
 
 provide_content(RD, Ctx=#ctx{response=undefined}) ->
     JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),

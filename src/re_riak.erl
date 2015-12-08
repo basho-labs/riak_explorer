@@ -82,7 +82,17 @@
          clean_keys/3,
          put_keys/4]).
 
--export([http_listener/1,
+-export([tail_console/2,
+         tail_crash/2,
+         tail_erlang/2,
+         tail_error/2,
+         tail_runerl/2,
+         riak_conf/2,
+         advanced_conf/2,
+         node_info/1,
+         riak_type/1,
+         riak_version/1,
+         http_listener/1,
          pb_listener/1,
          bucket_types/1,
          create_bucket_type/3]).
@@ -671,6 +681,36 @@ put_keys(Node, BucketType, Bucket, Keys) ->
 %%% Node Properties API
 %%%===================================================================
 
+tail_console(Node, NumLines) -> tail_log(Node, "console.log", NumLines).
+tail_crash(Node, NumLines) -> tail_log(Node, "crash.log", NumLines).
+tail_erlang(Node, NumLines) -> tail_log(Node, "erlang.log", NumLines).
+tail_error(Node, NumLines) -> tail_log(Node, "error.log", NumLines).
+tail_runerl(Node, NumLines) -> tail_log(Node, "run_erl.log", NumLines).
+
+riak_conf(_, Node) ->
+    load_patch(Node),
+    Lines = remote(Node, re_riak_patch, get_config, ["riak.conf"]),
+    [{config, [{lines, Lines}]}].
+advanced_conf(_, Node) ->
+    load_patch(Node),
+    Lines = remote(Node, re_riak_patch, get_config, ["advanced.config"]),
+    [{config, [{lines, Lines}]}].
+
+node_info(Node) ->
+    [{id,Node},
+     {riak_type, riak_type(Node)},
+     {riak_version, riak_version(Node)}].
+
+riak_type(Node) ->
+    case remote(Node, code, is_loaded, [riak_repl_console]) of
+        false -> oss;
+        _ -> ee
+    end.
+
+riak_version(Node) ->
+    load_patch(Node),
+    remote(Node, re_riak_patch, riak_version, []).
+
 http_listener(Node) ->
     NodeStr = atom_to_list(Node),
     [_,Addr] = string:tokens(NodeStr, "@"),
@@ -713,18 +753,13 @@ cluster_id_for_node(Node) ->
         [{id, Id}|_] -> Id
     end.
 
-riak_type_for_node(Node) ->
-    case remote(Node, code, is_loaded, [riak_repl_console]) of
-        false -> oss;
-        _ -> ee
-    end.
-
 cluster_info({C, _}) ->
     Node = re_config:riak_node(C),
     [{id,C},
      {riak_node, Node},
      {development_mode, re_config:development_mode(C)},
-     {riak_type, riak_type_for_node(Node)}].
+     {riak_type, riak_type(Node)},
+     {riak_version, riak_version(Node)}].
 clusters() ->
     Clusters = re_config:clusters(),
     Mapped = [cluster_info(Cluster) || Cluster <- Clusters],
@@ -740,8 +775,10 @@ cluster(Id) ->
 
 first_node(Cluster) ->
     case nodes(Cluster) of
-        [{nodes, [[{id, Node}]|_]}] -> Node;
         [{nodes, []}] -> [{error, no_nodes}];
+        [{nodes, [Node|_]}] ->
+            Id = proplists:get_value(id, Node),
+            Id;
         [{error, not_found}] -> [{error, no_nodes}]
     end.
 
@@ -751,18 +788,19 @@ nodes(Cluster) ->
     case remote(RiakNode, riak_core_ring_manager, get_my_ring, []) of
         {ok, MyRing} ->
             Nodes = remote(RiakNode, riak_core_ring, all_members, [MyRing]),
-            WithIds = lists:map(fun(N) -> [{id, N}] end, Nodes),
+            WithIds = lists:map(fun(N) -> node_info(N) end, Nodes),
             [{nodes, WithIds}];
         _ -> [{nodes, []}]
     end.
 
 node_exists(Cluster, Node) ->
+    [{nodes, Nodes}] = nodes(Cluster),
     Filter = lists:filter(fun(X) ->
-        case X of
-            {error, not_found} -> false;
-            [{id, Node}] -> true;
+        Id = proplists:get_value(id, X),
+        case Id of
+            Node -> true;
             _ -> false
-        end end, nodes(Cluster)),
+        end end, Nodes),
     case length(Filter) of
         N when N > 0 -> true;
         _ -> false
@@ -835,3 +873,8 @@ find_cluster_by_node(Node, [[{id, Cluster}|_]=Props|Rest]) ->
         true -> Props;
         false -> find_cluster_by_node(Node, Rest)
     end.
+
+tail_log(Node, Name, NumLines) ->
+    load_patch(Node),
+    {TotalLines, Lines} = remote(Node, re_riak_patch, tail_log, [Name, NumLines]),
+    [{log, [{total_lines, TotalLines},{lines, Lines}]}].
