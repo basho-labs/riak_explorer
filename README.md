@@ -149,7 +149,7 @@ API endpoints available are:
     In general, it is preferable to use the `clusters/` proxy endpoint (unless
     you specifically want to access an individual node's REST API).
 
-2. **Explorer** endpoints, at `/explorer/`. Think of it as an enhancement to
+2. **Explore** endpoints, at `/explore/`. Think of it as an enhancement to
     Riak's own HTTP API, to fill in missing functionality. For example,
     the plain Riak API doesn't have a 'list bucket types' functionality --
     that can only be done via `riak-admin` CLI. The Explorer endpoints enable
@@ -159,6 +159,22 @@ API endpoints available are:
     operations that are normally available only through the [Riak Admin
     CLI](http://docs.basho.com/riak/latest/ops/running/tools/riak-admin/)
     (for example, `riak-admin cluster join`).
+
+### API Documentation
+
+You can generate Explorer API reference documentation using
+[aglio](https://github.com/danielgtaylor/aglio):
+
+```
+# install the Aglio renderer for the API Blueprint markdown format
+npm install -g aglio
+
+# generate the documentation
+aglio -i API.apib.md -o docs/api.html
+
+# open them in your browser
+open docs/api.html
+```
 
 #### Full API Listing
 
