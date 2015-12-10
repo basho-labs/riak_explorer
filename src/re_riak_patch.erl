@@ -21,7 +21,8 @@
 -module(re_riak_patch).
 -export([
   version/0,
-  bucket_types/0]).
+  bucket_types/0,
+  effective_config/0]).
 
 -include("riak_explorer.hrl").
 
@@ -30,16 +31,83 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 2.
+version() -> 3.
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
   List0 = [[{name, <<"default">>},{props, [{active, true} | format_props(riak_core_bucket_props:defaults(), [])]}]],
   fetch_types(It, List0).
 
+effective_config() ->
+    EtcDir = app_helper:get_env(riak_core, platform_etc_dir),
+    Conf = load_riak_conf(EtcDir),
+    Schema = load_schema(),
+    {AppConfigExists, _} = check_existence(EtcDir, "app.config"),
+    {VMArgsExists, _} = check_existence(EtcDir, "vm.args"),
+    case {AppConfigExists, VMArgsExists} of
+        {false, false} ->
+            AdvConfig = load_advanced_config(EtcDir),
+            EffectiveString = string:join(cuttlefish_effective:build(Conf, Schema, AdvConfig), "\n"),
+            EffectiveProplist = generate_effective_proplist(EffectiveString),
+            case AdvConfig of
+                [] -> [{config, EffectiveProplist}];
+                _ -> [{config, EffectiveProplist}, {advanced_config, format_value(AdvConfig)}]
+            end;
+        {_, _} ->
+            {error,legacy_config}
+    end.
+
 %%%===================================================================
 %%% Private
 %%%===================================================================
+check_existence(EtcDir, Filename) ->
+    FullName = filename:join(EtcDir, Filename), %% Barfolomew
+    Exists = filelib:is_file(FullName),
+    lager:info("Checking ~s exists... ~p", [FullName, Exists]),
+    {Exists, FullName}.
+
+load_riak_conf(EtcDir) ->
+    case check_existence(EtcDir, "riak.conf") of
+        {true, ConfFile} ->
+            cuttlefish_conf:files([ConfFile]);
+        {false, _} ->
+            {error, riak_conf_not_found}
+    end.
+
+load_schema() ->
+    SchemaDir = app_helper:get_env(riak_core, platform_lib_dir),
+    SchemaFiles = [filename:join(SchemaDir, Filename) || Filename <- filelib:wildcard("*.schema", SchemaDir)],
+    SortedSchemaFiles = lists:sort(fun(A,B) -> A < B end, SchemaFiles),
+    cuttlefish_schema:files(SortedSchemaFiles).
+
+load_advanced_config(EtcDir) ->
+    case check_existence(EtcDir, "advanced.config") of
+        {true, AdvancedConfigFile} ->
+            case file:consult(AdvancedConfigFile) of
+                {ok, [AdvancedConfig]} ->
+                    AdvancedConfig;
+                {error, Error} ->
+                    [],
+                    lager:error("Error parsing advanced.config: ~s", [file:format_error(Error)])
+            end;
+        _ ->
+            []
+    end.
+
+generate_effective_proplist(EffectiveString) ->
+    EffectivePropList = conf_parse:parse(EffectiveString),
+    lists:foldl(
+      fun({Variable, Value}, Acc) ->
+              Var = list_to_binary(string:join(Variable, ".")),
+              Val = case Value of
+                        S when is_list(S) -> list_to_binary(S);
+                        _ -> Value
+                    end,
+              [{Var, Val} | Acc]
+      end,
+      [],
+      EffectivePropList
+     ).
 
 fetch_types(It, Acc) ->
     case riak_core_bucket_type:itr_done(It) of

@@ -91,6 +91,7 @@
          clusters/0,
          cluster/1,
          first_node/1,
+         node_config/2,
          nodes/1,
          node_exists/2]).
 
@@ -754,6 +755,15 @@ nodes(Cluster) ->
             WithIds = lists:map(fun(N) -> [{id, N}] end, Nodes),
             [{nodes, WithIds}];
         _ -> [{nodes, []}]
+    end.
+
+node_config(_, Node) ->
+    load_patch(Node),
+    case remote(Node, re_riak_patch, effective_config, []) of
+        {error, legacy_config} ->
+            [{error, not_found, [{error, <<"Legacy configuration files found, effective config not available.">>}]}];
+        Config ->
+            [{config, Config}]
     end.
 
 node_exists(Cluster, Node) ->
