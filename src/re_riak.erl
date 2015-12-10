@@ -101,6 +101,7 @@
          clusters/0,
          cluster/1,
          first_node/1,
+         node_config/2,
          nodes/1,
          node_exists/2]).
 
@@ -793,6 +794,15 @@ nodes(Cluster) ->
         _ -> [{nodes, []}]
     end.
 
+node_config(_, Node) ->
+    load_patch(Node),
+    case remote(Node, re_riak_patch, effective_config, []) of
+        {error, legacy_config} ->
+            [{error, not_found, [{error, <<"Legacy configuration files found, effective config not available.">>}]}];
+        Config ->
+            [{config, Config}]
+    end.
+
 node_exists(Cluster, Node) ->
     [{nodes, Nodes}] = nodes(Cluster),
     Filter = lists:filter(fun(X) ->
@@ -806,9 +816,14 @@ node_exists(Cluster, Node) ->
         _ -> false
     end.
 
+node_is_alive([{error, no_nodes}]) ->
+    false;
 node_is_alive(Node) ->
-    Test = remote(Node, erlang, node, []),
-    is_atom(Test).
+    case remote(Node, erlang, node, []) of
+        {error,_} -> false;
+        {badrpc,nodedown} -> false;
+        A -> is_atom(A)
+    end.
 %%%===================================================================
 %%% Utility API
 %%%===================================================================

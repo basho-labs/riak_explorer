@@ -55,8 +55,26 @@ service_available(RD, Ctx0) ->
         cluster = wrq:path_info(cluster, RD)},
 
     Node = node_from_context(Ctx1),
-    Cluster = re_riak:cluster_id_for_node(Node),
     Ctx2 = Ctx1#ctx{node=Node},
+
+    case re_riak:node_is_alive(Node) of
+        true ->
+            send_proxy_request(RD, Ctx2);
+        _ ->
+            RespBody = mochijson2:encode([{error, <<"Node is not running.">>}]),
+            {{halt, 404},
+             wrq:set_resp_headers([{<<"Content-Type">>, <<"application/json">>}],
+                                  wrq:set_resp_body(RespBody, RD)),
+             Ctx2}
+    end.
+
+%% ====================================================================
+%% Private
+%% ====================================================================
+
+send_proxy_request(RD, Ctx) ->
+    Node = Ctx#ctx.node,
+    Cluster = re_riak:cluster_id_for_node(Node),
 
     [{http_listener,Listener}] = re_riak:http_listener(Node),
     RiakPath = "http://" ++ binary_to_list(Listener) ++ "/",
@@ -84,13 +102,9 @@ service_available(RD, Ctx0) ->
             {{halt, list_to_integer(Status)},
              wrq:set_resp_headers(RespHeaders,
                                   wrq:set_resp_body(RespBody, RD)),
-             Ctx2};
-        _ -> {false, RD, Ctx2}
+             Ctx};
+        _ -> {false, RD, Ctx}
     end.
-
-%% ====================================================================
-%% Private
-%% ====================================================================
 
 node_from_context(Ctx) ->
     case Ctx of
