@@ -101,8 +101,11 @@ resource_exists(RD, Ctx=?nodeInfo(Cluster0, Node)) ->
     end,
     case re_riak:node_exists(Cluster, Node) of
         true ->
-            Id = list_to_binary(Node),
-            Response = [{nodes, [{id,Id}, {props, []}]}],
+            Id = case Node of
+                     S when is_list(S) -> list_to_binary(S);
+                     _ -> Node
+                 end,
+            Response = [{nodes, [{id,Id}, {props, re_riak:node_props(Node)}]}],
             {true, RD, Ctx#ctx{id=node, response=Response}};
         false ->
             {false, RD, Ctx}

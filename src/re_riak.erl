@@ -92,6 +92,7 @@
          cluster/1,
          first_node/1,
          node_config/2,
+         node_props/1,
          nodes/1,
          node_exists/2]).
 
@@ -766,11 +767,14 @@ node_config(_, Node) ->
             [{config, Config}]
     end.
 
+node_props(Node) ->
+    [{riak_type, riak_type_for_node(Node)}].
+
 node_exists(Cluster, Node) ->
     Filter = lists:filter(fun(X) ->
         case X of
             {error, not_found} -> false;
-            [{id, Node}] -> true;
+            {nodes, [[{id, Node}]]} -> true;
             _ -> false
         end end, nodes(Cluster)),
     case length(Filter) of
