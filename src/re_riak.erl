@@ -768,9 +768,14 @@ node_exists(Cluster, Node) ->
         _ -> false
     end.
 
+node_is_alive([{error, no_nodes}]) ->
+    false;
 node_is_alive(Node) ->
-    Test = remote(Node, erlang, node, []),
-    is_atom(Test).
+    case remote(Node, erlang, node, []) of
+        {error,_} -> false;
+        {badrpc,nodedown} -> false;
+        A -> is_atom(A)
+    end.
 %%%===================================================================
 %%% Utility API
 %%%===================================================================
