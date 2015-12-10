@@ -112,11 +112,14 @@ resource_exists(RD, Ctx=?createBucketType(_)) ->
 resource_exists(RD, Ctx=?bucketTypeInfo(BucketType)) ->
     Id = list_to_binary(BucketType),
     Node = Ctx#ctx.node,
-    Props = lists:flatten([proplists:get_value(props, Prop) ||
-                              Prop <- proplists:get_value(bucket_types, re_riak:bucket_types(Node)),
-                              Id =:= proplists:get_value(name, Prop)]),
-    Response = [{bucket_types, [{id,Id}, {props, Props}]}],
-    {true, RD, Ctx#ctx{id=bucket_type, response=Response}};
+    case lists:flatten([proplists:get_value(props, Prop) ||
+                           Prop <- proplists:get_value(bucket_types, re_riak:bucket_types(Node)),
+                           Id =:= proplists:get_value(name, Prop)]) of
+        [] -> {false, RD, Ctx};
+        Props ->
+            Response = [{bucket_types, [{id,Id}, {props, Props}]}],
+            {true, RD, Ctx#ctx{id=bucket_type, response=Response}}
+    end;
 resource_exists(RD, Ctx=?bucketTypeResource(BucketType, Resource)) ->
     Node = Ctx#ctx.node,
     Id = list_to_atom(Resource),
