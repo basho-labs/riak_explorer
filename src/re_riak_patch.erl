@@ -34,7 +34,7 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 3.
+version() -> 4.
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
