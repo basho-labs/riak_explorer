@@ -170,7 +170,7 @@ You can generate Explorer API reference documentation using
 npm install -g aglio
 
 # generate the documentation
-aglio -i API.apib.md -o docs/api.html
+aglio -i API.apib.md --theme-full-width -o docs/api.html
 
 # open them in your browser
 open docs/api.html
