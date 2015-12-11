@@ -54,20 +54,14 @@ resources() ->
     [{jobs, [riak_explorer, jobs_for_resource]}].
 
 routes() ->
-    Base = lists:last(re_wm_base:routes()),
-
-    Clusters = Base ++ ["clusters"],
-    Cluster = Clusters ++ [cluster],
-    CBucketTypes = Cluster ++ ["bucket_types"],
-    CBucketType = CBucketTypes ++ [bucket_type],
-    CBucketTypeResource = CBucketType ++ [resource],
-
-    Nodes = Base ++ ["nodes"],
-    Node = Nodes ++ [node],
-    BucketTypes = Node ++ ["bucket_types"],
-    BucketType = BucketTypes ++ [bucket_type],
-    BucketTypeResource = BucketType ++ [resource],
-    [CBucketTypes, CBucketTypeResource, CBucketType, BucketTypes, BucketTypeResource, BucketType].
+    re_config:build_routes(?RE_BASE_ROUTE, [
+        ["clusters", cluster],
+        ["nodes", node]
+    ], [
+        ["bucket_types"],
+        ["bucket_types", bucket_type],
+        ["bucket_types", bucket_type, resource]
+    ]).
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 

@@ -59,20 +59,13 @@ resources() ->
     [].
 
 routes() ->
-    [_, _, _, CBucket, _, _, _, Bucket] = re_wm_bucket:routes(),
-
-    CRefresh = CBucket ++ ["refresh_keys"] ++ ["source"] ++ ["riak_kv"],
-
-    CKeys = CBucket ++ ["keys"],
-    CKey = CKeys ++ [key],
-    CKeyResource = CKey ++ [resource],
-
-    Refresh = Bucket ++ ["refresh_keys"] ++ ["source"] ++ ["riak_kv"],
-
-    Keys = Bucket ++ ["keys"],
-    Key = Keys ++ [key],
-    KeyResource = Key ++ [resource],
-    [CRefresh, CKeys, CKeyResource, CKey, Refresh, Keys, KeyResource, Key].
+    re_config:build_routes(?RE_BASE_ROUTE, [
+        ["clusters", cluster, "bucket_types", bucket_type, "buckets", bucket],
+        ["nodes", node, "bucket_types", bucket_type, "buckets", bucket]
+    ], [
+        ["refresh_keys", "source", "riak_kv"],
+        ["keys"]
+    ]).
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 

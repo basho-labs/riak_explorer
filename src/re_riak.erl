@@ -82,13 +82,10 @@
          clean_keys/3,
          put_keys/4]).
 
--export([tail_console/2,
-         tail_crash/2,
-         tail_erlang/2,
-         tail_error/2,
-         tail_runerl/2,
-         riak_conf/2,
-         advanced_conf/2,
+-export([log_files/1,
+         log_file/3,
+         config_file/2,
+         config_files/1,
          node_info/1,
          riak_type/1,
          riak_version/1,
@@ -682,30 +679,64 @@ put_keys(Node, BucketType, Bucket, Keys) ->
 %%% Node Properties API
 %%%===================================================================
 
-tail_console(Node, NumLines) -> tail_log(Node, "console.log", NumLines).
-tail_crash(Node, NumLines) -> tail_log(Node, "crash.log", NumLines).
-tail_erlang(Node, NumLines) -> tail_log(Node, "erlang.log", NumLines).
-tail_error(Node, NumLines) -> tail_log(Node, "error.log", NumLines).
-tail_runerl(Node, NumLines) -> tail_log(Node, "run_erl.log", NumLines).
+log_files(Node) ->
+    load_patch(Node),
+    Files = remote(Node, re_riak_patch, get_log_files, []),
+    WithIds = lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files),
+    [{files, WithIds}].
 
-riak_conf(_, Node) ->
+log_file(Node, File, NumLines) ->
+    case re:run(File, ".log(.[0-9])?$") of
+        {match,_} ->
+            load_patch(Node),
+            case remote(Node, re_riak_patch, tail_log, [File, NumLines]) of
+                {error, _} ->
+                    [{error, not_found}];
+                {TotalLines, Lines} ->
+                    [{log, [{total_lines, TotalLines},{lines, Lines}]}]
+            end;
+        _ ->
+            [{error, not_found}]
+    end.
+
+config_files(Node) ->
     load_patch(Node),
-    Lines = remote(Node, re_riak_patch, get_config, ["riak.conf"]),
-    [{config, [{lines, Lines}]}].
-advanced_conf(_, Node) ->
-    load_patch(Node),
-    Lines = remote(Node, re_riak_patch, get_config, ["advanced.config"]),
-    [{config, [{lines, Lines}]}].
+    Files = remote(Node, re_riak_patch, get_config_files, []),
+    WithIds = lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files),
+    [{files, WithIds}].
+
+config_file(Node, File) ->
+    ValidFiles = [
+        "riak.conf",
+        "advanced.config",
+        "solr-log4j.properties"
+    ],
+    case lists:member(File, ValidFiles) of
+        true ->
+            load_patch(Node),
+            case remote(Node, re_riak_patch, get_config, [File]) of
+                {error, _} ->
+                    [{error, not_found}];
+                Lines ->
+                    [{files, [{lines, Lines}]}]
+            end;
+        _ ->
+            [{error, not_found}]
+    end.
 
 node_info(Node) ->
-    [{id,Node},
-     {riak_type, riak_type(Node)},
-     {riak_version, riak_version(Node)}].
+    %% The /nodes endpoint could potentiall get hit a lot, so to reduce file
+    %% i/o on the node, lets just return the id for now.
+    % [{id,Node},
+    %  {riak_type, riak_type(Node)},
+    %  {riak_version, riak_version(Node)}].
+    [{id, Node}].
 
 riak_type(Node) ->
     case remote(Node, code, is_loaded, [riak_repl_console]) of
         false -> oss;
-        _ -> ee
+        true -> ee;
+        Other -> Other
     end.
 
 riak_version(Node) ->
@@ -761,6 +792,7 @@ cluster_info({C, _}) ->
      {development_mode, re_config:development_mode(C)},
      {riak_type, riak_type(Node)},
      {riak_version, riak_version(Node)}].
+
 clusters() ->
     Clusters = re_config:clusters(),
     Mapped = [cluster_info(Cluster) || Cluster <- Clusters],
@@ -833,7 +865,7 @@ node_is_alive([{error, no_nodes}]) ->
 node_is_alive(Node) ->
     case remote(Node, erlang, node, []) of
         {error,_} -> false;
-        {badrpc,nodedown} -> false;
+        unavailable -> false;
         A -> is_atom(A)
     end.
 %%%===================================================================
@@ -866,6 +898,8 @@ maybe_load_patch(Node, _) ->
 
 safe_rpc(Node, Module, Function, Args, Timeout) ->
     try rpc:call(Node, Module, Function, Args, Timeout) of
+        {badrpc,nodedown} ->
+            unavailable;
         Result ->
             Result
     catch
@@ -900,8 +934,3 @@ find_cluster_by_node(Node, [[{id, Cluster}|_]=Props|Rest]) ->
         true -> Props;
         false -> find_cluster_by_node(Node, Rest)
     end.
-
-tail_log(Node, Name, NumLines) ->
-    load_patch(Node),
-    {TotalLines, Lines} = remote(Node, re_riak_patch, tail_log, [Name, NumLines]),
-    [{log, [{total_lines, TotalLines},{lines, Lines}]}].

@@ -48,11 +48,10 @@ resources() ->
     [].
 
 routes() ->
-    Base = lists:last(re_wm_base:routes()),
-    Clusters = Base ++ ["clusters"],
-    Cluster = Clusters ++ [cluster],
-    ClusterResource = Cluster ++ [resource],
-    [Clusters, ClusterResource, Cluster].
+    re_config:build_routes(?RE_BASE_ROUTE, [
+        ["clusters"],
+        ["clusters", cluster]
+    ]).
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 

@@ -49,9 +49,10 @@ resources() ->
      {jobs, [riak_explorer, jobs]}].
 
 routes() ->
-    Base = re_config:base_route(?RE_BASE_ROUTE),
-    BaseResource = Base ++ [resource],
-    [BaseResource, Base].
+    re_config:build_routes(?RE_BASE_ROUTE, [
+        [resource],
+        [] %% Self
+    ]).
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 

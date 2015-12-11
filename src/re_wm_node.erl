@@ -29,7 +29,7 @@
          provide_jsonapi_content/2,
          provide_content/2]).
 
--record(ctx, {cluster, rows, node, resource, id, response=undefined}).
+-record(ctx, {cluster, node, resource, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
@@ -46,26 +46,16 @@
 %%%===================================================================
 
 resources() ->
-    [{console_log, [re_riak, tail_console, rows]},
-     {crash_log, [re_riak, tail_crash, rows]},
-     {erlang_log, [re_riak, tail_erlang, rows]},
-     {error_log, [re_riak, tail_error, rows]},
-     {runerl_log, [re_riak, tail_runerl, rows]},
-     {riak_conf, [re_riak, riak_conf]},
-     {advanced_conf, [re_riak, advanced_conf]},
-     {config, [re_riak, node_config]}].
+    [{config, [re_riak, node_config]}].
 
 routes() ->
-    Base = lists:last(re_wm_base:routes()),
-    BaseNodes = Base ++ ["nodes"],
-    BaseNode = BaseNodes ++ [node],
-    NodeResource = BaseNode ++ [resource],
-
-    Cluster = lists:last(re_wm_cluster:routes()),
-    Nodes = Cluster ++ ["nodes"],
-    Node = Nodes ++ [node],
-    ClusterNodeResource = Node ++ [resource],
-    [Nodes, ClusterNodeResource, Node, NodeResource, BaseNode].
+    re_config:build_routes(?RE_BASE_ROUTE, [
+        ["clusters", cluster, "nodes"],
+        ["clusters", cluster, "nodes", node, resource],
+        ["clusters", cluster, "nodes", node],
+        ["nodes", node, resource],
+        ["nodes", node]
+    ]).
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -80,8 +70,7 @@ service_available(RD, Ctx0) ->
     Ctx1 = Ctx0#ctx{
         resource = wrq:path_info(resource, RD),
         cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD)),
-        node = re_wm_util:maybe_atomize(wrq:path_info(node, RD)),
-        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD))},
+        node = re_wm_util:maybe_atomize(wrq:path_info(node, RD))},
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
@@ -124,9 +113,6 @@ resource_exists(RD, Ctx=?nodeInfo(Cluster0, Node)) ->
 resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
-        [M, F, rows] ->
-            Response = M:F(Node, Ctx#ctx.rows),
-            {true, RD, Ctx#ctx{id=Id, response=Response}};
         [M,F] ->
             Response = M:F(Cluster, Node),
             case Response of

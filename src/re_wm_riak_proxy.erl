@@ -36,9 +36,10 @@ resources() ->
     [].
 
 routes() ->
-    CProxy = re_config:base_route(?RE_RIAK_PROXY_ROUTE) ++ ["clusters", cluster, '*'],
-    Proxy = re_config:base_route(?RE_RIAK_PROXY_ROUTE) ++ ["nodes", node, '*'],
-    [CProxy, Proxy].
+    re_config:build_routes(?RE_RIAK_PROXY_ROUTE, [
+        ["clusters", cluster, '*'],
+        ["nodes", node, '*']
+    ]).
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 

@@ -24,7 +24,9 @@
   bucket_types/0,
   riak_version/0,
   tail_log/2,
+  get_log_files/0,
   get_config/1,
+  get_config_files/0,
   effective_config/0]).
 
 -include("riak_explorer.hrl").
@@ -34,7 +36,7 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 4.
+version() -> 5.
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
@@ -59,7 +61,7 @@ tail_log(Name, NumLines) ->
     TotalLines = count_lines(LogFile),
     case file:open(LogFile, read) of
         {error,enoent} ->
-            {0, []};
+            {error, not_found};
         {ok, Device} ->
             Proc = fun(Entry, {Current,Num,Total,Accum}) ->
             case {Current, Num, Total} of
@@ -74,12 +76,28 @@ tail_log(Name, NumLines) ->
         {TotalLines, Lines}
     end.
 
+get_config_files() ->
+    EtcDir = app_helper:get_env(riak_core, platform_etc_dir),
+
+    case file:list_dir(EtcDir) of
+        {ok,Files} -> Files;
+        _ -> []
+    end.
+
+get_log_files() ->
+    LogDir = app_helper:get_env(riak_core, platform_log_dir),
+
+    case file:list_dir(LogDir) of
+        {ok,Files} -> Files;
+        _ -> []
+    end.
+
 get_config(Name) ->
     EtcDir = app_helper:get_env(riak_core, platform_etc_dir),
     EtcFile = filename:join([EtcDir, Name]),
     case file:open(EtcFile, read) of
         {error,enoent} ->
-            [<<"">>];
+            {error, not_found};
         {ok, Device} ->
             Proc = fun(Entry, Accum) ->
                 B = re:replace(Entry, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),

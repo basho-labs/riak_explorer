@@ -43,8 +43,9 @@ resources() ->
     [].
 
 routes() ->
-    Static = re_config:base_route('*'),
-    [Static].
+    re_config:build_routes('*', [
+        [] % self
+    ]).
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
