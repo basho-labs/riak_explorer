@@ -768,7 +768,8 @@ node_config(_, Node) ->
     end.
 
 node_props(Node) ->
-    [{riak_type, riak_type_for_node(Node)}].
+    [{id, Node},
+     {riak_type, riak_type_for_node(Node)}].
 
 node_exists(Cluster, Node) ->
     Filter = lists:filter(fun(X) ->
