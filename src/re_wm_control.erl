@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2012 Basho Technologies, Inc.  All Rights Reserved.
+%% Copyright (c) 2015 Basho Technologies, Inc.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -162,8 +162,8 @@ service_available(RD, Ctx0) ->
         node = wrq:path_info(node, RD),
         cluster = wrq:path_info(cluster, RD),
         command = lists:nth(length(re_config:base_route("")) + 3, string:tokens(wrq:path(RD), "/")),
-        arg1 = maybe_atomize(wrq:path_info(arg1, RD)),
-        arg2 = maybe_atomize(wrq:path_info(arg2, RD))
+        arg1 = re_wm_util:maybe_atomize(wrq:path_info(arg1, RD)),
+        arg2 = re_wm_util:maybe_atomize(wrq:path_info(arg2, RD))
     },
     {true, RD, Ctx1#ctx{node = node_from_context(Ctx1)}}.
 
@@ -281,26 +281,23 @@ resource_exists(RD, Ctx) ->
 
 provide_content(RD, Ctx=#ctx{response=undefined}) ->
     JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    render_json(JDoc, RD, Ctx);
+    {mochijson2:encode(JDoc), RD, Ctx};
 provide_content(RD, Ctx=#ctx{id=Id, response=[{_, Objects}]}) ->
     JRes = re_wm_jsonapi:res(RD, [], Objects, [], []),
     JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    render_json(JDoc, RD, Ctx).
+    {mochijson2:encode(JDoc), RD, Ctx}.
 
 provide_jsonapi_content(RD, Ctx=#ctx{response=undefined}) ->
     JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    render_json(JDoc, RD, Ctx);
+    {mochijson2:encode(JDoc), RD, Ctx};
 provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
     JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),
     JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    render_json(JDoc, RD, Ctx).
+    {mochijson2:encode(JDoc), RD, Ctx}.
 
 %% ====================================================================
 %% Private
 %% ====================================================================
-
-maybe_atomize(Data) when is_list(Data) -> list_to_atom(Data);
-maybe_atomize(Data) when is_atom(Data) -> Data.
 
 node_from_context(Ctx) ->
     case Ctx of
@@ -310,7 +307,3 @@ node_from_context(Ctx) ->
             Node;
         #ctx{cluster=C} -> re_riak:first_node(list_to_atom(C))
     end.
-
-render_json(Data, RD, Ctx) ->
-    Body = mochijson2:encode(Data),
-    {Body, RD, Ctx}.

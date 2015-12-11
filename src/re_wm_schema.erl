@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2012 Basho Technologies, Inc.  All Rights Reserved.
+%% Copyright (c) 2015 Basho Technologies, Inc.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -22,7 +22,7 @@
 % -export([resources/0, routes/0, dispatch/0]).
 % -export([init/1]).
 % -export([service_available/2,
-%          allowed_methods/2, 
+%          allowed_methods/2,
 %          content_types_provided/2,
 %          resource_exists/2,
 %          provide_jsonapi_content/2,
@@ -44,7 +44,7 @@
 % %%% API
 % %%%===================================================================
 
-% resources() -> 
+% resources() ->
 %     [].
 
 % routes() ->
@@ -87,10 +87,10 @@
 % resource_exists(RD, Ctx=?schemaResource(Schema, Resource)) ->
 %     Id = list_to_atom(Resource),
 %     case proplists:get_value(Id, resources()) of
-%         [M,F] -> 
+%         [M,F] ->
 %             Response = M:F(Schema),
 %             {true, RD, Ctx#ctx{id=Id, response=Response}};
-%         _ -> 
+%         _ ->
 %             {false, RD, Ctx}
 %     end;
 % resource_exists(RD, Ctx) ->
@@ -98,18 +98,14 @@
 
 % provide_jsonapi_content(RD, Ctx=#ctx{id=undefined}) ->
 %     JDoc = re_wm_jsonapi:doc(null, re_wm_jsonapi:links(RD)),
-%     render_json(JDoc, RD, Ctx);
+%     {mochijson2:encode(JDoc), RD, Ctx};
 % provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
 %     JRes = re_wm_jsonapi:res(type(), Id, Response, re_wm_jsonapi:links(RD)),
 %     JDoc = re_wm_jsonapi:doc(JRes),
-%     render_json(JDoc, RD, Ctx).
+%     {mochijson2:encode(JDoc), RD, Ctx}.
 
 % %% ====================================================================
 % %% Private
 % %% ====================================================================
 
 % type() -> <<"schemas">>.
-
-% render_json(Data, RD, Ctx) ->
-%     Body = mochijson2:encode(Data),
-%     {Body, RD, Ctx}.

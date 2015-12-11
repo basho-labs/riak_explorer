@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2012 Basho Technologies, Inc.  All Rights Reserved.
+%% Copyright (c) 2015 Basho Technologies, Inc.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -66,7 +66,7 @@ init(_) ->
 service_available(RD, Ctx0) ->
     Ctx1 = Ctx0#ctx{
         resource = wrq:path_info(resource, RD),
-        cluster = maybe_atomize(wrq:path_info(cluster, RD))},
+        cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD))},
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
@@ -102,27 +102,16 @@ resource_exists(RD, Ctx) ->
 
 provide_content(RD, Ctx=#ctx{response=undefined}) ->
     JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    render_json(JDoc, RD, Ctx);
+    {mochijson2:encode(JDoc), RD, Ctx};
 provide_content(RD, Ctx=#ctx{id=Id, response=[{_, Objects}]}) ->
     JRes = re_wm_jsonapi:res(RD, [], Objects, [], []),
     JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    render_json(JDoc, RD, Ctx).
+    {mochijson2:encode(JDoc), RD, Ctx}.
 
 provide_jsonapi_content(RD, Ctx=#ctx{response=undefined}) ->
     JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    render_json(JDoc, RD, Ctx);
+    {mochijson2:encode(JDoc), RD, Ctx};
 provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
     JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),
     JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    render_json(JDoc, RD, Ctx).
-
-%% ====================================================================
-%% Private
-%% ====================================================================
-
-maybe_atomize(Data) when is_list(Data) -> list_to_atom(Data);
-maybe_atomize(Data) when is_atom(Data) -> Data.
-
-render_json(Data, RD, Ctx) ->
-    Body = mochijson2:encode(Data),
-    {Body, RD, Ctx}.
+    {mochijson2:encode(JDoc), RD, Ctx}.
