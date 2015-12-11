@@ -30,30 +30,26 @@ the pre-compiled packages below. These include both the Erlang backend API code
 1. Download and extract [riak_explorer_darwin_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_darwin_amd64.tar.gz) for Mac OSX or [riak_explorer_linux_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_linux_amd64.tar.gz) for Ubuntu 14.04.
      * *Note: If you'd like to support further OSes, please [open an Issue](https://github.com/basho-labs/riak_explorer/issues)*
 
-2. Extract the tar file and `cd` into the directory
-
-3. Verify the default settings in `rel/riak_explorer/etc/riak_explorer.conf`
+2. Verify the default settings in `riak_explorer/etc/riak_explorer.conf`
     will work for your configuration (primarily that port 9000 is available on your
     host). Pay special attention to development mode settings, this should be `off`
     for use with a production environment to prevent accidental keylistings.
 
-4. Run `rel/riak_explorer/bin/riak_explorer start` to start the `riak_explorer`
+3. Run `./riak_explorer/bin/riak_explorer start` to start the `riak_explorer`
     application
 
-5. Navigate to [http://localhost:9000/](http://localhost:9000/) to see the
+4. Navigate to [http://localhost:9000/](http://localhost:9000/) to see the
     interface
 
 #### Riak Patch Version
 
 1. Download and extract [riak_explorer_addon_darwin_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_addon_darwin_amd64.tar.gz) for Mac OSX or [riak_explorer_addon_linux_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_addon_linux_amd64.tar.gz) for Ubuntu 14.04.
 
-2. Extract the tar file and `cd` into the directory
+2. Locate your Riak installation and `cp -R riak-addon/priv /path/to/riak/priv`, `cp -R riak-addon/ebin/* /path/to/riak/lib/basho-patches/`
 
-3. Locate your Riak installation and `cp -R priv /path/to/riak/priv`, `cp -R ebin/* /path/to/riak/lib/basho-patches/`
+3. Run `riak/bin/riak start`
 
-4. Run `rel/riak/bin/riak start`
-
-5. Navigate to [http://localhost:8098/admin](http://localhost:8098/admin) to see the interface
+4. Navigate to [http://localhost:8098/admin](http://localhost:8098/admin) to see the interface
 
 ### Installing the Dev Environment
 

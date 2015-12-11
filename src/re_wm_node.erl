@@ -109,12 +109,17 @@ resource_exists(RD, Ctx=?nodeInfo(Cluster0, Node)) ->
             adhoc;
         _ -> Cluster0
     end,
-    case re_riak:node_exists(Cluster, Node) of
-        true ->
-            Response = [{nodes, re_riak:node_info(Node)}],
-            {true, RD, Ctx#ctx{id=Node, response=Response}};
-        false ->
-            {false, RD, Ctx}
+    case re_riak:cluster(Cluster) of
+        {error, not_found} ->
+            {false, RD, Ctx};
+        _ ->
+            case re_riak:node_exists(Cluster, Node) of
+                true ->
+                    Response = [{nodes, re_riak:node_info(Node)}],
+                    {true, RD, Ctx#ctx{id=Node, response=Response}};
+                false ->
+                    {false, RD, Ctx}
+            end
     end;
 resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
     Id = list_to_atom(Resource),

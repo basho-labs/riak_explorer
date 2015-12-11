@@ -102,6 +102,7 @@
          cluster/1,
          first_node/1,
          node_config/2,
+         node_props/1,
          nodes/1,
          node_exists/2]).
 
@@ -795,13 +796,29 @@ nodes(Cluster) ->
     end.
 
 node_config(_, Node) ->
-    load_patch(Node),
-    case remote(Node, re_riak_patch, effective_config, []) of
-        {error, legacy_config} ->
-            [{error, not_found, [{error, <<"Legacy configuration files found, effective config not available.">>}]}];
-        Config ->
-            [{config, Config}]
+    case load_patch(Node) of
+        ok ->
+            try
+                case remote(Node, re_riak_patch, effective_config, []) of
+                    {error, legacy_config} ->
+                        [{error, not_found, [{error, <<"Legacy configuration files found, effective config not available.">>}]}];
+                    Config ->
+                        [{config, Config}]
+                end
+            catch
+                Exception:Reason ->
+                    Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+                    lager:info("~p:~p", [Exception, Reason]),
+                    lager:info("Backtrace: ~p", [erlang:get_stacktrace()]),
+                    [{config, [{error, Error}]}]
+            end;
+        _ ->
+            [{error, not_found, [{error, <<"Invalid node id or node not available.">>}]}]
     end.
+
+node_props(Node) ->
+    [{id, Node},
+     {riak_type, riak_type_for_node(Node)}].
 
 node_exists(Cluster, Node) ->
     [{nodes, Nodes}] = nodes(Cluster),
