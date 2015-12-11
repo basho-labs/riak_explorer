@@ -102,7 +102,6 @@
          cluster/1,
          first_node/1,
          node_config/2,
-         node_props/1,
          nodes/1,
          node_exists/2]).
 
@@ -815,10 +814,6 @@ node_config(_, Node) ->
         _ ->
             [{error, not_found, [{error, <<"Invalid node id or node not available.">>}]}]
     end.
-
-node_props(Node) ->
-    [{id, Node},
-     {riak_type, riak_type_for_node(Node)}].
 
 node_exists(Cluster, Node) ->
     [{nodes, Nodes}] = nodes(Cluster),

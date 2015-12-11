@@ -51,7 +51,7 @@ riak_version() ->
             _ -> Accum
         end
     end,
-    for_each_line(Device, Proc, notfound).
+    for_each_line(Device, Proc, undefined).
 
 tail_log(Name, NumLines) ->
     LogDir = app_helper:get_env(riak_core, platform_log_dir),
