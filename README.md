@@ -167,107 +167,123 @@ Riak Explorer exposes a REST API (by default located at [http://localhost:9000/e
 Following are the available routes (these can also be obtained from `/explore/routes`):
 
 ```
-/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/keys/$key
-/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/keys/$key/$resource
 /explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/keys
-/explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket/keys/$key
-/explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket/keys/$key/$resource
+/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/refresh_keys/source/riak_kv
 /explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket/keys
-/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket
+/explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket/refresh_keys/source/riak_kv
 /explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket/$resource (Resources: [jobs])
+/explore/nodes/$node/bucket_types/$bucket_type/buckets/$bucket
 /explore/nodes/$node/bucket_types/$bucket_type/buckets
-/explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket
+/explore/nodes/$node/bucket_types/$bucket_type/refresh_buckets/source/riak_kv
 /explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket/$resource (Resources: [jobs])
+/explore/clusters/$cluster/bucket_types/$bucket_type/buckets/$bucket
 /explore/clusters/$cluster/bucket_types/$bucket_type/buckets
-/explore/nodes/$node/bucket_types/$bucket_type
+/explore/clusters/$cluster/bucket_types/$bucket_type/refresh_buckets/source/riak_kv
 /explore/nodes/$node/bucket_types/$bucket_type/$resource (Resources: [jobs])
+/explore/nodes/$node/bucket_types/$bucket_type
 /explore/nodes/$node/bucket_types
-/explore/clusters/$cluster/bucket_types/$bucket_type
 /explore/clusters/$cluster/bucket_types/$bucket_type/$resource (Resources: [jobs])
+/explore/clusters/$cluster/bucket_types/$bucket_type
 /explore/clusters/$cluster/bucket_types
 /explore/nodes/$node
+/explore/nodes/$node/$resource (Resources: [config]
 /explore/clusters/$cluster/nodes/$node
-/explore/clusters/$cluster/nodes/$node/$resource
+/explore/clusters/$cluster/nodes/$node/$resource (Resources: [config])
 /explore/clusters/$cluster/nodes
+/explore/nodes/$node/config/files/$file
+/explore/nodes/$node/config/files
+/explore/clusters/$cluster/nodes/$node/config/files/$file
+/explore/clusters/$cluster/nodes/$node/config/files
+/explore/nodes/$node/log/files/$file
+/explore/nodes/$node/log/files
+/explore/clusters/$cluster/nodes/$node/log/files/$file
+/explore/clusters/$cluster/nodes/$node/log/files
 /explore/clusters/$cluster
-/explore/clusters/$cluster/$resource
 /explore/clusters
 /explore
 /explore/$resource (Resources: [routes,props,jobs,ping])
-/control/clusters/$cluster/ringready
-/control/clusters/$cluster/status
-/control/clusters/$cluster/transfers
-/control/clusters/$cluster/aae-status
-/control/clusters/$cluster/clear
-/control/clusters/$cluster/commit
-/control/clusters/$cluster/plan
-/control/clusters/$cluster/force-replace/$node1/$node2
-/control/clusters/$cluster/replace/$node1/$node2
-/control/clusters/$cluster/force-remove/$node1
-/control/clusters/$cluster/leave/$node1
-/control/clusters/$cluster/leave
-/control/clusters/$cluster/join/$node1
-/control/clusters/$cluster/repl-clustername
-/control/clusters/$cluster/repl-clustername/$clustername
-/control/clusters/$cluster/repl-connect/$host/$port
-/control/clusters/$cluster/repl-disconnect/$clustername
-/control/clusters/$cluster/repl-connections
-/control/clusters/$cluster/repl-clusterstats
-/control/clusters/$cluster/repl-clusterstats/$host/$port
-/control/clusters/$cluster/repl-clusterstats-cluster_mgr
-/control/clusters/$cluster/repl-clusterstats-fs_coordinate
-/control/clusters/$cluster/repl-clusterstats-fullsync
-/control/clusters/$cluster/repl-clusterstats-proxy_get
-/control/clusters/$cluster/repl-clusterstats-realtime
-/control/clusters/$cluster/repl-realtime-enable/$clustername
-/control/clusters/$cluster/repl-realtime-disable/$clustername
-/control/clusters/$cluster/repl-realtime-start
-/control/clusters/$cluster/repl-realtime-start/$clustername
-/control/clusters/$cluster/repl-realtime-stop
-/control/clusters/$cluster/repl-realtime-stop/$clustername
-/control/clusters/$cluster/repl-fullsync-enable/$clustername
-/control/clusters/$cluster/repl-fullsync-disable/$clustername
-/control/clusters/$cluster/repl-fullsync-start
-/control/clusters/$cluster/repl-fullsync-start/$clustername
-/control/clusters/$cluster/repl-fullsync-stop
-/control/clusters/$cluster/repl-fullsync-stop/$clustername
+/control/nodes/$node/repl-fullsync-stop/$arg1
+/control/nodes/$node/repl-fullsync-stop
+/control/nodes/$node/repl-fullsync-start/$arg1
+/control/nodes/$node/repl-fullsync-start
+/control/nodes/$node/repl-fullsync-disable/$arg1
+/control/nodes/$node/repl-fullsync-enable/$arg1
+/control/nodes/$node/repl-realtime-stop/$arg1
+/control/nodes/$node/repl-realtime-stop
+/control/nodes/$node/repl-realtime-start/$arg1
+/control/nodes/$node/repl-realtime-start
+/control/nodes/$node/repl-realtime-disable/$arg1
+/control/nodes/$node/repl-realtime-enable/$arg1
+/control/nodes/$node/repl-clusterstats-realtime
+/control/nodes/$node/repl-clusterstats-proxy_get
+/control/nodes/$node/repl-clusterstats-fullsync
+/control/nodes/$node/repl-clusterstats-fs_coordinate
+/control/nodes/$node/repl-clusterstats-cluster_mgr
+/control/nodes/$node/repl-clusterstats/$arg1/$arg2
+/control/nodes/$node/repl-clusterstats
+/control/nodes/$node/repl-connections
+/control/nodes/$node/repl-disconnect/$arg1
+/control/nodes/$node/repl-connect/$arg1/$arg2
+/control/nodes/$node/repl-clustername/$arg1
+/control/nodes/$node/repl-clustername
+/control/nodes/$node/aae-status
+/control/nodes/$node/transfers
 /control/nodes/$node/ringready
 /control/nodes/$node/status
-/control/nodes/$node/transfers
-/control/nodes/$node/aae-status
 /control/nodes/$node/clear
 /control/nodes/$node/commit
 /control/nodes/$node/plan
-/control/nodes/$node/force-replace/$node1/$node2
-/control/nodes/$node/replace/$node1/$node2
-/control/nodes/$node/force-remove/$node1
-/control/nodes/$node/leave/$node1
-/control/nodes/$node/leave
-/control/nodes/$node/join/$node1
-/control/nodes/$node/repl-clustername
-/control/nodes/$node/repl-clustername/$clustername
-/control/nodes/$node/repl-connect/$host/$port
-/control/nodes/$node/repl-disconnect/$clustername
-/control/nodes/$node/repl-connections
-/control/nodes/$node/repl-clusterstats
-/control/nodes/$node/repl-clusterstats/$host/$port
-/control/nodes/$node/repl-clusterstats-cluster_mgr
-/control/nodes/$node/repl-clusterstats-fs_coordinate
-/control/nodes/$node/repl-clusterstats-fullsync
-/control/nodes/$node/repl-clusterstats-proxy_get
-/control/nodes/$node/repl-clusterstats-realtime
-/control/nodes/$node/repl-realtime-enable/$clustername
-/control/nodes/$node/repl-realtime-disable/$clustername
-/control/nodes/$node/repl-realtime-start
-/control/nodes/$node/repl-realtime-start/$clustername
-/control/nodes/$node/repl-realtime-stop
-/control/nodes/$node/repl-realtime-stop/$clustername
-/control/nodes/$node/repl-fullsync-enable/$clustername
-/control/nodes/$node/repl-fullsync-disable/$clustername
-/control/nodes/$node/repl-fullsync-start
-/control/nodes/$node/repl-fullsync-start/$clustername
-/control/nodes/$node/repl-fullsync-stop
-/control/nodes/$node/repl-fullsync-stop/$clustername
+/control/nodes/$node/force-replace/$arg1/$arg2
+/control/nodes/$node/staged-replace/$arg1/$arg2
+/control/nodes/$node/replace/$arg1/$arg2
+/control/nodes/$node/force-remove/$arg1
+/control/nodes/$node/staged-leave/$arg1
+/control/nodes/$node/staged-leave
+/control/nodes/$node/staged-join/$arg1
+/control/nodes/$node/leave/$arg1
+/control/nodes/$node/join/$arg1
+/control/nodes/$node/repair
+/control/clusters/$cluster/repl-fullsync-stop/$arg1
+/control/clusters/$cluster/repl-fullsync-stop
+/control/clusters/$cluster/repl-fullsync-start/$arg1
+/control/clusters/$cluster/repl-fullsync-start
+/control/clusters/$cluster/repl-fullsync-disable/$arg1
+/control/clusters/$cluster/repl-fullsync-enable/$arg1
+/control/clusters/$cluster/repl-realtime-stop/$arg1
+/control/clusters/$cluster/repl-realtime-stop
+/control/clusters/$cluster/repl-realtime-start/$arg1
+/control/clusters/$cluster/repl-realtime-start
+/control/clusters/$cluster/repl-realtime-disable/$arg1
+/control/clusters/$cluster/repl-realtime-enable/$arg1
+/control/clusters/$cluster/repl-clusterstats-realtime
+/control/clusters/$cluster/repl-clusterstats-proxy_get
+/control/clusters/$cluster/repl-clusterstats-fullsync
+/control/clusters/$cluster/repl-clusterstats-fs_coordinate
+/control/clusters/$cluster/repl-clusterstats-cluster_mgr
+/control/clusters/$cluster/repl-clusterstats/$arg1/$arg2
+/control/clusters/$cluster/repl-clusterstats
+/control/clusters/$cluster/repl-connections
+/control/clusters/$cluster/repl-disconnect/$arg1
+/control/clusters/$cluster/repl-connect/$arg1/$arg2
+/control/clusters/$cluster/repl-clustername/$arg1
+/control/clusters/$cluster/repl-clustername
+/control/clusters/$cluster/aae-status
+/control/clusters/$cluster/transfers
+/control/clusters/$cluster/ringready
+/control/clusters/$cluster/status
+/control/clusters/$cluster/clear
+/control/clusters/$cluster/commit
+/control/clusters/$cluster/plan
+/control/clusters/$cluster/force-replace/$arg1/$arg2
+/control/clusters/$cluster/staged-replace/$arg1/$arg2
+/control/clusters/$cluster/replace/$arg1/$arg2
+/control/clusters/$cluster/force-remove/$arg1
+/control/clusters/$cluster/staged-leave/$arg1
+/control/clusters/$cluster/staged-leave
+/control/clusters/$cluster/staged-join/$arg1
+/control/clusters/$cluster/leave/$arg1
+/control/clusters/$cluster/join/$arg1
+/control/clusters/$cluster/repair
 /riak/nodes/$node/$* (Riak Direct HTTP Proxy)
 /riak/clusters/$cluster/$* (Riak Direct HTTP Proxy)
 /$* (Static Endpoint)
@@ -275,18 +291,15 @@ Following are the available routes (these can also be obtained from `/explore/ro
 
 Explanation:
 
-* `explore.handler`: This is the Erlang module responsible for serving routes.
-* `explore.routes`: List of existing routes. URI sections beginning with $ are variables that need to be specified
-    * `$cluster`: Specifying `default` will use the cluster that this riak_explorer is connected to.
-    * `$node`: Example: `riak@127.0.0.1`
-    * `$bucket_type`: Example: `default`
-    * `$bucket`: Example: `mybucket`
-    * `$key`: Example: `mykey`
-    * `$schema`: Example: `_yz_default`
-    * `$index`: Example: `myindex`
-    * `$*`: Wildcard with deep paths. Example: `assets/ember-riak-explorer.js` for the static route, or `ping` for the riak_proxy route
-    * `$resource`: A list of valid `resources` for a given module can be found in `explore.resources`
-* `explore.resources`: A list of available operations or resources specific to the route; Example: `ping` for the `/explore` route.
+* `$cluster`: Specifying `default` will use the cluster that this riak_explorer is connected to.
+* `$node`: Example: `riak@127.0.0.1`
+* `$bucket_type`: Example: `default`
+* `$bucket`: Example: `mybucket`
+* `$key`: Example: `mykey`
+* `$schema`: Example: `_yz_default`
+* `$index`: Example: `myindex`
+* `$*`: Wildcard with deep paths. Example: `assets/ember-riak-explorer.js` for the static route, or `ping` for the riak_proxy route
+* `$resource`: A list of valid `resources` for a given module can be found in `explore.resources`
 
 ## Seed Data (For developers and testers)
 
