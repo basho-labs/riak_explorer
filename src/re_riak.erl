@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2012 Basho Technologies, Inc.  All Rights Reserved.
+%% Copyright (c) 2015 Basho Technologies, Inc.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -82,8 +82,18 @@
          clean_keys/3,
          put_keys/4]).
 
--export([http_listener/1,
+-export([log_files/1,
+         log_file/3,
+         config_file/2,
+         config_files/1,
+         node_info/1,
+         node_config/2,
+         node_exists/2,
+         riak_type/1,
+         riak_version/1,
+         http_listener/1,
          pb_listener/1,
+         bucket_type/2,
          bucket_types/1,
          create_bucket_type/3]).
 
@@ -91,8 +101,7 @@
          clusters/0,
          cluster/1,
          first_node/1,
-         nodes/1,
-         node_exists/2]).
+         nodes/1]).
 
 -export([load_patch/1]).
 
@@ -671,6 +680,100 @@ put_keys(Node, BucketType, Bucket, Keys) ->
 %%% Node Properties API
 %%%===================================================================
 
+log_files(Node) ->
+    load_patch(Node),
+    Files = remote(Node, re_riak_patch, get_log_files, []),
+    WithIds = lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files),
+    [{files, WithIds}].
+
+log_file(Node, File, NumLines) ->
+    case re:run(File, ".log(.[0-9])?$") of
+        {match,_} ->
+            load_patch(Node),
+            case remote(Node, re_riak_patch, tail_log, [File, NumLines]) of
+                {error, _} ->
+                    [{error, not_found}];
+                {TotalLines, Lines} ->
+                    [{log, [{total_lines, TotalLines},{lines, Lines}]}]
+            end;
+        _ ->
+            [{error, not_found}]
+    end.
+
+config_files(Node) ->
+    load_patch(Node),
+    Files = remote(Node, re_riak_patch, get_config_files, []),
+    WithIds = lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files),
+    [{files, WithIds}].
+
+config_file(Node, File) ->
+    ValidFiles = [
+        "riak.conf",
+        "advanced.config",
+        "solr-log4j.properties"
+    ],
+    case lists:member(File, ValidFiles) of
+        true ->
+            load_patch(Node),
+            case remote(Node, re_riak_patch, get_config, [File]) of
+                {error, _} ->
+                    [{error, not_found}];
+                Lines ->
+                    [{files, [{lines, Lines}]}]
+            end;
+        _ ->
+            [{error, not_found}]
+    end.
+
+node_info(Node) ->
+    %% The /nodes endpoint could potentiall get hit a lot, so to reduce file
+    %% i/o on the node, lets just return the id for now.
+    % [{id,Node},
+    %  {riak_type, riak_type(Node)},
+    %  {riak_version, riak_version(Node)}].
+    [{id, Node}].
+
+node_config(_, Node) ->
+    case load_patch(Node) of
+        ok ->
+            try
+                case remote(Node, re_riak_patch, effective_config, []) of
+                    {error, legacy_config} ->
+                        [{error, not_found, [{error, <<"Legacy configuration files found, effective config not available.">>}]}];
+                    Config ->
+                        [{config, Config}]
+                end
+            catch
+                Exception:Reason ->
+                    Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+                    lager:info("~p:~p", [Exception, Reason]),
+                    lager:info("Backtrace: ~p", [erlang:get_stacktrace()]),
+                    [{config, [{error, Error}]}]
+            end;
+        _ ->
+            [{error, not_found, [{error, <<"Invalid node id or node not available.">>}]}]
+    end.
+
+node_is_alive([{error, no_nodes}]) ->
+    false;
+node_is_alive(Node) ->
+    case remote(Node, erlang, node, []) of
+        {error,_} -> false;
+        unavailable -> false;
+        A -> is_atom(A)
+    end.
+
+riak_type(Node) ->
+    case remote(Node, code, is_loaded, [riak_repl_console]) of
+        false -> oss;
+        true -> ee;
+        Other -> Other
+    end.
+
+riak_version(Node) ->
+    load_patch(Node),
+    remote(Node, re_riak_patch, riak_version, []).
+
 http_listener(Node) ->
     NodeStr = atom_to_list(Node),
     [_,Addr] = string:tokens(NodeStr, "@"),
@@ -682,6 +785,17 @@ pb_listener(Node) ->
     [_,Addr] = string:tokens(NodeStr, "@"),
     {ok,[{_,Port}]} = remote(Node, application, get_env, [riak_api, pb]),
     [{pb_listener, list_to_binary(Addr ++ ":" ++ integer_to_list(Port))}].
+
+bucket_type(Node, BucketType) ->
+    FlatProps = lists:flatten([proplists:get_value(props, Prop) ||
+                           Prop <- proplists:get_value(bucket_types, bucket_types(Node)),
+                           BucketType =:= proplists:get_value(name, Prop)]),
+    case FlatProps of
+        [] ->
+            [{error, not_found}];
+        Props ->
+            [{bucket_types, [{id,BucketType}, {props, Props}]}]
+    end.
 
 bucket_types(Node) ->
     load_patch(Node),
@@ -713,9 +827,18 @@ cluster_id_for_node(Node) ->
         [{id, Id}|_] -> Id
     end.
 
+cluster_info({C, _}) ->
+    Node = re_config:riak_node(C),
+    [{id,C},
+     {riak_node, Node},
+     {development_mode, re_config:development_mode(C)},
+     {riak_type, riak_type(Node)},
+     {riak_version, riak_version(Node)},
+     {available, node_is_alive(Node)}].
+
 clusters() ->
     Clusters = re_config:clusters(),
-    Mapped = lists:map(fun({C, _}) -> [{id,C}, {riak_node, re_config:riak_node(C)}, {development_mode, re_config:development_mode(C)}] end, Clusters),
+    Mapped = [cluster_info(Cluster) || Cluster <- Clusters],
     [{clusters, Mapped}].
 
 cluster(Id) ->
@@ -728,8 +851,10 @@ cluster(Id) ->
 
 first_node(Cluster) ->
     case nodes(Cluster) of
-        [{nodes, [[{id, Node}]|_]}] -> Node;
         [{nodes, []}] -> [{error, no_nodes}];
+        [{nodes, [Node|_]}] ->
+            Id = proplists:get_value(id, Node),
+            Id;
         [{error, not_found}] -> [{error, no_nodes}]
     end.
 
@@ -739,26 +864,24 @@ nodes(Cluster) ->
     case remote(RiakNode, riak_core_ring_manager, get_my_ring, []) of
         {ok, MyRing} ->
             Nodes = remote(RiakNode, riak_core_ring, all_members, [MyRing]),
-            WithIds = lists:map(fun(N) -> [{id, N}] end, Nodes),
+            WithIds = lists:map(fun(N) -> node_info(N) end, Nodes),
             [{nodes, WithIds}];
         _ -> [{nodes, []}]
     end.
 
 node_exists(Cluster, Node) ->
+    [{nodes, Nodes}] = nodes(Cluster),
     Filter = lists:filter(fun(X) ->
-        case X of
-            {error, not_found} -> false;
-            [{id, Node}] -> true;
+        Id = proplists:get_value(id, X),
+        case Id of
+            Node -> true;
             _ -> false
-        end end, nodes(Cluster)),
+        end end, Nodes),
     case length(Filter) of
         N when N > 0 -> true;
         _ -> false
     end.
 
-node_is_alive(Node) ->
-    Test = remote(Node, erlang, node, []),
-    is_atom(Test).
 %%%===================================================================
 %%% Utility API
 %%%===================================================================
@@ -789,6 +912,8 @@ maybe_load_patch(Node, _) ->
 
 safe_rpc(Node, Module, Function, Args, Timeout) ->
     try rpc:call(Node, Module, Function, Args, Timeout) of
+        {badrpc,nodedown} ->
+            unavailable;
         Result ->
             Result
     catch

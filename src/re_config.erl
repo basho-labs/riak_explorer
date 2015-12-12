@@ -19,13 +19,12 @@
 %% -------------------------------------------------------------------
 
 -module(re_config).
--export([base_route/0,
-         base_route/1,
+-export([build_routes/2, build_routes/3,
+         base_route/0, base_route/1,
          data_dir/0,
          resources/0,
          dispatch/0,
-         development_mode/0,
-         development_mode/1,
+         development_mode/0, development_mode/1,
          routes/0,
          props/0,
          formatted_routes/0,
@@ -45,16 +44,22 @@
 %%% API
 %%%===================================================================
 
+build_routes(Base, Routes) ->
+    build_prefixed_routes(base_route(Base), [], Routes, []).
+
+build_routes(Base, Prefixes, Routes) ->
+    build_routes(Base, Prefixes, Routes, []).
+
 base_route() ->
-    case code:is_loaded(riak_core) of
-        false -> "";
-        _ -> "admin"
+    case is_standalone() of
+        true -> "";
+        false -> "admin"
     end.
 
 base_route(SubRoute) ->
-    case code:is_loaded(riak_core) of
-        false -> [SubRoute];
-        _ -> [base_route(), SubRoute]
+    case is_standalone() of
+        true -> [SubRoute];
+        false -> [base_route(), SubRoute]
     end.
 
 data_dir() ->
@@ -67,10 +72,9 @@ resources() ->
         re_wm_key,
         re_wm_bucket,
         re_wm_bucket_type,
-        % re_wm_index,
-        % re_wm_schema,
-        % re_wm_search,
         re_wm_node,
+        re_wm_riak_config,
+        re_wm_riak_log,
         re_wm_cluster,
         re_wm_base,
         re_wm_control,
@@ -218,3 +222,18 @@ props_to_bin([{Name, Value} | Rest], Accum) when is_list(Value) ->
     props_to_bin(Rest, [{Name, list_to_binary(Value)} | Accum]);
 props_to_bin([{Name, Value} | Rest], Accum) ->
     props_to_bin(Rest, [{Name, Value} | Accum]).
+
+is_standalone() ->
+    not code:is_loaded(riak_core).
+
+build_routes(_, [], _, Acc) ->
+    Acc;
+build_routes(Base, [P|Prefixes], Routes, Acc) ->
+    PRoutes = build_prefixed_routes(base_route(Base), P, Routes, []),
+    build_routes(Base, Prefixes, Routes, Acc ++ PRoutes).
+
+build_prefixed_routes(_, _, [], Acc) ->
+    lists:reverse(Acc);
+build_prefixed_routes(Base, Prefix, [R|Routes], Acc) ->
+    R0 = Base ++ Prefix ++ R,
+    build_prefixed_routes(Base, Prefix, Routes, [R0|Acc]).
