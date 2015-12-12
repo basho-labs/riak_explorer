@@ -803,7 +803,8 @@ cluster_info({C, _}) ->
      {riak_node, Node},
      {development_mode, re_config:development_mode(C)},
      {riak_type, riak_type(Node)},
-     {riak_version, riak_version(Node)}].
+     {riak_version, riak_version(Node)},
+     {available, node_is_alive(Node)}].
 
 clusters() ->
     Clusters = re_config:clusters(),
