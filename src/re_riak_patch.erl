@@ -36,7 +36,7 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 5.
+version() -> 6.
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
@@ -60,20 +60,20 @@ tail_log(Name, NumLines) ->
     LogFile = filename:join([LogDir, Name]),
     TotalLines = count_lines(LogFile),
     case file:open(LogFile, read) of
-        {error,enoent} ->
-            {error, not_found};
         {ok, Device} ->
             Proc = fun(Entry, {Current,Num,Total,Accum}) ->
-            case {Current, Num, Total} of
-                {C, N, T} when C > T -> {C+1, N, T, Accum};
-                {C, N, T} when C =< (T - N) -> {C+1, N, T, Accum};
-                {C, N, T} when C > (T - N) ->
-                    B = re:replace(Entry, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
-                    {C+1, N, T, [list_to_binary(B)|Accum]}
-            end
-        end,
-        {_,_,_,Lines} = for_each_line(Device, Proc, {0,NumLines,TotalLines,[]}),
-        {TotalLines, Lines}
+                case {Current, Num, Total} of
+                    {C, N, T} when C > T -> {C+1, N, T, Accum};
+                    {C, N, T} when C =< (T - N) -> {C+1, N, T, Accum};
+                    {C, N, T} when C > (T - N) ->
+                        B = re:replace(Entry, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
+                        {C+1, N, T, [list_to_binary(B)|Accum]}
+                end
+            end,
+            {_,_,_,Lines} = for_each_line(Device, Proc, {0,NumLines,TotalLines,[]}),
+            {TotalLines, Lines};
+        _ ->
+            {error, not_found}
     end.
 
 get_config_files() ->
@@ -96,15 +96,15 @@ get_config(Name) ->
     EtcDir = app_helper:get_env(riak_core, platform_etc_dir),
     EtcFile = filename:join([EtcDir, Name]),
     case file:open(EtcFile, read) of
-        {error,enoent} ->
-            {error, not_found};
         {ok, Device} ->
             Proc = fun(Entry, Accum) ->
                 B = re:replace(Entry, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
                 [list_to_binary(B)|Accum]
             end,
             Lines = for_each_line(Device, Proc, ""),
-            lists:reverse(Lines)
+            lists:reverse(Lines);
+        _ ->
+            {error, not_found}
     end.
 
 effective_config() ->
@@ -122,7 +122,7 @@ effective_config() ->
                 [] -> [{config, EffectiveProplist}];
                 _ -> [{config, EffectiveProplist}, {advanced_config, format_value(AdvConfig)}]
             end;
-        {_, _} ->
+        _ ->
             {error,legacy_config}
     end.
 
@@ -139,7 +139,7 @@ load_riak_conf(EtcDir) ->
     case check_existence(EtcDir, "riak.conf") of
         {true, ConfFile} ->
             cuttlefish_conf:files([ConfFile]);
-        {false, _} ->
+        _ ->
             {error, riak_conf_not_found}
     end.
 
@@ -180,13 +180,13 @@ generate_effective_proplist(EffectiveString) ->
 
 count_lines(Name) ->
     case file:open(Name, read) of
-        {error,enoent} ->
-            0;
         {ok, Device} ->
             Proc = fun(_, NumLines) ->
                 NumLines + 1
             end,
-            for_each_line(Device, Proc, 0)
+            for_each_line(Device, Proc, 0);
+        _ ->
+            0
     end.
 
 for_each_line(Device, Proc, Accum) ->
@@ -203,7 +203,7 @@ fetch_types(It, Acc) ->
         true ->
             riak_core_bucket_type:itr_close(It),
             lists:reverse(Acc);
-        false ->
+        _ ->
             {Type, Props} = riak_core_bucket_type:itr_value(It),
             T = [{name, Type},{props, format_props(Props, [])}],
             fetch_types(riak_core_bucket_type:itr_next(It), [T | Acc])

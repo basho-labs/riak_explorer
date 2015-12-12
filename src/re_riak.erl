@@ -87,6 +87,8 @@
          config_file/2,
          config_files/1,
          node_info/1,
+         node_config/2,
+         node_exists/2,
          riak_type/1,
          riak_version/1,
          http_listener/1,
@@ -99,9 +101,7 @@
          clusters/0,
          cluster/1,
          first_node/1,
-         node_config/2,
-         nodes/1,
-         node_exists/2]).
+         nodes/1]).
 
 -export([load_patch/1]).
 
@@ -733,6 +733,36 @@ node_info(Node) ->
     %  {riak_version, riak_version(Node)}].
     [{id, Node}].
 
+node_config(_, Node) ->
+    case load_patch(Node) of
+        ok ->
+            try
+                case remote(Node, re_riak_patch, effective_config, []) of
+                    {error, legacy_config} ->
+                        [{error, not_found, [{error, <<"Legacy configuration files found, effective config not available.">>}]}];
+                    Config ->
+                        [{config, Config}]
+                end
+            catch
+                Exception:Reason ->
+                    Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+                    lager:info("~p:~p", [Exception, Reason]),
+                    lager:info("Backtrace: ~p", [erlang:get_stacktrace()]),
+                    [{config, [{error, Error}]}]
+            end;
+        _ ->
+            [{error, not_found, [{error, <<"Invalid node id or node not available.">>}]}]
+    end.
+
+node_is_alive([{error, no_nodes}]) ->
+    false;
+node_is_alive(Node) ->
+    case remote(Node, erlang, node, []) of
+        {error,_} -> false;
+        unavailable -> false;
+        A -> is_atom(A)
+    end.
+
 riak_type(Node) ->
     case remote(Node, code, is_loaded, [riak_repl_console]) of
         false -> oss;
@@ -839,27 +869,6 @@ nodes(Cluster) ->
         _ -> [{nodes, []}]
     end.
 
-node_config(_, Node) ->
-    case load_patch(Node) of
-        ok ->
-            try
-                case remote(Node, re_riak_patch, effective_config, []) of
-                    {error, legacy_config} ->
-                        [{error, not_found, [{error, <<"Legacy configuration files found, effective config not available.">>}]}];
-                    Config ->
-                        [{config, Config}]
-                end
-            catch
-                Exception:Reason ->
-                    Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
-                    lager:info("~p:~p", [Exception, Reason]),
-                    lager:info("Backtrace: ~p", [erlang:get_stacktrace()]),
-                    [{config, [{error, Error}]}]
-            end;
-        _ ->
-            [{error, not_found, [{error, <<"Invalid node id or node not available.">>}]}]
-    end.
-
 node_exists(Cluster, Node) ->
     [{nodes, Nodes}] = nodes(Cluster),
     Filter = lists:filter(fun(X) ->
@@ -873,14 +882,6 @@ node_exists(Cluster, Node) ->
         _ -> false
     end.
 
-node_is_alive([{error, no_nodes}]) ->
-    false;
-node_is_alive(Node) ->
-    case remote(Node, erlang, node, []) of
-        {error,_} -> false;
-        unavailable -> false;
-        A -> is_atom(A)
-    end.
 %%%===================================================================
 %%% Utility API
 %%%===================================================================
