@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2012 Basho Technologies, Inc.  All Rights Reserved.
+%% Copyright (c) 2015 Basho Technologies, Inc.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -27,8 +27,8 @@
          content_types_accepted/2,
          resource_exists/2,
          accept_content/2,
-         provide_jsonapi_content/2,
-         provide_content/2]).
+         provide_japi_content/2,
+         provide_json_content/2]).
 
 -record(ctx, {cluster, node, bucket_type, resource, id, method, response=undefined}).
 
@@ -37,14 +37,14 @@
 
 -define(noNode(),
     #ctx{node=[{error, no_nodes}]}).
--define(listBucketTypes(),
-    #ctx{method='GET', bucket_type=undefined}).
--define(bucketTypeInfo(BucketType),
-    #ctx{method='GET', bucket_type=BucketType, resource=undefined}).
--define(createBucketType(BucketType),
-    #ctx{method='PUT', bucket_type=BucketType, resource=undefined}).
--define(bucketTypeResource(BucketType, Resource),
-    #ctx{method='GET', bucket_type=BucketType, resource=Resource}).
+-define(listBucketTypes(Node),
+    #ctx{node=Node, method='GET', bucket_type=undefined}).
+-define(bucketTypeInfo(Node, BucketType),
+    #ctx{node=Node, method='GET', bucket_type=BucketType, resource=undefined}).
+-define(createBucketType(Node, BucketType),
+    #ctx{node=Node, method='PUT', bucket_type=BucketType, resource=undefined}).
+-define(bucketTypeResource(Node, BucketType, Resource),
+    #ctx{node=Node, method='GET', bucket_type=BucketType, resource=Resource}).
 
 %%%===================================================================
 %%% API
@@ -54,20 +54,14 @@ resources() ->
     [{jobs, [riak_explorer, jobs_for_resource]}].
 
 routes() ->
-    Base = lists:last(re_wm_base:routes()),
-
-    Clusters = Base ++ ["clusters"],
-    Cluster = Clusters ++ [cluster],
-    CBucketTypes = Cluster ++ ["bucket_types"],
-    CBucketType = CBucketTypes ++ [bucket_type],
-    CBucketTypeResource = CBucketType ++ [resource],
-
-    Nodes = Base ++ ["nodes"],
-    Node = Nodes ++ [node],
-    BucketTypes = Node ++ ["bucket_types"],
-    BucketType = BucketTypes ++ [bucket_type],
-    BucketTypeResource = BucketType ++ [resource],
-    [CBucketTypes, CBucketTypeResource, CBucketType, BucketTypes, BucketTypeResource, BucketType].
+    re_config:build_routes(?RE_BASE_ROUTE, [
+        ["clusters", cluster],
+        ["nodes", node]
+    ], [
+        ["bucket_types"],
+        ["bucket_types", bucket_type],
+        ["bucket_types", bucket_type, resource]
+    ]).
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -78,14 +72,17 @@ dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 init(_) ->
     {ok, #ctx{}}.
 
-service_available(RD, Ctx0) ->
-    Ctx1 = Ctx0#ctx{
+service_available(RD, Ctx) ->
+    Cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD)),
+    Node = re_wm_util:maybe_atomize(wrq:path_info(node, RD)),
+
+    {true, RD, Ctx#ctx{
         resource = wrq:path_info(resource, RD),
         bucket_type = wrq:path_info(bucket_type, RD),
-        node = wrq:path_info(node, RD),
-        cluster = wrq:path_info(cluster, RD),
-        method = wrq:method(RD)},
-    {true, RD, Ctx1#ctx{node = node_from_context(Ctx1)}}.
+        cluster = Cluster,
+        method = wrq:method(RD),
+        node = re_wm_util:node_from_context(Cluster, Node)
+    }}.
 
 allowed_methods(RD, Ctx) ->
     Methods = ['GET', 'PUT'],
@@ -97,44 +94,31 @@ content_types_accepted(RD, Ctx) ->
     {Types, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
-    Types = [{"application/json", provide_content},
-             {"application/vnd.api+json", provide_jsonapi_content}],
+    Types = [{"application/json", provide_json_content},
+             {"application/vnd.api+json", provide_japi_content}],
     {Types, RD, Ctx}.
 
 resource_exists(RD, Ctx=?noNode()) ->
     {false, RD, Ctx};
-resource_exists(RD, Ctx=?listBucketTypes()) ->
-    Node = Ctx#ctx.node,
-    Response = re_riak:bucket_types(Node),
-    {true, RD, Ctx#ctx{id=bucket_types, response=Response}};
-resource_exists(RD, Ctx=?createBucketType(_)) ->
+resource_exists(RD, Ctx=?listBucketTypes(Node)) ->
+    set_response(RD, Ctx, bucket_types, re_riak:bucket_types(Node));
+resource_exists(RD, Ctx=?createBucketType(_,_)) ->
     {true, RD, Ctx};
-resource_exists(RD, Ctx=?bucketTypeInfo(BucketType)) ->
+resource_exists(RD, Ctx=?bucketTypeInfo(Node, BucketType)) ->
     Id = list_to_binary(BucketType),
-    Node = Ctx#ctx.node,
-    case lists:flatten([proplists:get_value(props, Prop) ||
-                           Prop <- proplists:get_value(bucket_types, re_riak:bucket_types(Node)),
-                           Id =:= proplists:get_value(name, Prop)]) of
-        [] -> {false, RD, Ctx};
-        Props ->
-            Response = [{bucket_types, [{id,Id}, {props, Props}]}],
-            {true, RD, Ctx#ctx{id=bucket_type, response=Response}}
-    end;
-resource_exists(RD, Ctx=?bucketTypeResource(BucketType, Resource)) ->
-    Node = Ctx#ctx.node,
+    set_response(RD, Ctx, BucketType, re_riak:bucket_type(Node, Id));
+resource_exists(RD, Ctx=?bucketTypeResource(Node, BucketType, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
         [M,F] ->
-            Response = M:F(Node, BucketType),
-            {true, RD, Ctx#ctx{id=Id, response=Response}};
+            set_response(RD, Ctx, Id, M:F(Node, BucketType));
         _ ->
             {false, RD, Ctx}
     end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
-accept_content(RD, Ctx=?createBucketType(BucketType)) ->
-    Node = Ctx#ctx.node,
+accept_content(RD, Ctx=?createBucketType(Node, BucketType)) ->
     RawValue = wrq:req_body(RD),
     case re_riak:create_bucket_type(Node, BucketType, RawValue) of
         ok -> {true, RD, Ctx};
@@ -143,35 +127,15 @@ accept_content(RD, Ctx=?createBucketType(BucketType)) ->
 accept_content(RD, Ctx) ->
     {false, RD, Ctx}.
 
-provide_content(RD, Ctx=#ctx{response=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    render_json(JDoc, RD, Ctx);
-provide_content(RD, Ctx=#ctx{id=Id, response=[{_, Objects}]}) ->
-    JRes = re_wm_jsonapi:res(RD, [], Objects, [], []),
-    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    render_json(JDoc, RD, Ctx).
+provide_json_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+    {re_wm_util:provide_content(json, RD, Id, Response), RD, Ctx}.
 
-provide_jsonapi_content(RD, Ctx=#ctx{response=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    render_json(JDoc, RD, Ctx);
-provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
-    JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),
-    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    render_json(JDoc, RD, Ctx).
+provide_japi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+    {re_wm_util:provide_content(jsonapi, RD, Id, Response), RD, Ctx}.
 
 %% ====================================================================
 %% Private
 %% ====================================================================
 
-node_from_context(Ctx) ->
-    case Ctx of
-        #ctx{cluster=undefined, node=N} ->
-            Node = list_to_atom(N),
-            re_config:set_adhoc_cluster(Node),
-            Node;
-        #ctx{cluster=C} -> re_riak:first_node(list_to_atom(C))
-    end.
-
-render_json(Data, RD, Ctx) ->
-    Body = mochijson2:encode(Data),
-    {Body, RD, Ctx}.
+set_response(RD, Ctx, Id, Response) ->
+    re_wm_util:resource_exists(RD, Ctx#ctx{id=Id, response=Response}, Response).

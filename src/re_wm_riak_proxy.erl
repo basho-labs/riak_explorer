@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2012 Basho Technologies, Inc.  All Rights Reserved.
+%% Copyright (c) 2015 Basho Technologies, Inc.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -36,9 +36,10 @@ resources() ->
     [].
 
 routes() ->
-    CProxy = re_config:base_route(?RE_RIAK_PROXY_ROUTE) ++ ["clusters", cluster, '*'],
-    Proxy = re_config:base_route(?RE_RIAK_PROXY_ROUTE) ++ ["nodes", node, '*'],
-    [CProxy, Proxy].
+    re_config:build_routes(?RE_RIAK_PROXY_ROUTE, [
+        ["clusters", cluster, '*'],
+        ["nodes", node, '*']
+    ]).
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 
@@ -50,22 +51,23 @@ init(_) ->
     {ok, #ctx{}}.
 
 service_available(RD, Ctx0) ->
-    Ctx1 = Ctx0#ctx{
-        node = wrq:path_info(node, RD),
-        cluster = wrq:path_info(cluster, RD)},
+    Cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD)),
+    Node0 = re_wm_util:maybe_atomize(wrq:path_info(node, RD)),
+    Node = re_wm_util:node_from_context(Cluster, Node0),
 
-    Node = node_from_context(Ctx1),
-    Ctx2 = Ctx1#ctx{node=Node},
+    Ctx = Ctx0#ctx{
+        node = re_wm_util:node_from_context(Cluster, Node0),
+        cluster = Cluster},
 
     case re_riak:node_is_alive(Node) of
         true ->
-            send_proxy_request(RD, Ctx2);
+            send_proxy_request(RD, Ctx);
         _ ->
             RespBody = mochijson2:encode([{error, <<"Node is not running.">>}]),
             {{halt, 404},
              wrq:set_resp_headers([{<<"Content-Type">>, <<"application/json">>}],
                                   wrq:set_resp_body(RespBody, RD)),
-             Ctx2}
+             Ctx}
     end.
 
 %% ====================================================================
@@ -104,15 +106,6 @@ send_proxy_request(RD, Ctx) ->
                                   wrq:set_resp_body(RespBody, RD)),
              Ctx};
         _ -> {false, RD, Ctx}
-    end.
-
-node_from_context(Ctx) ->
-    case Ctx of
-        #ctx{cluster=undefined, node=N} ->
-            Node = list_to_atom(N),
-            re_config:set_adhoc_cluster(Node),
-            Node;
-        #ctx{cluster=C} -> re_riak:first_node(list_to_atom(C))
     end.
 
 clean_request_headers(Headers) ->

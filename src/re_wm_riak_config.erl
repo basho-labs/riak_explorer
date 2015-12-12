@@ -18,40 +18,42 @@
 %%
 %% -------------------------------------------------------------------
 
--module(re_wm_base).
+-module(re_wm_riak_config).
 -export([resources/0, routes/0, dispatch/0]).
 -export([init/1]).
 -export([service_available/2,
          allowed_methods/2,
          content_types_provided/2,
          resource_exists/2,
-         provide_japi_content/2,
-         provide_json_content/2]).
+         provide_text_content/2,
+         provide_json_content/2,
+         provide_japi_content/2]).
 
--record(ctx, {resource, id, response=undefined}).
+-record(ctx, {node, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
--define(exploreInfo(),
-    #ctx{resource=undefined}).
--define(exploreResource(Resource),
-    #ctx{resource=Resource}).
+-define(noNode(),
+    #ctx{node=undefined}).
+-define(listFiles(Node),
+    #ctx{node=Node, id=undefined}).
+-define(getFile(Node, File),
+    #ctx{node=Node, id=File}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-resources() ->
-    [{ping, [riak_explorer, ping]},
-     {routes, [riak_explorer, routes]},
-     {props, [riak_explorer, props]},
-     {jobs, [riak_explorer, jobs]}].
+resources() -> [].
 
 routes() ->
     re_config:build_routes(?RE_BASE_ROUTE, [
-        [resource],
-        [] %% Self
+        ["clusters", cluster, "nodes", node],
+        ["nodes", node]
+    ],[
+        ["config", "files"],
+        ["config", "files", file]
     ]).
 
 dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
@@ -64,7 +66,13 @@ init(_) ->
     {ok, #ctx{}}.
 
 service_available(RD, Ctx) ->
-    {true, RD, Ctx#ctx{resource = wrq:path_info(resource, RD)}}.
+    Cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD)),
+    Node = re_wm_util:maybe_atomize(wrq:path_info(node, RD)),
+
+    {true, RD, Ctx#ctx{
+        id = wrq:path_info(file, RD),
+        node = re_wm_util:node_from_context(Cluster, Node)
+    }}.
 
 allowed_methods(RD, Ctx) ->
     Methods = ['GET'],
@@ -72,21 +80,21 @@ allowed_methods(RD, Ctx) ->
 
 content_types_provided(RD, Ctx) ->
     Types = [{"application/json", provide_json_content},
+             {"plain/text", provide_text_content},
              {"application/vnd.api+json", provide_japi_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx=?exploreInfo()) ->
-    {true, RD, Ctx};
-resource_exists(RD, Ctx=?exploreResource(Resource)) ->
-    Id = list_to_atom(Resource),
-    case proplists:get_value(Id, resources()) of
-        [M,F] ->
-            set_response(RD, Ctx, Id, M:F());
-        _ ->
-            {false, RD, Ctx}
-    end;
+resource_exists(RD, Ctx=?noNode()) ->
+    {false, RD, Ctx};
+resource_exists(RD, Ctx=?listFiles(Node)) ->
+    set_response(RD, Ctx, files, re_riak:config_files(Node));
+resource_exists(RD, Ctx=?getFile(Node, File)) ->
+    set_response(RD, Ctx, File, re_riak:config_file(Node, File));
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
+
+provide_text_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+    {re_wm_util:provide_content(text, RD, Id, Response), RD, Ctx}.
 
 provide_json_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
     {re_wm_util:provide_content(json, RD, Id, Response), RD, Ctx}.
