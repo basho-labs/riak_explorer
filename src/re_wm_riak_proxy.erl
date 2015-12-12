@@ -51,22 +51,23 @@ init(_) ->
     {ok, #ctx{}}.
 
 service_available(RD, Ctx0) ->
-    Ctx1 = Ctx0#ctx{
-        node = wrq:path_info(node, RD),
-        cluster = wrq:path_info(cluster, RD)},
+    Cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD)),
+    Node0 = re_wm_util:maybe_atomize(wrq:path_info(node, RD)),
+    Node = re_wm_util:node_from_context(Cluster, Node0),
 
-    Node = node_from_context(Ctx1),
-    Ctx2 = Ctx1#ctx{node=Node},
+    Ctx = Ctx0#ctx{
+        node = re_wm_util:node_from_context(Cluster, Node0),
+        cluster = Cluster},
 
     case re_riak:node_is_alive(Node) of
         true ->
-            send_proxy_request(RD, Ctx2);
+            send_proxy_request(RD, Ctx);
         _ ->
             RespBody = mochijson2:encode([{error, <<"Node is not running.">>}]),
             {{halt, 404},
              wrq:set_resp_headers([{<<"Content-Type">>, <<"application/json">>}],
                                   wrq:set_resp_body(RespBody, RD)),
-             Ctx2}
+             Ctx}
     end.
 
 %% ====================================================================
@@ -105,15 +106,6 @@ send_proxy_request(RD, Ctx) ->
                                   wrq:set_resp_body(RespBody, RD)),
              Ctx};
         _ -> {false, RD, Ctx}
-    end.
-
-node_from_context(Ctx) ->
-    case Ctx of
-        #ctx{cluster=undefined, node=N} ->
-            Node = list_to_atom(N),
-            re_config:set_adhoc_cluster(Node),
-            Node;
-        #ctx{cluster=C} -> re_riak:first_node(list_to_atom(C))
     end.
 
 clean_request_headers(Headers) ->

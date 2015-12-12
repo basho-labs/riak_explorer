@@ -91,6 +91,7 @@
          riak_version/1,
          http_listener/1,
          pb_listener/1,
+         bucket_type/2,
          bucket_types/1,
          create_bucket_type/3]).
 
@@ -754,6 +755,17 @@ pb_listener(Node) ->
     [_,Addr] = string:tokens(NodeStr, "@"),
     {ok,[{_,Port}]} = remote(Node, application, get_env, [riak_api, pb]),
     [{pb_listener, list_to_binary(Addr ++ ":" ++ integer_to_list(Port))}].
+
+bucket_type(Node, BucketType) ->
+    FlatProps = lists:flatten([proplists:get_value(props, Prop) ||
+                           Prop <- proplists:get_value(bucket_types, bucket_types(Node)),
+                           BucketType =:= proplists:get_value(name, Prop)]),
+    case FlatProps of
+        [] ->
+            [{error, not_found}];
+        Props ->
+            [{bucket_types, [{id,BucketType}, {props, Props}]}]
+    end.
 
 bucket_types(Node) ->
     load_patch(Node),

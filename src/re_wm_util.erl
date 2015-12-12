@@ -23,7 +23,10 @@
   maybe_atomize/1,
   node_from_context/2,
   provide_content/4,
-  resource_exists/3]).
+  resource_exists/3,
+  set_jobs_response/4]).
+
+-include_lib("webmachine/include/webmachine.hrl").
 
 %%%===================================================================
 %%% API
@@ -58,6 +61,8 @@ provide_content(json, RD, Id, [{_, Objects}]) ->
 provide_content(jsonapi, RD, Id, [{Type, Objects}]) ->
     render_json(RD, Type, Id, Objects).
 
+resource_exists(RD, Ctx, {error, not_found}) ->
+    {false, RD, Ctx};
 resource_exists(RD, Ctx, [{error, not_found, Message}]) ->
     {{halt, 404},
      wrq:set_resp_headers([], wrq:set_resp_body(mochijson2:encode(Message), RD)),
@@ -66,6 +71,13 @@ resource_exists(RD, Ctx, [{error, not_found}]) ->
     {false, RD, Ctx};
 resource_exists(RD, Ctx, _) ->
     {true, RD, Ctx}.
+
+set_jobs_response(RD, Ctx, Headers, ok) ->
+    {{halt, 202}, wrq:set_resp_header("Location",Headers,RD), Ctx};
+set_jobs_response(RD, Ctx, Headers, [{error, already_started}]) ->
+    {{halt, 102}, wrq:set_resp_header("Location",Headers,RD), Ctx};
+set_jobs_response(RD, Ctx, _, {error, developer_mode_off}) ->
+    {{halt, 403}, RD, Ctx}.
 
 %% ====================================================================
 %% Private

@@ -25,8 +25,8 @@
          allowed_methods/2,
          content_types_provided/2,
          resource_exists/2,
-         provide_jsonapi_content/2,
-         provide_content/2]).
+         provide_japi_content/2,
+         provide_json_content/2]).
 
 -record(ctx, {resource, id, response=undefined}).
 
@@ -63,17 +63,16 @@ dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 init(_) ->
     {ok, #ctx{}}.
 
-service_available(RD, Ctx0) ->
-    Ctx1 = Ctx0#ctx{resource = wrq:path_info(resource, RD)},
-    {true, RD, Ctx1}.
+service_available(RD, Ctx) ->
+    {true, RD, Ctx#ctx{resource = wrq:path_info(resource, RD)}}.
 
 allowed_methods(RD, Ctx) ->
     Methods = ['GET'],
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
-    Types = [{"application/json", provide_content},
-             {"application/vnd.api+json", provide_jsonapi_content}],
+    Types = [{"application/json", provide_json_content},
+             {"application/vnd.api+json", provide_japi_content}],
     {Types, RD, Ctx}.
 
 resource_exists(RD, Ctx=?exploreInfo()) ->
@@ -82,26 +81,22 @@ resource_exists(RD, Ctx=?exploreResource(Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
         [M,F] ->
-            Response = M:F(),
-            {true, RD, Ctx#ctx{id=Id, response=Response}};
+            set_response(RD, Ctx, Id, M:F());
         _ ->
             {false, RD, Ctx}
     end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
-provide_content(RD, Ctx=#ctx{response=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    {mochijson2:encode(JDoc), RD, Ctx};
-provide_content(RD, Ctx=#ctx{id=Id, response=[{_, Objects}]}) ->
-    JRes = re_wm_jsonapi:res(RD, [], Objects, [], []),
-    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    {mochijson2:encode(JDoc), RD, Ctx}.
+provide_json_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+    {re_wm_util:provide_content(json, RD, Id, Response), RD, Ctx}.
 
-provide_jsonapi_content(RD, Ctx=#ctx{response=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    {mochijson2:encode(JDoc), RD, Ctx};
-provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
-    JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),
-    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    {mochijson2:encode(JDoc), RD, Ctx}.
+provide_japi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+    {re_wm_util:provide_content(jsonapi, RD, Id, Response), RD, Ctx}.
+
+%% ====================================================================
+%% Private
+%% ====================================================================
+
+set_response(RD, Ctx, Id, Response) ->
+    re_wm_util:resource_exists(RD, Ctx#ctx{id=Id, response=Response}, Response).

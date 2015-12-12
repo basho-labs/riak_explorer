@@ -28,8 +28,8 @@
          resource_exists/2,
          delete_resource/2,
          accept_content/2,
-         provide_jsonapi_content/2,
-         provide_content/2]).
+         provide_japi_content/2,
+         provide_json_content/2]).
 
 -record(ctx, {method, start, rows, cluster, node, bucket_type, bucket, key, resource, id, response=undefined}).
 
@@ -38,18 +38,18 @@
 
 -define(noNode(),
     #ctx{node=[{error, no_nodes}]}).
--define(putKeys(BucketType, Bucket),
-    #ctx{method='PUT', bucket_type=BucketType, bucket=Bucket, key=undefined}).
--define(cleanKeys(BucketType, Bucket),
-    #ctx{method='DELETE', bucket_type=BucketType, bucket=Bucket, key=undefined}).
--define(listKeysCache(BucketType, Bucket),
-    #ctx{method='GET', bucket_type=BucketType, bucket=Bucket, key=undefined}).
--define(listKeys(BucketType, Bucket),
-    #ctx{method='POST', bucket_type=BucketType, bucket=Bucket, key=undefined}).
--define(keyInfo(BucketType, Bucket, Key),
-    #ctx{method='GET', bucket_type=BucketType, bucket=Bucket, key=Key, resource=undefined}).
--define(keyResource(BucketType, Bucket, Key, Resource),
-    #ctx{method='GET', bucket_type=BucketType, bucket=Bucket, key=Key, resource=Resource}).
+-define(putKeys(Node, BucketType, Bucket),
+    #ctx{node=Node, method='PUT', bucket_type=BucketType, bucket=Bucket, key=undefined}).
+-define(cleanKeys(Node, BucketType, Bucket),
+    #ctx{node=Node, method='DELETE', bucket_type=BucketType, bucket=Bucket, key=undefined}).
+-define(listKeysCache(Node, BucketType, Bucket),
+    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket, key=undefined}).
+-define(listKeys(Node, BucketType, Bucket),
+    #ctx{node=Node, method='POST', bucket_type=BucketType, bucket=Bucket, key=undefined}).
+-define(keyInfo(Node, BucketType, Bucket, Key),
+    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket, key=Key, resource=undefined}).
+-define(keyResource(Node, BucketType, Bucket, Key, Resource),
+    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket, key=Key, resource=Resource}).
 
 %%%===================================================================
 %%% API
@@ -76,26 +76,29 @@ dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 init(_) ->
     {ok, #ctx{}}.
 
-service_available(RD, Ctx0) ->
-    Ctx1 = Ctx0#ctx{
+service_available(RD, Ctx) ->
+    Cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD)),
+    Node = re_wm_util:maybe_atomize(wrq:path_info(node, RD)),
+
+    {true, RD, Ctx#ctx{
         resource = wrq:path_info(resource, RD),
         bucket_type = wrq:path_info(bucket_type, RD),
         bucket = wrq:path_info(bucket, RD),
         key = wrq:path_info(key, RD),
-        node = wrq:path_info(node, RD),
-        cluster = wrq:path_info(cluster, RD),
+        node = re_wm_util:node_from_context(Cluster, Node),
+        cluster = Cluster,
         method = wrq:method(RD),
         start = list_to_integer(wrq:get_qs_value("start","0",RD)),
-        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD))},
-    {true, RD, Ctx1#ctx{node = node_from_context(Ctx1)}}.
+        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD))
+    }}.
 
 allowed_methods(RD, Ctx) ->
     Methods = ['POST', 'GET', 'PUT', 'DELETE'],
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
-    Types = [{"application/json", provide_content},
-             {"application/vnd.api+json", provide_jsonapi_content}],
+    Types = [{"application/json", provide_json_content},
+             {"application/vnd.api+json", provide_japi_content}],
     {Types, RD, Ctx}.
 
 content_types_accepted(RD, Ctx) ->
@@ -105,42 +108,27 @@ content_types_accepted(RD, Ctx) ->
 
 resource_exists(RD, Ctx=?noNode()) ->
     {false, RD, Ctx};
-resource_exists(RD, Ctx=?putKeys(_BucketType, _Bucket)) ->
+resource_exists(RD, Ctx=?putKeys(_Node, _BucketType, _Bucket)) ->
     {true, RD, Ctx};
-resource_exists(RD, Ctx=?cleanKeys(BucketType, Bucket)) ->
-    Node = Ctx#ctx.node,
+resource_exists(RD, Ctx=?cleanKeys(Node, BucketType, Bucket)) ->
     re_riak:clean_keys(Node, BucketType, Bucket),
     {true, RD, Ctx};
-resource_exists(RD, Ctx=?listKeysCache(BucketType, Bucket)) ->
-    Node = Ctx#ctx.node,
-    case re_riak:list_keys_cache(Node, BucketType, Bucket, Ctx#ctx.start, Ctx#ctx.rows) of
-        {error, not_found} ->
-            {false, RD, Ctx};
-        Response ->
-            {true, RD, Ctx#ctx{id=keys, response=Response}}
-    end;
-resource_exists(RD, Ctx=?listKeys(BucketType, Bucket)) ->
-    Node = Ctx#ctx.node,
+resource_exists(RD, Ctx=?listKeysCache(Node, BucketType, Bucket)) ->
+    set_response(RD, Ctx, keys,
+        re_riak:list_keys_cache(Node, BucketType, Bucket, Ctx#ctx.start, Ctx#ctx.rows));
+resource_exists(RD, Ctx=?listKeys(Node, BucketType, Bucket)) ->
     JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "refresh_keys") - 1) ++ "jobs",
-    case re_riak:list_keys(Node, BucketType, Bucket) of
-        ok ->
-            {{halt, 202}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
-        [{error, already_started}] ->
-            {{halt, 102}, wrq:set_resp_header("Location",JobsPath,RD), Ctx};
-        {error, developer_mode_off} ->
-            {{halt, 403}, RD, Ctx}
-    end;
-resource_exists(RD, Ctx=?keyInfo(_BucketType, _Bucket, Key)) ->
+    re_wm_util:set_jobs_response(RD, Ctx, JobsPath,
+        re_riak:list_keys(Node, BucketType, Bucket));
+resource_exists(RD, Ctx=?keyInfo(_Node, _BucketType, _Bucket, Key)) ->
     Id = list_to_binary(Key),
     Response = [{keys, [{id,Id}, {props, []}]}],
-    {true, RD, Ctx#ctx{id=key, response=Response}};
-resource_exists(RD, Ctx=?keyResource(BucketType, Bucket, Key, Resource)) ->
-    Node = Ctx#ctx.node,
+    {true, RD, Ctx#ctx{id=Id, response=Response}};
+resource_exists(RD, Ctx=?keyResource(Node, BucketType, Bucket, Key, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
         [M,F] ->
-            Response = M:F(Node, BucketType, Bucket, Key),
-            {true, RD, Ctx#ctx{id=Id, response=Response}};
+            set_response(RD, Ctx, Id, M:F(Node, BucketType, Bucket, Key));
         _ ->
             {false, RD, Ctx}
     end;
@@ -150,38 +138,22 @@ resource_exists(RD, Ctx) ->
 delete_resource(RD, Ctx) ->
     {true, RD, Ctx}.
 
-accept_content(RD, Ctx=?putKeys(BucketType, Bucket)) ->
+accept_content(RD, Ctx=?putKeys(Node, BucketType, Bucket)) ->
     Node = Ctx#ctx.node,
     RawValue = wrq:req_body(RD),
     {struct, [{<<"keys">>, Keys}]} = mochijson2:decode(RawValue),
     re_riak:put_keys(Node, BucketType, Bucket, Keys),
     {true, RD, Ctx}.
 
-provide_content(RD, Ctx=#ctx{response=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    {mochijson2:encode(JDoc), RD, Ctx};
-provide_content(RD, Ctx=#ctx{id=Id, response=[{_, Objects}]}) ->
-    JRes = re_wm_jsonapi:res(RD, [], Objects, [], []),
-    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    {mochijson2:encode(JDoc), RD, Ctx}.
+provide_json_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+    {re_wm_util:provide_content(json, RD, Id, Response), RD, Ctx}.
 
-provide_jsonapi_content(RD, Ctx=#ctx{response=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    {mochijson2:encode(JDoc), RD, Ctx};
-provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
-    JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),
-    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    {mochijson2:encode(JDoc), RD, Ctx}.
+provide_japi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+    {re_wm_util:provide_content(jsonapi, RD, Id, Response), RD, Ctx}.
 
 %% ====================================================================
 %% Private
 %% ====================================================================
 
-node_from_context(Ctx) ->
-    case Ctx of
-        #ctx{cluster=undefined, node=N} ->
-            Node = list_to_atom(N),
-            re_config:set_adhoc_cluster(Node),
-            Node;
-        #ctx{cluster=C} -> re_riak:first_node(list_to_atom(C))
-    end.
+set_response(RD, Ctx, Id, Response) ->
+    re_wm_util:resource_exists(RD, Ctx#ctx{id=Id, response=Response}, Response).

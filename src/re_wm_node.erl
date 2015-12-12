@@ -25,9 +25,8 @@
          allowed_methods/2,
          content_types_provided/2,
          resource_exists/2,
-         provide_text_content/2,
-         provide_jsonapi_content/2,
-         provide_content/2]).
+         provide_japi_content/2,
+         provide_json_content/2]).
 
 -record(ctx, {cluster, node, resource, id, response=undefined}).
 
@@ -66,94 +65,63 @@ dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
 init(_) ->
     {ok, #ctx{}}.
 
-service_available(RD, Ctx0) ->
-    Ctx1 = Ctx0#ctx{
+service_available(RD, Ctx) ->
+    Cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD)),
+    Node = re_wm_util:maybe_atomize(wrq:path_info(node, RD)),
+
+    {true, RD, Ctx#ctx{
         resource = wrq:path_info(resource, RD),
-        cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD)),
-        node = re_wm_util:maybe_atomize(wrq:path_info(node, RD))},
-    {true, RD, Ctx1}.
+        cluster = Cluster,
+        node = Node
+    }}.
 
 allowed_methods(RD, Ctx) ->
     Methods = ['GET'],
     {Methods, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
-    Types = [{"application/json", provide_content},
-             {"plain/text", provide_text_content},
-             {"application/vnd.api+json", provide_jsonapi_content}],
+    Types = [{"application/json", provide_json_content},
+             {"application/vnd.api+json", provide_japi_content}],
     {Types, RD, Ctx}.
 
 resource_exists(RD, Ctx=?listNodes(Cluster)) ->
-    Response = re_riak:nodes(Cluster),
-    case Response of
-        [{error, not_found}] ->
-            {false, RD, Ctx};
-        _ ->
-            {true, RD, Ctx#ctx{id=nodes, response=Response}}
-    end;
+    set_response(RD, Ctx, nodes, re_riak:nodes(Cluster));
 resource_exists(RD, Ctx=?nodeInfo(Cluster0, Node)) ->
     Cluster = case Cluster0 of
-        undefined ->
-            re_config:set_adhoc_cluster(Node),
-            adhoc;
-        _ -> Cluster0
+        undefined -> default;
+        C -> C
     end,
-    case re_riak:cluster(Cluster) of
-        {error, not_found} ->
-            {false, RD, Ctx};
+    Response = case re_riak:cluster(Cluster) of
+        {error, not_found} -> {error, not_found};
         _ ->
             case re_riak:node_exists(Cluster, Node) of
                 true ->
-                    Response = [{nodes, re_riak:node_info(Node)}],
-                    {true, RD, Ctx#ctx{id=Node, response=Response}};
+                    [{nodes, re_riak:node_info(Node)}];
                 false ->
-                    {false, RD, Ctx}
+                    {error, not_found}
             end
-    end;
+    end,
+    set_response(RD, Ctx, Node, Response);
 resource_exists(RD, Ctx=?nodeResource(Cluster, Node, Resource)) ->
     Id = list_to_atom(Resource),
     case proplists:get_value(Id, resources()) of
         [M,F] ->
-            Response = M:F(Cluster, Node),
-            case Response of
-                [{error, not_found, Message}] ->
-                    {{halt, 404},
-                     wrq:set_resp_headers([], wrq:set_resp_body(mochijson2:encode(Message), RD)),
-                     Ctx};
-                _ ->
-                    {true, RD, Ctx#ctx{id=Id, response=Response}}
-            end;
+            set_response(RD, Ctx, Id, M:F(Cluster, Node));
         _ ->
             {false, RD, Ctx}
     end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
-provide_text_content(RD, Ctx=#ctx{response=undefined}) ->
-    {"", RD, Ctx};
-provide_text_content(RD, Ctx=#ctx{response=[{_, Objects}]}) ->
-    case proplists:get_value(lines, Objects) of
-        undefined ->
-            provide_content(RD, Ctx);
-        Lines ->
-            UnbinaryLines = lists:map(fun(A) -> binary_to_list(A) end, Lines),
-            LineSep = io_lib:nl(),
-            Text = [string:join(UnbinaryLines, LineSep), LineSep],
-            {Text, RD, Ctx}
-    end.
+provide_json_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+    {re_wm_util:provide_content(json, RD, Id, Response), RD, Ctx}.
 
-provide_content(RD, Ctx=#ctx{response=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    {mochijson2:encode(JDoc), RD, Ctx};
-provide_content(RD, Ctx=#ctx{id=Id, response=[{_, Objects}]}) ->
-    JRes = re_wm_jsonapi:res(RD, [], Objects, [], []),
-    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    {mochijson2:encode(JDoc), RD, Ctx}.
+provide_japi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
+    {re_wm_util:provide_content(jsonapi, RD, Id, Response), RD, Ctx}.
 
-provide_jsonapi_content(RD, Ctx=#ctx{response=undefined}) ->
-    JDoc = re_wm_jsonapi:doc(RD, data, null, re_wm_jsonapi:links(RD, "/explore/routes"), [], []),
-    {mochijson2:encode(JDoc), RD, Ctx};
-provide_jsonapi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
-    JRes = re_wm_jsonapi:res(RD, Type, Objects, [], []),
-    JDoc = re_wm_jsonapi:doc(RD, Id, JRes, [], [], []),
-    {mochijson2:encode(JDoc), RD, Ctx}.
+%% ====================================================================
+%% Private
+%% ====================================================================
+
+set_response(RD, Ctx, Id, Response) ->
+    re_wm_util:resource_exists(RD, Ctx#ctx{id=Id, response=Response}, Response).
