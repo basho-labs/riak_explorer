@@ -828,13 +828,16 @@ cluster_id_for_node(Node) ->
     end.
 
 cluster_info({C, _}) ->
-    Node = re_config:riak_node(C),
-    [{id,C},
-     {riak_node, Node},
-     {development_mode, re_config:development_mode(C)},
-     {riak_type, riak_type(Node)},
-     {riak_version, riak_version(Node)},
-     {available, node_is_alive(Node)}].
+    case re_config:riak_node(C) of
+        Node when is_atom(Node) ->
+            [{id,C},
+             {riak_node, Node},
+             {development_mode, re_config:development_mode(C)},
+             {riak_type, riak_type(Node)},
+             {riak_version, riak_version(Node)},
+             {available, node_is_alive(Node)}];
+        _ -> [{error, not_found}]
+    end.
 
 clusters() ->
     Clusters = re_config:clusters(),
@@ -859,14 +862,16 @@ first_node(Cluster) ->
     end.
 
 nodes(Cluster) ->
-    RiakNode = re_config:riak_node(Cluster),
-
-    case remote(RiakNode, riak_core_ring_manager, get_my_ring, []) of
-        {ok, MyRing} ->
-            Nodes = remote(RiakNode, riak_core_ring, all_members, [MyRing]),
-            WithIds = lists:map(fun(N) -> node_info(N) end, Nodes),
-            [{nodes, WithIds}];
-        _ -> [{nodes, []}]
+    case re_config:riak_node(Cluster) of
+        RiakNode when is_atom(RiakNode) ->
+            case remote(RiakNode, riak_core_ring_manager, get_my_ring, []) of
+                {ok, MyRing} ->
+                    Nodes = remote(RiakNode, riak_core_ring, all_members, [MyRing]),
+                    WithIds = lists:map(fun(N) -> node_info(N) end, Nodes),
+                    [{nodes, WithIds}];
+                _ -> [{nodes, []}]
+            end;
+        _ -> [{error, not_found}]
     end.
 
 node_exists(Cluster, Node) ->

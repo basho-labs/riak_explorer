@@ -144,7 +144,7 @@ url(Ip, Port) ->
 set_adhoc_cluster(Node) ->
     AdhocCluster = [{riak_node, atom_to_list(Node)},{development_mode, true}],
     case cluster(adhoc) of
-        undefined ->
+        [{error, not_found}] ->
             C = [{adhoc, AdhocCluster}|clusters()],
             application:set_env(riak_explorer, clusters, C);
         Cluster ->
@@ -169,13 +169,21 @@ clusters() ->
     Clusters.
 
 cluster(Cluster) ->
-    proplists:get_value(Cluster, clusters()).
+    proplists:get_value(Cluster, clusters(), [{error, not_found}]).
 
 riak_node() ->
     riak_node(default).
 
 riak_node(Cluster) ->
-    list_to_atom(proplists:get_value(riak_node, cluster(Cluster))).
+    case cluster(Cluster) of
+        [{error, not_found}] ->
+            [{error, not_found}];
+        C ->
+            case proplists:get_value(riak_node, C, [{error, not_found}]) of
+                [{error, not_found}] -> [{error, not_found}];
+                N -> list_to_atom(N)
+            end
+    end.
 
 web_root() ->
     "priv/ember_riak_explorer/dist".
