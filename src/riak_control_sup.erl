@@ -74,10 +74,6 @@ init([]) ->
     %% In order to easily inject Riak Explorer into a riak installation,
     %% we're hijacking the old riak_control_sup module's init/1 to start up
     %% Riak Explorer.
-    case re_config:development_mode() of
-        true -> lager:warning("Development mode is enabled");
-        _ -> ok
-    end,
 
     RexRoutes = lists:reverse(re_config:dispatch()),
     _ = [webmachine_router:add_route(R) || R <- RexRoutes],

@@ -33,60 +33,72 @@
 %%%===================================================================
 
 cache_for_each({Operation, Node, Path}, Fun, Mode, InitAccum) ->
-    Cluster = re_riak:cluster_id_for_node(Node),
-    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
-    {ok, Files} = file:list_dir(Dir),
-    case Files of
-       [File|_] ->
-          DirFile = filename:join([Dir, File]),
-          re_file_util:for_each_line_in_file(DirFile,Fun, Mode, InitAccum);
-       [] -> {error, not_found}
+    case re_riak:cluster_id_for_node(Node) of
+        [{error, not_found}] -> [{error, not_found}];
+        Cluster ->
+            Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+            {ok, Files} = file:list_dir(Dir),
+            case Files of
+               [File|_] ->
+                  DirFile = filename:join([Dir, File]),
+                  re_file_util:for_each_line_in_file(DirFile,Fun, Mode, InitAccum);
+               [] -> [{error, not_found}]
+            end
     end.
 
 clean({Operation, Node, Path}) ->
-   Cluster = re_riak:cluster_id_for_node(Node),
-   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
-   {ok, Files} = file:list_dir(Dir),
+   case re_riak:cluster_id_for_node(Node) of
+       [{error, not_found}] -> [{error, not_found}];
+       Cluster ->
+           Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+           {ok, Files} = file:list_dir(Dir),
 
-   case Files of
-        [] ->
-            {error, not_found};
-        _ ->
-            lists:foreach(fun(File) ->
-                DirFile = filename:join([Dir, File]),
-                file:delete(DirFile)
-            end, Files),
-            ok
-   end.
+           case Files of
+                [] ->
+                    [{error, not_found}];
+                _ ->
+                    lists:foreach(fun(File) ->
+                        DirFile = filename:join([Dir, File]),
+                        file:delete(DirFile)
+                    end, Files),
+                    ok
+           end
+    end.
 
 read_cache({Operation, Node, Path}, Start, Rows) ->
-   Cluster = re_riak:cluster_id_for_node(Node),
-   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
-   {ok, Files} = file:list_dir(Dir),
-   case Files of
-      [File|_] ->
-         DirFile = filename:join([Dir, File]),
-         {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows - 1),
-         [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(timestamp_human(File))},{Operation, Entries}]}];
-      [] -> {error, not_found}
-   end.
+   case re_riak:cluster_id_for_node(Node) of
+       [{error, not_found}] -> [{error, not_found}];
+       Cluster ->
+           Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+           {ok, Files} = file:list_dir(Dir),
+           case Files of
+              [File|_] ->
+                 DirFile = filename:join([Dir, File]),
+                 {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows - 1),
+                 [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(timestamp_human(File))},{Operation, Entries}]}];
+              [] -> [{error, not_found}]
+           end
+    end.
 
 write({Operation, _, _}=Meta) ->
    re_job_manager:create(Operation, {?MODULE, handle_list, [Meta]}).
 
 write_cache({Operation, Node, Path}, Objects) ->
-   Cluster = re_riak:cluster_id_for_node(Node),
-   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
-   {ok, Files} = file:list_dir(Dir),
-   DirFile = case Files of
-      [File|_] -> filename:join([Dir, File]);
-      [] -> filename:join([Dir, timestamp_string()])
-   end,
+   case re_riak:cluster_id_for_node(Node) of
+       [{error, not_found}] -> [{error, not_found}];
+       Cluster ->
+           Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+           {ok, Files} = file:list_dir(Dir),
+           DirFile = case Files of
+              [File|_] -> filename:join([Dir, File]);
+              [] -> filename:join([Dir, timestamp_string()])
+           end,
 
-   {ok, Device} = file:open(DirFile, [append]),
-   update_cache(Objects, Device),
-   file:close(Device),
-   ok.
+           {ok, Device} = file:open(DirFile, [append]),
+           update_cache(Objects, Device),
+           file:close(Device),
+           ok
+    end.
 
 %%%===================================================================
 %%% Callbacks
@@ -103,15 +115,18 @@ handle_list({keys, Node, [BucketType, Bucket]}=Meta) ->
    handle_stream(Meta, Stream).
 
 handle_stream({Operation, Node, Path}=Meta, {ok, ReqId}) ->
-   Cluster = re_riak:cluster_id_for_node(Node),
-   Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
-   TimeStamp = timestamp_string(),
-   FileName = filename:join([Dir, TimeStamp]),
-   file:write_file(FileName, "", [write]),
-   clean(Meta),
-   lager:info("list started for file: ~p at: ~p", [FileName, TimeStamp]),
-   {ok, Device} = file:open(FileName, [append]),
-   write_loop(Meta, ReqId, Device, 0);
+   case re_riak:cluster_id_for_node(Node) of
+       [{error, not_found}] -> [{error, not_found}];
+       Cluster ->
+           Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+           TimeStamp = timestamp_string(),
+           FileName = filename:join([Dir, TimeStamp]),
+           file:write_file(FileName, "", [write]),
+           clean(Meta),
+           lager:info("list started for file: ~p at: ~p", [FileName, TimeStamp]),
+           {ok, Device} = file:open(FileName, [append]),
+           write_loop(Meta, ReqId, Device, 0)
+    end;
 handle_stream({Operation, _Node, Path}, Error) ->
    lager:error(atom_to_list(Operation) ++ " list failed for path: ~p with reason: ~p", [Path, Error]).
 

@@ -38,11 +38,6 @@ start_link() ->
 %%%===================================================================
 
 init([]) ->
-    case re_config:development_mode() of
-        true -> lager:warning("Development mode is enabled");
-        _ -> ok
-    end,
-
     Web = {webmachine_mochiweb,
            {webmachine_mochiweb, start, [re_config:web_config()]},
            permanent, 5000, worker, [mochiweb_socket_server]},

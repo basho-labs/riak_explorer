@@ -148,7 +148,7 @@ resource_exists(RD, Ctx=?command(Node, Command)) ->
         "repl-clusterstats-fullsync" -> re_riak:repl_clusterstats_fullsync(Node);
         "repl-clusterstats-proxy_get" -> re_riak:repl_clusterstats_proxy_get(Node);
         "repl-clusterstats-realtime" -> re_riak:repl_clusterstats_realtime(Node);
-        _ -> {error, not_found}
+        _ -> [{error, not_found}]
     end,
     set_response(RD, Ctx, list_to_atom(Command), Response);
 resource_exists(RD, Ctx=?command(Node, Command, Arg1)) ->
@@ -169,7 +169,7 @@ resource_exists(RD, Ctx=?command(Node, Command, Arg1)) ->
         "repl-fullsync-disable" -> re_riak:repl_fullsync_disable(Node, Arg1);
         "repl-fullsync-start" -> re_riak:repl_fullsync_start(Node, Arg1);
         "repl-fullsync-stop" -> re_riak:repl_fullsync_stop(Node, Arg1);
-        _ -> {error, not_found}
+        _ -> [{error, not_found}]
     end,
     set_response(RD, Ctx, list_to_atom(Command), Response);
 resource_exists(RD, Ctx=?command(Node, Command, Arg1, Arg2)) ->
@@ -179,7 +179,7 @@ resource_exists(RD, Ctx=?command(Node, Command, Arg1, Arg2)) ->
         "force-replace" -> re_riak:force_replace(Node, Arg1, Arg2);
         "repl-connect" -> re_riak:repl_connect(Node, Arg1, Arg2);
         "repl-clusterstats" -> re_riak:repl_clusterstats(Node, Arg1, Arg2);
-        _ -> {error, not_found}
+        _ -> [{error, not_found}]
     end,
     set_response(RD, Ctx, list_to_atom(Command), Response);
 resource_exists(RD, Ctx) ->

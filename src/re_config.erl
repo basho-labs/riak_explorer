@@ -24,19 +24,16 @@
          data_dir/0,
          resources/0,
          dispatch/0,
-         development_mode/0, development_mode/1,
+         development_mode/1,
          routes/0,
          props/0,
          formatted_routes/0,
          format_route/2,
          web_config/0,
-         url/0,
-         url/2,
-         clusters/0,
-         cluster/1,
-         riak_node/0, riak_node/1,
-         web_root/0,
-         set_adhoc_cluster/1]).
+         url/0, url/2,
+         clusters/0, cluster/1,
+         riak_node/1,
+         web_root/0]).
 
 -include("riak_explorer.hrl").
 
@@ -84,9 +81,6 @@ resources() ->
 
 -spec dispatch() -> [webmachine_dispatcher:route()].
 dispatch() -> lists:flatten(dispatch(resources(), [])).
-
-development_mode() ->
-    proplists:get_value(development_mode, cluster(default)).
 
 development_mode(Cluster) ->
     proplists:get_value(development_mode, cluster(Cluster)).
@@ -141,38 +135,32 @@ url() ->
 url(Ip, Port) ->
     "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/".
 
-set_adhoc_cluster(Node) ->
-    AdhocCluster = [{riak_node, atom_to_list(Node)},{development_mode, true}],
-    case cluster(adhoc) of
-        [{error, not_found}] ->
-            C = [{adhoc, AdhocCluster}|clusters()],
-            application:set_env(riak_explorer, clusters, C);
-        Cluster ->
-            case proplists:get_value(riak_node, Cluster) of
-                Node ->
-                    ok;
-                _ ->
-                    CleanC = proplists:delete(adhoc, clusters()),
-                    C = [{adhoc, AdhocCluster}|CleanC],
-                    application:set_env(riak_explorer, clusters, C)
-            end
+clusters() ->
+    case default_cluster_exists() of
+        true ->
+            application:get_env(riak_explorer, clusters, []);
+        _ ->
+            proplists:delete(default, application:get_env(riak_explorer, clusters, []))
     end.
 
-clusters() ->
-    DefNode = case code:is_loaded(riak_core) of
-        false -> "riak@127.0.0.1";
-        _ -> atom_to_list(node())
-    end,
-    Def = [{default,[{riak_node,DefNode},
-           {development_mode,true}]}],
-    Clusters = application:get_env(riak_explorer, clusters, Def),
-    Clusters.
+%% A little hacky, but in order to get rid of cuttlefish's auto-default cluster, we need to do something like this
+default_cluster_exists() ->
+    case is_standalone() of
+        true ->
+            {ok, EtcDir} = application:get_env(riak_explorer, platform_etc_dir),
+            EtcFile = filename:join([EtcDir, "riak_explorer.conf"]),
+            Proc = fun(Entry, Accum) ->
+                case re:run(Entry, "^clusters.default.*$", []) of
+                    {match, _} -> true;
+                    _ -> Accum
+                end
+            end,
+            re_file_util:for_each_line_in_file(EtcFile, Proc, read, false);
+        false -> false
+    end.
 
 cluster(Cluster) ->
     proplists:get_value(Cluster, clusters(), [{error, not_found}]).
-
-riak_node() ->
-    riak_node(default).
 
 riak_node(Cluster) ->
     case cluster(Cluster) of

@@ -593,14 +593,18 @@ delete_bucket(Node, BucketType, Bucket) ->
     delete_bucket(Node, BucketType, Bucket, true).
 
 delete_bucket(Node, BucketType, Bucket, RefreshCache) ->
-    case re_config:development_mode() of
-        true ->
-            JobType = delete_bucket,
-            Meta = {JobType, Node, [BucketType, Bucket, RefreshCache]},
-            re_job_manager:create(JobType, {?MODULE, delete_bucket_job, [Meta]});
-        false ->
-            lager:warning("Failed request to delete types/~p/buckets/~p because developer mode is off", [BucketType, Bucket]),
-            {error, developer_mode_off}
+    case cluster_id_for_node(Node) of
+        [{error, not_found}] -> [{error, not_found}];
+        Cluster ->
+            case re_config:development_mode(Cluster) of
+                true ->
+                    JobType = delete_bucket,
+                    Meta = {JobType, Node, [BucketType, Bucket, RefreshCache]},
+                    re_job_manager:create(JobType, {?MODULE, delete_bucket_job, [Meta]});
+                false ->
+                    lager:warning("Failed request to delete types/~p/buckets/~p because developer mode is off", [BucketType, Bucket]),
+                    {error, developer_mode_off}
+            end
     end.
 
 delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
@@ -621,7 +625,7 @@ delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
                 re_job_manager:set_meta(delete_bucket, [{oks, Oks1},{errors,Errors1}]),
                 {Oks1,Errors1}
             end, [read], {0, 0}) of
-        {error, not_found} ->
+        [{error, not_found}] ->
             lager:warning("Deletetion of types/~p/buckets/~p could not be completed because no cache was found", [BucketType, Bucket]),
             re_job_manager:error(delete_bucket, [{error, cache_not_found}]);
         {Os,Es} ->
@@ -643,11 +647,15 @@ delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
 %%%===================================================================
 
 list_buckets(Node, BucketType) ->
-    case re_config:development_mode() of
-        true ->
-            re_keyjournal:write({buckets, Node, [BucketType]});
-        false ->
-            {error, developer_mode_off}
+    case cluster_id_for_node(Node) of
+        [{error, not_found}] -> [{error, not_found}];
+        Cluster ->
+            case re_config:development_mode(Cluster) of
+                true ->
+                    re_keyjournal:write({buckets, Node, [BucketType]});
+                false ->
+                    {error, developer_mode_off}
+            end
     end.
 
 list_buckets_cache(Node, BucketType, Start, Rows) ->
@@ -660,11 +668,15 @@ put_buckets(Node, BucketType, Buckets) ->
     re_keyjournal:write_cache({buckets, Node, [BucketType]}, Buckets).
 
 list_keys(Node, BucketType, Bucket) ->
-    case re_config:development_mode() of
-        true ->
-            re_keyjournal:write({keys, Node, [BucketType, Bucket]});
-        false ->
-            {error, developer_mode_off}
+    case cluster_id_for_node(Node) of
+        [{error, not_found}] -> [{error, not_found}];
+        Cluster ->
+            case re_config:development_mode(Cluster) of
+                true ->
+                    re_keyjournal:write({keys, Node, [BucketType, Bucket]});
+                false ->
+                    {error, developer_mode_off}
+            end
     end.
 
 list_keys_cache(Node, BucketType, Bucket, Start, Rows) ->
@@ -823,7 +835,7 @@ cluster_id_for_node(Node) ->
     [{clusters, Clusters}] = clusters(),
 
     case find_cluster_by_node(Node, Clusters) of
-        {error, not_found} -> undefined;
+        [{error, not_found}] -> [{error, not_found}];
         [{id, Id}|_] -> Id
     end.
 
@@ -848,7 +860,7 @@ cluster(Id) ->
     [{clusters, Clusters}] = clusters(),
 
     case find_cluster_by_id(Id, Clusters) of
-        {error, not_found} -> {error, not_found};
+        [{error, not_found}] -> [{error, not_found}];
         Props -> [{clusters, Props}]
     end.
 
@@ -938,14 +950,14 @@ handle_error(Action) ->
     end.
 
 find_cluster_by_id(_, []) ->
-    {error, not_found};
+    [{error, not_found}];
 find_cluster_by_id(Id, [[{id, Id}|_]=Props|_]) ->
     Props;
 find_cluster_by_id(Id, [_|Rest]) ->
     find_cluster_by_id(Id, Rest).
 
 find_cluster_by_node(_, []) ->
-    {error, not_found};
+    [{error, not_found}];
 find_cluster_by_node(Node, [[_,{riak_node,Node}|_]=Props|_]) ->
     Props;
 find_cluster_by_node(Node, [[{id, Cluster}|_]=Props|Rest]) ->

@@ -36,7 +36,7 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 6.
+version() -> 7.
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
@@ -73,7 +73,7 @@ tail_log(Name, NumLines) ->
             {_,_,_,Lines} = for_each_line(Device, Proc, {0,NumLines,TotalLines,[]}),
             {TotalLines, Lines};
         _ ->
-            {error, not_found}
+            [{error, not_found}]
     end.
 
 get_config_files() ->
@@ -104,7 +104,7 @@ get_config(Name) ->
             Lines = for_each_line(Device, Proc, ""),
             lists:reverse(Lines);
         _ ->
-            {error, not_found}
+            [{error, not_found}]
     end.
 
 effective_config() ->

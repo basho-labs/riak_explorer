@@ -87,18 +87,18 @@ content_types_provided(RD, Ctx) ->
 resource_exists(RD, Ctx=?listNodes(Cluster)) ->
     set_response(RD, Ctx, nodes, re_riak:nodes(Cluster));
 resource_exists(RD, Ctx=?nodeInfo(Cluster0, Node)) ->
-    Cluster = case Cluster0 of
-        undefined -> default;
-        C -> C
-    end,
-    Response = case re_riak:cluster(Cluster) of
-        {error, not_found} -> {error, not_found};
-        _ ->
-            case re_riak:node_exists(Cluster, Node) of
-                true ->
-                    [{nodes, re_riak:node_info(Node)}];
-                false ->
-                    {error, not_found}
+    Response = case Cluster0 of
+        undefined -> [{nodes, re_riak:node_info(Node)}];
+        Cluster ->
+            case re_riak:cluster(Cluster) of
+                [{error, not_found}] -> [{error, not_found}];
+                _ ->
+                    case re_riak:node_exists(Cluster, Node) of
+                        true ->
+                            [{nodes, re_riak:node_info(Node)}];
+                        false ->
+                            [{error, not_found}]
+                    end
             end
     end,
     set_response(RD, Ctx, Node, Response);

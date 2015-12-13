@@ -76,7 +76,10 @@ service_available(RD, Ctx0) ->
 
 send_proxy_request(RD, Ctx) ->
     Node = Ctx#ctx.node,
-    Cluster = re_riak:cluster_id_for_node(Node),
+    Cluster = case re_riak:cluster_id_for_node(Node) of
+        [{error, not_found}] -> undefined;
+        C -> C
+    end,
 
     [{http_listener,Listener}] = re_riak:http_listener(Node),
     RiakPath = "http://" ++ binary_to_list(Listener) ++ "/",
