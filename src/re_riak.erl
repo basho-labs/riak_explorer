@@ -722,7 +722,9 @@ config_file(Node, File) ->
     ValidFiles = [
         "riak.conf",
         "advanced.config",
-        "solr-log4j.properties"
+        "solr-log4j.properties",
+        "app.config",
+        "vm.args"
     ],
     case lists:member(File, ValidFiles) of
         true ->
