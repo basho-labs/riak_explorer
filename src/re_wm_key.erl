@@ -31,7 +31,7 @@
          provide_japi_content/2,
          provide_json_content/2]).
 
--record(ctx, {method, start, rows, cluster, node, bucket_type, bucket, key, resource, id, response=undefined}).
+-record(ctx, {method, start, rows, cluster, node, bucket_type, bucket, resource, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
@@ -39,17 +39,13 @@
 -define(noNode(),
     #ctx{node=[{error, no_nodes}]}).
 -define(putKeys(Node, BucketType, Bucket),
-    #ctx{node=Node, method='PUT', bucket_type=BucketType, bucket=Bucket, key=undefined}).
+    #ctx{node=Node, method='PUT', bucket_type=BucketType, bucket=Bucket}).
 -define(cleanKeys(Node, BucketType, Bucket),
-    #ctx{node=Node, method='DELETE', bucket_type=BucketType, bucket=Bucket, key=undefined}).
+    #ctx{node=Node, method='DELETE', bucket_type=BucketType, bucket=Bucket}).
 -define(listKeysCache(Node, BucketType, Bucket),
-    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket, key=undefined}).
+    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket}).
 -define(listKeys(Node, BucketType, Bucket),
-    #ctx{node=Node, method='POST', bucket_type=BucketType, bucket=Bucket, key=undefined}).
--define(keyInfo(Node, BucketType, Bucket, Key),
-    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket, key=Key, resource=undefined}).
--define(keyResource(Node, BucketType, Bucket, Key, Resource),
-    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket, key=Key, resource=Resource}).
+    #ctx{node=Node, method='POST', bucket_type=BucketType, bucket=Bucket}).
 
 %%%===================================================================
 %%% API
@@ -84,7 +80,6 @@ service_available(RD, Ctx) ->
         resource = wrq:path_info(resource, RD),
         bucket_type = wrq:path_info(bucket_type, RD),
         bucket = wrq:path_info(bucket, RD),
-        key = wrq:path_info(key, RD),
         node = re_wm_util:node_from_context(Cluster, Node),
         cluster = Cluster,
         method = wrq:method(RD),
@@ -120,18 +115,6 @@ resource_exists(RD, Ctx=?listKeys(Node, BucketType, Bucket)) ->
     JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "refresh_keys") - 1) ++ "jobs",
     re_wm_util:set_jobs_response(RD, Ctx, JobsPath,
         re_riak:list_keys(Node, BucketType, Bucket));
-resource_exists(RD, Ctx=?keyInfo(_Node, _BucketType, _Bucket, Key)) ->
-    Id = list_to_binary(Key),
-    Response = [{keys, [{id,Id}, {props, []}]}],
-    {true, RD, Ctx#ctx{id=Id, response=Response}};
-resource_exists(RD, Ctx=?keyResource(Node, BucketType, Bucket, Key, Resource)) ->
-    Id = list_to_atom(Resource),
-    case proplists:get_value(Id, resources()) of
-        [M,F] ->
-            set_response(RD, Ctx, Id, M:F(Node, BucketType, Bucket, Key));
-        _ ->
-            {false, RD, Ctx}
-    end;
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
