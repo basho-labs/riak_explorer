@@ -807,16 +807,21 @@ bucket_types(Node) ->
     [{bucket_types, List}].
 
 create_bucket_type(Node, BucketType, RawValue) ->
-    % Props = case mochijson2:decode(RawValue) of
-    %     {struct, [{<<"props", _/binary>>, {struct, Props1}}]} ->
-    % Result = riak_core_bucket_type:create(Type, Props),
-    case remote(Node, riak_kv_console, bucket_type_create, [[BucketType, RawValue]]) of
-        ok ->
-            case riak_core_bucket_type:activate(list_to_binary(BucketType)) of
-                ok -> ok;
-                {error, _} -> error
-            end;
-        error -> error
+    load_patch(Node),
+    {Created, Active} = case bucket_type(Node, list_to_binary(BucketType)) of
+        [{error, not_found}] -> {false, false};
+        [{bucket_types, Type}] ->
+            Props = proplists:get_value(props, Type),
+            {true, proplists:get_value(active, Props, false)}
+    end,
+
+    case {Created, Active} of
+        {false, _} ->
+            bucket_type_action(Node, BucketType, RawValue, [create, activate], []);
+        {true, false} ->
+            bucket_type_action(Node, BucketType, RawValue, [activate], []);
+        {true, true} ->
+            bucket_type_action(Node, BucketType, RawValue, [update], [])
     end.
 
 %%%===================================================================
@@ -913,6 +918,28 @@ node_is_alive(Node) ->
 %%%===================================================================
 %%% Private
 %%%===================================================================
+
+bucket_type_action(_Node, _BucketType, _RawValue, [], Accum) ->
+    [{bucket_types, [{success, true},{actions, lists:reverse(Accum)}]}];
+bucket_type_action(Node, BucketType, RawValue, [create|Rest], Accum) ->
+    Props = case RawValue of
+        <<>> -> "";
+        P -> P
+    end,
+    case remote(Node, re_riak_patch, bucket_type_create, [[BucketType, Props]]) of
+        [{error, _, _}]=E -> E;
+        C -> bucket_type_action(Node, BucketType, RawValue, Rest, [{create, C}|Accum])
+    end;
+bucket_type_action(Node, BucketType, RawValue, [activate|Rest], Accum) ->
+    case remote(Node, re_riak_patch, bucket_type_activate, [BucketType]) of
+        [{error, _, _}]=E -> E;
+        A -> bucket_type_action(Node, BucketType, RawValue, Rest, [{activate, A}|Accum])
+    end;
+bucket_type_action(Node, BucketType, RawValue, [update|Rest], Accum) ->
+    case remote(Node, re_riak_patch, bucket_type_update, [[BucketType, RawValue]]) of
+        [{error, _, _}]=E -> E;
+        U -> bucket_type_action(Node, BucketType, RawValue, Rest, [{update, U}|Accum])
+    end.
 
 maybe_load_patch(Node, false) ->
     lager:info("Loading re_riak_patch module into node[~p].", [Node]),

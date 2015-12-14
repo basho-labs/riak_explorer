@@ -21,6 +21,9 @@
 -module(re_riak_patch).
 -export([
   version/0,
+  bucket_type_create/1,
+  bucket_type_activate/1,
+  bucket_type_update/1,
   bucket_types/0,
   riak_version/0,
   tail_log/2,
@@ -36,7 +39,45 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 8.
+version() -> 7.
+
+bucket_type_create([TypeStr, ""]) ->
+    Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
+    EmptyProps = {struct, [{<<"props">>, {struct, []}}]},
+    bucket_type_create(Type, EmptyProps);
+bucket_type_create([TypeStr, PropsStr]) ->
+    Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
+    bucket_type_create(Type, catch mochijson2:decode(PropsStr)).
+
+bucket_type_create(Type, {struct, Fields}) ->
+    case proplists:get_value(<<"props">>, Fields) of
+        {struct, Props} ->
+            ErlProps = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props],
+            bucket_type_print_create_result(Type, riak_core_bucket_type:create(Type, ErlProps));
+        _ ->
+            [{error, format, [{error, <<"Cannot create bucket type: no props field found in json.">>}]}]
+    end;
+bucket_type_create(_, _) ->
+    [{error, format, [{error, <<"Cannot create bucket type: invalid json.">>}]}].
+
+bucket_type_activate(TypeStr) ->
+    Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
+    bucket_type_print_activate_result(Type, riak_core_bucket_type:activate(Type)).
+
+bucket_type_update([TypeStr, PropsStr]) ->
+    Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
+    bucket_type_update(Type, catch mochijson2:decode(PropsStr)).
+
+bucket_type_update(Type, {struct, Fields}) ->
+    case proplists:get_value(<<"props">>, Fields) of
+        {struct, Props} ->
+            ErlProps = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props],
+            bucket_type_print_update_result(Type, riak_core_bucket_type:update(Type, ErlProps));
+        _ ->
+            [{error, format, [{error, <<"Cannot update bucket type: no props field found in json.">>}]}]
+    end;
+bucket_type_update(_, _) ->
+    [{error, format, [{error, <<"Cannot update bucket type: invalid json.">>}]}].
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
@@ -122,6 +163,22 @@ effective_config() ->
 %%%===================================================================
 %%% Private
 %%%===================================================================
+
+bucket_type_print_create_result(_, ok) ->
+    <<"Bucket type created.">>;
+bucket_type_print_create_result(_, {error, Reason}) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("Error creating bucket type: ~p", [Reason]))}]}].
+
+bucket_type_print_activate_result(_, ok) ->
+    <<"Bucket type activated.">>;
+bucket_type_print_activate_result(_, {error, Reason}) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("Error activating bucket type: ~p", [Reason]))}]}].
+
+bucket_type_print_update_result(_, ok) ->
+    <<"Bucket type updated.">>;
+bucket_type_print_update_result(_, {error, Reason}) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("Error updating bucket type: ~p", [Reason]))}]}].
+
 check_existence(EtcDir, Filename) ->
     FullName = filename:join(EtcDir, Filename), %% Barfolomew
     Exists = filelib:is_file(FullName),

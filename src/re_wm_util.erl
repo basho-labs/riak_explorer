@@ -73,6 +73,12 @@ resource_exists(RD, Ctx, [{error, not_found, Message}]) ->
     halt_json(404, Message, RD, Ctx);
 resource_exists(RD, Ctx, [{error, not_found}]) ->
     {false, RD, Ctx};
+resource_exists(RD, Ctx, {error, Reason}) ->
+    halt_json(500, [{error, Reason}], RD, Ctx);
+resource_exists(RD, Ctx, [{error, Reason}]) ->
+    halt_json(500, [{error, Reason}], RD, Ctx);
+resource_exists(RD, Ctx, [{error, _, Message}]) ->
+    halt_json(500, Message, RD, Ctx);
 resource_exists(RD, Ctx, _) ->
     {true, RD, Ctx}.
 
