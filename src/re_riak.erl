@@ -704,8 +704,8 @@ log_file(Node, File, NumLines) ->
             case remote(Node, re_riak_patch, tail_log, [File, NumLines]) of
                 {error, _} ->
                     [{error, not_found}];
-                {TotalLines, Lines} ->
-                    [{log, [{total_lines, TotalLines},{lines, Lines}]}]
+                {Total, Lines} ->
+                    [{log, [{total_lines, Total},{lines, Lines}]}]
             end;
         _ ->
             [{error, not_found}]

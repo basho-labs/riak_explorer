@@ -167,9 +167,11 @@ riak_node(Cluster) ->
         [{error, not_found}] ->
             [{error, not_found, [{error, <<"Cluster doesn't exist.">>}]}];
         C ->
-            case proplists:get_value(riak_node, C, [{error, not_found, [{error, <<"Attribute 'riak_node' missing for cluster.">>}]}]) of
-                [{error, not_found}] -> [{error, not_found}];
-                N -> list_to_atom(N)
+            case proplists:get_value(riak_node, C) of
+                undefined ->
+                    [{error, not_found, [{error, <<"Attribute 'riak_node' missing for cluster.">>}]}];
+                N ->
+                    list_to_atom(N)
             end
     end.
 

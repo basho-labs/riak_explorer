@@ -63,12 +63,7 @@ service_available(RD, Ctx0) ->
         [{error, _, Error}] ->
             re_wm_util:halt_json(404, Error, RD, Ctx);
         _ ->
-            case re_riak:node_is_alive(Node) of
-                true ->
-                    send_proxy_request(RD, Ctx);
-                _ ->
-                    re_wm_util:halt_json(404, [{error, <<"Node is not running.">>}], RD, Ctx)
-            end
+            send_proxy_request(RD, Ctx)
     end.
 
 %% ====================================================================

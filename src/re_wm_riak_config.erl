@@ -89,7 +89,7 @@ resource_exists(RD, Ctx=?noNode(Error)) ->
 resource_exists(RD, Ctx=?listFiles(Node)) ->
     set_response(RD, Ctx, files, re_riak:config_files(Node));
 resource_exists(RD, Ctx=?getFile(Node, File)) ->
-    set_response(RD, Ctx, File, re_riak:config_file(Node, File));
+    set_response(RD, Ctx, list_to_atom(File), re_riak:config_file(Node, File));
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 

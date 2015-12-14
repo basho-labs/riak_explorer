@@ -42,8 +42,12 @@ node_from_context(Cluster, undefined) ->
         N when is_atom(N) -> N;
         Error -> Error
     end;
-node_from_context(_, Node) ->
-    maybe_atomize(Node).
+node_from_context(_, Node0) ->
+    Node = maybe_atomize(Node0),
+    case re_riak:node_is_alive(Node) of
+        true -> Node;
+        _ -> [{error, not_found, [{error, <<"Node is not running.">>}]}]
+    end.
 
 provide_content(text, _, _, undefined) ->
     "";

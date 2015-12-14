@@ -36,7 +36,7 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 7.
+version() -> 8.
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
@@ -58,20 +58,13 @@ riak_version() ->
 tail_log(Name, NumLines) ->
     LogDir = app_helper:get_env(riak_core, platform_log_dir),
     LogFile = filename:join([LogDir, Name]),
-    TotalLines = count_lines(LogFile),
     case file:open(LogFile, read) of
         {ok, Device} ->
-            Proc = fun(Entry, {Current,Num,Total,Accum}) ->
-                case {Current, Num, Total} of
-                    {C, N, T} when C > T -> {C+1, N, T, Accum};
-                    {C, N, T} when C =< (T - N) -> {C+1, N, T, Accum};
-                    {C, N, T} when C > (T - N) ->
-                        B = re:replace(Entry, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
-                        {C+1, N, T, [list_to_binary(B)|Accum]}
-                end
-            end,
-            {_,_,_,Lines} = for_each_line(Device, Proc, {0,NumLines,TotalLines,[]}),
-            {TotalLines, Lines};
+            Proc = fun(Entry, Accum) -> [Entry|Accum] end,
+            Lines0 = for_each_line(Device, Proc, []),
+            Count = length(Lines0),
+            Lines1 = lists:nthtail(max(Count-NumLines, 0), Lines0),
+            {Count, lists:map(fun(Line) -> list_to_binary(re:replace(Line, "(^\\s+)|(\\s+$)", "", [global,{return,list}])) end, Lines1)};
         _ ->
             [{error, not_found}]
     end.
@@ -177,17 +170,6 @@ generate_effective_proplist(EffectiveString) ->
       [],
       EffectivePropList
      ).
-
-count_lines(Name) ->
-    case file:open(Name, read) of
-        {ok, Device} ->
-            Proc = fun(_, NumLines) ->
-                NumLines + 1
-            end,
-            for_each_line(Device, Proc, 0);
-        _ ->
-            0
-    end.
 
 for_each_line(Device, Proc, Accum) ->
   case io:get_line(Device, "") of
