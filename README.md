@@ -11,10 +11,15 @@ Objects, and more. To prevent heavy I/O requests from key listings, be sure to
 edit the config file to reflect the environment as [explained in Using Riak
 Explorer](#using-riak-explorer).
 
+* [Screenshots](#screenshots)
 * [Installation](#installation)
 * [System Architecture](#architecture)
 * [Using Riak Explorer](#using-riak-explorer)
 * [Development / Contributing](#development--contributing)
+
+## Screenshots
+
+<img width="700" alt="Cluster View" src="https://cloud.githubusercontent.com/assets/947005/11791541/9ccdf11e-a26f-11e5-9f65-17ec5a6e4015.png">
 
 ## Installation
 
@@ -130,8 +135,7 @@ curl /explore/clusters/default/bucket_types/default/buckets
 
 ### Explorer API endpoints
 
-Take a look at the listing of Explorer API resources below. The three types of
-API endpoints available are:
+The three types of API endpoints available are:
 
 1. The **Riak proxy** endpoints, `/riak/nodes/` and `/riak/clusters/`. The app
     uses these endpoints to make calls to the plain [Riak HTTP
@@ -162,7 +166,10 @@ API endpoints available are:
 
 ### API Documentation
 
-You can generate Explorer API reference documentation using
+For in-depth documentation of the available API endpoints, complete with
+sample responses, see [Riak Explorer API](http://basho-labs.github.io/riak_explorer/docs/api.html).
+
+You can also generate this API documentation locally, using
 [aglio](https://github.com/danielgtaylor/aglio):
 
 ```
@@ -176,7 +183,10 @@ aglio -i API.apib.md --theme-full-width -o docs/api.html
 open docs/api.html
 ```
 
-#### Full API Listing
+The source code for these docs is in [API Blueprint Format](https://github.com/apiaryio/api-blueprint/blob/master/API Blueprint Specification.md) (see also the [sample API markup example](https://raw.githubusercontent.com/danielgtaylor/aglio/master/example.apib)),
+and is located in the [API.apib.md](API.apib.md) file.
+
+#### Full API Endpoint Listing
 
 Riak Explorer exposes a REST API (by default located at [http://localhost:9000/explore](http://localhost:9000/explore)).
 
