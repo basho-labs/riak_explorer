@@ -20,28 +20,33 @@ Get a list of all the clusters listed in Explorer's `riak_explorer.conf` file.
 
         {
             "clusters": [
-
                 {
-                    "id": "production1",
+                    "available": false,
                     "development_mode": false,
+                    "id": "production1",
                     "riak_node": "riak@192.168.0.1",
-                    "riak_type": "ee"
+                    "riak_type": "unavailable",
+                    "riak_version": "unavailable"
                 },
                 {
+                    "available": false,
+                    "development_mode": true,
                     "id": "qa1",
-                    "development_mode": true,
-                    "riak_node": "qa1@127.0.0.1",
-                    "riak_type": "oss"
+                    "riak_node": "dev8@127.0.0.1",
+                    "riak_type": "unavailable",
+                    "riak_version": "unavailable"
                 },
                 {
-                    "id": "localdev",
+                    "available": true,
                     "development_mode": true,
-                    "riak_node": "riak@127.0.0.1",
-                    "riak_type": "oss"
+                    "id": "localdev",
+                    "riak_node": "dev1@127.0.0.1",
+                    "riak_type": "oss",
+                    "riak_version": "2.1.0"
                 }
             ],
             "links": {
-                "self": "/explore/clusters/"
+                "self": "/explore/clusters"
             }
         }
 
@@ -58,10 +63,12 @@ Get the properties of a cluster listed in Explorer's `riak_explorer.conf` file.
 
         {
             "cluster": {
-                "id": "localdev",
+                "available": true,
                 "development_mode": true,
-                "riak_node": "riak@127.0.0.1",
-                "riak_type": "oss"
+                "id": "localdev",
+                "riak_node": "dev1@127.0.0.1",
+                "riak_type": "oss",
+                "riak_version": "2.1.0"
             },
             "links": {
                 "self": "/explore/clusters/localdev"
@@ -80,19 +87,21 @@ Get a list of all Nodes that are joined into the specified cluster.
         {
             "nodes": [
                 {
-                    "id": "riak1@127.0.0.1"
+                    "id": "dev1@127.0.0.1"
                 },
                 {
-                    "id": "riak2@127.0.0.1"
+                    "id": "dev2@127.0.0.1"
                 },
                 {
-                    "id": "riak3@127.0.0.1"
+                    "id": "dev3@127.0.0.1"
                 }
             ],
             "links": {
                 "self": "/explore/clusters/localdev/nodes"
             }
         }
+
++ Response 404 (text/html)
 
 ## Node [/explore/clusters/{cluster_id}/nodes/{node_id}]
 
@@ -101,22 +110,23 @@ Retrieves the properties of a single node within the specified cluster.
 
 + Parameters
     + cluster_id: `localdev` (string) - The Cluster id.
-    + node_id: `riak1@127.0.0.1` (string) - The Riak node id (in distributed
+    + node_id: `dev1@127.0.0.1` (string) - The Riak node id (in distributed
         Erlang node format).
 
 + Response 200 (application/json)
 
         {
             "node": {
-                "id": "riak@127.0.0.1",
-                "riak_type": "oss"
+                "id": "riak@127.0.0.1"
             },
             "links": {
-                "self": "/explore/clusters/default/nodes/riak@127.0.0.1"
+                "self": "/explore/clusters/localdev/nodes/dev1@127.0.0.1"
             }
         }
 
-## Node Config [/explore/clusters/{cluster_id}/nodes/{node_id}/config]
++ Response 404 (text/html)
+
+## Node Effective Config [/explore/clusters/{cluster_id}/nodes/{node_id}/config]
 
 ### Retrieve a Node's effective config [GET]
 Retrieves the effective config settings for a specified node (the equivalent
@@ -140,9 +150,17 @@ the following error body:
 }
 ```
 
+If an invalid node id is specified:
+
+```
+{
+    "error": "Invalid node id or node not available."
+}
+```
+
 + Parameters
     + cluster_id: `localdev` (string) - The Cluster id.
-    + node_id: `riak1@127.0.0.1` (string) - The Riak node id (in distributed
+    + node_id: `dev1@127.0.0.1` (string) - The Riak node id (in distributed
         Erlang node format).
 
 + Response 200 (application/json)
@@ -313,7 +331,7 @@ the following error body:
                 }
             },
             "links": {
-                "self": "/explore/clusters/default/nodes/dev1@127.0.0.1/config"
+                "self": "/explore/clusters/localdev/nodes/dev1@127.0.0.1/config"
             }
         }
 
@@ -322,6 +340,145 @@ the following error body:
         {
             "error": "Invalid node id or node not available."
         }
+
+## Node Config Files Collection [/explore/clusters/{cluster_id}/nodes/{node_id}/config/files]
+
+### List all config files for a Node [GET]
+Retrieves a list of all config files that reside in that node's `etc` directory.
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + node_id: `dev1@127.0.0.1` (string) - The Riak node id (in distributed
+        Erlang node format).
+
++ Response 200 (application/json)
+
+        {
+            "files": [
+                {
+                    "id": "advanced.config"
+                },
+                {
+                    "id": "riak.conf"
+                },
+                {
+                    "id": "solr-log4j.properties"
+                }
+            ],
+            "links": {
+                "self": "/explore/clusters/localdev/nodes/dev1@127.0.0.1/config/files"
+            }
+        }
+
+## Node Config File [/explore/clusters/{cluster_id}/nodes/{node_id}/config/files/{file_name}]
+
+### Retrieve a Config File for a Node [GET]
+Retrieves a specific config file that belongs to a node, in its entirety.
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + node_id: `dev1@127.0.0.1` (string) - The Riak node id (in distributed
+        Erlang node format).
+    + file_name: `riak.conf` (string) - Name of the config file.
+
++ Response 200 (plain/text)
+
+    + Headers
+
+            Accept: plain/text
+
+    + Body
+
+            ## Where to emit the default log messages (typically at 'info'
+            ## severity):
+            ## off: disabled
+            ## file: the file specified by log.console.file
+            ## console: to standard output (seen when using `riak attach-direct`)
+            ## both: log.console.file and standard out.
+            ##
+            ## Default: both
+            ##
+            ## Acceptable values:
+            ##   - one of: off, file, console, both
+            log.console = both
+            ...
+
++ Response 404 (text/html)
+
+## Node Log Files Collection [/explore/clusters/{cluster_id}/nodes/{node_id}/log/files]
+
+### List all Log Files for a Node [GET]
+Retrieves a list of all log files that reside in that node's `log` directory.
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + node_id: `dev1@127.0.0.1` (string) - The Riak node id (in distributed
+        Erlang node format).
+
++ Response 200 (application/json)
+
+        {
+            "files": [
+                {
+                    "id": "console.log"
+                },
+                {
+                    "id": "console.log.0"
+                },
+                {
+                    "id": "crash.log"
+                },
+                {
+                    "id": "erlang.log.1"
+                },
+                {
+                    "id": "error.log"
+                },
+                {
+                    "id": "error.log.4"
+                },
+                {
+                    "id": "run_erl.log"
+                }
+            ],
+            "links": {
+                "self": "/explore/clusters/localdev/nodes/dev1@127.0.0.1/log/files"
+            }
+        }
+
++ Response 404 (text/html)
+
+## Node Log File [/explore/clusters/{cluster_id}/nodes/{node_id}/log/files/{file_name}?rows={rows}]
+
+### Retrieve a Log File for a Node [GET]
+Retrieves the results of tailing a specific log file that belongs to a node.
+(Equivalent to `tail -n 1000 $log_file_name`, by default).
+Only the log files that reside in the Riak node's `log` directory are allowed
+(that is, only the files that appear in the response to `.../log/files`).
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + node_id: `dev1@127.0.0.1` (string) - The Riak node id (in distributed
+        Erlang node format).
+    + file_name: `console.log` (string) - Name of the log file.
+    + rows: `5` (integer, optional) - Number of lines (from the end of the
+          log) to return. Similar to the command line `tail -n $rows`.
+          + Default: 1000
+
++ Response 200 (plain/text)
+
+    + Headers
+
+            Accept: plain/text
+
+    + Body
+
+            2015-12-14 12:36:23.709 [info] <0.20541.0>@re_riak_patch:check_existence:135 Checking ./etc/advanced.config exists... true
+            2015-12-14 12:36:23.709 [info] <0.20541.0>@re_riak_patch:check_existence:135 Checking ./etc/vm.args exists... false
+            2015-12-14 12:36:23.708 [info] <0.20541.0>@re_riak_patch:check_existence:135 Checking ./etc/app.config exists... false
+            2015-12-14 12:36:23.588 [info] <0.20541.0>@re_riak_patch:check_existence:135 Checking ./etc/riak.conf exists... true
+
++ Response 404 (text/html)
 
 ## Bucket Types Collection [/explore/clusters/{cluster_id}/bucket_types]
 
@@ -441,11 +598,6 @@ line).
         }
 
 + Response 404
-
-### Edit a Bucket Type [PUT]
-
-+ Request (application/json)
-+ Response 200 (application/json)
 
 # Group Riak Proxy [/riak]
 The `/riak` set of endpoints allow for clients to proxy requests to nodes
