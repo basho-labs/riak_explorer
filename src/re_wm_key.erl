@@ -36,8 +36,8 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
--define(noNode(),
-    #ctx{node=[{error, no_nodes}]}).
+-define(noNode(Error),
+    #ctx{node=[_]=Error}).
 -define(putKeys(Node, BucketType, Bucket),
     #ctx{node=Node, method='PUT', bucket_type=BucketType, bucket=Bucket}).
 -define(cleanKeys(Node, BucketType, Bucket),
@@ -101,8 +101,8 @@ content_types_accepted(RD, Ctx) ->
              {"application/vnd.api+json", accept_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx=?noNode()) ->
-    {false, RD, Ctx};
+resource_exists(RD, Ctx=?noNode(Error)) ->
+    set_response(RD, Ctx, error, Error);
 resource_exists(RD, Ctx=?putKeys(_Node, _BucketType, _Bucket)) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx=?cleanKeys(Node, BucketType, Bucket)) ->

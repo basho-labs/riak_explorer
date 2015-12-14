@@ -33,6 +33,8 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
+-define(noNode(Error),
+    #ctx{node=[_]=Error}).
 -define(command(Node, Command),
     #ctx{node=Node,command=Command,arg1=undefined,arg2=undefined}).
 -define(command(Node, Command, Arg1),
@@ -125,6 +127,8 @@ content_types_provided(RD, Ctx) ->
  {"application/vnd.api+json", provide_japi_content}],
     {Types, RD, Ctx}.
 
+resource_exists(RD, Ctx=?noNode(Error)) ->
+    set_response(RD, Ctx, error, Error);
 resource_exists(RD, Ctx=?command(Node, Command)) ->
     Response = case Command of
         "repair" -> re_riak:repair(Node);

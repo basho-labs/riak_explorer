@@ -100,7 +100,6 @@
 -export([cluster_id_for_node/1,
          clusters/0,
          cluster/1,
-         first_node/1,
          nodes/1]).
 
 -export([load_patch/1]).
@@ -768,15 +767,6 @@ node_config(_, Node) ->
             [{error, not_found, [{error, <<"Invalid node id or node not available.">>}]}]
     end.
 
-node_is_alive([{error, no_nodes}]) ->
-    false;
-node_is_alive(Node) ->
-    case remote(Node, erlang, node, []) of
-        {error,_} -> false;
-        unavailable -> false;
-        A -> is_atom(A)
-    end.
-
 riak_type(Node) ->
     case remote(Node, code, is_loaded, [riak_repl_console]) of
         false -> oss;
@@ -851,6 +841,13 @@ cluster_info({C, _}) ->
              {riak_version, riak_version(Node)},
              {available, node_is_alive(Node)}];
         _ -> [{error, not_found}]
+    end;
+cluster_info(Id) ->
+    case re_config:cluster(Id) of
+        [{error, not_found}] ->
+            [{error, not_found}];
+        C ->
+            [{clusters, cluster_info({Id, C})}]
     end.
 
 clusters() ->
@@ -859,21 +856,13 @@ clusters() ->
     [{clusters, Mapped}].
 
 cluster(Id) ->
-    [{clusters, Clusters}] = clusters(),
-
-    case find_cluster_by_id(Id, Clusters) of
-        [{error, not_found}] -> [{error, not_found}];
-        Props -> [{clusters, Props}]
-    end.
-
-first_node(Cluster) ->
-    case nodes(Cluster) of
-        [{nodes, []}] -> [{error, no_nodes}];
-        [{nodes, [Node|_]}] ->
-            Id = proplists:get_value(id, Node),
-            Id;
-        [{error, not_found}] -> [{error, no_nodes}]
-    end.
+    cluster_info(Id).
+    % [{clusters, Clusters}] = clusters(),
+    %
+    % case find_cluster_by_id(Id, Clusters) of
+    %     [{error, not_found}] -> [{error, not_found}];
+    %     Props -> [{clusters, Props}]
+    % end.
 
 nodes(Cluster) ->
     case re_config:riak_node(Cluster) of
@@ -885,7 +874,7 @@ nodes(Cluster) ->
                     [{nodes, WithIds}];
                 _ -> [{nodes, []}]
             end;
-        _ -> [{error, not_found}]
+        Error -> Error
     end.
 
 node_exists(Cluster, Node) ->
@@ -911,6 +900,15 @@ load_patch(Node) ->
 
 remote(N, M, F, A) ->
     safe_rpc(N, M, F, A, 60000).
+
+node_is_alive([{error, _}]) ->
+    false;
+node_is_alive(Node) ->
+    case remote(Node, erlang, node, []) of
+        {error,_} -> false;
+        unavailable -> false;
+        A -> is_atom(A)
+    end.
 
 %%%===================================================================
 %%% Private
@@ -951,12 +949,12 @@ handle_error(Action) ->
             [{control, [{error, Error}]}]
     end.
 
-find_cluster_by_id(_, []) ->
-    [{error, not_found}];
-find_cluster_by_id(Id, [[{id, Id}|_]=Props|_]) ->
-    Props;
-find_cluster_by_id(Id, [_|Rest]) ->
-    find_cluster_by_id(Id, Rest).
+% find_cluster_by_id(_, []) ->
+%     [{error, not_found}];
+% find_cluster_by_id(Id, [[{id, Id}|_]=Props|_]) ->
+%     Props;
+% find_cluster_by_id(Id, [_|Rest]) ->
+%     find_cluster_by_id(Id, Rest).
 
 find_cluster_by_node(_, []) ->
     [{error, not_found}];

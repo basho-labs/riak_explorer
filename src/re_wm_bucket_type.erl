@@ -35,8 +35,8 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
--define(noNode(),
-    #ctx{node=[{error, no_nodes}]}).
+-define(noNode(Error),
+    #ctx{node=[_]=Error}).
 -define(listBucketTypes(Node),
     #ctx{node=Node, method='GET', bucket_type=undefined}).
 -define(bucketTypeInfo(Node, BucketType),
@@ -98,8 +98,8 @@ content_types_provided(RD, Ctx) ->
              {"application/vnd.api+json", provide_japi_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx=?noNode()) ->
-    {false, RD, Ctx};
+resource_exists(RD, Ctx=?noNode(Error)) ->
+    set_response(RD, Ctx, error, Error);
 resource_exists(RD, Ctx=?listBucketTypes(Node)) ->
     set_response(RD, Ctx, bucket_types, re_riak:bucket_types(Node));
 resource_exists(RD, Ctx=?createBucketType(_,_)) ->

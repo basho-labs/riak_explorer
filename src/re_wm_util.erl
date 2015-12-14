@@ -24,7 +24,9 @@
   node_from_context/2,
   provide_content/4,
   resource_exists/3,
-  set_jobs_response/4]).
+  set_jobs_response/4,
+  halt/3,halt/4,halt/5,
+  halt_json/4]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 
@@ -36,9 +38,9 @@ maybe_atomize(Data) when is_list(Data) -> list_to_atom(Data);
 maybe_atomize(Data) when is_atom(Data) -> Data.
 
 node_from_context(Cluster, undefined) ->
-    case re_riak:first_node(maybe_atomize(Cluster)) of
+    case re_config:riak_node(maybe_atomize(Cluster)) of
         N when is_atom(N) -> N;
-        _ -> undefined
+        Error -> Error
     end;
 node_from_context(_, Node) ->
     maybe_atomize(Node).
@@ -64,21 +66,31 @@ provide_content(jsonapi, RD, Id, [{Type, Objects}]) ->
 resource_exists(RD, Ctx, {error, not_found}) ->
     {false, RD, Ctx};
 resource_exists(RD, Ctx, [{error, not_found, Message}]) ->
-    {{halt, 404},
-     wrq:set_resp_headers([], wrq:set_resp_body(mochijson2:encode(Message), RD)),
-     Ctx};
+    halt_json(404, Message, RD, Ctx);
 resource_exists(RD, Ctx, [{error, not_found}]) ->
     {false, RD, Ctx};
 resource_exists(RD, Ctx, _) ->
     {true, RD, Ctx}.
 
-set_jobs_response(RD, Ctx, Headers, ok) ->
-    {{halt, 202}, wrq:set_resp_header("Location",Headers,RD), Ctx};
-set_jobs_response(RD, Ctx, Headers, [{error, already_started}]) ->
-    {{halt, 102}, wrq:set_resp_header("Location",Headers,RD), Ctx};
+set_jobs_response(RD, Ctx, Location, ok) ->
+    halt(202, [{"Location",Location}], RD, Ctx);
+set_jobs_response(RD, Ctx, Location, [{error, already_started}]) ->
+    halt(102, [{"Location",Location}], RD, Ctx);
 set_jobs_response(RD, Ctx, _, {error, developer_mode_off}) ->
-    {{halt, 403}, RD, Ctx}.
+    halt(403, RD, Ctx).
 
+halt(Code, RD, Ctx) ->
+    {{halt, Code}, RD, Ctx}.
+halt(Code, Headers, RD, Ctx) ->
+    {{halt, Code}, wrq:set_resp_headers(Headers, RD), Ctx}.
+halt(Code, Headers, Data, RD, Ctx) ->
+    {{halt, Code}, wrq:set_resp_headers(Headers, wrq:set_resp_body(Data, RD)), Ctx}.
+
+halt_json(Code, Data, RD, Ctx) ->
+    {{halt, Code},
+     wrq:set_resp_headers([{<<"Content-Type">>, <<"application/json">>}],
+     wrq:set_resp_body(mochijson2:encode(Data), RD)),
+     Ctx}.
 %% ====================================================================
 %% Private
 %% ====================================================================

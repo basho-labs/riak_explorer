@@ -34,8 +34,8 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
--define(noNode(),
-    #ctx{node=undefined}).
+-define(noNode(Error),
+    #ctx{node=[_]=Error}).
 -define(listFiles(Node),
     #ctx{node=Node, id=undefined}).
 -define(getFile(Node, File, Rows),
@@ -85,8 +85,8 @@ content_types_provided(RD, Ctx) ->
              {"application/vnd.api+json", provide_japi_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx=?noNode()) ->
-    {false, RD, Ctx};
+resource_exists(RD, Ctx=?noNode(Error)) ->
+    set_response(RD, Ctx, error, Error);
 resource_exists(RD, Ctx=?listFiles(Node)) ->
     set_response(RD, Ctx, files, re_riak:log_files(Node));
 resource_exists(RD, Ctx=?getFile(Node, File, Rows)) ->

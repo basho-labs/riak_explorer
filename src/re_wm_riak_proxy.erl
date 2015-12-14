@@ -56,18 +56,19 @@ service_available(RD, Ctx0) ->
     Node = re_wm_util:node_from_context(Cluster, Node0),
 
     Ctx = Ctx0#ctx{
-        node = re_wm_util:node_from_context(Cluster, Node0),
+        node = Node,
         cluster = Cluster},
 
-    case re_riak:node_is_alive(Node) of
-        true ->
-            send_proxy_request(RD, Ctx);
+    case Node of
+        [{error, _, Error}] ->
+            re_wm_util:halt_json(404, Error, RD, Ctx);
         _ ->
-            RespBody = mochijson2:encode([{error, <<"Node is not running.">>}]),
-            {{halt, 404},
-             wrq:set_resp_headers([{<<"Content-Type">>, <<"application/json">>}],
-                                  wrq:set_resp_body(RespBody, RD)),
-             Ctx}
+            case re_riak:node_is_alive(Node) of
+                true ->
+                    send_proxy_request(RD, Ctx);
+                _ ->
+                    re_wm_util:halt_json(404, [{error, <<"Node is not running.">>}], RD, Ctx)
+            end
     end.
 
 %% ====================================================================
