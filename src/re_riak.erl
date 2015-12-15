@@ -74,11 +74,11 @@
          delete_bucket_job/1]).
 
 -export([list_buckets_cache/4,
-         list_buckets/2,
+         list_buckets/3,
          clean_buckets/2,
          put_buckets/3,
          list_keys_cache/5,
-         list_keys/3,
+         list_keys/4,
          clean_keys/3,
          put_keys/4]).
 
@@ -645,13 +645,13 @@ delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
 %%% Keyjournal API
 %%%===================================================================
 
-list_buckets(Node, BucketType) ->
+list_buckets(Node, BucketType, Options) ->
     case cluster_id_for_node(Node) of
         [{error, not_found}] -> [{error, not_found}];
         Cluster ->
             case re_config:development_mode(Cluster) of
                 true ->
-                    re_keyjournal:write({buckets, Node, [BucketType]});
+                    re_keyjournal:write({buckets, Node, [BucketType]}, Options);
                 false ->
                     {error, developer_mode_off}
             end
@@ -666,13 +666,13 @@ clean_buckets(Node, BucketType) ->
 put_buckets(Node, BucketType, Buckets) ->
     re_keyjournal:write_cache({buckets, Node, [BucketType]}, Buckets).
 
-list_keys(Node, BucketType, Bucket) ->
+list_keys(Node, BucketType, Bucket, Options) ->
     case cluster_id_for_node(Node) of
         [{error, not_found}] -> [{error, not_found}];
         Cluster ->
             case re_config:development_mode(Cluster) of
                 true ->
-                    re_keyjournal:write({keys, Node, [BucketType, Bucket]});
+                    re_keyjournal:write({keys, Node, [BucketType, Bucket]}, Options);
                 false ->
                     {error, developer_mode_off}
             end

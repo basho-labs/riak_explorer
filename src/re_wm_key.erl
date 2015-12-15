@@ -32,7 +32,7 @@
          provide_japi_content/2,
          provide_json_content/2]).
 
--record(ctx, {method, start, rows, cluster, node, bucket_type, bucket, resource, id, response=undefined}).
+-record(ctx, {method, start, rows, sort, cluster, node, bucket_type, bucket, resource, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
@@ -45,8 +45,8 @@
     #ctx{node=Node, method='DELETE', bucket_type=BucketType, bucket=Bucket}).
 -define(listKeysCache(Node, BucketType, Bucket),
     #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket}).
--define(listKeys(Node, BucketType, Bucket),
-    #ctx{node=Node, method='POST', bucket_type=BucketType, bucket=Bucket}).
+-define(listKeys(Node, BucketType, Bucket, Sort),
+    #ctx{node=Node, method='POST', bucket_type=BucketType, bucket=Bucket, sort=Sort}).
 
 %%%===================================================================
 %%% API
@@ -85,7 +85,8 @@ service_available(RD, Ctx) ->
         cluster = Cluster,
         method = wrq:method(RD),
         start = list_to_integer(wrq:get_qs_value("start","0",RD)),
-        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD))
+        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD)),
+        sort = list_to_atom(wrq:get_qs_value("sort","true",RD))
     }}.
 
 allowed_methods(RD, Ctx) ->
@@ -114,10 +115,11 @@ resource_exists(RD, Ctx=?cleanKeys(Node, BucketType, Bucket)) ->
 resource_exists(RD, Ctx=?listKeysCache(Node, BucketType, Bucket)) ->
     set_response(RD, Ctx, keys,
         re_riak:list_keys_cache(Node, BucketType, Bucket, Ctx#ctx.start, Ctx#ctx.rows));
-resource_exists(RD, Ctx=?listKeys(Node, BucketType, Bucket)) ->
+resource_exists(RD, Ctx=?listKeys(Node, BucketType, Bucket, Sort)) ->
+    Options = [{sort, Sort}],
     JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "refresh_keys") - 1) ++ "jobs",
     re_wm_util:set_jobs_response(RD, Ctx, JobsPath,
-        re_riak:list_keys(Node, BucketType, Bucket));
+        re_riak:list_keys(Node, BucketType, Bucket, Options));
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 

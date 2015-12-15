@@ -32,7 +32,7 @@
          provide_japi_content/2,
          provide_json_content/2]).
 
--record(ctx, {method, start, rows, cluster, node, bucket_type, bucket, resource, id, response=undefined}).
+-record(ctx, {method, start, rows, sort, cluster, node, bucket_type, bucket, resource, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
@@ -43,8 +43,8 @@
     #ctx{node=Node, method='PUT', bucket_type=BucketType, bucket=undefined}).
 -define(cleanBuckets(Node, BucketType),
     #ctx{node=Node, method='DELETE', bucket_type=BucketType, bucket=undefined}).
--define(listBuckets(Node, BucketType),
-    #ctx{node=Node, method='POST', bucket_type=BucketType, bucket=undefined}).
+-define(listBuckets(Node, BucketType, Sort),
+    #ctx{node=Node, method='POST', bucket_type=BucketType, bucket=undefined, sort=Sort}).
 -define(listBucketsCache(Node, BucketType),
     #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=undefined}).
 -define(bucketInfo(Node, BucketType, Bucket),
@@ -93,7 +93,8 @@ service_available(RD, Ctx) ->
         cluster = Cluster,
         method = wrq:method(RD),
         start = list_to_integer(wrq:get_qs_value("start","0",RD)),
-        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD))
+        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD)),
+        sort = list_to_atom(wrq:get_qs_value("sort","true",RD))
     }}.
 
 allowed_methods(RD, Ctx) ->
@@ -122,10 +123,11 @@ resource_exists(RD, Ctx=?cleanBuckets(Node, BucketType)) ->
 resource_exists(RD, Ctx=?listBucketsCache(Node, BucketType)) ->
     set_response(RD, Ctx, buckets,
         re_riak:list_buckets_cache(Node, BucketType, Ctx#ctx.start, Ctx#ctx.rows));
-resource_exists(RD, Ctx=?listBuckets(Node, BucketType)) ->
+resource_exists(RD, Ctx=?listBuckets(Node, BucketType, Sort)) ->
+    Options = [{sort, Sort}],
     JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "refresh_buckets") - 1) ++ "jobs",
     re_wm_util:set_jobs_response(RD, Ctx, JobsPath,
-        re_riak:list_buckets(Node, BucketType));
+        re_riak:list_buckets(Node, BucketType, Options));
 resource_exists(RD, Ctx=?deleteBucket(Node, BucketType, Bucket)) ->
     JobsPath = wrq:path(RD) ++ "/jobs",
     re_wm_util:set_jobs_response(RD, Ctx, JobsPath,

@@ -22,9 +22,9 @@
 -export([cache_for_each/4,
          clean/1,
          read_cache/3,
-         write/1,
+         write/2,
          write_cache/2,
-         handle_list/1]).
+         handle_list/2]).
 
 -include("riak_explorer.hrl").
 
@@ -80,8 +80,8 @@ read_cache({Operation, Node, Path}, Start, Rows) ->
            end
     end.
 
-write({Operation, _, _}=Meta) ->
-   re_job_manager:create(Operation, {?MODULE, handle_list, [Meta]}).
+write({Operation, _, _}=Meta, Options) ->
+   re_job_manager:create(Operation, {?MODULE, handle_list, [Meta, Options]}).
 
 write_cache({Operation, Node, Path}, Objects) ->
    case re_riak:cluster_id_for_node(Node) of
@@ -104,36 +104,53 @@ write_cache({Operation, Node, Path}, Objects) ->
 %%% Callbacks
 %%%===================================================================
 
-handle_list({buckets, Node, [BucketType]}=Meta) ->
+handle_list({buckets, Node, [BucketType]}=Meta, Options) ->
    C = re_riak:client(Node),
    Stream = riakc_pb_socket:stream_list_buckets(C, list_to_binary(BucketType)),
-   handle_stream(Meta, Stream);
-handle_list({keys, Node, [BucketType, Bucket]}=Meta) ->
+   handle_stream(Meta, Stream, Options);
+handle_list({keys, Node, [BucketType, Bucket]}=Meta, Options) ->
    C = re_riak:client(Node),
    B = {list_to_binary(BucketType), list_to_binary(Bucket)},
    Stream = riakc_pb_socket:stream_list_keys(C, B),
-   handle_stream(Meta, Stream).
+   handle_stream(Meta, Stream, Options).
 
-handle_stream({Operation, Node, Path}=Meta, {ok, ReqId}) ->
+handle_stream({Operation, Node, Path}=Meta, {ok, ReqId}, Options) ->
    case re_riak:cluster_id_for_node(Node) of
        [{error, not_found}] -> [{error, not_found}];
        Cluster ->
            Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
            TimeStamp = timestamp_string(),
-           FileName = filename:join([Dir, TimeStamp]),
-           file:write_file(FileName, "", [write]),
+           Filename = filename:join([Dir, TimeStamp]),
+           file:write_file(Filename, "", [write]),
            clean(Meta),
-           lager:info("list started for file: ~p at: ~p", [FileName, TimeStamp]),
-           {ok, Device} = file:open(FileName, [append]),
-           write_loop(Meta, ReqId, Device, 0)
+           lager:info("list started for file: ~p at: ~p", [Filename, TimeStamp]),
+           {ok, Device} = file:open(Filename, [append]),
+           write_loop(Meta, ReqId, Device, 0),
+           handle_stream_finished(Meta, Filename, Options)
     end;
-handle_stream({Operation, _Node, Path}, Error) ->
+handle_stream({Operation, _Node, Path}, Error, _) ->
+   re_job_manager:finish(Operation),
    lager:error(atom_to_list(Operation) ++ " list failed for path: ~p with reason: ~p", [Path, Error]).
+
+handle_stream_finished({Operation, _, _}, Filename, Options) ->
+    case proplists:get_value(sort, Options, true) of
+        true -> sort_file(Filename);
+        _ -> ok
+    end,
+    re_job_manager:finish(Operation),
+    lager:info("File ~p written.", [Filename]).
+
+sort_file(Filename) ->
+    UnsortedLines = re_file_util:for_each_line_in_file(Filename,
+       fun(Entry, Accum) -> [string:strip(Entry, both, $\n)| Accum] end,
+       [read], []),
+    SortedLines = lists:sort(UnsortedLines),
+    NewFile = string:join(SortedLines, io_lib:nl()),
+    file:write_file(Filename, NewFile, [write]).
 
 write_loop({Operation, _,_}=Meta, ReqId, Device, Count) ->
     receive
         {ReqId, done} ->
-            re_job_manager:finish(Operation),
             lager:info("list finished for file with ~p", [{count, Count}]),
             file:close(Device);
         {ReqId, {error, Reason}} ->
@@ -175,7 +192,7 @@ timestamp_human(Time) ->
    lists:flatten(io_lib:fwrite("~s-~s-~s ~s:~s:~s",[Year, Month, Day, Hour, Min, Sec])).
 
 entries_from_file(File, Start, Rows) ->
-   re_file_util:for_each_line_in_file(File,
+   {T, RC, S, E, LinesR} = re_file_util:for_each_line_in_file(File,
       fun(Entry, {T, RC, S, E, Accum}) ->
          case should_add_entry(T, S, E) of
             true ->
@@ -183,7 +200,8 @@ entries_from_file(File, Start, Rows) ->
                {T + 1, RC + 1, S, E, [list_to_binary(B)|Accum]};
             _ -> {T + 1, RC, S, E, Accum}
          end
-      end, [read], {0, 0, Start, Start+Rows,[]}).
+     end, [read], {0, 0, Start, Start+Rows,[]}),
+   {T, RC, S, E, lists:reverse(LinesR)}.
 
 should_add_entry(Total, _Start, Stop) when Total > Stop -> false;
 should_add_entry(Total, Start, _Stop) when Total >= Start -> true;
