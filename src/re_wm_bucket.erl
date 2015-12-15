@@ -28,6 +28,7 @@
          resource_exists/2,
          delete_resource/2,
          accept_content/2,
+         accept_text_content/2,
          provide_japi_content/2,
          provide_json_content/2]).
 
@@ -106,6 +107,8 @@ content_types_provided(RD, Ctx) ->
 
 content_types_accepted(RD, Ctx) ->
     Types = [{"application/json", accept_content},
+             {"plain/text", accept_text_content},
+             {"application/octet-stream", accept_text_content},
              {"application/vnd.api+json", accept_content}],
     {Types, RD, Ctx}.
 
@@ -146,10 +149,10 @@ delete_resource(RD, Ctx) ->
     {true, RD, Ctx}.
 
 accept_content(RD, Ctx=?putBuckets(Node, BucketType)) ->
-    RawValue = wrq:req_body(RD),
-    {struct, [{<<"buckets">>, Buckets}]} = mochijson2:decode(RawValue),
-    re_riak:put_buckets(Node, BucketType, Buckets),
-    {true, RD, Ctx}.
+    write_cache_json(RD, Ctx, Node, BucketType).
+
+accept_text_content(RD, Ctx=?putBuckets(Node, BucketType)) ->
+    write_cache_text(RD, Ctx, Node, BucketType).
 
 provide_json_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
     {re_wm_util:provide_content(json, RD, Id, Response), RD, Ctx}.
@@ -160,6 +163,19 @@ provide_japi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
 %% ====================================================================
 %% Private
 %% ====================================================================
+
+write_cache_json(RD, Ctx, Node, BucketType) ->
+    RawValue = wrq:req_body(RD),
+    {struct, [{<<"buckets">>, Buckets}]} = mochijson2:decode(RawValue),
+    re_riak:put_buckets(Node, BucketType, Buckets),
+    {true, RD, Ctx}.
+
+write_cache_text(RD, Ctx, Node, BucketType) ->
+    RawValue = binary_to_list(wrq:req_body(RD)),
+    BucketsStr = string:tokens(RawValue, "\n"),
+    Buckets = lists:map(fun(B) -> list_to_binary(B) end, BucketsStr),
+    re_riak:put_buckets(Node, BucketType, Buckets),
+    {true, RD, Ctx}.
 
 set_response(RD, Ctx, Id, Response) ->
     re_wm_util:resource_exists(RD, Ctx#ctx{id=Id, response=Response}, Response).
