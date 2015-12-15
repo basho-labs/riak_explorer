@@ -803,7 +803,8 @@ bucket_type(Node, BucketType) ->
 
 bucket_types(Node) ->
     load_patch(Node),
-    List = remote(Node, re_riak_patch, bucket_types, []),
+    List0 = remote(Node, re_riak_patch, bucket_types, []),
+    List = lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List0),
     [{bucket_types, List}].
 
 create_bucket_type(Node, BucketType, RawValue) ->
@@ -856,7 +857,7 @@ cluster_info(Id) ->
     end.
 
 clusters() ->
-    Clusters = re_config:clusters(),
+    Clusters = lists:keysort(1, re_config:clusters()),
     Mapped = [cluster_info(Cluster) || Cluster <- Clusters],
     [{clusters, Mapped}].
 
@@ -874,7 +875,8 @@ nodes(Cluster) ->
         RiakNode when is_atom(RiakNode) ->
             case remote(RiakNode, riak_core_ring_manager, get_my_ring, []) of
                 {ok, MyRing} ->
-                    Nodes = remote(RiakNode, riak_core_ring, all_members, [MyRing]),
+                    Nodes0 = remote(RiakNode, riak_core_ring, all_members, [MyRing]),
+                    Nodes = lists:sort(Nodes0),
                     WithIds = lists:map(fun(N) -> node_info(N) end, Nodes),
                     [{nodes, WithIds}];
                 _ -> [{nodes, []}]
