@@ -184,7 +184,7 @@ open docs/api.html
 ```
 
 The source code for these docs is in [API Blueprint Format](https://github.com/apiaryio/api-blueprint/blob/master/API Blueprint Specification.md) (see also the [sample API markup example](https://raw.githubusercontent.com/danielgtaylor/aglio/master/example.apib)),
-and is located in the [API.apib.md](API.apib.md) file.
+and is located in the [API.apib.md](https://github.com/basho-labs/riak_explorer/blob/gh-pages/API.apib.md) file on the `gh-pages` branch.
 
 **To add to the API documentation:**
 
