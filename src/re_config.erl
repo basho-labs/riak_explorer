@@ -222,7 +222,10 @@ props_to_bin([{Name, Value} | Rest], Accum) ->
     props_to_bin(Rest, [{Name, Value} | Accum]).
 
 is_standalone() ->
-    not code:is_loaded(riak_core).
+    case code:is_loaded(riak_core) of
+        false -> false;
+        _ -> true
+    end.
 
 build_routes(_, [], _, Acc) ->
     Acc;
