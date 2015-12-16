@@ -14,7 +14,8 @@ management functionality.
 ## Clusters Collection [/explore/clusters/]
 
 ### List All Clusters [GET]
-Get a list of all the clusters listed in Explorer's `riak_explorer.conf` file.
+Get a list of all the clusters listed in Explorer's `riak_explorer.conf` file,
+sorted alphabetically by cluster id.
 
 + Response 200 (application/json)
 
@@ -488,6 +489,9 @@ Equivalent to running `riak-admin bucket-type list` on the command line.
 Also includes each bucket type's properties hash (the equivalent of
 `riak-admin bucket-type status $type`).
 
+Unlike the command-line version, this API request returns the list of bucket
+types sorted alphabetically.
+
 + Response 200 (application/json)
 
         {
@@ -559,8 +563,7 @@ line).
 
 + Parameters
     + cluster_id: `localdev` (string) - The Cluster id.
-    + bucket_type_id: `default` (string) - The Riak name of the bucket type,
-        which serves as a unique id within that cluster.
+    + bucket_type_id: `default` (string) - The name of the Riak Bucket Type.
 
 + Response 200 (application/json)
 
@@ -598,6 +601,254 @@ line).
         }
 
 + Response 404
+
+## Cached Bucket List [/explore/clusters/{cluster_id}/bucket_types/{bucket_type_id}/buckets]
+
+Listing buckets is a prohibitively expensive operation in Riak, due to it being
+a distributed K/V store based on consistent hashing. Although the
+[List Buckets](http://docs.basho.com/riak/latest/dev/references/http/list-buckets/)
+command exists, executing it on a production cluster with a non-trivial dataset
+can have a catastrophic impact on its resources, and is strictly not recommended.
+
+To provide a better developer experience while working within this limitation,
+Riak Explorer stores a cached bucket list (as a plain newline-separated text
+file) on the API side, located in
+`$explorer_dir/data/buckets/{cluster_id}/{bucket_type_id}/`. The filename for
+the cached list is based on the timestamp at which the cache was generated.
+
+While a cluster is in [development mode](https://github.com/basho-labs/riak_explorer#development-mode),
+this cached list can be automatically populated from a Streaming List Buckets
+request. In Production mode (setting `clusters.{cluster_id}.development_mode = off`
+in `riak_explorer.conf`), the List Buckets functionality is disabled.
+However, users can still provide their own cached bucket list, either by
+generating it elsewhere (like on a separate Staging cluster), or by editing
+the bucket list directly through the Explorer GUI.
+
+### Clear a Cached Bucket List [DELETE]
+Clears the entire cached bucket list for the given bucket type (deletes the
+cached text file on the API side).
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + bucket_type_id: `default` (string) - The name of the Riak Bucket Type.
+
++ Response 204
+
+### Edit a Cached Bucket List [PUT]
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + bucket_type_id: `default` (string) - The name of the Riak Bucket Type.
+
++ Request (plain/text)
+
+        accounts
+        books
+        authors
+        users
+
++ Response 204
+
+## Paginated Cached Bucket List [/explore/clusters/{cluster_id}/bucket_types/{bucket_type_id}/buckets?start={start}&rows={rows}]
+Given that there is no limit to the number of buckets that can exist within a
+bucket type, the cached list can get rather large. A pagination API is provided
+for client convenience.
+
+### Retrieve a Paginated Cached Bucket List [GET]
+Retrieves the cached bucket list for a given bucket type, with pagination
+controls parameters.
+
+Returns a `404 Object Not Found` if no cached list exists on the API side
+(note that this doesn't mean that no buckets actually exist, in the cluster).
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + bucket_type_id: `default` (string) - The name of the Riak Bucket Type.
+    + start: `1` (integer, optional) - Which bucket to start from, counting
+        from the start of the list. Used for pagination.
+
+        + Default: 1
+
+    + rows: `500` (integer, optional) - How many buckets to return in the
+        response. Used for pagination.
+
+        + Default: 1000
+
++ Response 200 (application/json)
+
+        {
+            "buckets": {
+                "buckets": [
+                    "accounts",
+                    "transactions",
+                    "users"
+                ],
+                "count": 3,
+                "created": "2015-12-16 15:23:24",
+                "total": 3
+            },
+            "links": {
+                "self": "/explore/clusters/production1/bucket_types/default/buckets"
+            }
+        }
+
++ Response 404
+
+## Cache Refresh from Streaming List Buckets [/explore/clusters/{cluster_id}/bucket_types/{bucket_type_id}/refresh_buckets/source/riak_kv?sort={sort}]
+**(Development Mode Only)**
+As a convenience to developers, Explorer can automatically populate a cached
+bucket list from the result of a
+[Streaming List Buckets](http://docs.basho.com/riak/latest/dev/references/http/list-buckets/)
+request to Riak.
+
+### Refresh the Cached Bucket List [POST]
+Kicks off a Refresh Job to populate a bucket type's cached bucket list from a
+Streaming List Buckets request.
+
+Since the List Buckets results arrive in random order, a `sort` parameter is
+also provided.
+
+When used in Production Mode, requests made to this API endpoint result in an
+HTTP `403 Forbidden`.
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + bucket_type_id: `default` (string) - The name of the Riak Bucket Type.
+    + sort: `true` (boolean, optional) - Sorts the cached list in alphabetical
+        order if set to `true`.
+
+        + Default: true
+
++ Response 204
+
++ Response 403
+
+## Cached Key List [/explore/clusters/{cluster_id}/bucket_types/{bucket_type_id}/buckets/{bucket_id}/keys]
+
+Listing keys is a prohibitively expensive operation in Riak, due to it being
+a distributed K/V store based on consistent hashing. Although the
+[List Keys](http://docs.basho.com/riak/latest/dev/references/http/list-keys/)
+command exists, executing it on a production cluster with a non-trivial dataset
+can have a catastrophic impact on its resources, and is strictly not recommended.
+
+To provide a better developer experience while working within this limitation,
+Riak Explorer stores a cached key list (as a plain newline-separated text
+file) on the API side, located in
+`$explorer_dir/data/buckets/{cluster_id}/{bucket_type_id}/{bucket_id}/`. The
+filename for the cached list is based on the timestamp at which the cache was
+generated.
+
+While a cluster is in [development mode](https://github.com/basho-labs/riak_explorer#development-mode),
+this cached list can be automatically populated from a Streaming List Keys
+request. In Production mode (setting `clusters.{cluster_id}.development_mode = off`
+in `riak_explorer.conf`), the List Keys functionality is disabled.
+However, users can still provide their own cached key list, either by
+generating it elsewhere (like on a separate Staging cluster), or by editing
+the key list directly through the Explorer GUI.
+
+### Clear a Cached Key List [DELETE]
+Clears the entire cached key list for the given bucket type (deletes the
+cached text file on the API side).
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + bucket_type_id: `default` (string) - The name of the Riak Bucket Type.
+    + bucket_id: `users` (string) - The bucket name (unique within the bucket type).
+
++ Response 204
+
+### Edit a Cached Key List [PUT]
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + bucket_type_id: `default` (string) - The name of the Riak Bucket Type.
+    + bucket_id: `users` (string) - The bucket name (unique within the bucket type).
+
++ Request (plain/text)
+
+        user1
+        user3
+        user4
+        user5
+
++ Response 204
+
+## Paginated Cached Key List [/explore/clusters/{cluster_id}/bucket_types/{type_id}/buckets/{bucket_id}/keys?start={start}&rows={rows}]
+Given that there is no limit to the number of keys that can exist within a
+bucket, the cached key list can get extremely large. A pagination API is provided
+for client convenience.
+
+### Retrieve a Paginated Cached Key List [GET]
+Retrieves the cached key list for a given bucket type, with pagination
+controls parameters.
+
+Returns a `404 Object Not Found` if no cached list exists on the API side
+(note that this doesn't mean that no keys actually exist in that bucket,
+in the actual cluster).
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + type_id: `default` (string) - The name of the Riak Bucket Type.
+    + bucket_id: `users` (string) - The bucket name (unique within the bucket type).
+    + start: `1` (integer, optional) - Which key to start from, counting
+        from the start of the list. Used for pagination.
+
+        + Default: 1
+
+    + rows: `500` (integer, optional) - How many keys to return in the
+        response. Used for pagination.
+
+        + Default: 1000
+
++ Response 200 (application/json)
+
+        {
+            "keys": {
+                "count": 3,
+                "created": "2015-12-15 16:42:19",
+                "keys": [
+                    "user1",
+                    "user2",
+                    "user3"
+                ],
+                "total": 3
+            },
+            "links": {
+                "self": "/explore/clusters/production1/bucket_types/default/buckets/users/keys"
+            }
+        }
+
++ Response 404
+
+## Cache Refresh from Streaming List Keys [/explore/clusters/{cluster_id}/bucket_types/{type_id}/buckets/{bucket_id}/refresh_keys/source/riak_kv?sort={sort}]
+**(Development Mode Only)**
+As a convenience to developers, Explorer can automatically populate a cached
+key list from the result of a
+[Streaming List Keys](http://docs.basho.com/riak/latest/dev/references/http/list-keys/)
+request to Riak.
+
+### Refresh the Cached Key List [POST]
+Kicks off a Refresh Job to populate a bucket's cached key list from a
+Streaming List Key request.
+
+Since the List Keys results arrive in random order, a `sort` parameter is
+also provided.
+
+When used in Production Mode, requests made to this API endpoint result in an
+HTTP `403 Forbidden`.
+
++ Parameters
+    + cluster_id: `localdev` (string) - The Cluster id.
+    + type_id: `default` (string) - The name of the Riak Bucket Type.
+    + bucket_id: `users` (string) - The bucket name (unique within the bucket type).
+    + sort: `true` (boolean, optional) - Sorts the cached list in alphabetical
+        order if set to `true`.
+
+        + Default: true
+
++ Response 204
+
++ Response 403
 
 # Group Riak Proxy [/riak]
 The `/riak` set of endpoints allow for clients to proxy requests to nodes
