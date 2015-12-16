@@ -186,6 +186,19 @@ open docs/api.html
 The source code for these docs is in [API Blueprint Format](https://github.com/apiaryio/api-blueprint/blob/master/API Blueprint Specification.md) (see also the [sample API markup example](https://raw.githubusercontent.com/danielgtaylor/aglio/master/example.apib)),
 and is located in the [API.apib.md](API.apib.md) file.
 
+**To add to the API documentation:**
+
+1. Check out the `gh-pages` branch:
+
+    ```
+    git checkout gh-pages
+    ```
+
+2. Make changed to the source markup.
+3. Generate the HTML using `aglio` (see above).
+4. Commit both the source markup and the generated HTML.
+5. `git push origin gh-pages`
+
 #### Full API Endpoint Listing
 
 Riak Explorer exposes a REST API (by default located at [http://localhost:9000/explore](http://localhost:9000/explore)).
