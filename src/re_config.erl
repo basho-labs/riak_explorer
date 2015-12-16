@@ -138,7 +138,13 @@ url(Ip, Port) ->
 clusters() ->
     case default_cluster_exists() of
         true ->
-            application:get_env(riak_explorer, clusters, []);
+            DefNode = case is_standalone() of
+                true -> "riak@127.0.0.1";
+                false -> atom_to_list(node())
+            end,
+            Def = [{default,[{riak_node,DefNode},
+                   {development_mode,true}]}],
+            application:get_env(riak_explorer, clusters, Def);
         _ ->
             proplists:delete(default, application:get_env(riak_explorer, clusters, []))
     end.
@@ -156,7 +162,7 @@ default_cluster_exists() ->
                 end
             end,
             re_file_util:for_each_line_in_file(EtcFile, Proc, read, false);
-        false -> false
+        false -> true
     end.
 
 cluster(Cluster) ->
@@ -223,8 +229,8 @@ props_to_bin([{Name, Value} | Rest], Accum) ->
 
 is_standalone() ->
     case code:is_loaded(riak_core) of
-        false -> false;
-        _ -> true
+        false -> true;
+        _ -> false
     end.
 
 build_routes(_, [], _, Acc) ->
