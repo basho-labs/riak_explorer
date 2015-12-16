@@ -770,8 +770,9 @@ node_config(_, Node) ->
 riak_type(Node) ->
     case remote(Node, code, is_loaded, [riak_repl_console]) of
         false -> oss;
-        true -> ee;
-        Other -> Other
+        {file, _} -> ee;
+        Other when is_atom(Other) -> Other;
+        _ -> oss
     end.
 
 riak_version(Node) ->
