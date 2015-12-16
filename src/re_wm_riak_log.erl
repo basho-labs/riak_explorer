@@ -34,8 +34,8 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
--define(noNode(),
-    #ctx{node=undefined}).
+-define(noNode(Error),
+    #ctx{node=[_]=Error}).
 -define(listFiles(Node),
     #ctx{node=Node, id=undefined}).
 -define(getFile(Node, File, Rows),
@@ -85,23 +85,23 @@ content_types_provided(RD, Ctx) ->
              {"application/vnd.api+json", provide_japi_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx=?noNode()) ->
-    {false, RD, Ctx};
+resource_exists(RD, Ctx=?noNode(Error)) ->
+    set_response(RD, Ctx, error, Error);
 resource_exists(RD, Ctx=?listFiles(Node)) ->
     set_response(RD, Ctx, files, re_riak:log_files(Node));
 resource_exists(RD, Ctx=?getFile(Node, File, Rows)) ->
-    set_response(RD, Ctx, files, re_riak:log_file(Node, File, Rows));
+    set_response(RD, Ctx, list_to_atom(File), re_riak:log_file(Node, File, Rows));
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
 provide_text_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
     {re_wm_util:provide_content(text, RD, Id, Response), RD, Ctx}.
 
-provide_json_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
-    {re_wm_util:provide_content(json, RD, Id, Response), RD, Ctx}.
+provide_json_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
+    {re_wm_util:provide_content(json, RD, Id, [{Type, proplists:delete(lines, Objects)}]), RD, Ctx}.
 
-provide_japi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
-    {re_wm_util:provide_content(jsonapi, RD, Id, Response), RD, Ctx}.
+provide_japi_content(RD, Ctx=#ctx{id=Id, response=[{Type, Objects}]}) ->
+    {re_wm_util:provide_content(json, RD, Id, [{Type, proplists:delete(lines, Objects)}]), RD, Ctx}.
 
 %% ====================================================================
 %% Private

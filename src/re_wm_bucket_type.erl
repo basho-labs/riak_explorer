@@ -35,8 +35,8 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
--define(noNode(),
-    #ctx{node=[{error, no_nodes}]}).
+-define(noNode(Error),
+    #ctx{node=[_]=Error}).
 -define(listBucketTypes(Node),
     #ctx{node=Node, method='GET', bucket_type=undefined}).
 -define(bucketTypeInfo(Node, BucketType),
@@ -90,7 +90,8 @@ allowed_methods(RD, Ctx) ->
 
 content_types_accepted(RD, Ctx) ->
     Types = [{"application/json", accept_content},
-             {"application/vnd.api+json", accept_content}],
+             {"application/vnd.api+json", accept_content},
+             {"application/octet-stream", accept_content}],
     {Types, RD, Ctx}.
 
 content_types_provided(RD, Ctx) ->
@@ -98,8 +99,8 @@ content_types_provided(RD, Ctx) ->
              {"application/vnd.api+json", provide_japi_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx=?noNode()) ->
-    {false, RD, Ctx};
+resource_exists(RD, Ctx=?noNode(Error)) ->
+    set_response(RD, Ctx, error, Error);
 resource_exists(RD, Ctx=?listBucketTypes(Node)) ->
     set_response(RD, Ctx, bucket_types, re_riak:bucket_types(Node));
 resource_exists(RD, Ctx=?createBucketType(_,_)) ->
@@ -121,8 +122,11 @@ resource_exists(RD, Ctx) ->
 accept_content(RD, Ctx=?createBucketType(Node, BucketType)) ->
     RawValue = wrq:req_body(RD),
     case re_riak:create_bucket_type(Node, BucketType, RawValue) of
-        ok -> {true, RD, Ctx};
-        error -> {false, RD, Ctx}
+        [{error, _, Message}] ->
+            re_wm_util:halt_json(500, Message, RD, Ctx);
+        Response ->
+            Json = re_wm_util:provide_content(json, RD, list_to_binary(BucketType), Response),
+            re_wm_util:halt(200, [{<<"Content-Type">>, <<"application/json">>}], Json, RD, Ctx)
     end;
 accept_content(RD, Ctx) ->
     {false, RD, Ctx}.

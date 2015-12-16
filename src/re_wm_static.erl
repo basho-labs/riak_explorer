@@ -29,11 +29,15 @@
          last_modified/2,
          generate_etag/2]).
 
--record(ctx, {web_root, resource, response=undefined, metadata=[]}).
+-record(ctx, {first_path, web_root, resource, response=undefined, metadata=[]}).
 
 -include_lib("kernel/include/file.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
+
+-define(explorePath(), #ctx{first_path=?RE_BASE_ROUTE}).
+-define(controlPath(), #ctx{first_path=?RE_CONTROL_ROUTE}).
+-define(proxyPath(), #ctx{first_path=?RE_RIAK_PROXY_ROUTE}).
 
 %%%===================================================================
 %%% API
@@ -58,9 +62,20 @@ init(_) ->
     {ok, #ctx{web_root=WebRoot}}.
 
 service_available(RD, Ctx0=#ctx{web_root=WebRoot}) ->
+    BaseLength = length(re_config:base_route("")),
+    PathTokens = string:tokens(wrq:path(RD), "/"),
+    FirstPath = case {BaseLength, length(PathTokens)} of
+        {B, P} when B > P ->
+            "/";
+        {B, _} ->
+            lists:nth(B, PathTokens)
+    end,
     Resource0 = get_resource(WebRoot, wrq:disp_path(RD)),
     {Resource1, Response} = get_response(filelib:is_regular(Resource0), WebRoot, Resource0),
-    Ctx1 = Ctx0#ctx{resource=Resource1, response=Response},
+    Ctx1 = Ctx0#ctx{
+        first_path=FirstPath,
+        resource=Resource1, response=Response
+    },
     {true, RD, Ctx1}.
 
 allowed_methods(RD, Ctx) ->
@@ -72,6 +87,12 @@ content_types_provided(RD, Ctx0=#ctx{resource=Resource}) ->
     Ctx1 = Ctx0#ctx{metadata=[CTHeader|Ctx0#ctx.metadata]},
     {[{CT, provide_content}], RD, Ctx1}.
 
+resource_exists(RD, Ctx=?explorePath()) ->
+    {false, RD, Ctx};
+resource_exists(RD, Ctx=?controlPath()) ->
+    {false, RD, Ctx};
+resource_exists(RD, Ctx=?proxyPath()) ->
+    {false, RD, Ctx};
 resource_exists(RD, Ctx) ->
     {true, RD, Ctx}.
 

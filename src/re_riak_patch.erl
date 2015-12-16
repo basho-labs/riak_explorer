@@ -21,6 +21,9 @@
 -module(re_riak_patch).
 -export([
   version/0,
+  bucket_type_create/1,
+  bucket_type_activate/1,
+  bucket_type_update/1,
   bucket_types/0,
   riak_version/0,
   tail_log/2,
@@ -36,7 +39,45 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 6.
+version() -> 7.
+
+bucket_type_create([TypeStr, ""]) ->
+    Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
+    EmptyProps = {struct, [{<<"props">>, {struct, []}}]},
+    bucket_type_create(Type, EmptyProps);
+bucket_type_create([TypeStr, PropsStr]) ->
+    Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
+    bucket_type_create(Type, catch mochijson2:decode(PropsStr)).
+
+bucket_type_create(Type, {struct, Fields}) ->
+    case proplists:get_value(<<"props">>, Fields) of
+        {struct, Props} ->
+            ErlProps = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props],
+            bucket_type_print_create_result(Type, riak_core_bucket_type:create(Type, ErlProps));
+        _ ->
+            [{error, format, [{error, <<"Cannot create bucket type: no props field found in json.">>}]}]
+    end;
+bucket_type_create(_, _) ->
+    [{error, format, [{error, <<"Cannot create bucket type: invalid json.">>}]}].
+
+bucket_type_activate(TypeStr) ->
+    Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
+    bucket_type_print_activate_result(Type, riak_core_bucket_type:activate(Type)).
+
+bucket_type_update([TypeStr, PropsStr]) ->
+    Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
+    bucket_type_update(Type, catch mochijson2:decode(PropsStr)).
+
+bucket_type_update(Type, {struct, Fields}) ->
+    case proplists:get_value(<<"props">>, Fields) of
+        {struct, Props} ->
+            ErlProps = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props],
+            bucket_type_print_update_result(Type, riak_core_bucket_type:update(Type, ErlProps));
+        _ ->
+            [{error, format, [{error, <<"Cannot update bucket type: no props field found in json.">>}]}]
+    end;
+bucket_type_update(_, _) ->
+    [{error, format, [{error, <<"Cannot update bucket type: invalid json.">>}]}].
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
@@ -58,22 +99,15 @@ riak_version() ->
 tail_log(Name, NumLines) ->
     LogDir = app_helper:get_env(riak_core, platform_log_dir),
     LogFile = filename:join([LogDir, Name]),
-    TotalLines = count_lines(LogFile),
     case file:open(LogFile, read) of
         {ok, Device} ->
-            Proc = fun(Entry, {Current,Num,Total,Accum}) ->
-                case {Current, Num, Total} of
-                    {C, N, T} when C > T -> {C+1, N, T, Accum};
-                    {C, N, T} when C =< (T - N) -> {C+1, N, T, Accum};
-                    {C, N, T} when C > (T - N) ->
-                        B = re:replace(Entry, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
-                        {C+1, N, T, [list_to_binary(B)|Accum]}
-                end
-            end,
-            {_,_,_,Lines} = for_each_line(Device, Proc, {0,NumLines,TotalLines,[]}),
-            {TotalLines, Lines};
+            Proc = fun(Entry, Accum) -> [Entry|Accum] end,
+            Lines0 = for_each_line(Device, Proc, []),
+            Count = length(Lines0),
+            Lines1 = lists:nthtail(max(Count-NumLines, 0), Lines0),
+            {Count, lists:map(fun(Line) -> list_to_binary(re:replace(Line, "(^\\s+)|(\\s+$)", "", [global,{return,list}])) end, Lines1)};
         _ ->
-            {error, not_found}
+            [{error, not_found}]
     end.
 
 get_config_files() ->
@@ -104,7 +138,7 @@ get_config(Name) ->
             Lines = for_each_line(Device, Proc, ""),
             lists:reverse(Lines);
         _ ->
-            {error, not_found}
+            [{error, not_found}]
     end.
 
 effective_config() ->
@@ -129,6 +163,22 @@ effective_config() ->
 %%%===================================================================
 %%% Private
 %%%===================================================================
+
+bucket_type_print_create_result(_, ok) ->
+    <<"Bucket type created.">>;
+bucket_type_print_create_result(_, {error, Reason}) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("Error creating bucket type: ~p", [Reason]))}]}].
+
+bucket_type_print_activate_result(_, ok) ->
+    <<"Bucket type activated.">>;
+bucket_type_print_activate_result(_, {error, Reason}) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("Error activating bucket type: ~p", [Reason]))}]}].
+
+bucket_type_print_update_result(_, ok) ->
+    <<"Bucket type updated.">>;
+bucket_type_print_update_result(_, {error, Reason}) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("Error updating bucket type: ~p", [Reason]))}]}].
+
 check_existence(EtcDir, Filename) ->
     FullName = filename:join(EtcDir, Filename), %% Barfolomew
     Exists = filelib:is_file(FullName),
@@ -177,17 +227,6 @@ generate_effective_proplist(EffectiveString) ->
       [],
       EffectivePropList
      ).
-
-count_lines(Name) ->
-    case file:open(Name, read) of
-        {ok, Device} ->
-            Proc = fun(_, NumLines) ->
-                NumLines + 1
-            end,
-            for_each_line(Device, Proc, 0);
-        _ ->
-            0
-    end.
 
 for_each_line(Device, Proc, Accum) ->
   case io:get_line(Device, "") of

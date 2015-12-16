@@ -28,28 +28,25 @@
          resource_exists/2,
          delete_resource/2,
          accept_content/2,
+         accept_text_content/2,
          provide_japi_content/2,
          provide_json_content/2]).
 
--record(ctx, {method, start, rows, cluster, node, bucket_type, bucket, key, resource, id, response=undefined}).
+-record(ctx, {method, start, rows, sort, cluster, node, bucket_type, bucket, resource, id, response=undefined}).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("riak_explorer.hrl").
 
--define(noNode(),
-    #ctx{node=[{error, no_nodes}]}).
+-define(noNode(Error),
+    #ctx{node=[_]=Error}).
 -define(putKeys(Node, BucketType, Bucket),
-    #ctx{node=Node, method='PUT', bucket_type=BucketType, bucket=Bucket, key=undefined}).
+    #ctx{node=Node, method='PUT', bucket_type=BucketType, bucket=Bucket}).
 -define(cleanKeys(Node, BucketType, Bucket),
-    #ctx{node=Node, method='DELETE', bucket_type=BucketType, bucket=Bucket, key=undefined}).
+    #ctx{node=Node, method='DELETE', bucket_type=BucketType, bucket=Bucket}).
 -define(listKeysCache(Node, BucketType, Bucket),
-    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket, key=undefined}).
--define(listKeys(Node, BucketType, Bucket),
-    #ctx{node=Node, method='POST', bucket_type=BucketType, bucket=Bucket, key=undefined}).
--define(keyInfo(Node, BucketType, Bucket, Key),
-    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket, key=Key, resource=undefined}).
--define(keyResource(Node, BucketType, Bucket, Key, Resource),
-    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket, key=Key, resource=Resource}).
+    #ctx{node=Node, method='GET', bucket_type=BucketType, bucket=Bucket}).
+-define(listKeys(Node, BucketType, Bucket, Sort),
+    #ctx{node=Node, method='POST', bucket_type=BucketType, bucket=Bucket, sort=Sort}).
 
 %%%===================================================================
 %%% API
@@ -84,12 +81,12 @@ service_available(RD, Ctx) ->
         resource = wrq:path_info(resource, RD),
         bucket_type = wrq:path_info(bucket_type, RD),
         bucket = wrq:path_info(bucket, RD),
-        key = wrq:path_info(key, RD),
         node = re_wm_util:node_from_context(Cluster, Node),
         cluster = Cluster,
         method = wrq:method(RD),
         start = list_to_integer(wrq:get_qs_value("start","0",RD)),
-        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD))
+        rows = list_to_integer(wrq:get_qs_value("rows","1000",RD)),
+        sort = list_to_atom(wrq:get_qs_value("sort","true",RD))
     }}.
 
 allowed_methods(RD, Ctx) ->
@@ -103,11 +100,13 @@ content_types_provided(RD, Ctx) ->
 
 content_types_accepted(RD, Ctx) ->
     Types = [{"application/json", accept_content},
+             {"plain/text", accept_text_content},
+             {"application/octet-stream", accept_text_content},
              {"application/vnd.api+json", accept_content}],
     {Types, RD, Ctx}.
 
-resource_exists(RD, Ctx=?noNode()) ->
-    {false, RD, Ctx};
+resource_exists(RD, Ctx=?noNode(Error)) ->
+    set_response(RD, Ctx, error, Error);
 resource_exists(RD, Ctx=?putKeys(_Node, _BucketType, _Bucket)) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx=?cleanKeys(Node, BucketType, Bucket)) ->
@@ -116,22 +115,11 @@ resource_exists(RD, Ctx=?cleanKeys(Node, BucketType, Bucket)) ->
 resource_exists(RD, Ctx=?listKeysCache(Node, BucketType, Bucket)) ->
     set_response(RD, Ctx, keys,
         re_riak:list_keys_cache(Node, BucketType, Bucket, Ctx#ctx.start, Ctx#ctx.rows));
-resource_exists(RD, Ctx=?listKeys(Node, BucketType, Bucket)) ->
+resource_exists(RD, Ctx=?listKeys(Node, BucketType, Bucket, Sort)) ->
+    Options = [{sort, Sort}],
     JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "refresh_keys") - 1) ++ "jobs",
     re_wm_util:set_jobs_response(RD, Ctx, JobsPath,
-        re_riak:list_keys(Node, BucketType, Bucket));
-resource_exists(RD, Ctx=?keyInfo(_Node, _BucketType, _Bucket, Key)) ->
-    Id = list_to_binary(Key),
-    Response = [{keys, [{id,Id}, {props, []}]}],
-    {true, RD, Ctx#ctx{id=Id, response=Response}};
-resource_exists(RD, Ctx=?keyResource(Node, BucketType, Bucket, Key, Resource)) ->
-    Id = list_to_atom(Resource),
-    case proplists:get_value(Id, resources()) of
-        [M,F] ->
-            set_response(RD, Ctx, Id, M:F(Node, BucketType, Bucket, Key));
-        _ ->
-            {false, RD, Ctx}
-    end;
+        re_riak:list_keys(Node, BucketType, Bucket, Options));
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
@@ -139,11 +127,10 @@ delete_resource(RD, Ctx) ->
     {true, RD, Ctx}.
 
 accept_content(RD, Ctx=?putKeys(Node, BucketType, Bucket)) ->
-    Node = Ctx#ctx.node,
-    RawValue = wrq:req_body(RD),
-    {struct, [{<<"keys">>, Keys}]} = mochijson2:decode(RawValue),
-    re_riak:put_keys(Node, BucketType, Bucket, Keys),
-    {true, RD, Ctx}.
+    write_cache_json(RD, Ctx, Node, BucketType, Bucket).
+
+accept_text_content(RD, Ctx=?putKeys(Node, BucketType, Bucket)) ->
+    write_cache_text(RD, Ctx, Node, BucketType, Bucket).
 
 provide_json_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
     {re_wm_util:provide_content(json, RD, Id, Response), RD, Ctx}.
@@ -154,6 +141,19 @@ provide_japi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
 %% ====================================================================
 %% Private
 %% ====================================================================
+
+write_cache_json(RD, Ctx, Node, BucketType, Bucket) ->
+    RawValue = wrq:req_body(RD),
+    {struct, [{<<"keys">>, Keys}]} = mochijson2:decode(RawValue),
+    re_riak:put_keys(Node, BucketType, Bucket, Keys),
+    {true, RD, Ctx}.
+
+write_cache_text(RD, Ctx, Node, BucketType, Bucket) ->
+    RawValue = binary_to_list(wrq:req_body(RD)),
+    KeysStr = string:tokens(RawValue, "\n"),
+    Keys = lists:map(fun(B) -> list_to_binary(B) end, KeysStr),
+    re_riak:put_keys(Node, BucketType, Bucket, Keys),
+    {true, RD, Ctx}.
 
 set_response(RD, Ctx, Id, Response) ->
     re_wm_util:resource_exists(RD, Ctx#ctx{id=Id, response=Response}, Response).

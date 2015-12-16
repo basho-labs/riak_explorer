@@ -74,11 +74,11 @@
          delete_bucket_job/1]).
 
 -export([list_buckets_cache/4,
-         list_buckets/2,
+         list_buckets/3,
          clean_buckets/2,
          put_buckets/3,
          list_keys_cache/5,
-         list_keys/3,
+         list_keys/4,
          clean_keys/3,
          put_keys/4]).
 
@@ -100,7 +100,6 @@
 -export([cluster_id_for_node/1,
          clusters/0,
          cluster/1,
-         first_node/1,
          nodes/1]).
 
 -export([load_patch/1]).
@@ -593,14 +592,18 @@ delete_bucket(Node, BucketType, Bucket) ->
     delete_bucket(Node, BucketType, Bucket, true).
 
 delete_bucket(Node, BucketType, Bucket, RefreshCache) ->
-    case re_config:development_mode() of
-        true ->
-            JobType = delete_bucket,
-            Meta = {JobType, Node, [BucketType, Bucket, RefreshCache]},
-            re_job_manager:create(JobType, {?MODULE, delete_bucket_job, [Meta]});
-        false ->
-            lager:warning("Failed request to delete types/~p/buckets/~p because developer mode is off", [BucketType, Bucket]),
-            {error, developer_mode_off}
+    case cluster_id_for_node(Node) of
+        [{error, not_found}] -> [{error, not_found}];
+        Cluster ->
+            case re_config:development_mode(Cluster) of
+                true ->
+                    JobType = delete_bucket,
+                    Meta = {JobType, Node, [BucketType, Bucket, RefreshCache]},
+                    re_job_manager:create(JobType, {?MODULE, delete_bucket_job, [Meta]});
+                false ->
+                    lager:warning("Failed request to delete types/~p/buckets/~p because developer mode is off", [BucketType, Bucket]),
+                    {error, developer_mode_off}
+            end
     end.
 
 delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
@@ -621,7 +624,7 @@ delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
                 re_job_manager:set_meta(delete_bucket, [{oks, Oks1},{errors,Errors1}]),
                 {Oks1,Errors1}
             end, [read], {0, 0}) of
-        {error, not_found} ->
+        [{error, not_found}] ->
             lager:warning("Deletetion of types/~p/buckets/~p could not be completed because no cache was found", [BucketType, Bucket]),
             re_job_manager:error(delete_bucket, [{error, cache_not_found}]);
         {Os,Es} ->
@@ -642,12 +645,16 @@ delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
 %%% Keyjournal API
 %%%===================================================================
 
-list_buckets(Node, BucketType) ->
-    case re_config:development_mode() of
-        true ->
-            re_keyjournal:write({buckets, Node, [BucketType]});
-        false ->
-            {error, developer_mode_off}
+list_buckets(Node, BucketType, Options) ->
+    case cluster_id_for_node(Node) of
+        [{error, not_found}] -> [{error, not_found}];
+        Cluster ->
+            case re_config:development_mode(Cluster) of
+                true ->
+                    re_keyjournal:write({buckets, Node, [BucketType]}, Options);
+                false ->
+                    {error, developer_mode_off}
+            end
     end.
 
 list_buckets_cache(Node, BucketType, Start, Rows) ->
@@ -659,12 +666,16 @@ clean_buckets(Node, BucketType) ->
 put_buckets(Node, BucketType, Buckets) ->
     re_keyjournal:write_cache({buckets, Node, [BucketType]}, Buckets).
 
-list_keys(Node, BucketType, Bucket) ->
-    case re_config:development_mode() of
-        true ->
-            re_keyjournal:write({keys, Node, [BucketType, Bucket]});
-        false ->
-            {error, developer_mode_off}
+list_keys(Node, BucketType, Bucket, Options) ->
+    case cluster_id_for_node(Node) of
+        [{error, not_found}] -> [{error, not_found}];
+        Cluster ->
+            case re_config:development_mode(Cluster) of
+                true ->
+                    re_keyjournal:write({keys, Node, [BucketType, Bucket]}, Options);
+                false ->
+                    {error, developer_mode_off}
+            end
     end.
 
 list_keys_cache(Node, BucketType, Bucket, Start, Rows) ->
@@ -693,8 +704,8 @@ log_file(Node, File, NumLines) ->
             case remote(Node, re_riak_patch, tail_log, [File, NumLines]) of
                 {error, _} ->
                     [{error, not_found}];
-                {TotalLines, Lines} ->
-                    [{log, [{total_lines, TotalLines},{lines, Lines}]}]
+                {Total, Lines} ->
+                    [{log, [{total_lines, Total},{lines, Lines}]}]
             end;
         _ ->
             [{error, not_found}]
@@ -710,7 +721,9 @@ config_file(Node, File) ->
     ValidFiles = [
         "riak.conf",
         "advanced.config",
-        "solr-log4j.properties"
+        "solr-log4j.properties",
+        "app.config",
+        "vm.args"
     ],
     case lists:member(File, ValidFiles) of
         true ->
@@ -754,15 +767,6 @@ node_config(_, Node) ->
             [{error, not_found, [{error, <<"Invalid node id or node not available.">>}]}]
     end.
 
-node_is_alive([{error, no_nodes}]) ->
-    false;
-node_is_alive(Node) ->
-    case remote(Node, erlang, node, []) of
-        {error,_} -> false;
-        unavailable -> false;
-        A -> is_atom(A)
-    end.
-
 riak_type(Node) ->
     case remote(Node, code, is_loaded, [riak_repl_console]) of
         false -> oss;
@@ -799,20 +803,26 @@ bucket_type(Node, BucketType) ->
 
 bucket_types(Node) ->
     load_patch(Node),
-    List = remote(Node, re_riak_patch, bucket_types, []),
+    List0 = remote(Node, re_riak_patch, bucket_types, []),
+    List = lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List0),
     [{bucket_types, List}].
 
 create_bucket_type(Node, BucketType, RawValue) ->
-    % Props = case mochijson2:decode(RawValue) of
-    %     {struct, [{<<"props", _/binary>>, {struct, Props1}}]} ->
-    % Result = riak_core_bucket_type:create(Type, Props),
-    case remote(Node, riak_kv_console, bucket_type_create, [[BucketType, RawValue]]) of
-        ok ->
-            case riak_core_bucket_type:activate(list_to_binary(BucketType)) of
-                ok -> ok;
-                {error, _} -> error
-            end;
-        error -> error
+    load_patch(Node),
+    {Created, Active} = case bucket_type(Node, list_to_binary(BucketType)) of
+        [{error, not_found}] -> {false, false};
+        [{bucket_types, Type}] ->
+            Props = proplists:get_value(props, Type),
+            {true, proplists:get_value(active, Props, false)}
+    end,
+
+    case {Created, Active} of
+        {false, _} ->
+            bucket_type_action(Node, BucketType, RawValue, [create, activate], []);
+        {true, false} ->
+            bucket_type_action(Node, BucketType, RawValue, [activate], []);
+        {true, true} ->
+            bucket_type_action(Node, BucketType, RawValue, [update], [])
     end.
 
 %%%===================================================================
@@ -823,50 +833,55 @@ cluster_id_for_node(Node) ->
     [{clusters, Clusters}] = clusters(),
 
     case find_cluster_by_node(Node, Clusters) of
-        {error, not_found} -> undefined;
+        [{error, not_found}] -> [{error, not_found}];
         [{id, Id}|_] -> Id
     end.
 
 cluster_info({C, _}) ->
-    Node = re_config:riak_node(C),
-    [{id,C},
-     {riak_node, Node},
-     {development_mode, re_config:development_mode(C)},
-     {riak_type, riak_type(Node)},
-     {riak_version, riak_version(Node)},
-     {available, node_is_alive(Node)}].
+    case re_config:riak_node(C) of
+        Node when is_atom(Node) ->
+            [{id,C},
+             {riak_node, Node},
+             {development_mode, re_config:development_mode(C)},
+             {riak_type, riak_type(Node)},
+             {riak_version, riak_version(Node)},
+             {available, node_is_alive(Node)}];
+        _ -> [{error, not_found}]
+    end;
+cluster_info(Id) ->
+    case re_config:cluster(Id) of
+        [{error, not_found}] ->
+            [{error, not_found}];
+        C ->
+            [{clusters, cluster_info({Id, C})}]
+    end.
 
 clusters() ->
-    Clusters = re_config:clusters(),
+    Clusters = lists:keysort(1, re_config:clusters()),
     Mapped = [cluster_info(Cluster) || Cluster <- Clusters],
     [{clusters, Mapped}].
 
 cluster(Id) ->
-    [{clusters, Clusters}] = clusters(),
-
-    case find_cluster_by_id(Id, Clusters) of
-        {error, not_found} -> {error, not_found};
-        Props -> [{clusters, Props}]
-    end.
-
-first_node(Cluster) ->
-    case nodes(Cluster) of
-        [{nodes, []}] -> [{error, no_nodes}];
-        [{nodes, [Node|_]}] ->
-            Id = proplists:get_value(id, Node),
-            Id;
-        [{error, not_found}] -> [{error, no_nodes}]
-    end.
+    cluster_info(Id).
+    % [{clusters, Clusters}] = clusters(),
+    %
+    % case find_cluster_by_id(Id, Clusters) of
+    %     [{error, not_found}] -> [{error, not_found}];
+    %     Props -> [{clusters, Props}]
+    % end.
 
 nodes(Cluster) ->
-    RiakNode = re_config:riak_node(Cluster),
-
-    case remote(RiakNode, riak_core_ring_manager, get_my_ring, []) of
-        {ok, MyRing} ->
-            Nodes = remote(RiakNode, riak_core_ring, all_members, [MyRing]),
-            WithIds = lists:map(fun(N) -> node_info(N) end, Nodes),
-            [{nodes, WithIds}];
-        _ -> [{nodes, []}]
+    case re_config:riak_node(Cluster) of
+        RiakNode when is_atom(RiakNode) ->
+            case remote(RiakNode, riak_core_ring_manager, get_my_ring, []) of
+                {ok, MyRing} ->
+                    Nodes0 = remote(RiakNode, riak_core_ring, all_members, [MyRing]),
+                    Nodes = lists:sort(Nodes0),
+                    WithIds = lists:map(fun(N) -> node_info(N) end, Nodes),
+                    [{nodes, WithIds}];
+                _ -> [{nodes, []}]
+            end;
+        Error -> Error
     end.
 
 node_exists(Cluster, Node) ->
@@ -893,9 +908,40 @@ load_patch(Node) ->
 remote(N, M, F, A) ->
     safe_rpc(N, M, F, A, 60000).
 
+node_is_alive([{error, _}]) ->
+    false;
+node_is_alive(Node) ->
+    case remote(Node, erlang, node, []) of
+        {error,_} -> false;
+        unavailable -> false;
+        A -> is_atom(A)
+    end.
+
 %%%===================================================================
 %%% Private
 %%%===================================================================
+
+bucket_type_action(_Node, _BucketType, _RawValue, [], Accum) ->
+    [{bucket_types, [{success, true},{actions, lists:reverse(Accum)}]}];
+bucket_type_action(Node, BucketType, RawValue, [create|Rest], Accum) ->
+    Props = case RawValue of
+        <<>> -> "";
+        P -> P
+    end,
+    case remote(Node, re_riak_patch, bucket_type_create, [[BucketType, Props]]) of
+        [{error, _, _}]=E -> E;
+        C -> bucket_type_action(Node, BucketType, RawValue, Rest, [{create, C}|Accum])
+    end;
+bucket_type_action(Node, BucketType, RawValue, [activate|Rest], Accum) ->
+    case remote(Node, re_riak_patch, bucket_type_activate, [BucketType]) of
+        [{error, _, _}]=E -> E;
+        A -> bucket_type_action(Node, BucketType, RawValue, Rest, [{activate, A}|Accum])
+    end;
+bucket_type_action(Node, BucketType, RawValue, [update|Rest], Accum) ->
+    case remote(Node, re_riak_patch, bucket_type_update, [[BucketType, RawValue]]) of
+        [{error, _, _}]=E -> E;
+        U -> bucket_type_action(Node, BucketType, RawValue, Rest, [{update, U}|Accum])
+    end.
 
 maybe_load_patch(Node, false) ->
     lager:info("Loading re_riak_patch module into node[~p].", [Node]),
@@ -932,15 +978,15 @@ handle_error(Action) ->
             [{control, [{error, Error}]}]
     end.
 
-find_cluster_by_id(_, []) ->
-    {error, not_found};
-find_cluster_by_id(Id, [[{id, Id}|_]=Props|_]) ->
-    Props;
-find_cluster_by_id(Id, [_|Rest]) ->
-    find_cluster_by_id(Id, Rest).
+% find_cluster_by_id(_, []) ->
+%     [{error, not_found}];
+% find_cluster_by_id(Id, [[{id, Id}|_]=Props|_]) ->
+%     Props;
+% find_cluster_by_id(Id, [_|Rest]) ->
+%     find_cluster_by_id(Id, Rest).
 
 find_cluster_by_node(_, []) ->
-    {error, not_found};
+    [{error, not_found}];
 find_cluster_by_node(Node, [[_,{riak_node,Node}|_]=Props|_]) ->
     Props;
 find_cluster_by_node(Node, [[{id, Cluster}|_]=Props|Rest]) ->
