@@ -94,7 +94,7 @@ decode_json_props(JsonProps) ->
 bucket_type_create(CreateTypeFn, Type, {struct, Fields}) ->
     case Fields of
         [{<<"props", _/binary>>, {struct, Props1}}] ->
-            case code:is_loaded(riak_kv_ts_util) of
+            case code:is_loaded(riak_ql_ddl) of
                 false ->
                     Props2 = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props1],
                     CreateTypeFn(Props2);
