@@ -94,11 +94,8 @@ decode_json_props(JsonProps) ->
 bucket_type_create(CreateTypeFn, Type, {struct, Fields}) ->
     case Fields of
         [{<<"props", _/binary>>, {struct, Props1}}] ->
-            case code:is_loaded(riak_ql_ddl) of
-                false ->
-                    Props2 = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props1],
-                    CreateTypeFn(Props2);
-                _ ->
+            case code:ensure_loaded(riak_kv_ts_util) of
+                {module,riak_kv_ts_util} ->
                     case catch riak_kv_ts_util:maybe_parse_table_def(Type, Props1) of
                         {ok, Props2} ->
                             Props3 = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props2],
@@ -108,7 +105,10 @@ bucket_type_create(CreateTypeFn, Type, {struct, Fields}) ->
                             [{error, format, [{error, list_to_binary(io_lib:format("~ts", [ErrorMessage]))}]}];
                         {error, Error} ->
                             bucket_type_print_create_result(Type, {error, Error})
-                    end
+                    end;
+                _ ->
+                    Props2 = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props1],
+                    CreateTypeFn(Props2)
             end;
         _ ->
             [{error, format, [{error, list_to_binary(io_lib:format("Cannot create bucket type ~ts: no props field found in json", [Type]))}]}]
