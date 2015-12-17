@@ -421,6 +421,18 @@ Some suggestions on how to create some sample data, to try out the Explorer GUI.
     -d '{"update":{ "favorited_flag": "enable", "id_str_register": "240859602699912715", "favourites_count_counter": 1, "entities_map":{ "update": { "urls_set":{ "add_all": ["url4", "url5", "url6"]}} }  }}'
   ```
 
+7. Insert some objects with sample Custom headers, and Secondary Index headers:
+
+  ```
+  curl localhost:8098/types/default/buckets/user-accounts/keys/user123 -XPUT \
+    -H 'X-Riak-Meta-date-created: 2015-01-01' \
+    -H 'X-Riak-Meta-last-accessed: 2015-09-01' \
+    -H 'X-Riak-Index-email_bin: user@gmail.com' \
+    -H 'X-Riak-Index-country_bin: usa' \
+    -H 'Content-Type: application/json' \
+    -d '{"name":"User One", "id":"user123"}'
+  ```
+
 ## Development / Contributing
 
 For developer installation instructions and environment setup, visit
