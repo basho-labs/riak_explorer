@@ -870,3 +870,39 @@ Performs an HTTP `riak ping` and returns the result.
 + Response 404 (application/json)
 
         {"error":"Node is not running."}
+
+## Preflist for a Key [/riak/clusters/{cluster}/types/{type}/buckets/{bucket}/keys/{key}/preflist]
+Introduced in Riak 2.1.2 (in
+[riak_kv PR #1083](https://github.com/basho/riak_kv/pull/1083)), as a result of a [mailing list answer](http://lists.basho.com/pipermail/riak-users_lists.basho.com/2015-January/016527.html)
+by Charlie Voiselle.
+
+### Retrieve Preflist for Riak Object [GET]
+Retrieves a list of partitions and nodes for a given riak object.
+
++ Parameters
+    + cluster: `localdev` (string) - The Cluster id.
+    + type: `default` (string) - The name of the Riak Bucket Type.
+    + bucket: `users` (string) - The bucket name (unique within the bucket type).
+    + key: `user123` (string) - Riak object key.
+
++ Response 200
+
+        {
+            "preflist": [
+                {
+                    "node": "dev1@127.0.0.1",
+                    "partition": 29,
+                    "primary": true
+                },
+                {
+                    "node": "dev2@127.0.0.1",
+                    "partition": 30,
+                    "primary": true
+                },
+                {
+                    "node": "dev3@127.0.0.1",
+                    "partition": 31,
+                    "primary": true
+                }
+            ]
+        }
