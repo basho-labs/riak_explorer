@@ -934,7 +934,7 @@ bucket_type_action(Node, BucketType, RawValue, [create|Rest], Accum) ->
         C -> bucket_type_action(Node, BucketType, RawValue, Rest, [{create, C}|Accum])
     end;
 bucket_type_action(Node, BucketType, RawValue, [activate|Rest], Accum) ->
-    case remote(Node, re_riak_patch, bucket_type_activate, [BucketType]) of
+    case remote(Node, re_riak_patch, bucket_type_activate, [[BucketType]]) of
         [{error, _, _}]=E -> E;
         A -> bucket_type_action(Node, BucketType, RawValue, Rest, [{activate, A}|Accum])
     end;
