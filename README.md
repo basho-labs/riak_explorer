@@ -184,7 +184,7 @@ open docs/api.html
 ```
 
 The source code for these docs is in [API Blueprint Format](https://github.com/apiaryio/api-blueprint/blob/master/API Blueprint Specification.md) (see also the [sample API markup example](https://raw.githubusercontent.com/danielgtaylor/aglio/master/example.apib)),
-and is located in the [API.apib.md](API.apib.md) file.
+and is located in the [API.apib.md](https://github.com/basho-labs/riak_explorer/blob/gh-pages/API.apib.md) file on the `gh-pages` branch.
 
 **To add to the API documentation:**
 
@@ -419,6 +419,18 @@ Some suggestions on how to create some sample data, to try out the Explorer GUI.
   curl localhost:8098/types/maps/buckets/test-tweets/datatypes/user456 -XPOST \
     -H "Content-Type: application/json" \
     -d '{"update":{ "favorited_flag": "enable", "id_str_register": "240859602699912715", "favourites_count_counter": 1, "entities_map":{ "update": { "urls_set":{ "add_all": ["url4", "url5", "url6"]}} }  }}'
+  ```
+
+7. Insert some objects with sample Custom headers, and Secondary Index headers:
+
+  ```
+  curl localhost:8098/types/default/buckets/user-accounts/keys/user123 -XPUT \
+    -H 'X-Riak-Meta-date-created: 2015-01-01' \
+    -H 'X-Riak-Meta-last-accessed: 2015-09-01' \
+    -H 'X-Riak-Index-email_bin: user@gmail.com' \
+    -H 'X-Riak-Index-country_bin: usa' \
+    -H 'Content-Type: application/json' \
+    -d '{"name":"User One", "id":"user123"}'
   ```
 
 ## Development / Contributing

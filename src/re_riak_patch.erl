@@ -25,6 +25,7 @@
   bucket_type_activate/1,
   bucket_type_update/1,
   bucket_types/0,
+  bucket_type_exists/1,
   riak_version/0,
   tail_log/2,
   get_log_files/0,
@@ -39,30 +40,90 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 7.
+version() -> 9.
 
-bucket_type_create([TypeStr, ""]) ->
+bucket_type_print_status(Type, undefined) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("~ts is not an existing bucket type", [Type]))}]}];
+bucket_type_print_status(Type, created) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("~ts has been created but cannot be activated yet", [Type]))}]}];
+bucket_type_print_status(Type, ready) ->
+    list_to_binary(io_lib:format("~ts has been created and may be activated", [Type]));
+bucket_type_print_status(Type, active) ->
+    list_to_binary(io_lib:format("~ts is active", [Type])).
+
+bucket_type_activate([TypeStr]) ->
     Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
-    EmptyProps = {struct, [{<<"props">>, {struct, []}}]},
-    bucket_type_create(Type, EmptyProps);
+    bucket_type_print_activate_result(Type, riak_core_bucket_type:activate(Type), false).
+
+bucket_type_print_activate_result(Type, ok, _) ->
+    list_to_binary(io_lib:format("~ts has been activated", [Type]));
+bucket_type_print_activate_result(Type, {error, undefined}, _IsFirst) ->
+    bucket_type_print_status(Type, undefined);
+bucket_type_print_activate_result(Type, {error, not_ready}, _IsFirst) ->
+    bucket_type_print_status(Type, created).
+
 bucket_type_create([TypeStr, PropsStr]) ->
     Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
-    bucket_type_create(Type, catch mochijson2:decode(PropsStr)).
+    CreateTypeFn =
+        fun(Props) ->
+            Result = riak_core_bucket_type:create(Type, Props),
+            bucket_type_print_create_result(Type, Result)
+        end,
+    Result = bucket_type_create(CreateTypeFn, Type, decode_json_props(PropsStr)),
+    wait_for({re_riak_patch, bucket_type_exists, list_to_binary(TypeStr)}, 10),
+    Result.
 
-bucket_type_create(Type, {struct, Fields}) ->
-    case proplists:get_value(<<"props">>, Fields) of
-        {struct, Props} ->
-            ErlProps = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props],
-            bucket_type_print_create_result(Type, riak_core_bucket_type:create(Type, ErlProps));
+bucket_type_exists(Type) ->
+    case riak_core_bucket_type:status(Type) of
+        ready -> true;
+        _ -> false
+    end.
+
+%% Attempt to decode the json to string or provide defaults if empty.
+%% mochijson2 has no types exported so returning any.
+-spec decode_json_props(JsonProps::string()) -> any().
+decode_json_props("") ->
+    {struct, [{<<"props">>, {struct, []}}]};
+decode_json_props(JsonProps) ->
+    catch mochijson2:decode(JsonProps).
+
+-spec bucket_type_create(
+        CreateTypeFn :: fun(([proplists:property()]) -> ok),
+        Type :: binary(),
+        JSON :: any()) -> ok | error.
+bucket_type_create(CreateTypeFn, Type, {struct, Fields}) ->
+    case Fields of
+        [{<<"props", _/binary>>, {struct, Props1}}] ->
+            case code:is_loaded(riak_kv_ts_util) of
+                false ->
+                    Props2 = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props1],
+                    CreateTypeFn(Props2);
+                _ ->
+                    case catch riak_kv_ts_util:maybe_parse_table_def(Type, Props1) of
+                        {ok, Props2} ->
+                            Props3 = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props2],
+                            CreateTypeFn(Props3);
+                        {error, ErrorMessage} when is_list(ErrorMessage) orelse is_binary(ErrorMessage) ->
+                            bucket_type_print_create_result_error_header(Type),
+                            [{error, format, [{error, list_to_binary(io_lib:format("~ts", [ErrorMessage]))}]}];
+                        {error, Error} ->
+                            bucket_type_print_create_result(Type, {error, Error})
+                    end
+            end;
         _ ->
-            [{error, format, [{error, <<"Cannot create bucket type: no props field found in json.">>}]}]
+            [{error, format, [{error, list_to_binary(io_lib:format("Cannot create bucket type ~ts: no props field found in json", [Type]))}]}]
     end;
-bucket_type_create(_, _) ->
-    [{error, format, [{error, <<"Cannot create bucket type: invalid json.">>}]}].
+bucket_type_create(_, Type, _) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("Cannot create bucket type ~ts: invalid json", [Type]))}]}].
 
-bucket_type_activate(TypeStr) ->
-    Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
-    bucket_type_print_activate_result(Type, riak_core_bucket_type:activate(Type)).
+bucket_type_print_create_result(Type, ok) ->
+    list_to_binary(io_lib:format("~ts created", [Type]));
+bucket_type_print_create_result(Type, {error, Reason}) ->
+    bucket_type_print_create_result_error_header(Type),
+    [{error, format, [{error, list_to_binary(io_lib:format("Error creating bucket type: ~p", [Reason]))}]}].
+
+bucket_type_print_create_result_error_header(Type) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("Error creating bucket type ~ts:", [Type]))}]}].
 
 bucket_type_update([TypeStr, PropsStr]) ->
     Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
@@ -74,10 +135,15 @@ bucket_type_update(Type, {struct, Fields}) ->
             ErlProps = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props],
             bucket_type_print_update_result(Type, riak_core_bucket_type:update(Type, ErlProps));
         _ ->
-            [{error, format, [{error, <<"Cannot update bucket type: no props field found in json.">>}]}]
+            [{error, format, [{error, list_to_binary(io_lib:format("Cannot create bucket type ~ts: no props field found in json", [Type]))}]}]
     end;
-bucket_type_update(_, _) ->
-    [{error, format, [{error, <<"Cannot update bucket type: invalid json.">>}]}].
+bucket_type_update(Type, _) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("Cannot update bucket type: ~ts: invalid json", [Type]))}]}].
+
+bucket_type_print_update_result(Type, ok) ->
+    list_to_binary(io_lib:format("~ts updated", [Type]));
+bucket_type_print_update_result(Type, {error, Reason}) ->
+    [{error, format, [{error, list_to_binary(io_lib:format("Error updating bucket type ~ts, Reason:~p", [Type, Reason]))}]}].
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
@@ -163,21 +229,6 @@ effective_config() ->
 %%%===================================================================
 %%% Private
 %%%===================================================================
-
-bucket_type_print_create_result(_, ok) ->
-    <<"Bucket type created.">>;
-bucket_type_print_create_result(_, {error, Reason}) ->
-    [{error, format, [{error, list_to_binary(io_lib:format("Error creating bucket type: ~p", [Reason]))}]}].
-
-bucket_type_print_activate_result(_, ok) ->
-    <<"Bucket type activated.">>;
-bucket_type_print_activate_result(_, {error, Reason}) ->
-    [{error, format, [{error, list_to_binary(io_lib:format("Error activating bucket type: ~p", [Reason]))}]}].
-
-bucket_type_print_update_result(_, ok) ->
-    <<"Bucket type updated.">>;
-bucket_type_print_update_result(_, {error, Reason}) ->
-    [{error, format, [{error, list_to_binary(io_lib:format("Error updating bucket type: ~p", [Reason]))}]}].
 
 check_existence(EtcDir, Filename) ->
     FullName = filename:join(EtcDir, Filename), %% Barfolomew
@@ -270,3 +321,16 @@ format_value(false) ->
   false;
 format_value(Val) ->
   list_to_binary(lists:flatten(io_lib:format("~p", [Val]))).
+
+%% @doc Wait for `Check' for the given number of `Seconds'.
+wait_for(_, 0) ->
+    ok;
+wait_for(Check={M,F,A}, Seconds) when Seconds > 0 ->
+    case M:F(A) of
+        true ->
+            ok;
+        false ->
+            lager:debug("Waiting for ~p:~p(~p)...", [M, F, A]),
+            timer:sleep(1000),
+            wait_for(Check, Seconds - 1)
+    end.
