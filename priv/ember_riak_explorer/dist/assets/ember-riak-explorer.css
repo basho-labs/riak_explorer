@@ -222,11 +222,12 @@ th {
     page-break-after: avoid; }
   .navbar {
     display: none; }
-  .btn > .caret, .button-list li a > .caret, .cluster-resource-link > .caret, .pagination-component-container .pagination-links .pagination-link > .caret,
+  .btn > .caret, .button-list li a > .caret, .cluster-resource-link > .caret, .pagination-component-container .pagination-links .pagination-link > .caret, .schema-actions .schema-action > .caret,
   .dropup > .btn > .caret, .button-list li
   .dropup > a > .caret,
   .dropup > .cluster-resource-link > .caret, .pagination-component-container .pagination-links
-  .dropup > .pagination-link > .caret {
+  .dropup > .pagination-link > .caret, .schema-actions
+  .dropup > .schema-action > .caret {
     border-top-color: #000 !important; }
   .label {
     border: 1px solid #000; }
@@ -2359,7 +2360,8 @@ input[type="search"] {
   .input-group-sm > input[type="date"].input-group-addon,
   .input-group-sm > .input-group-btn > input[type="date"].btn,
   .input-group-sm > .input-group-btn > input[type="date"].cluster-resource-link, .pagination-component-container .pagination-links
-  .input-group-sm > .input-group-btn > input[type="date"].pagination-link,
+  .input-group-sm > .input-group-btn > input[type="date"].pagination-link, .schema-actions
+  .input-group-sm > .input-group-btn > input[type="date"].schema-action,
   .input-group-sm input[type="date"],
   input[type="time"].input-sm,
   .input-group-sm > input[type="time"].form-control,
@@ -2368,6 +2370,8 @@ input[type="search"] {
   .input-group-sm > .input-group-btn > input[type="time"].cluster-resource-link,
   .pagination-component-container .pagination-links
   .input-group-sm > .input-group-btn > input[type="time"].pagination-link,
+  .schema-actions
+  .input-group-sm > .input-group-btn > input[type="time"].schema-action,
   .input-group-sm
   input[type="time"],
   input[type="datetime-local"].input-sm,
@@ -2377,6 +2381,8 @@ input[type="search"] {
   .input-group-sm > .input-group-btn > input[type="datetime-local"].cluster-resource-link,
   .pagination-component-container .pagination-links
   .input-group-sm > .input-group-btn > input[type="datetime-local"].pagination-link,
+  .schema-actions
+  .input-group-sm > .input-group-btn > input[type="datetime-local"].schema-action,
   .input-group-sm
   input[type="datetime-local"],
   input[type="month"].input-sm,
@@ -2386,6 +2392,8 @@ input[type="search"] {
   .input-group-sm > .input-group-btn > input[type="month"].cluster-resource-link,
   .pagination-component-container .pagination-links
   .input-group-sm > .input-group-btn > input[type="month"].pagination-link,
+  .schema-actions
+  .input-group-sm > .input-group-btn > input[type="month"].schema-action,
   .input-group-sm
   input[type="month"] {
     line-height: 30px; }
@@ -2393,7 +2401,8 @@ input[type="search"] {
   .input-group-lg > input[type="date"].input-group-addon,
   .input-group-lg > .input-group-btn > input[type="date"].btn,
   .input-group-lg > .input-group-btn > input[type="date"].cluster-resource-link, .pagination-component-container .pagination-links
-  .input-group-lg > .input-group-btn > input[type="date"].pagination-link,
+  .input-group-lg > .input-group-btn > input[type="date"].pagination-link, .schema-actions
+  .input-group-lg > .input-group-btn > input[type="date"].schema-action,
   .input-group-lg input[type="date"],
   input[type="time"].input-lg,
   .input-group-lg > input[type="time"].form-control,
@@ -2402,6 +2411,8 @@ input[type="search"] {
   .input-group-lg > .input-group-btn > input[type="time"].cluster-resource-link,
   .pagination-component-container .pagination-links
   .input-group-lg > .input-group-btn > input[type="time"].pagination-link,
+  .schema-actions
+  .input-group-lg > .input-group-btn > input[type="time"].schema-action,
   .input-group-lg
   input[type="time"],
   input[type="datetime-local"].input-lg,
@@ -2411,6 +2422,8 @@ input[type="search"] {
   .input-group-lg > .input-group-btn > input[type="datetime-local"].cluster-resource-link,
   .pagination-component-container .pagination-links
   .input-group-lg > .input-group-btn > input[type="datetime-local"].pagination-link,
+  .schema-actions
+  .input-group-lg > .input-group-btn > input[type="datetime-local"].schema-action,
   .input-group-lg
   input[type="datetime-local"],
   input[type="month"].input-lg,
@@ -2420,6 +2433,8 @@ input[type="search"] {
   .input-group-lg > .input-group-btn > input[type="month"].cluster-resource-link,
   .pagination-component-container .pagination-links
   .input-group-lg > .input-group-btn > input[type="month"].pagination-link,
+  .schema-actions
+  .input-group-lg > .input-group-btn > input[type="month"].schema-action,
   .input-group-lg
   input[type="month"] {
     line-height: 46px; } }
@@ -2500,12 +2515,14 @@ fieldset[disabled]
   .input-group-lg > .input-group-btn > .form-control-static.btn, .button-list li
   .input-group-lg > .input-group-btn > a.form-control-static,
   .input-group-lg > .input-group-btn > .form-control-static.cluster-resource-link, .pagination-component-container .pagination-links
-  .input-group-lg > .input-group-btn > .form-control-static.pagination-link, .form-control-static.input-sm, .input-group-sm > .form-control-static.form-control,
+  .input-group-lg > .input-group-btn > .form-control-static.pagination-link, .schema-actions
+  .input-group-lg > .input-group-btn > .form-control-static.schema-action, .form-control-static.input-sm, .input-group-sm > .form-control-static.form-control,
   .input-group-sm > .form-control-static.input-group-addon,
   .input-group-sm > .input-group-btn > .form-control-static.btn, .button-list li
   .input-group-sm > .input-group-btn > a.form-control-static,
   .input-group-sm > .input-group-btn > .form-control-static.cluster-resource-link, .pagination-component-container .pagination-links
-  .input-group-sm > .input-group-btn > .form-control-static.pagination-link {
+  .input-group-sm > .input-group-btn > .form-control-static.pagination-link, .schema-actions
+  .input-group-sm > .input-group-btn > .form-control-static.schema-action {
     padding-left: 0;
     padding-right: 0; }
 
@@ -2514,7 +2531,8 @@ fieldset[disabled]
 .input-group-sm > .input-group-btn > .btn, .button-list li
 .input-group-sm > .input-group-btn > a,
 .input-group-sm > .input-group-btn > .cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-sm > .input-group-btn > .pagination-link {
+.input-group-sm > .input-group-btn > .pagination-link, .schema-actions
+.input-group-sm > .input-group-btn > .schema-action {
   height: 30px;
   padding: 5px 10px;
   font-size: 12px;
@@ -2525,7 +2543,8 @@ select.input-sm, .input-group-sm > select.form-control,
 .input-group-sm > select.input-group-addon,
 .input-group-sm > .input-group-btn > select.btn,
 .input-group-sm > .input-group-btn > select.cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-sm > .input-group-btn > select.pagination-link {
+.input-group-sm > .input-group-btn > select.pagination-link, .schema-actions
+.input-group-sm > .input-group-btn > select.schema-action {
   height: 30px;
   line-height: 30px; }
 
@@ -2533,14 +2552,17 @@ textarea.input-sm, .input-group-sm > textarea.form-control,
 .input-group-sm > textarea.input-group-addon,
 .input-group-sm > .input-group-btn > textarea.btn,
 .input-group-sm > .input-group-btn > textarea.cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-sm > .input-group-btn > textarea.pagination-link,
+.input-group-sm > .input-group-btn > textarea.pagination-link, .schema-actions
+.input-group-sm > .input-group-btn > textarea.schema-action,
 select[multiple].input-sm,
 .input-group-sm > select[multiple].form-control,
 .input-group-sm > select[multiple].input-group-addon,
 .input-group-sm > .input-group-btn > select[multiple].btn,
 .input-group-sm > .input-group-btn > select[multiple].cluster-resource-link,
 .pagination-component-container .pagination-links
-.input-group-sm > .input-group-btn > select[multiple].pagination-link {
+.input-group-sm > .input-group-btn > select[multiple].pagination-link,
+.schema-actions
+.input-group-sm > .input-group-btn > select[multiple].schema-action {
   height: auto; }
 
 .form-group-sm .form-control {
@@ -2570,7 +2592,8 @@ select[multiple].input-sm,
 .input-group-lg > .input-group-btn > .btn, .button-list li
 .input-group-lg > .input-group-btn > a,
 .input-group-lg > .input-group-btn > .cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-lg > .input-group-btn > .pagination-link {
+.input-group-lg > .input-group-btn > .pagination-link, .schema-actions
+.input-group-lg > .input-group-btn > .schema-action {
   height: 46px;
   padding: 10px 16px;
   font-size: 18px;
@@ -2581,7 +2604,8 @@ select.input-lg, .input-group-lg > select.form-control,
 .input-group-lg > select.input-group-addon,
 .input-group-lg > .input-group-btn > select.btn,
 .input-group-lg > .input-group-btn > select.cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-lg > .input-group-btn > select.pagination-link {
+.input-group-lg > .input-group-btn > select.pagination-link, .schema-actions
+.input-group-lg > .input-group-btn > select.schema-action {
   height: 46px;
   line-height: 46px; }
 
@@ -2589,14 +2613,17 @@ textarea.input-lg, .input-group-lg > textarea.form-control,
 .input-group-lg > textarea.input-group-addon,
 .input-group-lg > .input-group-btn > textarea.btn,
 .input-group-lg > .input-group-btn > textarea.cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-lg > .input-group-btn > textarea.pagination-link,
+.input-group-lg > .input-group-btn > textarea.pagination-link, .schema-actions
+.input-group-lg > .input-group-btn > textarea.schema-action,
 select[multiple].input-lg,
 .input-group-lg > select[multiple].form-control,
 .input-group-lg > select[multiple].input-group-addon,
 .input-group-lg > .input-group-btn > select[multiple].btn,
 .input-group-lg > .input-group-btn > select[multiple].cluster-resource-link,
 .pagination-component-container .pagination-links
-.input-group-lg > .input-group-btn > select[multiple].pagination-link {
+.input-group-lg > .input-group-btn > select[multiple].pagination-link,
+.schema-actions
+.input-group-lg > .input-group-btn > select[multiple].schema-action {
   height: auto; }
 
 .form-group-lg .form-control {
@@ -2643,7 +2670,8 @@ select[multiple].input-lg,
 .input-group-lg > .input-group-btn > .btn + .form-control-feedback, .button-list li
 .input-group-lg > .input-group-btn > a + .form-control-feedback,
 .input-group-lg > .input-group-btn > .cluster-resource-link + .form-control-feedback, .pagination-component-container .pagination-links
-.input-group-lg > .input-group-btn > .pagination-link + .form-control-feedback,
+.input-group-lg > .input-group-btn > .pagination-link + .form-control-feedback, .schema-actions
+.input-group-lg > .input-group-btn > .schema-action + .form-control-feedback,
 .input-group-lg + .form-control-feedback,
 .form-group-lg .form-control + .form-control-feedback {
   width: 46px;
@@ -2655,7 +2683,8 @@ select[multiple].input-lg,
 .input-group-sm > .input-group-btn > .btn + .form-control-feedback, .button-list li
 .input-group-sm > .input-group-btn > a + .form-control-feedback,
 .input-group-sm > .input-group-btn > .cluster-resource-link + .form-control-feedback, .pagination-component-container .pagination-links
-.input-group-sm > .input-group-btn > .pagination-link + .form-control-feedback,
+.input-group-sm > .input-group-btn > .pagination-link + .form-control-feedback, .schema-actions
+.input-group-sm > .input-group-btn > .schema-action + .form-control-feedback,
 .input-group-sm + .form-control-feedback,
 .form-group-sm .form-control + .form-control-feedback {
   width: 30px;
@@ -2840,7 +2869,7 @@ select[multiple].input-lg,
     padding-top: 6px;
     font-size: 12px; } }
 
-.btn, .button-list li a, .cluster-resource-link, .pagination-component-container .pagination-links .pagination-link {
+.btn, .button-list li a, .cluster-resource-link, .pagination-component-container .pagination-links .pagination-link, .schema-actions .schema-action {
   display: inline-block;
   margin-bottom: 0;
   font-weight: normal;
@@ -2859,38 +2888,42 @@ select[multiple].input-lg,
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none; }
-  .btn:focus, .button-list li a:focus, .cluster-resource-link:focus, .pagination-component-container .pagination-links .pagination-link:focus, .btn.focus, .button-list li a.focus, .focus.cluster-resource-link, .pagination-component-container .pagination-links .focus.pagination-link, .btn:active:focus, .button-list li a:active:focus, .cluster-resource-link:active:focus, .pagination-component-container .pagination-links .pagination-link:active:focus, .btn:active.focus, .button-list li a:active.focus, .cluster-resource-link:active.focus, .pagination-component-container .pagination-links .pagination-link:active.focus, .btn.active:focus, .button-list li a.active:focus, .active.cluster-resource-link:focus, .pagination-component-container .pagination-links .active.pagination-link:focus, .btn.active.focus, .button-list li a.active.focus, .active.focus.cluster-resource-link, .pagination-component-container .pagination-links .active.focus.pagination-link {
+  .btn:focus, .button-list li a:focus, .cluster-resource-link:focus, .pagination-component-container .pagination-links .pagination-link:focus, .schema-actions .schema-action:focus, .btn.focus, .button-list li a.focus, .focus.cluster-resource-link, .pagination-component-container .pagination-links .focus.pagination-link, .schema-actions .focus.schema-action, .btn:active:focus, .button-list li a:active:focus, .cluster-resource-link:active:focus, .pagination-component-container .pagination-links .pagination-link:active:focus, .schema-actions .schema-action:active:focus, .btn:active.focus, .button-list li a:active.focus, .cluster-resource-link:active.focus, .pagination-component-container .pagination-links .pagination-link:active.focus, .schema-actions .schema-action:active.focus, .btn.active:focus, .button-list li a.active:focus, .active.cluster-resource-link:focus, .pagination-component-container .pagination-links .active.pagination-link:focus, .schema-actions .active.schema-action:focus, .btn.active.focus, .button-list li a.active.focus, .active.focus.cluster-resource-link, .pagination-component-container .pagination-links .active.focus.pagination-link, .schema-actions .active.focus.schema-action {
     outline: thin dotted;
     outline: 5px auto -webkit-focus-ring-color;
     outline-offset: -2px; }
-  .btn:hover, .button-list li a:hover, .cluster-resource-link:hover, .pagination-component-container .pagination-links .pagination-link:hover, .btn:focus, .button-list li a:focus, .cluster-resource-link:focus, .pagination-component-container .pagination-links .pagination-link:focus, .btn.focus, .button-list li a.focus, .focus.cluster-resource-link, .pagination-component-container .pagination-links .focus.pagination-link {
+  .btn:hover, .button-list li a:hover, .cluster-resource-link:hover, .pagination-component-container .pagination-links .pagination-link:hover, .schema-actions .schema-action:hover, .btn:focus, .button-list li a:focus, .cluster-resource-link:focus, .pagination-component-container .pagination-links .pagination-link:focus, .schema-actions .schema-action:focus, .btn.focus, .button-list li a.focus, .focus.cluster-resource-link, .pagination-component-container .pagination-links .focus.pagination-link, .schema-actions .focus.schema-action {
     color: #333;
     text-decoration: none; }
-  .btn:active, .button-list li a:active, .cluster-resource-link:active, .pagination-component-container .pagination-links .pagination-link:active, .btn.active, .button-list li a.active, .active.cluster-resource-link, .pagination-component-container .pagination-links .active.pagination-link {
+  .btn:active, .button-list li a:active, .cluster-resource-link:active, .pagination-component-container .pagination-links .pagination-link:active, .schema-actions .schema-action:active, .btn.active, .button-list li a.active, .active.cluster-resource-link, .pagination-component-container .pagination-links .active.pagination-link, .schema-actions .active.schema-action {
     outline: 0;
     background-image: none;
     -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); }
-  .btn.disabled, .button-list li a.disabled, .disabled.cluster-resource-link, .pagination-component-container .pagination-links .disabled.pagination-link, .btn[disabled], .button-list li a[disabled], [disabled].cluster-resource-link, .pagination-component-container .pagination-links [disabled].pagination-link,
+  .btn.disabled, .button-list li a.disabled, .disabled.cluster-resource-link, .pagination-component-container .pagination-links .disabled.pagination-link, .schema-actions .disabled.schema-action, .btn[disabled], .button-list li a[disabled], [disabled].cluster-resource-link, .pagination-component-container .pagination-links [disabled].pagination-link, .schema-actions [disabled].schema-action,
   fieldset[disabled] .btn,
   fieldset[disabled] .button-list li a, .button-list li
   fieldset[disabled] a,
   fieldset[disabled] .cluster-resource-link,
   fieldset[disabled] .pagination-component-container .pagination-links .pagination-link, .pagination-component-container .pagination-links
-  fieldset[disabled] .pagination-link {
+  fieldset[disabled] .pagination-link,
+  fieldset[disabled] .schema-actions .schema-action, .schema-actions
+  fieldset[disabled] .schema-action {
     cursor: not-allowed;
     opacity: 0.65;
     filter: alpha(opacity=65);
     -webkit-box-shadow: none;
     box-shadow: none; }
 
-a.btn.disabled, .button-list li a.disabled, a.disabled.cluster-resource-link, .pagination-component-container .pagination-links a.disabled.pagination-link,
+a.btn.disabled, .button-list li a.disabled, a.disabled.cluster-resource-link, .pagination-component-container .pagination-links a.disabled.pagination-link, .schema-actions a.disabled.schema-action,
 fieldset[disabled] a.btn,
 fieldset[disabled] .button-list li a, .button-list li
 fieldset[disabled] a,
 fieldset[disabled] a.cluster-resource-link,
 fieldset[disabled] .pagination-component-container .pagination-links a.pagination-link, .pagination-component-container .pagination-links
-fieldset[disabled] a.pagination-link {
+fieldset[disabled] a.pagination-link,
+fieldset[disabled] .schema-actions a.schema-action, .schema-actions
+fieldset[disabled] a.schema-action {
   pointer-events: none; }
 
 .btn-default, .pagination-component-container .pagination-links .pagination-link {
@@ -2950,88 +2983,156 @@ fieldset[disabled] a.pagination-link {
     color: #fff;
     background-color: #333; }
 
-.btn-primary, .button-list li a, .cluster-resource-link, .pagination-component-container .pagination-links .pagination-link.selected {
+.btn-primary, .button-list li a, .cluster-resource-link, .pagination-component-container .pagination-links .pagination-link.selected, .schema-actions .edit, .schema-actions .update, .schema-actions .create, .schema-actions .raw {
   color: #fff;
   background-color: #337ab7;
   border-color: #2e6da4; }
-  .btn-primary:focus, .button-list li a:focus, .cluster-resource-link:focus, .pagination-component-container .pagination-links .pagination-link.selected:focus, .btn-primary.focus, .button-list li a.focus, .focus.cluster-resource-link, .pagination-component-container .pagination-links .focus.pagination-link.selected {
+  .btn-primary:focus, .button-list li a:focus, .cluster-resource-link:focus, .pagination-component-container .pagination-links .pagination-link.selected:focus, .schema-actions .edit:focus, .schema-actions .update:focus, .schema-actions .create:focus, .schema-actions .raw:focus, .btn-primary.focus, .button-list li a.focus, .focus.cluster-resource-link, .pagination-component-container .pagination-links .focus.pagination-link.selected, .schema-actions .focus.edit, .schema-actions .focus.update, .schema-actions .focus.create, .schema-actions .focus.raw {
     color: #fff;
     background-color: #286090;
     border-color: #122b40; }
-  .btn-primary:hover, .button-list li a:hover, .cluster-resource-link:hover, .pagination-component-container .pagination-links .pagination-link.selected:hover {
+  .btn-primary:hover, .button-list li a:hover, .cluster-resource-link:hover, .pagination-component-container .pagination-links .pagination-link.selected:hover, .schema-actions .edit:hover, .schema-actions .update:hover, .schema-actions .create:hover, .schema-actions .raw:hover {
     color: #fff;
     background-color: #286090;
     border-color: #204d74; }
-  .btn-primary:active, .button-list li a:active, .cluster-resource-link:active, .pagination-component-container .pagination-links .pagination-link.selected:active, .btn-primary.active, .button-list li a.active, .active.cluster-resource-link, .pagination-component-container .pagination-links .active.pagination-link.selected,
+  .btn-primary:active, .button-list li a:active, .cluster-resource-link:active, .pagination-component-container .pagination-links .pagination-link.selected:active, .schema-actions .edit:active, .schema-actions .update:active, .schema-actions .create:active, .schema-actions .raw:active, .btn-primary.active, .button-list li a.active, .active.cluster-resource-link, .pagination-component-container .pagination-links .active.pagination-link.selected, .schema-actions .active.edit, .schema-actions .active.update, .schema-actions .active.create, .schema-actions .active.raw,
   .open > .btn-primary.dropdown-toggle, .button-list li
   .open > a.dropdown-toggle,
   .open > .dropdown-toggle.cluster-resource-link, .pagination-component-container .pagination-links
-  .open > .dropdown-toggle.pagination-link.selected {
+  .open > .dropdown-toggle.pagination-link.selected, .schema-actions
+  .open > .dropdown-toggle.edit, .schema-actions
+  .open > .dropdown-toggle.update, .schema-actions
+  .open > .dropdown-toggle.create, .schema-actions
+  .open > .dropdown-toggle.raw {
     color: #fff;
     background-color: #286090;
     border-color: #204d74; }
-    .btn-primary:active:hover, .button-list li a:active:hover, .cluster-resource-link:active:hover, .pagination-component-container .pagination-links .pagination-link.selected:active:hover, .btn-primary:active:focus, .button-list li a:active:focus, .cluster-resource-link:active:focus, .pagination-component-container .pagination-links .pagination-link.selected:active:focus, .btn-primary:active.focus, .button-list li a:active.focus, .cluster-resource-link:active.focus, .pagination-component-container .pagination-links .pagination-link.selected:active.focus, .btn-primary.active:hover, .button-list li a.active:hover, .active.cluster-resource-link:hover, .pagination-component-container .pagination-links .active.pagination-link.selected:hover, .btn-primary.active:focus, .button-list li a.active:focus, .active.cluster-resource-link:focus, .pagination-component-container .pagination-links .active.pagination-link.selected:focus, .btn-primary.active.focus, .button-list li a.active.focus, .active.focus.cluster-resource-link, .pagination-component-container .pagination-links .active.focus.pagination-link.selected,
+    .btn-primary:active:hover, .button-list li a:active:hover, .cluster-resource-link:active:hover, .pagination-component-container .pagination-links .pagination-link.selected:active:hover, .schema-actions .edit:active:hover, .schema-actions .update:active:hover, .schema-actions .create:active:hover, .schema-actions .raw:active:hover, .btn-primary:active:focus, .button-list li a:active:focus, .cluster-resource-link:active:focus, .pagination-component-container .pagination-links .pagination-link.selected:active:focus, .schema-actions .edit:active:focus, .schema-actions .update:active:focus, .schema-actions .create:active:focus, .schema-actions .raw:active:focus, .btn-primary:active.focus, .button-list li a:active.focus, .cluster-resource-link:active.focus, .pagination-component-container .pagination-links .pagination-link.selected:active.focus, .schema-actions .edit:active.focus, .schema-actions .update:active.focus, .schema-actions .create:active.focus, .schema-actions .raw:active.focus, .btn-primary.active:hover, .button-list li a.active:hover, .active.cluster-resource-link:hover, .pagination-component-container .pagination-links .active.pagination-link.selected:hover, .schema-actions .active.edit:hover, .schema-actions .active.update:hover, .schema-actions .active.create:hover, .schema-actions .active.raw:hover, .btn-primary.active:focus, .button-list li a.active:focus, .active.cluster-resource-link:focus, .pagination-component-container .pagination-links .active.pagination-link.selected:focus, .schema-actions .active.edit:focus, .schema-actions .active.update:focus, .schema-actions .active.create:focus, .schema-actions .active.raw:focus, .btn-primary.active.focus, .button-list li a.active.focus, .active.focus.cluster-resource-link, .pagination-component-container .pagination-links .active.focus.pagination-link.selected, .schema-actions .active.focus.edit, .schema-actions .active.focus.update, .schema-actions .active.focus.create, .schema-actions .active.focus.raw,
     .open > .btn-primary.dropdown-toggle:hover, .button-list li
     .open > a.dropdown-toggle:hover,
     .open > .dropdown-toggle.cluster-resource-link:hover, .pagination-component-container .pagination-links
-    .open > .dropdown-toggle.pagination-link.selected:hover,
+    .open > .dropdown-toggle.pagination-link.selected:hover, .schema-actions
+    .open > .dropdown-toggle.edit:hover, .schema-actions
+    .open > .dropdown-toggle.update:hover, .schema-actions
+    .open > .dropdown-toggle.create:hover, .schema-actions
+    .open > .dropdown-toggle.raw:hover,
     .open > .btn-primary.dropdown-toggle:focus, .button-list li
     .open > a.dropdown-toggle:focus,
     .open > .dropdown-toggle.cluster-resource-link:focus, .pagination-component-container .pagination-links
-    .open > .dropdown-toggle.pagination-link.selected:focus,
+    .open > .dropdown-toggle.pagination-link.selected:focus, .schema-actions
+    .open > .dropdown-toggle.edit:focus, .schema-actions
+    .open > .dropdown-toggle.update:focus, .schema-actions
+    .open > .dropdown-toggle.create:focus, .schema-actions
+    .open > .dropdown-toggle.raw:focus,
     .open > .btn-primary.dropdown-toggle.focus, .button-list li
     .open > a.dropdown-toggle.focus,
     .open > .dropdown-toggle.focus.cluster-resource-link, .pagination-component-container .pagination-links
-    .open > .dropdown-toggle.focus.pagination-link.selected {
+    .open > .dropdown-toggle.focus.pagination-link.selected, .schema-actions
+    .open > .dropdown-toggle.focus.edit, .schema-actions
+    .open > .dropdown-toggle.focus.update, .schema-actions
+    .open > .dropdown-toggle.focus.create, .schema-actions
+    .open > .dropdown-toggle.focus.raw {
       color: #fff;
       background-color: #204d74;
       border-color: #122b40; }
-  .btn-primary:active, .button-list li a:active, .cluster-resource-link:active, .pagination-component-container .pagination-links .pagination-link.selected:active, .btn-primary.active, .button-list li a.active, .active.cluster-resource-link, .pagination-component-container .pagination-links .active.pagination-link.selected,
+  .btn-primary:active, .button-list li a:active, .cluster-resource-link:active, .pagination-component-container .pagination-links .pagination-link.selected:active, .schema-actions .edit:active, .schema-actions .update:active, .schema-actions .create:active, .schema-actions .raw:active, .btn-primary.active, .button-list li a.active, .active.cluster-resource-link, .pagination-component-container .pagination-links .active.pagination-link.selected, .schema-actions .active.edit, .schema-actions .active.update, .schema-actions .active.create, .schema-actions .active.raw,
   .open > .btn-primary.dropdown-toggle, .button-list li
   .open > a.dropdown-toggle,
   .open > .dropdown-toggle.cluster-resource-link, .pagination-component-container .pagination-links
-  .open > .dropdown-toggle.pagination-link.selected {
+  .open > .dropdown-toggle.pagination-link.selected, .schema-actions
+  .open > .dropdown-toggle.edit, .schema-actions
+  .open > .dropdown-toggle.update, .schema-actions
+  .open > .dropdown-toggle.create, .schema-actions
+  .open > .dropdown-toggle.raw {
     background-image: none; }
-  .btn-primary.disabled, .button-list li a.disabled, .disabled.cluster-resource-link, .pagination-component-container .pagination-links .disabled.pagination-link.selected, .btn-primary.disabled:hover, .button-list li a.disabled:hover, .disabled.cluster-resource-link:hover, .pagination-component-container .pagination-links .disabled.pagination-link.selected:hover, .btn-primary.disabled:focus, .button-list li a.disabled:focus, .disabled.cluster-resource-link:focus, .pagination-component-container .pagination-links .disabled.pagination-link.selected:focus, .btn-primary.disabled.focus, .button-list li a.disabled.focus, .disabled.focus.cluster-resource-link, .pagination-component-container .pagination-links .disabled.focus.pagination-link.selected, .btn-primary.disabled:active, .button-list li a.disabled:active, .disabled.cluster-resource-link:active, .pagination-component-container .pagination-links .disabled.pagination-link.selected:active, .btn-primary.disabled.active, .button-list li a.disabled.active, .disabled.active.cluster-resource-link, .pagination-component-container .pagination-links .disabled.active.pagination-link.selected, .btn-primary[disabled], .button-list li a[disabled], [disabled].cluster-resource-link, .pagination-component-container .pagination-links [disabled].pagination-link.selected, .btn-primary[disabled]:hover, .button-list li a[disabled]:hover, [disabled].cluster-resource-link:hover, .pagination-component-container .pagination-links [disabled].pagination-link.selected:hover, .btn-primary[disabled]:focus, .button-list li a[disabled]:focus, [disabled].cluster-resource-link:focus, .pagination-component-container .pagination-links [disabled].pagination-link.selected:focus, .btn-primary[disabled].focus, .button-list li a[disabled].focus, [disabled].focus.cluster-resource-link, .pagination-component-container .pagination-links [disabled].focus.pagination-link.selected, .btn-primary[disabled]:active, .button-list li a[disabled]:active, [disabled].cluster-resource-link:active, .pagination-component-container .pagination-links [disabled].pagination-link.selected:active, .btn-primary[disabled].active, .button-list li a[disabled].active, [disabled].active.cluster-resource-link, .pagination-component-container .pagination-links [disabled].active.pagination-link.selected,
+  .btn-primary.disabled, .button-list li a.disabled, .disabled.cluster-resource-link, .pagination-component-container .pagination-links .disabled.pagination-link.selected, .schema-actions .disabled.edit, .schema-actions .disabled.update, .schema-actions .disabled.create, .schema-actions .disabled.raw, .btn-primary.disabled:hover, .button-list li a.disabled:hover, .disabled.cluster-resource-link:hover, .pagination-component-container .pagination-links .disabled.pagination-link.selected:hover, .schema-actions .disabled.edit:hover, .schema-actions .disabled.update:hover, .schema-actions .disabled.create:hover, .schema-actions .disabled.raw:hover, .btn-primary.disabled:focus, .button-list li a.disabled:focus, .disabled.cluster-resource-link:focus, .pagination-component-container .pagination-links .disabled.pagination-link.selected:focus, .schema-actions .disabled.edit:focus, .schema-actions .disabled.update:focus, .schema-actions .disabled.create:focus, .schema-actions .disabled.raw:focus, .btn-primary.disabled.focus, .button-list li a.disabled.focus, .disabled.focus.cluster-resource-link, .pagination-component-container .pagination-links .disabled.focus.pagination-link.selected, .schema-actions .disabled.focus.edit, .schema-actions .disabled.focus.update, .schema-actions .disabled.focus.create, .schema-actions .disabled.focus.raw, .btn-primary.disabled:active, .button-list li a.disabled:active, .disabled.cluster-resource-link:active, .pagination-component-container .pagination-links .disabled.pagination-link.selected:active, .schema-actions .disabled.edit:active, .schema-actions .disabled.update:active, .schema-actions .disabled.create:active, .schema-actions .disabled.raw:active, .btn-primary.disabled.active, .button-list li a.disabled.active, .disabled.active.cluster-resource-link, .pagination-component-container .pagination-links .disabled.active.pagination-link.selected, .schema-actions .disabled.active.edit, .schema-actions .disabled.active.update, .schema-actions .disabled.active.create, .schema-actions .disabled.active.raw, .btn-primary[disabled], .button-list li a[disabled], [disabled].cluster-resource-link, .pagination-component-container .pagination-links [disabled].pagination-link.selected, .schema-actions [disabled].edit, .schema-actions [disabled].update, .schema-actions [disabled].create, .schema-actions [disabled].raw, .btn-primary[disabled]:hover, .button-list li a[disabled]:hover, [disabled].cluster-resource-link:hover, .pagination-component-container .pagination-links [disabled].pagination-link.selected:hover, .schema-actions [disabled].edit:hover, .schema-actions [disabled].update:hover, .schema-actions [disabled].create:hover, .schema-actions [disabled].raw:hover, .btn-primary[disabled]:focus, .button-list li a[disabled]:focus, [disabled].cluster-resource-link:focus, .pagination-component-container .pagination-links [disabled].pagination-link.selected:focus, .schema-actions [disabled].edit:focus, .schema-actions [disabled].update:focus, .schema-actions [disabled].create:focus, .schema-actions [disabled].raw:focus, .btn-primary[disabled].focus, .button-list li a[disabled].focus, [disabled].focus.cluster-resource-link, .pagination-component-container .pagination-links [disabled].focus.pagination-link.selected, .schema-actions [disabled].focus.edit, .schema-actions [disabled].focus.update, .schema-actions [disabled].focus.create, .schema-actions [disabled].focus.raw, .btn-primary[disabled]:active, .button-list li a[disabled]:active, [disabled].cluster-resource-link:active, .pagination-component-container .pagination-links [disabled].pagination-link.selected:active, .schema-actions [disabled].edit:active, .schema-actions [disabled].update:active, .schema-actions [disabled].create:active, .schema-actions [disabled].raw:active, .btn-primary[disabled].active, .button-list li a[disabled].active, [disabled].active.cluster-resource-link, .pagination-component-container .pagination-links [disabled].active.pagination-link.selected, .schema-actions [disabled].active.edit, .schema-actions [disabled].active.update, .schema-actions [disabled].active.create, .schema-actions [disabled].active.raw,
   fieldset[disabled] .btn-primary,
   fieldset[disabled] .button-list li a, .button-list li
   fieldset[disabled] a,
   fieldset[disabled] .cluster-resource-link,
   fieldset[disabled] .pagination-component-container .pagination-links .pagination-link.selected, .pagination-component-container .pagination-links
   fieldset[disabled] .pagination-link.selected,
+  fieldset[disabled] .schema-actions .edit, .schema-actions
+  fieldset[disabled] .edit,
+  fieldset[disabled] .schema-actions .update, .schema-actions
+  fieldset[disabled] .update,
+  fieldset[disabled] .schema-actions .create, .schema-actions
+  fieldset[disabled] .create,
+  fieldset[disabled] .schema-actions .raw, .schema-actions
+  fieldset[disabled] .raw,
   fieldset[disabled] .btn-primary:hover,
   fieldset[disabled] .button-list li a:hover, .button-list li
   fieldset[disabled] a:hover,
   fieldset[disabled] .cluster-resource-link:hover,
   fieldset[disabled] .pagination-component-container .pagination-links .pagination-link.selected:hover, .pagination-component-container .pagination-links
   fieldset[disabled] .pagination-link.selected:hover,
+  fieldset[disabled] .schema-actions .edit:hover, .schema-actions
+  fieldset[disabled] .edit:hover,
+  fieldset[disabled] .schema-actions .update:hover, .schema-actions
+  fieldset[disabled] .update:hover,
+  fieldset[disabled] .schema-actions .create:hover, .schema-actions
+  fieldset[disabled] .create:hover,
+  fieldset[disabled] .schema-actions .raw:hover, .schema-actions
+  fieldset[disabled] .raw:hover,
   fieldset[disabled] .btn-primary:focus,
   fieldset[disabled] .button-list li a:focus, .button-list li
   fieldset[disabled] a:focus,
   fieldset[disabled] .cluster-resource-link:focus,
   fieldset[disabled] .pagination-component-container .pagination-links .pagination-link.selected:focus, .pagination-component-container .pagination-links
   fieldset[disabled] .pagination-link.selected:focus,
+  fieldset[disabled] .schema-actions .edit:focus, .schema-actions
+  fieldset[disabled] .edit:focus,
+  fieldset[disabled] .schema-actions .update:focus, .schema-actions
+  fieldset[disabled] .update:focus,
+  fieldset[disabled] .schema-actions .create:focus, .schema-actions
+  fieldset[disabled] .create:focus,
+  fieldset[disabled] .schema-actions .raw:focus, .schema-actions
+  fieldset[disabled] .raw:focus,
   fieldset[disabled] .btn-primary.focus,
   fieldset[disabled] .button-list li a.focus, .button-list li
   fieldset[disabled] a.focus,
   fieldset[disabled] .focus.cluster-resource-link,
   fieldset[disabled] .pagination-component-container .pagination-links .focus.pagination-link.selected, .pagination-component-container .pagination-links
   fieldset[disabled] .focus.pagination-link.selected,
+  fieldset[disabled] .schema-actions .focus.edit, .schema-actions
+  fieldset[disabled] .focus.edit,
+  fieldset[disabled] .schema-actions .focus.update, .schema-actions
+  fieldset[disabled] .focus.update,
+  fieldset[disabled] .schema-actions .focus.create, .schema-actions
+  fieldset[disabled] .focus.create,
+  fieldset[disabled] .schema-actions .focus.raw, .schema-actions
+  fieldset[disabled] .focus.raw,
   fieldset[disabled] .btn-primary:active,
   fieldset[disabled] .button-list li a:active, .button-list li
   fieldset[disabled] a:active,
   fieldset[disabled] .cluster-resource-link:active,
   fieldset[disabled] .pagination-component-container .pagination-links .pagination-link.selected:active, .pagination-component-container .pagination-links
   fieldset[disabled] .pagination-link.selected:active,
+  fieldset[disabled] .schema-actions .edit:active, .schema-actions
+  fieldset[disabled] .edit:active,
+  fieldset[disabled] .schema-actions .update:active, .schema-actions
+  fieldset[disabled] .update:active,
+  fieldset[disabled] .schema-actions .create:active, .schema-actions
+  fieldset[disabled] .create:active,
+  fieldset[disabled] .schema-actions .raw:active, .schema-actions
+  fieldset[disabled] .raw:active,
   fieldset[disabled] .btn-primary.active,
   fieldset[disabled] .button-list li a.active, .button-list li
   fieldset[disabled] a.active,
   fieldset[disabled] .active.cluster-resource-link,
   fieldset[disabled] .pagination-component-container .pagination-links .active.pagination-link.selected, .pagination-component-container .pagination-links
-  fieldset[disabled] .active.pagination-link.selected {
+  fieldset[disabled] .active.pagination-link.selected,
+  fieldset[disabled] .schema-actions .active.edit, .schema-actions
+  fieldset[disabled] .active.edit,
+  fieldset[disabled] .schema-actions .active.update, .schema-actions
+  fieldset[disabled] .active.update,
+  fieldset[disabled] .schema-actions .active.create, .schema-actions
+  fieldset[disabled] .active.create,
+  fieldset[disabled] .schema-actions .active.raw, .schema-actions
+  fieldset[disabled] .active.raw {
     background-color: #337ab7;
     border-color: #2e6da4; }
-  .btn-primary .badge, .button-list li a .badge, .cluster-resource-link .badge, .pagination-component-container .pagination-links .pagination-link.selected .badge {
+  .btn-primary .badge, .button-list li a .badge, .cluster-resource-link .badge, .pagination-component-container .pagination-links .pagination-link.selected .badge, .schema-actions .edit .badge, .schema-actions .update .badge, .schema-actions .create .badge, .schema-actions .raw .badge {
     color: #337ab7;
     background-color: #fff; }
 
@@ -3155,43 +3256,77 @@ fieldset[disabled] a.pagination-link {
     color: #f0ad4e;
     background-color: #fff; }
 
-.btn-danger {
+.btn-danger, .button-list li a.danger, .schema-actions .cancel {
   color: #fff;
   background-color: #d9534f;
   border-color: #d43f3a; }
-  .btn-danger:focus, .btn-danger.focus {
+  .btn-danger:focus, .button-list li a.danger:focus, .schema-actions .cancel:focus, .btn-danger.focus, .button-list li a.focus.danger, .schema-actions .focus.cancel {
     color: #fff;
     background-color: #c9302c;
     border-color: #761c19; }
-  .btn-danger:hover {
+  .btn-danger:hover, .button-list li a.danger:hover, .schema-actions .cancel:hover {
     color: #fff;
     background-color: #c9302c;
     border-color: #ac2925; }
-  .btn-danger:active, .btn-danger.active,
-  .open > .btn-danger.dropdown-toggle {
+  .btn-danger:active, .button-list li a.danger:active, .schema-actions .cancel:active, .btn-danger.active, .button-list li a.active.danger, .schema-actions .active.cancel,
+  .open > .btn-danger.dropdown-toggle, .button-list li
+  .open > a.dropdown-toggle.danger, .schema-actions
+  .open > .dropdown-toggle.cancel {
     color: #fff;
     background-color: #c9302c;
     border-color: #ac2925; }
-    .btn-danger:active:hover, .btn-danger:active:focus, .btn-danger:active.focus, .btn-danger.active:hover, .btn-danger.active:focus, .btn-danger.active.focus,
-    .open > .btn-danger.dropdown-toggle:hover,
-    .open > .btn-danger.dropdown-toggle:focus,
-    .open > .btn-danger.dropdown-toggle.focus {
+    .btn-danger:active:hover, .button-list li a.danger:active:hover, .schema-actions .cancel:active:hover, .btn-danger:active:focus, .button-list li a.danger:active:focus, .schema-actions .cancel:active:focus, .btn-danger:active.focus, .button-list li a.danger:active.focus, .schema-actions .cancel:active.focus, .btn-danger.active:hover, .button-list li a.active.danger:hover, .schema-actions .active.cancel:hover, .btn-danger.active:focus, .button-list li a.active.danger:focus, .schema-actions .active.cancel:focus, .btn-danger.active.focus, .button-list li a.active.focus.danger, .schema-actions .active.focus.cancel,
+    .open > .btn-danger.dropdown-toggle:hover, .button-list li
+    .open > a.dropdown-toggle.danger:hover, .schema-actions
+    .open > .dropdown-toggle.cancel:hover,
+    .open > .btn-danger.dropdown-toggle:focus, .button-list li
+    .open > a.dropdown-toggle.danger:focus, .schema-actions
+    .open > .dropdown-toggle.cancel:focus,
+    .open > .btn-danger.dropdown-toggle.focus, .button-list li
+    .open > a.dropdown-toggle.focus.danger, .schema-actions
+    .open > .dropdown-toggle.focus.cancel {
       color: #fff;
       background-color: #ac2925;
       border-color: #761c19; }
-  .btn-danger:active, .btn-danger.active,
-  .open > .btn-danger.dropdown-toggle {
+  .btn-danger:active, .button-list li a.danger:active, .schema-actions .cancel:active, .btn-danger.active, .button-list li a.active.danger, .schema-actions .active.cancel,
+  .open > .btn-danger.dropdown-toggle, .button-list li
+  .open > a.dropdown-toggle.danger, .schema-actions
+  .open > .dropdown-toggle.cancel {
     background-image: none; }
-  .btn-danger.disabled, .btn-danger.disabled:hover, .btn-danger.disabled:focus, .btn-danger.disabled.focus, .btn-danger.disabled:active, .btn-danger.disabled.active, .btn-danger[disabled], .btn-danger[disabled]:hover, .btn-danger[disabled]:focus, .btn-danger[disabled].focus, .btn-danger[disabled]:active, .btn-danger[disabled].active,
+  .btn-danger.disabled, .button-list li a.disabled.danger, .schema-actions .disabled.cancel, .btn-danger.disabled:hover, .button-list li a.disabled.danger:hover, .schema-actions .disabled.cancel:hover, .btn-danger.disabled:focus, .button-list li a.disabled.danger:focus, .schema-actions .disabled.cancel:focus, .btn-danger.disabled.focus, .button-list li a.disabled.focus.danger, .schema-actions .disabled.focus.cancel, .btn-danger.disabled:active, .button-list li a.disabled.danger:active, .schema-actions .disabled.cancel:active, .btn-danger.disabled.active, .button-list li a.disabled.active.danger, .schema-actions .disabled.active.cancel, .btn-danger[disabled], .button-list li a[disabled].danger, .schema-actions [disabled].cancel, .btn-danger[disabled]:hover, .button-list li a[disabled].danger:hover, .schema-actions [disabled].cancel:hover, .btn-danger[disabled]:focus, .button-list li a[disabled].danger:focus, .schema-actions [disabled].cancel:focus, .btn-danger[disabled].focus, .button-list li a[disabled].focus.danger, .schema-actions [disabled].focus.cancel, .btn-danger[disabled]:active, .button-list li a[disabled].danger:active, .schema-actions [disabled].cancel:active, .btn-danger[disabled].active, .button-list li a[disabled].active.danger, .schema-actions [disabled].active.cancel,
   fieldset[disabled] .btn-danger,
+  fieldset[disabled] .button-list li a.danger, .button-list li
+  fieldset[disabled] a.danger,
+  fieldset[disabled] .schema-actions .cancel, .schema-actions
+  fieldset[disabled] .cancel,
   fieldset[disabled] .btn-danger:hover,
+  fieldset[disabled] .button-list li a.danger:hover, .button-list li
+  fieldset[disabled] a.danger:hover,
+  fieldset[disabled] .schema-actions .cancel:hover, .schema-actions
+  fieldset[disabled] .cancel:hover,
   fieldset[disabled] .btn-danger:focus,
+  fieldset[disabled] .button-list li a.danger:focus, .button-list li
+  fieldset[disabled] a.danger:focus,
+  fieldset[disabled] .schema-actions .cancel:focus, .schema-actions
+  fieldset[disabled] .cancel:focus,
   fieldset[disabled] .btn-danger.focus,
+  fieldset[disabled] .button-list li a.focus.danger, .button-list li
+  fieldset[disabled] a.focus.danger,
+  fieldset[disabled] .schema-actions .focus.cancel, .schema-actions
+  fieldset[disabled] .focus.cancel,
   fieldset[disabled] .btn-danger:active,
-  fieldset[disabled] .btn-danger.active {
+  fieldset[disabled] .button-list li a.danger:active, .button-list li
+  fieldset[disabled] a.danger:active,
+  fieldset[disabled] .schema-actions .cancel:active, .schema-actions
+  fieldset[disabled] .cancel:active,
+  fieldset[disabled] .btn-danger.active,
+  fieldset[disabled] .button-list li a.active.danger, .button-list li
+  fieldset[disabled] a.active.danger,
+  fieldset[disabled] .schema-actions .active.cancel, .schema-actions
+  fieldset[disabled] .active.cancel {
     background-color: #d9534f;
     border-color: #d43f3a; }
-  .btn-danger .badge {
+  .btn-danger .badge, .button-list li a.danger .badge, .schema-actions .cancel .badge {
     color: #d9534f;
     background-color: #fff; }
 
@@ -3216,34 +3351,36 @@ fieldset[disabled] a.pagination-link {
     color: #777777;
     text-decoration: none; }
 
-.btn-lg, .btn-group-lg > .btn, .button-list li .btn-group-lg > a, .btn-group-lg > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-lg > .pagination-link {
+.btn-lg, .btn-group-lg > .btn, .button-list li .btn-group-lg > a, .btn-group-lg > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-lg > .pagination-link, .schema-actions .btn-group-lg > .schema-action {
   padding: 10px 16px;
   font-size: 18px;
   line-height: 1.33333;
   border-radius: 6px; }
 
-.btn-sm, .btn-group-sm > .btn, .button-list li .btn-group-sm > a, .btn-group-sm > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-sm > .pagination-link, .cluster-resource-link {
+.btn-sm, .btn-group-sm > .btn, .button-list li .btn-group-sm > a, .btn-group-sm > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-sm > .pagination-link, .cluster-resource-link, .schema-actions .schema-action {
   padding: 5px 10px;
   font-size: 12px;
   line-height: 1.5;
   border-radius: 3px; }
 
-.btn-xs, .btn-group-xs > .btn, .button-list li .btn-group-xs > a, .btn-group-xs > .cluster-resource-link, .button-list.small li a, .pagination-component-container .pagination-links .pagination-link {
+.btn-xs, .btn-group-xs > .btn, .button-list li .btn-group-xs > a, .btn-group-xs > .cluster-resource-link, .schema-actions .btn-group-xs > .schema-action, .button-list.small li a, .pagination-component-container .pagination-links .pagination-link {
   padding: 1px 5px;
   font-size: 12px;
   line-height: 1.5;
   border-radius: 3px; }
 
-.btn-block {
+.btn-block, .cluster-resource-link {
   display: block;
   width: 100%; }
 
-.btn-block + .btn-block {
+.btn-block + .btn-block, .cluster-resource-link + .btn-block, .btn-block + .cluster-resource-link, .cluster-resource-link + .cluster-resource-link {
   margin-top: 5px; }
 
-input[type="submit"].btn-block,
+input[type="submit"].btn-block, input[type="submit"].cluster-resource-link,
 input[type="reset"].btn-block,
-input[type="button"].btn-block {
+input[type="reset"].cluster-resource-link,
+input[type="button"].btn-block,
+input[type="button"].cluster-resource-link {
   width: 100%; }
 
 .fade {
@@ -3412,45 +3549,54 @@ tbody.collapse.in {
   position: relative;
   display: inline-block;
   vertical-align: middle; }
-  .btn-group > .btn, .button-list li .btn-group > a, .btn-group > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group > .pagination-link,
+  .btn-group > .btn, .button-list li .btn-group > a, .btn-group > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group > .pagination-link, .schema-actions .btn-group > .schema-action,
   .btn-group-vertical > .btn, .button-list li
   .btn-group-vertical > a,
   .btn-group-vertical > .cluster-resource-link, .pagination-component-container .pagination-links
-  .btn-group-vertical > .pagination-link {
+  .btn-group-vertical > .pagination-link, .schema-actions
+  .btn-group-vertical > .schema-action {
     position: relative;
     float: left; }
-    .btn-group > .btn:hover, .button-list li .btn-group > a:hover, .btn-group > .cluster-resource-link:hover, .pagination-component-container .pagination-links .btn-group > .pagination-link:hover, .btn-group > .btn:focus, .button-list li .btn-group > a:focus, .btn-group > .cluster-resource-link:focus, .pagination-component-container .pagination-links .btn-group > .pagination-link:focus, .btn-group > .btn:active, .button-list li .btn-group > a:active, .btn-group > .cluster-resource-link:active, .pagination-component-container .pagination-links .btn-group > .pagination-link:active, .btn-group > .btn.active, .button-list li .btn-group > a.active, .btn-group > .active.cluster-resource-link, .pagination-component-container .pagination-links .btn-group > .active.pagination-link,
+    .btn-group > .btn:hover, .button-list li .btn-group > a:hover, .btn-group > .cluster-resource-link:hover, .pagination-component-container .pagination-links .btn-group > .pagination-link:hover, .schema-actions .btn-group > .schema-action:hover, .btn-group > .btn:focus, .button-list li .btn-group > a:focus, .btn-group > .cluster-resource-link:focus, .pagination-component-container .pagination-links .btn-group > .pagination-link:focus, .schema-actions .btn-group > .schema-action:focus, .btn-group > .btn:active, .button-list li .btn-group > a:active, .btn-group > .cluster-resource-link:active, .pagination-component-container .pagination-links .btn-group > .pagination-link:active, .schema-actions .btn-group > .schema-action:active, .btn-group > .btn.active, .button-list li .btn-group > a.active, .btn-group > .active.cluster-resource-link, .pagination-component-container .pagination-links .btn-group > .active.pagination-link, .schema-actions .btn-group > .active.schema-action,
     .btn-group-vertical > .btn:hover, .button-list li
     .btn-group-vertical > a:hover,
     .btn-group-vertical > .cluster-resource-link:hover, .pagination-component-container .pagination-links
-    .btn-group-vertical > .pagination-link:hover,
+    .btn-group-vertical > .pagination-link:hover, .schema-actions
+    .btn-group-vertical > .schema-action:hover,
     .btn-group-vertical > .btn:focus, .button-list li
     .btn-group-vertical > a:focus,
     .btn-group-vertical > .cluster-resource-link:focus, .pagination-component-container .pagination-links
-    .btn-group-vertical > .pagination-link:focus,
+    .btn-group-vertical > .pagination-link:focus, .schema-actions
+    .btn-group-vertical > .schema-action:focus,
     .btn-group-vertical > .btn:active, .button-list li
     .btn-group-vertical > a:active,
     .btn-group-vertical > .cluster-resource-link:active, .pagination-component-container .pagination-links
-    .btn-group-vertical > .pagination-link:active,
+    .btn-group-vertical > .pagination-link:active, .schema-actions
+    .btn-group-vertical > .schema-action:active,
     .btn-group-vertical > .btn.active, .button-list li
     .btn-group-vertical > a.active,
     .btn-group-vertical > .active.cluster-resource-link, .pagination-component-container .pagination-links
-    .btn-group-vertical > .active.pagination-link {
+    .btn-group-vertical > .active.pagination-link, .schema-actions
+    .btn-group-vertical > .active.schema-action {
       z-index: 2; }
 
-.btn-group .btn + .btn, .btn-group .button-list li a + .btn, .button-list li .btn-group a + .btn, .btn-group .cluster-resource-link + .btn, .btn-group .pagination-component-container .pagination-links .pagination-link + .btn, .pagination-component-container .pagination-links .btn-group .pagination-link + .btn, .btn-group .button-list li .btn + a, .button-list li .btn-group .btn + a, .btn-group .button-list li a + a, .button-list li .btn-group a + a, .btn-group .button-list li .cluster-resource-link + a, .button-list li .btn-group .cluster-resource-link + a, .btn-group .pagination-component-container .pagination-links .button-list li .pagination-link + a, .button-list li .btn-group .pagination-component-container .pagination-links .pagination-link + a, .pagination-component-container .pagination-links .btn-group .button-list li .pagination-link + a, .button-list li .pagination-component-container .pagination-links .btn-group .pagination-link + a, .btn-group .btn + .cluster-resource-link, .btn-group .button-list li a + .cluster-resource-link, .button-list li .btn-group a + .cluster-resource-link, .btn-group .cluster-resource-link + .cluster-resource-link, .btn-group .pagination-component-container .pagination-links .pagination-link + .cluster-resource-link, .pagination-component-container .pagination-links .btn-group .pagination-link + .cluster-resource-link, .btn-group .pagination-component-container .pagination-links .btn + .pagination-link, .pagination-component-container .pagination-links .btn-group .btn + .pagination-link, .btn-group .button-list li .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .btn-group .button-list li a + .pagination-link, .button-list li .btn-group .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .button-list li .btn-group a + .pagination-link, .btn-group .pagination-component-container .pagination-links .cluster-resource-link + .pagination-link, .pagination-component-container .pagination-links .btn-group .cluster-resource-link + .pagination-link, .btn-group .pagination-component-container .pagination-links .pagination-link + .pagination-link, .pagination-component-container .pagination-links .btn-group .pagination-link + .pagination-link,
+.btn-group .btn + .btn, .btn-group .button-list li a + .btn, .button-list li .btn-group a + .btn, .btn-group .cluster-resource-link + .btn, .btn-group .pagination-component-container .pagination-links .pagination-link + .btn, .pagination-component-container .pagination-links .btn-group .pagination-link + .btn, .btn-group .schema-actions .schema-action + .btn, .schema-actions .btn-group .schema-action + .btn, .btn-group .button-list li .btn + a, .button-list li .btn-group .btn + a, .btn-group .button-list li a + a, .button-list li .btn-group a + a, .btn-group .button-list li .cluster-resource-link + a, .button-list li .btn-group .cluster-resource-link + a, .btn-group .pagination-component-container .pagination-links .button-list li .pagination-link + a, .button-list li .btn-group .pagination-component-container .pagination-links .pagination-link + a, .pagination-component-container .pagination-links .btn-group .button-list li .pagination-link + a, .button-list li .pagination-component-container .pagination-links .btn-group .pagination-link + a, .btn-group .schema-actions .button-list li .schema-action + a, .button-list li .btn-group .schema-actions .schema-action + a, .schema-actions .btn-group .button-list li .schema-action + a, .button-list li .schema-actions .btn-group .schema-action + a, .btn-group .btn + .cluster-resource-link, .btn-group .button-list li a + .cluster-resource-link, .button-list li .btn-group a + .cluster-resource-link, .btn-group .cluster-resource-link + .cluster-resource-link, .btn-group .pagination-component-container .pagination-links .pagination-link + .cluster-resource-link, .pagination-component-container .pagination-links .btn-group .pagination-link + .cluster-resource-link, .btn-group .schema-actions .schema-action + .cluster-resource-link, .schema-actions .btn-group .schema-action + .cluster-resource-link, .btn-group .pagination-component-container .pagination-links .btn + .pagination-link, .pagination-component-container .pagination-links .btn-group .btn + .pagination-link, .btn-group .button-list li .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .btn-group .button-list li a + .pagination-link, .button-list li .btn-group .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .button-list li .btn-group a + .pagination-link, .btn-group .pagination-component-container .pagination-links .cluster-resource-link + .pagination-link, .pagination-component-container .pagination-links .btn-group .cluster-resource-link + .pagination-link, .btn-group .pagination-component-container .pagination-links .pagination-link + .pagination-link, .pagination-component-container .pagination-links .btn-group .pagination-link + .pagination-link, .btn-group .schema-actions .pagination-component-container .pagination-links .schema-action + .pagination-link, .pagination-component-container .pagination-links .btn-group .schema-actions .schema-action + .pagination-link, .schema-actions .btn-group .pagination-component-container .pagination-links .schema-action + .pagination-link, .pagination-component-container .pagination-links .schema-actions .btn-group .schema-action + .pagination-link, .btn-group .schema-actions .btn + .schema-action, .schema-actions .btn-group .btn + .schema-action, .btn-group .button-list li .schema-actions a + .schema-action, .schema-actions .btn-group .button-list li a + .schema-action, .button-list li .btn-group .schema-actions a + .schema-action, .schema-actions .button-list li .btn-group a + .schema-action, .btn-group .schema-actions .cluster-resource-link + .schema-action, .schema-actions .btn-group .cluster-resource-link + .schema-action, .btn-group .pagination-component-container .pagination-links .schema-actions .pagination-link + .schema-action, .schema-actions .btn-group .pagination-component-container .pagination-links .pagination-link + .schema-action, .pagination-component-container .pagination-links .btn-group .schema-actions .pagination-link + .schema-action, .schema-actions .pagination-component-container .pagination-links .btn-group .pagination-link + .schema-action, .btn-group .schema-actions .schema-action + .schema-action, .schema-actions .btn-group .schema-action + .schema-action,
 .btn-group .btn + .btn-group,
 .btn-group .button-list li a + .btn-group, .button-list li
 .btn-group a + .btn-group,
 .btn-group .cluster-resource-link + .btn-group,
 .btn-group .pagination-component-container .pagination-links .pagination-link + .btn-group, .pagination-component-container .pagination-links
 .btn-group .pagination-link + .btn-group,
+.btn-group .schema-actions .schema-action + .btn-group, .schema-actions
+.btn-group .schema-action + .btn-group,
 .btn-group .btn-group + .btn,
 .btn-group .button-list li .btn-group + a, .button-list li
 .btn-group .btn-group + a,
 .btn-group .btn-group + .cluster-resource-link,
 .btn-group .pagination-component-container .pagination-links .btn-group + .pagination-link, .pagination-component-container .pagination-links
 .btn-group .btn-group + .pagination-link,
+.btn-group .schema-actions .btn-group + .schema-action, .schema-actions
+.btn-group .btn-group + .schema-action,
 .btn-group .btn-group + .btn-group {
   margin-left: -1px; }
 
@@ -3461,25 +3607,25 @@ tbody.collapse.in {
     display: table; }
   .btn-toolbar:after {
     clear: both; }
-  .btn-toolbar .btn, .btn-toolbar .button-list li a, .button-list li .btn-toolbar a, .btn-toolbar .cluster-resource-link, .btn-toolbar .pagination-component-container .pagination-links .pagination-link, .pagination-component-container .pagination-links .btn-toolbar .pagination-link,
+  .btn-toolbar .btn, .btn-toolbar .button-list li a, .button-list li .btn-toolbar a, .btn-toolbar .cluster-resource-link, .btn-toolbar .pagination-component-container .pagination-links .pagination-link, .pagination-component-container .pagination-links .btn-toolbar .pagination-link, .btn-toolbar .schema-actions .schema-action, .schema-actions .btn-toolbar .schema-action,
   .btn-toolbar .btn-group,
   .btn-toolbar .input-group {
     float: left; }
-  .btn-toolbar > .btn, .button-list li .btn-toolbar > a, .btn-toolbar > .cluster-resource-link, .pagination-component-container .pagination-links .btn-toolbar > .pagination-link,
+  .btn-toolbar > .btn, .button-list li .btn-toolbar > a, .btn-toolbar > .cluster-resource-link, .pagination-component-container .pagination-links .btn-toolbar > .pagination-link, .schema-actions .btn-toolbar > .schema-action,
   .btn-toolbar > .btn-group,
   .btn-toolbar > .input-group {
     margin-left: 5px; }
 
-.btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle), .button-list li .btn-group > a:not(:first-child):not(:last-child):not(.dropdown-toggle), .btn-group > .cluster-resource-link:not(:first-child):not(:last-child):not(.dropdown-toggle), .pagination-component-container .pagination-links .btn-group > .pagination-link:not(:first-child):not(:last-child):not(.dropdown-toggle) {
+.btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle), .button-list li .btn-group > a:not(:first-child):not(:last-child):not(.dropdown-toggle), .btn-group > .cluster-resource-link:not(:first-child):not(:last-child):not(.dropdown-toggle), .pagination-component-container .pagination-links .btn-group > .pagination-link:not(:first-child):not(:last-child):not(.dropdown-toggle), .schema-actions .btn-group > .schema-action:not(:first-child):not(:last-child):not(.dropdown-toggle) {
   border-radius: 0; }
 
-.btn-group > .btn:first-child, .button-list li .btn-group > a:first-child, .btn-group > .cluster-resource-link:first-child, .pagination-component-container .pagination-links .btn-group > .pagination-link:first-child {
+.btn-group > .btn:first-child, .button-list li .btn-group > a:first-child, .btn-group > .cluster-resource-link:first-child, .pagination-component-container .pagination-links .btn-group > .pagination-link:first-child, .schema-actions .btn-group > .schema-action:first-child {
   margin-left: 0; }
-  .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle), .button-list li .btn-group > a:first-child:not(:last-child):not(.dropdown-toggle), .btn-group > .cluster-resource-link:first-child:not(:last-child):not(.dropdown-toggle), .pagination-component-container .pagination-links .btn-group > .pagination-link:first-child:not(:last-child):not(.dropdown-toggle) {
+  .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle), .button-list li .btn-group > a:first-child:not(:last-child):not(.dropdown-toggle), .btn-group > .cluster-resource-link:first-child:not(:last-child):not(.dropdown-toggle), .pagination-component-container .pagination-links .btn-group > .pagination-link:first-child:not(:last-child):not(.dropdown-toggle), .schema-actions .btn-group > .schema-action:first-child:not(:last-child):not(.dropdown-toggle) {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0; }
 
-.btn-group > .btn:last-child:not(:first-child), .button-list li .btn-group > a:last-child:not(:first-child), .btn-group > .cluster-resource-link:last-child:not(:first-child), .pagination-component-container .pagination-links .btn-group > .pagination-link:last-child:not(:first-child),
+.btn-group > .btn:last-child:not(:first-child), .button-list li .btn-group > a:last-child:not(:first-child), .btn-group > .cluster-resource-link:last-child:not(:first-child), .pagination-component-container .pagination-links .btn-group > .pagination-link:last-child:not(:first-child), .schema-actions .btn-group > .schema-action:last-child:not(:first-child),
 .btn-group > .dropdown-toggle:not(:first-child) {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0; }
@@ -3487,15 +3633,15 @@ tbody.collapse.in {
 .btn-group > .btn-group {
   float: left; }
 
-.btn-group > .btn-group:not(:first-child):not(:last-child) > .btn, .button-list li .btn-group > .btn-group:not(:first-child):not(:last-child) > a, .btn-group > .btn-group:not(:first-child):not(:last-child) > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group > .btn-group:not(:first-child):not(:last-child) > .pagination-link {
+.btn-group > .btn-group:not(:first-child):not(:last-child) > .btn, .button-list li .btn-group > .btn-group:not(:first-child):not(:last-child) > a, .btn-group > .btn-group:not(:first-child):not(:last-child) > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group > .btn-group:not(:first-child):not(:last-child) > .pagination-link, .schema-actions .btn-group > .btn-group:not(:first-child):not(:last-child) > .schema-action {
   border-radius: 0; }
 
-.btn-group > .btn-group:first-child:not(:last-child) > .btn:last-child, .button-list li .btn-group > .btn-group:first-child:not(:last-child) > a:last-child, .btn-group > .btn-group:first-child:not(:last-child) > .cluster-resource-link:last-child, .pagination-component-container .pagination-links .btn-group > .btn-group:first-child:not(:last-child) > .pagination-link:last-child,
+.btn-group > .btn-group:first-child:not(:last-child) > .btn:last-child, .button-list li .btn-group > .btn-group:first-child:not(:last-child) > a:last-child, .btn-group > .btn-group:first-child:not(:last-child) > .cluster-resource-link:last-child, .pagination-component-container .pagination-links .btn-group > .btn-group:first-child:not(:last-child) > .pagination-link:last-child, .schema-actions .btn-group > .btn-group:first-child:not(:last-child) > .schema-action:last-child,
 .btn-group > .btn-group:first-child:not(:last-child) > .dropdown-toggle {
   border-bottom-right-radius: 0;
   border-top-right-radius: 0; }
 
-.btn-group > .btn-group:last-child:not(:first-child) > .btn:first-child, .button-list li .btn-group > .btn-group:last-child:not(:first-child) > a:first-child, .btn-group > .btn-group:last-child:not(:first-child) > .cluster-resource-link:first-child, .pagination-component-container .pagination-links .btn-group > .btn-group:last-child:not(:first-child) > .pagination-link:first-child {
+.btn-group > .btn-group:last-child:not(:first-child) > .btn:first-child, .button-list li .btn-group > .btn-group:last-child:not(:first-child) > a:first-child, .btn-group > .btn-group:last-child:not(:first-child) > .cluster-resource-link:first-child, .pagination-component-container .pagination-links .btn-group > .btn-group:last-child:not(:first-child) > .pagination-link:first-child, .schema-actions .btn-group > .btn-group:last-child:not(:first-child) > .schema-action:first-child {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0; }
 
@@ -3503,11 +3649,11 @@ tbody.collapse.in {
 .btn-group.open .dropdown-toggle {
   outline: 0; }
 
-.btn-group > .btn + .dropdown-toggle, .button-list li .btn-group > a + .dropdown-toggle, .btn-group > .cluster-resource-link + .dropdown-toggle, .pagination-component-container .pagination-links .btn-group > .pagination-link + .dropdown-toggle {
+.btn-group > .btn + .dropdown-toggle, .button-list li .btn-group > a + .dropdown-toggle, .btn-group > .cluster-resource-link + .dropdown-toggle, .pagination-component-container .pagination-links .btn-group > .pagination-link + .dropdown-toggle, .schema-actions .btn-group > .schema-action + .dropdown-toggle {
   padding-left: 8px;
   padding-right: 8px; }
 
-.btn-group > .btn-lg + .dropdown-toggle, .btn-group-lg.btn-group > .btn + .dropdown-toggle, .button-list li .btn-group-lg.btn-group > a + .dropdown-toggle, .btn-group-lg.btn-group > .cluster-resource-link + .dropdown-toggle, .pagination-component-container .pagination-links .btn-group-lg.btn-group > .pagination-link + .dropdown-toggle {
+.btn-group > .btn-lg + .dropdown-toggle, .btn-group-lg.btn-group > .btn + .dropdown-toggle, .button-list li .btn-group-lg.btn-group > a + .dropdown-toggle, .btn-group-lg.btn-group > .cluster-resource-link + .dropdown-toggle, .pagination-component-container .pagination-links .btn-group-lg.btn-group > .pagination-link + .dropdown-toggle, .schema-actions .btn-group-lg.btn-group > .schema-action + .dropdown-toggle {
   padding-left: 12px;
   padding-right: 12px; }
 
@@ -3518,22 +3664,23 @@ tbody.collapse.in {
     -webkit-box-shadow: none;
     box-shadow: none; }
 
-.btn .caret, .button-list li a .caret, .cluster-resource-link .caret, .pagination-component-container .pagination-links .pagination-link .caret {
+.btn .caret, .button-list li a .caret, .cluster-resource-link .caret, .pagination-component-container .pagination-links .pagination-link .caret, .schema-actions .schema-action .caret {
   margin-left: 0; }
 
-.btn-lg .caret, .btn-group-lg > .btn .caret, .button-list li .btn-group-lg > a .caret, .btn-group-lg > .cluster-resource-link .caret, .pagination-component-container .pagination-links .btn-group-lg > .pagination-link .caret {
+.btn-lg .caret, .btn-group-lg > .btn .caret, .button-list li .btn-group-lg > a .caret, .btn-group-lg > .cluster-resource-link .caret, .pagination-component-container .pagination-links .btn-group-lg > .pagination-link .caret, .schema-actions .btn-group-lg > .schema-action .caret {
   border-width: 5px 5px 0;
   border-bottom-width: 0; }
 
-.dropup .btn-lg .caret, .dropup .btn-group-lg > .btn .caret, .dropup .button-list li .btn-group-lg > a .caret, .button-list li .dropup .btn-group-lg > a .caret, .dropup .btn-group-lg > .cluster-resource-link .caret, .dropup .pagination-component-container .pagination-links .btn-group-lg > .pagination-link .caret, .pagination-component-container .pagination-links .dropup .btn-group-lg > .pagination-link .caret {
+.dropup .btn-lg .caret, .dropup .btn-group-lg > .btn .caret, .dropup .button-list li .btn-group-lg > a .caret, .button-list li .dropup .btn-group-lg > a .caret, .dropup .btn-group-lg > .cluster-resource-link .caret, .dropup .pagination-component-container .pagination-links .btn-group-lg > .pagination-link .caret, .pagination-component-container .pagination-links .dropup .btn-group-lg > .pagination-link .caret, .dropup .schema-actions .btn-group-lg > .schema-action .caret, .schema-actions .dropup .btn-group-lg > .schema-action .caret {
   border-width: 0 5px 5px; }
 
-.btn-group-vertical > .btn, .button-list li .btn-group-vertical > a, .btn-group-vertical > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link,
+.btn-group-vertical > .btn, .button-list li .btn-group-vertical > a, .btn-group-vertical > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link, .schema-actions .btn-group-vertical > .schema-action,
 .btn-group-vertical > .btn-group,
 .btn-group-vertical > .btn-group > .btn, .button-list li
 .btn-group-vertical > .btn-group > a,
 .btn-group-vertical > .btn-group > .cluster-resource-link, .pagination-component-container .pagination-links
-.btn-group-vertical > .btn-group > .pagination-link {
+.btn-group-vertical > .btn-group > .pagination-link, .schema-actions
+.btn-group-vertical > .btn-group > .schema-action {
   display: block;
   float: none;
   width: 100%;
@@ -3546,44 +3693,46 @@ tbody.collapse.in {
 .btn-group-vertical > .btn-group:after {
   clear: both; }
 
-.btn-group-vertical > .btn-group > .btn, .button-list li .btn-group-vertical > .btn-group > a, .btn-group-vertical > .btn-group > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-vertical > .btn-group > .pagination-link {
+.btn-group-vertical > .btn-group > .btn, .button-list li .btn-group-vertical > .btn-group > a, .btn-group-vertical > .btn-group > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-vertical > .btn-group > .pagination-link, .schema-actions .btn-group-vertical > .btn-group > .schema-action {
   float: none; }
 
-.btn-group-vertical > .btn + .btn, .button-list li .btn-group-vertical > a + .btn, .btn-group-vertical > .cluster-resource-link + .btn, .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link + .btn, .button-list li .btn-group-vertical > .btn + a, .button-list li .btn-group-vertical > a + a, .button-list li .btn-group-vertical > .cluster-resource-link + a, .pagination-component-container .pagination-links .button-list li .btn-group-vertical > .pagination-link + a, .button-list li .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link + a, .btn-group-vertical > .btn + .cluster-resource-link, .button-list li .btn-group-vertical > a + .cluster-resource-link, .btn-group-vertical > .cluster-resource-link + .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link + .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-vertical > .btn + .pagination-link, .button-list li .pagination-component-container .pagination-links .btn-group-vertical > a + .pagination-link, .pagination-component-container .pagination-links .button-list li .btn-group-vertical > a + .pagination-link, .pagination-component-container .pagination-links .btn-group-vertical > .cluster-resource-link + .pagination-link, .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link + .pagination-link,
+.btn-group-vertical > .btn + .btn, .button-list li .btn-group-vertical > a + .btn, .btn-group-vertical > .cluster-resource-link + .btn, .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link + .btn, .schema-actions .btn-group-vertical > .schema-action + .btn, .button-list li .btn-group-vertical > .btn + a, .button-list li .btn-group-vertical > a + a, .button-list li .btn-group-vertical > .cluster-resource-link + a, .pagination-component-container .pagination-links .button-list li .btn-group-vertical > .pagination-link + a, .button-list li .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link + a, .schema-actions .button-list li .btn-group-vertical > .schema-action + a, .button-list li .schema-actions .btn-group-vertical > .schema-action + a, .btn-group-vertical > .btn + .cluster-resource-link, .button-list li .btn-group-vertical > a + .cluster-resource-link, .btn-group-vertical > .cluster-resource-link + .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link + .cluster-resource-link, .schema-actions .btn-group-vertical > .schema-action + .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-vertical > .btn + .pagination-link, .button-list li .pagination-component-container .pagination-links .btn-group-vertical > a + .pagination-link, .pagination-component-container .pagination-links .button-list li .btn-group-vertical > a + .pagination-link, .pagination-component-container .pagination-links .btn-group-vertical > .cluster-resource-link + .pagination-link, .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link + .pagination-link, .schema-actions .pagination-component-container .pagination-links .btn-group-vertical > .schema-action + .pagination-link, .pagination-component-container .pagination-links .schema-actions .btn-group-vertical > .schema-action + .pagination-link, .schema-actions .btn-group-vertical > .btn + .schema-action, .button-list li .schema-actions .btn-group-vertical > a + .schema-action, .schema-actions .button-list li .btn-group-vertical > a + .schema-action, .schema-actions .btn-group-vertical > .cluster-resource-link + .schema-action, .pagination-component-container .pagination-links .schema-actions .btn-group-vertical > .pagination-link + .schema-action, .schema-actions .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link + .schema-action, .schema-actions .btn-group-vertical > .schema-action + .schema-action,
 .btn-group-vertical > .btn + .btn-group, .button-list li
 .btn-group-vertical > a + .btn-group,
 .btn-group-vertical > .cluster-resource-link + .btn-group, .pagination-component-container .pagination-links
-.btn-group-vertical > .pagination-link + .btn-group,
+.btn-group-vertical > .pagination-link + .btn-group, .schema-actions
+.btn-group-vertical > .schema-action + .btn-group,
 .btn-group-vertical > .btn-group + .btn, .button-list li
 .btn-group-vertical > .btn-group + a,
 .btn-group-vertical > .btn-group + .cluster-resource-link, .pagination-component-container .pagination-links
-.btn-group-vertical > .btn-group + .pagination-link,
+.btn-group-vertical > .btn-group + .pagination-link, .schema-actions
+.btn-group-vertical > .btn-group + .schema-action,
 .btn-group-vertical > .btn-group + .btn-group {
   margin-top: -1px;
   margin-left: 0; }
 
-.btn-group-vertical > .btn:not(:first-child):not(:last-child), .button-list li .btn-group-vertical > a:not(:first-child):not(:last-child), .btn-group-vertical > .cluster-resource-link:not(:first-child):not(:last-child), .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link:not(:first-child):not(:last-child) {
+.btn-group-vertical > .btn:not(:first-child):not(:last-child), .button-list li .btn-group-vertical > a:not(:first-child):not(:last-child), .btn-group-vertical > .cluster-resource-link:not(:first-child):not(:last-child), .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link:not(:first-child):not(:last-child), .schema-actions .btn-group-vertical > .schema-action:not(:first-child):not(:last-child) {
   border-radius: 0; }
 
-.btn-group-vertical > .btn:first-child:not(:last-child), .button-list li .btn-group-vertical > a:first-child:not(:last-child), .btn-group-vertical > .cluster-resource-link:first-child:not(:last-child), .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link:first-child:not(:last-child) {
+.btn-group-vertical > .btn:first-child:not(:last-child), .button-list li .btn-group-vertical > a:first-child:not(:last-child), .btn-group-vertical > .cluster-resource-link:first-child:not(:last-child), .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link:first-child:not(:last-child), .schema-actions .btn-group-vertical > .schema-action:first-child:not(:last-child) {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0; }
 
-.btn-group-vertical > .btn:last-child:not(:first-child), .button-list li .btn-group-vertical > a:last-child:not(:first-child), .btn-group-vertical > .cluster-resource-link:last-child:not(:first-child), .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link:last-child:not(:first-child) {
+.btn-group-vertical > .btn:last-child:not(:first-child), .button-list li .btn-group-vertical > a:last-child:not(:first-child), .btn-group-vertical > .cluster-resource-link:last-child:not(:first-child), .pagination-component-container .pagination-links .btn-group-vertical > .pagination-link:last-child:not(:first-child), .schema-actions .btn-group-vertical > .schema-action:last-child:not(:first-child) {
   border-bottom-left-radius: 4px;
   border-top-right-radius: 0;
   border-top-left-radius: 0; }
 
-.btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .btn, .button-list li .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > a, .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .pagination-link {
+.btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .btn, .button-list li .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > a, .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .pagination-link, .schema-actions .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .schema-action {
   border-radius: 0; }
 
-.btn-group-vertical > .btn-group:first-child:not(:last-child) > .btn:last-child, .button-list li .btn-group-vertical > .btn-group:first-child:not(:last-child) > a:last-child, .btn-group-vertical > .btn-group:first-child:not(:last-child) > .cluster-resource-link:last-child, .pagination-component-container .pagination-links .btn-group-vertical > .btn-group:first-child:not(:last-child) > .pagination-link:last-child,
+.btn-group-vertical > .btn-group:first-child:not(:last-child) > .btn:last-child, .button-list li .btn-group-vertical > .btn-group:first-child:not(:last-child) > a:last-child, .btn-group-vertical > .btn-group:first-child:not(:last-child) > .cluster-resource-link:last-child, .pagination-component-container .pagination-links .btn-group-vertical > .btn-group:first-child:not(:last-child) > .pagination-link:last-child, .schema-actions .btn-group-vertical > .btn-group:first-child:not(:last-child) > .schema-action:last-child,
 .btn-group-vertical > .btn-group:first-child:not(:last-child) > .dropdown-toggle {
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0; }
 
-.btn-group-vertical > .btn-group:last-child:not(:first-child) > .btn:first-child, .button-list li .btn-group-vertical > .btn-group:last-child:not(:first-child) > a:first-child, .btn-group-vertical > .btn-group:last-child:not(:first-child) > .cluster-resource-link:first-child, .pagination-component-container .pagination-links .btn-group-vertical > .btn-group:last-child:not(:first-child) > .pagination-link:first-child {
+.btn-group-vertical > .btn-group:last-child:not(:first-child) > .btn:first-child, .button-list li .btn-group-vertical > .btn-group:last-child:not(:first-child) > a:first-child, .btn-group-vertical > .btn-group:last-child:not(:first-child) > .cluster-resource-link:first-child, .pagination-component-container .pagination-links .btn-group-vertical > .btn-group:last-child:not(:first-child) > .pagination-link:first-child, .schema-actions .btn-group-vertical > .btn-group:last-child:not(:first-child) > .schema-action:first-child {
   border-top-right-radius: 0;
   border-top-left-radius: 0; }
 
@@ -3592,29 +3741,32 @@ tbody.collapse.in {
   width: 100%;
   table-layout: fixed;
   border-collapse: separate; }
-  .btn-group-justified > .btn, .button-list li .btn-group-justified > a, .btn-group-justified > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-justified > .pagination-link,
+  .btn-group-justified > .btn, .button-list li .btn-group-justified > a, .btn-group-justified > .cluster-resource-link, .pagination-component-container .pagination-links .btn-group-justified > .pagination-link, .schema-actions .btn-group-justified > .schema-action,
   .btn-group-justified > .btn-group {
     float: none;
     display: table-cell;
     width: 1%; }
-  .btn-group-justified > .btn-group .btn, .btn-group-justified > .btn-group .button-list li a, .button-list li .btn-group-justified > .btn-group a, .btn-group-justified > .btn-group .cluster-resource-link, .btn-group-justified > .btn-group .pagination-component-container .pagination-links .pagination-link, .pagination-component-container .pagination-links .btn-group-justified > .btn-group .pagination-link {
+  .btn-group-justified > .btn-group .btn, .btn-group-justified > .btn-group .button-list li a, .button-list li .btn-group-justified > .btn-group a, .btn-group-justified > .btn-group .cluster-resource-link, .btn-group-justified > .btn-group .pagination-component-container .pagination-links .pagination-link, .pagination-component-container .pagination-links .btn-group-justified > .btn-group .pagination-link, .btn-group-justified > .btn-group .schema-actions .schema-action, .schema-actions .btn-group-justified > .btn-group .schema-action {
     width: 100%; }
   .btn-group-justified > .btn-group .dropdown-menu {
     left: auto; }
 
-[data-toggle="buttons"] > .btn input[type="radio"], .button-list li [data-toggle="buttons"] > a input[type="radio"], [data-toggle="buttons"] > .cluster-resource-link input[type="radio"], .pagination-component-container .pagination-links [data-toggle="buttons"] > .pagination-link input[type="radio"],
+[data-toggle="buttons"] > .btn input[type="radio"], .button-list li [data-toggle="buttons"] > a input[type="radio"], [data-toggle="buttons"] > .cluster-resource-link input[type="radio"], .pagination-component-container .pagination-links [data-toggle="buttons"] > .pagination-link input[type="radio"], .schema-actions [data-toggle="buttons"] > .schema-action input[type="radio"],
 [data-toggle="buttons"] > .btn input[type="checkbox"], .button-list li
 [data-toggle="buttons"] > a input[type="checkbox"],
 [data-toggle="buttons"] > .cluster-resource-link input[type="checkbox"], .pagination-component-container .pagination-links
-[data-toggle="buttons"] > .pagination-link input[type="checkbox"],
+[data-toggle="buttons"] > .pagination-link input[type="checkbox"], .schema-actions
+[data-toggle="buttons"] > .schema-action input[type="checkbox"],
 [data-toggle="buttons"] > .btn-group > .btn input[type="radio"], .button-list li
 [data-toggle="buttons"] > .btn-group > a input[type="radio"],
 [data-toggle="buttons"] > .btn-group > .cluster-resource-link input[type="radio"], .pagination-component-container .pagination-links
-[data-toggle="buttons"] > .btn-group > .pagination-link input[type="radio"],
+[data-toggle="buttons"] > .btn-group > .pagination-link input[type="radio"], .schema-actions
+[data-toggle="buttons"] > .btn-group > .schema-action input[type="radio"],
 [data-toggle="buttons"] > .btn-group > .btn input[type="checkbox"], .button-list li
 [data-toggle="buttons"] > .btn-group > a input[type="checkbox"],
 [data-toggle="buttons"] > .btn-group > .cluster-resource-link input[type="checkbox"], .pagination-component-container .pagination-links
-[data-toggle="buttons"] > .btn-group > .pagination-link input[type="checkbox"] {
+[data-toggle="buttons"] > .btn-group > .pagination-link input[type="checkbox"], .schema-actions
+[data-toggle="buttons"] > .btn-group > .schema-action input[type="checkbox"] {
   position: absolute;
   clip: rect(0, 0, 0, 0);
   pointer-events: none; }
@@ -3664,7 +3816,8 @@ tbody.collapse.in {
   .input-group-sm > .input-group-btn > .input-group-addon.btn, .button-list li
   .input-group-sm > .input-group-btn > a.input-group-addon,
   .input-group-sm > .input-group-btn > .input-group-addon.cluster-resource-link, .pagination-component-container .pagination-links
-  .input-group-sm > .input-group-btn > .input-group-addon.pagination-link {
+  .input-group-sm > .input-group-btn > .input-group-addon.pagination-link, .schema-actions
+  .input-group-sm > .input-group-btn > .input-group-addon.schema-action {
     padding: 5px 10px;
     font-size: 12px;
     border-radius: 3px; }
@@ -3673,7 +3826,8 @@ tbody.collapse.in {
   .input-group-lg > .input-group-btn > .input-group-addon.btn, .button-list li
   .input-group-lg > .input-group-btn > a.input-group-addon,
   .input-group-lg > .input-group-btn > .input-group-addon.cluster-resource-link, .pagination-component-container .pagination-links
-  .input-group-lg > .input-group-btn > .input-group-addon.pagination-link {
+  .input-group-lg > .input-group-btn > .input-group-addon.pagination-link, .schema-actions
+  .input-group-lg > .input-group-btn > .input-group-addon.schema-action {
     padding: 10px 16px;
     font-size: 18px;
     border-radius: 6px; }
@@ -3686,20 +3840,24 @@ tbody.collapse.in {
 .input-group-btn:first-child > .btn, .button-list li
 .input-group-btn:first-child > a,
 .input-group-btn:first-child > .cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-btn:first-child > .pagination-link,
+.input-group-btn:first-child > .pagination-link, .schema-actions
+.input-group-btn:first-child > .schema-action,
 .input-group-btn:first-child > .btn-group > .btn, .button-list li
 .input-group-btn:first-child > .btn-group > a,
 .input-group-btn:first-child > .btn-group > .cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-btn:first-child > .btn-group > .pagination-link,
+.input-group-btn:first-child > .btn-group > .pagination-link, .schema-actions
+.input-group-btn:first-child > .btn-group > .schema-action,
 .input-group-btn:first-child > .dropdown-toggle,
 .input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle), .button-list li
 .input-group-btn:last-child > a:not(:last-child):not(.dropdown-toggle),
 .input-group-btn:last-child > .cluster-resource-link:not(:last-child):not(.dropdown-toggle), .pagination-component-container .pagination-links
-.input-group-btn:last-child > .pagination-link:not(:last-child):not(.dropdown-toggle),
+.input-group-btn:last-child > .pagination-link:not(:last-child):not(.dropdown-toggle), .schema-actions
+.input-group-btn:last-child > .schema-action:not(:last-child):not(.dropdown-toggle),
 .input-group-btn:last-child > .btn-group:not(:last-child) > .btn, .button-list li
 .input-group-btn:last-child > .btn-group:not(:last-child) > a,
 .input-group-btn:last-child > .btn-group:not(:last-child) > .cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-btn:last-child > .btn-group:not(:last-child) > .pagination-link {
+.input-group-btn:last-child > .btn-group:not(:last-child) > .pagination-link, .schema-actions
+.input-group-btn:last-child > .btn-group:not(:last-child) > .schema-action {
   border-bottom-right-radius: 0;
   border-top-right-radius: 0; }
 
@@ -3711,20 +3869,24 @@ tbody.collapse.in {
 .input-group-btn:last-child > .btn, .button-list li
 .input-group-btn:last-child > a,
 .input-group-btn:last-child > .cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-btn:last-child > .pagination-link,
+.input-group-btn:last-child > .pagination-link, .schema-actions
+.input-group-btn:last-child > .schema-action,
 .input-group-btn:last-child > .btn-group > .btn, .button-list li
 .input-group-btn:last-child > .btn-group > a,
 .input-group-btn:last-child > .btn-group > .cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-btn:last-child > .btn-group > .pagination-link,
+.input-group-btn:last-child > .btn-group > .pagination-link, .schema-actions
+.input-group-btn:last-child > .btn-group > .schema-action,
 .input-group-btn:last-child > .dropdown-toggle,
 .input-group-btn:first-child > .btn:not(:first-child), .button-list li
 .input-group-btn:first-child > a:not(:first-child),
 .input-group-btn:first-child > .cluster-resource-link:not(:first-child), .pagination-component-container .pagination-links
-.input-group-btn:first-child > .pagination-link:not(:first-child),
+.input-group-btn:first-child > .pagination-link:not(:first-child), .schema-actions
+.input-group-btn:first-child > .schema-action:not(:first-child),
 .input-group-btn:first-child > .btn-group:not(:first-child) > .btn, .button-list li
 .input-group-btn:first-child > .btn-group:not(:first-child) > a,
 .input-group-btn:first-child > .btn-group:not(:first-child) > .cluster-resource-link, .pagination-component-container .pagination-links
-.input-group-btn:first-child > .btn-group:not(:first-child) > .pagination-link {
+.input-group-btn:first-child > .btn-group:not(:first-child) > .pagination-link, .schema-actions
+.input-group-btn:first-child > .btn-group:not(:first-child) > .schema-action {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0; }
 
@@ -3735,16 +3897,16 @@ tbody.collapse.in {
   position: relative;
   font-size: 0;
   white-space: nowrap; }
-  .input-group-btn > .btn, .button-list li .input-group-btn > a, .input-group-btn > .cluster-resource-link, .pagination-component-container .pagination-links .input-group-btn > .pagination-link {
+  .input-group-btn > .btn, .button-list li .input-group-btn > a, .input-group-btn > .cluster-resource-link, .pagination-component-container .pagination-links .input-group-btn > .pagination-link, .schema-actions .input-group-btn > .schema-action {
     position: relative; }
-    .input-group-btn > .btn + .btn, .button-list li .input-group-btn > a + .btn, .input-group-btn > .cluster-resource-link + .btn, .pagination-component-container .pagination-links .input-group-btn > .pagination-link + .btn, .button-list li .input-group-btn > .btn + a, .button-list li .input-group-btn > a + a, .button-list li .input-group-btn > .cluster-resource-link + a, .pagination-component-container .pagination-links .button-list li .input-group-btn > .pagination-link + a, .button-list li .pagination-component-container .pagination-links .input-group-btn > .pagination-link + a, .input-group-btn > .btn + .cluster-resource-link, .button-list li .input-group-btn > a + .cluster-resource-link, .input-group-btn > .cluster-resource-link + .cluster-resource-link, .pagination-component-container .pagination-links .input-group-btn > .pagination-link + .cluster-resource-link, .pagination-component-container .pagination-links .input-group-btn > .btn + .pagination-link, .button-list li .pagination-component-container .pagination-links .input-group-btn > a + .pagination-link, .pagination-component-container .pagination-links .button-list li .input-group-btn > a + .pagination-link, .pagination-component-container .pagination-links .input-group-btn > .cluster-resource-link + .pagination-link, .pagination-component-container .pagination-links .input-group-btn > .pagination-link + .pagination-link {
+    .input-group-btn > .btn + .btn, .button-list li .input-group-btn > a + .btn, .input-group-btn > .cluster-resource-link + .btn, .pagination-component-container .pagination-links .input-group-btn > .pagination-link + .btn, .schema-actions .input-group-btn > .schema-action + .btn, .button-list li .input-group-btn > .btn + a, .button-list li .input-group-btn > a + a, .button-list li .input-group-btn > .cluster-resource-link + a, .pagination-component-container .pagination-links .button-list li .input-group-btn > .pagination-link + a, .button-list li .pagination-component-container .pagination-links .input-group-btn > .pagination-link + a, .schema-actions .button-list li .input-group-btn > .schema-action + a, .button-list li .schema-actions .input-group-btn > .schema-action + a, .input-group-btn > .btn + .cluster-resource-link, .button-list li .input-group-btn > a + .cluster-resource-link, .input-group-btn > .cluster-resource-link + .cluster-resource-link, .pagination-component-container .pagination-links .input-group-btn > .pagination-link + .cluster-resource-link, .schema-actions .input-group-btn > .schema-action + .cluster-resource-link, .pagination-component-container .pagination-links .input-group-btn > .btn + .pagination-link, .button-list li .pagination-component-container .pagination-links .input-group-btn > a + .pagination-link, .pagination-component-container .pagination-links .button-list li .input-group-btn > a + .pagination-link, .pagination-component-container .pagination-links .input-group-btn > .cluster-resource-link + .pagination-link, .pagination-component-container .pagination-links .input-group-btn > .pagination-link + .pagination-link, .schema-actions .pagination-component-container .pagination-links .input-group-btn > .schema-action + .pagination-link, .pagination-component-container .pagination-links .schema-actions .input-group-btn > .schema-action + .pagination-link, .schema-actions .input-group-btn > .btn + .schema-action, .button-list li .schema-actions .input-group-btn > a + .schema-action, .schema-actions .button-list li .input-group-btn > a + .schema-action, .schema-actions .input-group-btn > .cluster-resource-link + .schema-action, .pagination-component-container .pagination-links .schema-actions .input-group-btn > .pagination-link + .schema-action, .schema-actions .pagination-component-container .pagination-links .input-group-btn > .pagination-link + .schema-action, .schema-actions .input-group-btn > .schema-action + .schema-action {
       margin-left: -1px; }
-    .input-group-btn > .btn:hover, .button-list li .input-group-btn > a:hover, .input-group-btn > .cluster-resource-link:hover, .pagination-component-container .pagination-links .input-group-btn > .pagination-link:hover, .input-group-btn > .btn:focus, .button-list li .input-group-btn > a:focus, .input-group-btn > .cluster-resource-link:focus, .pagination-component-container .pagination-links .input-group-btn > .pagination-link:focus, .input-group-btn > .btn:active, .button-list li .input-group-btn > a:active, .input-group-btn > .cluster-resource-link:active, .pagination-component-container .pagination-links .input-group-btn > .pagination-link:active {
+    .input-group-btn > .btn:hover, .button-list li .input-group-btn > a:hover, .input-group-btn > .cluster-resource-link:hover, .pagination-component-container .pagination-links .input-group-btn > .pagination-link:hover, .schema-actions .input-group-btn > .schema-action:hover, .input-group-btn > .btn:focus, .button-list li .input-group-btn > a:focus, .input-group-btn > .cluster-resource-link:focus, .pagination-component-container .pagination-links .input-group-btn > .pagination-link:focus, .schema-actions .input-group-btn > .schema-action:focus, .input-group-btn > .btn:active, .button-list li .input-group-btn > a:active, .input-group-btn > .cluster-resource-link:active, .pagination-component-container .pagination-links .input-group-btn > .pagination-link:active, .schema-actions .input-group-btn > .schema-action:active {
       z-index: 2; }
-  .input-group-btn:first-child > .btn, .button-list li .input-group-btn:first-child > a, .input-group-btn:first-child > .cluster-resource-link, .pagination-component-container .pagination-links .input-group-btn:first-child > .pagination-link,
+  .input-group-btn:first-child > .btn, .button-list li .input-group-btn:first-child > a, .input-group-btn:first-child > .cluster-resource-link, .pagination-component-container .pagination-links .input-group-btn:first-child > .pagination-link, .schema-actions .input-group-btn:first-child > .schema-action,
   .input-group-btn:first-child > .btn-group {
     margin-right: -1px; }
-  .input-group-btn:last-child > .btn, .button-list li .input-group-btn:last-child > a, .input-group-btn:last-child > .cluster-resource-link, .pagination-component-container .pagination-links .input-group-btn:last-child > .pagination-link,
+  .input-group-btn:last-child > .btn, .button-list li .input-group-btn:last-child > a, .input-group-btn:last-child > .cluster-resource-link, .pagination-component-container .pagination-links .input-group-btn:last-child > .pagination-link, .schema-actions .input-group-btn:last-child > .schema-action,
   .input-group-btn:last-child > .btn-group {
     z-index: 2;
     margin-left: -1px; }
@@ -4123,10 +4285,10 @@ tbody.collapse.in {
 .navbar-btn {
   margin-top: 8px;
   margin-bottom: 8px; }
-  .navbar-btn.btn-sm, .btn-group-sm > .navbar-btn.btn, .button-list li .btn-group-sm > a.navbar-btn, .pagination-component-container .pagination-links .btn-group-sm > .navbar-btn.pagination-link, .navbar-btn.cluster-resource-link {
+  .navbar-btn.btn-sm, .btn-group-sm > .navbar-btn.btn, .button-list li .btn-group-sm > a.navbar-btn, .pagination-component-container .pagination-links .btn-group-sm > .navbar-btn.pagination-link, .navbar-btn.cluster-resource-link, .schema-actions .navbar-btn.schema-action {
     margin-top: 10px;
     margin-bottom: 10px; }
-  .navbar-btn.btn-xs, .btn-group-xs > .navbar-btn.btn, .button-list li .btn-group-xs > a.navbar-btn, .btn-group-xs > .navbar-btn.cluster-resource-link, .button-list.small li a.navbar-btn, .pagination-component-container .pagination-links .navbar-btn.pagination-link {
+  .navbar-btn.btn-xs, .btn-group-xs > .navbar-btn.btn, .button-list li .btn-group-xs > a.navbar-btn, .btn-group-xs > .navbar-btn.cluster-resource-link, .schema-actions .btn-group-xs > .navbar-btn.schema-action, .button-list.small li a.navbar-btn, .pagination-component-container .pagination-links .navbar-btn.pagination-link {
     margin-top: 14px;
     margin-bottom: 14px; }
 
@@ -4419,7 +4581,7 @@ tbody.collapse.in {
   border-radius: .25em; }
   .label:empty {
     display: none; }
-  .btn .label, .button-list li a .label, .cluster-resource-link .label, .pagination-component-container .pagination-links .pagination-link .label {
+  .btn .label, .button-list li a .label, .cluster-resource-link .label, .pagination-component-container .pagination-links .pagination-link .label, .schema-actions .schema-action .label {
     position: relative;
     top: -1px; }
 
@@ -4473,14 +4635,15 @@ a.label:hover, a.label:focus {
   border-radius: 10px; }
   .badge:empty {
     display: none; }
-  .btn .badge, .button-list li a .badge, .cluster-resource-link .badge, .pagination-component-container .pagination-links .pagination-link .badge {
+  .btn .badge, .button-list li a .badge, .cluster-resource-link .badge, .pagination-component-container .pagination-links .pagination-link .badge, .schema-actions .schema-action .badge {
     position: relative;
     top: -1px; }
-  .btn-xs .badge, .btn-group-xs > .btn .badge, .button-list li .btn-group-xs > a .badge, .btn-group-xs > .cluster-resource-link .badge, .button-list.small li a .badge, .pagination-component-container .pagination-links .pagination-link .badge,
+  .btn-xs .badge, .btn-group-xs > .btn .badge, .button-list li .btn-group-xs > a .badge, .btn-group-xs > .cluster-resource-link .badge, .schema-actions .btn-group-xs > .schema-action .badge, .button-list.small li a .badge, .pagination-component-container .pagination-links .pagination-link .badge,
   .btn-group-xs > .btn .badge, .button-list li
   .btn-group-xs > a .badge,
   .btn-group-xs > .cluster-resource-link .badge, .pagination-component-container .pagination-links
-  .btn-group-xs > .pagination-link .badge {
+  .btn-group-xs > .pagination-link .badge, .schema-actions
+  .btn-group-xs > .schema-action .badge {
     top: 0;
     padding: 1px 5px; }
   .list-group-item.active > .badge,
@@ -5364,12 +5527,12 @@ button.close {
     display: table; }
   .modal-footer:after {
     clear: both; }
-  .modal-footer .btn + .btn, .modal-footer .button-list li a + .btn, .button-list li .modal-footer a + .btn, .modal-footer .cluster-resource-link + .btn, .modal-footer .pagination-component-container .pagination-links .pagination-link + .btn, .pagination-component-container .pagination-links .modal-footer .pagination-link + .btn, .modal-footer .button-list li .btn + a, .button-list li .modal-footer .btn + a, .modal-footer .button-list li a + a, .button-list li .modal-footer a + a, .modal-footer .button-list li .cluster-resource-link + a, .button-list li .modal-footer .cluster-resource-link + a, .modal-footer .pagination-component-container .pagination-links .button-list li .pagination-link + a, .button-list li .modal-footer .pagination-component-container .pagination-links .pagination-link + a, .pagination-component-container .pagination-links .modal-footer .button-list li .pagination-link + a, .button-list li .pagination-component-container .pagination-links .modal-footer .pagination-link + a, .modal-footer .btn + .cluster-resource-link, .modal-footer .button-list li a + .cluster-resource-link, .button-list li .modal-footer a + .cluster-resource-link, .modal-footer .cluster-resource-link + .cluster-resource-link, .modal-footer .pagination-component-container .pagination-links .pagination-link + .cluster-resource-link, .pagination-component-container .pagination-links .modal-footer .pagination-link + .cluster-resource-link, .modal-footer .pagination-component-container .pagination-links .btn + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn + .pagination-link, .modal-footer .button-list li .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .modal-footer .button-list li a + .pagination-link, .button-list li .modal-footer .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .button-list li .modal-footer a + .pagination-link, .modal-footer .pagination-component-container .pagination-links .cluster-resource-link + .pagination-link, .pagination-component-container .pagination-links .modal-footer .cluster-resource-link + .pagination-link, .modal-footer .pagination-component-container .pagination-links .pagination-link + .pagination-link, .pagination-component-container .pagination-links .modal-footer .pagination-link + .pagination-link {
+  .modal-footer .btn + .btn, .modal-footer .button-list li a + .btn, .button-list li .modal-footer a + .btn, .modal-footer .cluster-resource-link + .btn, .modal-footer .pagination-component-container .pagination-links .pagination-link + .btn, .pagination-component-container .pagination-links .modal-footer .pagination-link + .btn, .modal-footer .schema-actions .schema-action + .btn, .schema-actions .modal-footer .schema-action + .btn, .modal-footer .button-list li .btn + a, .button-list li .modal-footer .btn + a, .modal-footer .button-list li a + a, .button-list li .modal-footer a + a, .modal-footer .button-list li .cluster-resource-link + a, .button-list li .modal-footer .cluster-resource-link + a, .modal-footer .pagination-component-container .pagination-links .button-list li .pagination-link + a, .button-list li .modal-footer .pagination-component-container .pagination-links .pagination-link + a, .pagination-component-container .pagination-links .modal-footer .button-list li .pagination-link + a, .button-list li .pagination-component-container .pagination-links .modal-footer .pagination-link + a, .modal-footer .schema-actions .button-list li .schema-action + a, .button-list li .modal-footer .schema-actions .schema-action + a, .schema-actions .modal-footer .button-list li .schema-action + a, .button-list li .schema-actions .modal-footer .schema-action + a, .modal-footer .btn + .cluster-resource-link, .modal-footer .button-list li a + .cluster-resource-link, .button-list li .modal-footer a + .cluster-resource-link, .modal-footer .cluster-resource-link + .cluster-resource-link, .modal-footer .pagination-component-container .pagination-links .pagination-link + .cluster-resource-link, .pagination-component-container .pagination-links .modal-footer .pagination-link + .cluster-resource-link, .modal-footer .schema-actions .schema-action + .cluster-resource-link, .schema-actions .modal-footer .schema-action + .cluster-resource-link, .modal-footer .pagination-component-container .pagination-links .btn + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn + .pagination-link, .modal-footer .button-list li .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .modal-footer .button-list li a + .pagination-link, .button-list li .modal-footer .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .button-list li .modal-footer a + .pagination-link, .modal-footer .pagination-component-container .pagination-links .cluster-resource-link + .pagination-link, .pagination-component-container .pagination-links .modal-footer .cluster-resource-link + .pagination-link, .modal-footer .pagination-component-container .pagination-links .pagination-link + .pagination-link, .pagination-component-container .pagination-links .modal-footer .pagination-link + .pagination-link, .modal-footer .schema-actions .pagination-component-container .pagination-links .schema-action + .pagination-link, .pagination-component-container .pagination-links .modal-footer .schema-actions .schema-action + .pagination-link, .schema-actions .modal-footer .pagination-component-container .pagination-links .schema-action + .pagination-link, .pagination-component-container .pagination-links .schema-actions .modal-footer .schema-action + .pagination-link, .modal-footer .schema-actions .btn + .schema-action, .schema-actions .modal-footer .btn + .schema-action, .modal-footer .button-list li .schema-actions a + .schema-action, .schema-actions .modal-footer .button-list li a + .schema-action, .button-list li .modal-footer .schema-actions a + .schema-action, .schema-actions .button-list li .modal-footer a + .schema-action, .modal-footer .schema-actions .cluster-resource-link + .schema-action, .schema-actions .modal-footer .cluster-resource-link + .schema-action, .modal-footer .pagination-component-container .pagination-links .schema-actions .pagination-link + .schema-action, .schema-actions .modal-footer .pagination-component-container .pagination-links .pagination-link + .schema-action, .pagination-component-container .pagination-links .modal-footer .schema-actions .pagination-link + .schema-action, .schema-actions .pagination-component-container .pagination-links .modal-footer .pagination-link + .schema-action, .modal-footer .schema-actions .schema-action + .schema-action, .schema-actions .modal-footer .schema-action + .schema-action {
     margin-left: 5px;
     margin-bottom: 0; }
-  .modal-footer .btn-group .btn + .btn, .modal-footer .btn-group .button-list li a + .btn, .button-list li .modal-footer .btn-group a + .btn, .modal-footer .btn-group .cluster-resource-link + .btn, .modal-footer .btn-group .pagination-component-container .pagination-links .pagination-link + .btn, .pagination-component-container .pagination-links .modal-footer .btn-group .pagination-link + .btn, .modal-footer .btn-group .button-list li .btn + a, .button-list li .modal-footer .btn-group .btn + a, .modal-footer .btn-group .button-list li a + a, .button-list li .modal-footer .btn-group a + a, .modal-footer .btn-group .button-list li .cluster-resource-link + a, .button-list li .modal-footer .btn-group .cluster-resource-link + a, .modal-footer .btn-group .pagination-component-container .pagination-links .button-list li .pagination-link + a, .button-list li .modal-footer .btn-group .pagination-component-container .pagination-links .pagination-link + a, .pagination-component-container .pagination-links .modal-footer .btn-group .button-list li .pagination-link + a, .button-list li .pagination-component-container .pagination-links .modal-footer .btn-group .pagination-link + a, .modal-footer .btn-group .btn + .cluster-resource-link, .modal-footer .btn-group .button-list li a + .cluster-resource-link, .button-list li .modal-footer .btn-group a + .cluster-resource-link, .modal-footer .btn-group .cluster-resource-link + .cluster-resource-link, .modal-footer .btn-group .pagination-component-container .pagination-links .pagination-link + .cluster-resource-link, .pagination-component-container .pagination-links .modal-footer .btn-group .pagination-link + .cluster-resource-link, .modal-footer .btn-group .pagination-component-container .pagination-links .btn + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn-group .btn + .pagination-link, .modal-footer .btn-group .button-list li .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn-group .button-list li a + .pagination-link, .button-list li .modal-footer .btn-group .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .button-list li .modal-footer .btn-group a + .pagination-link, .modal-footer .btn-group .pagination-component-container .pagination-links .cluster-resource-link + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn-group .cluster-resource-link + .pagination-link, .modal-footer .btn-group .pagination-component-container .pagination-links .pagination-link + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn-group .pagination-link + .pagination-link {
+  .modal-footer .btn-group .btn + .btn, .modal-footer .btn-group .button-list li a + .btn, .button-list li .modal-footer .btn-group a + .btn, .modal-footer .btn-group .cluster-resource-link + .btn, .modal-footer .btn-group .pagination-component-container .pagination-links .pagination-link + .btn, .pagination-component-container .pagination-links .modal-footer .btn-group .pagination-link + .btn, .modal-footer .btn-group .schema-actions .schema-action + .btn, .schema-actions .modal-footer .btn-group .schema-action + .btn, .modal-footer .btn-group .button-list li .btn + a, .button-list li .modal-footer .btn-group .btn + a, .modal-footer .btn-group .button-list li a + a, .button-list li .modal-footer .btn-group a + a, .modal-footer .btn-group .button-list li .cluster-resource-link + a, .button-list li .modal-footer .btn-group .cluster-resource-link + a, .modal-footer .btn-group .pagination-component-container .pagination-links .button-list li .pagination-link + a, .button-list li .modal-footer .btn-group .pagination-component-container .pagination-links .pagination-link + a, .pagination-component-container .pagination-links .modal-footer .btn-group .button-list li .pagination-link + a, .button-list li .pagination-component-container .pagination-links .modal-footer .btn-group .pagination-link + a, .modal-footer .btn-group .schema-actions .button-list li .schema-action + a, .button-list li .modal-footer .btn-group .schema-actions .schema-action + a, .schema-actions .modal-footer .btn-group .button-list li .schema-action + a, .button-list li .schema-actions .modal-footer .btn-group .schema-action + a, .modal-footer .btn-group .btn + .cluster-resource-link, .modal-footer .btn-group .button-list li a + .cluster-resource-link, .button-list li .modal-footer .btn-group a + .cluster-resource-link, .modal-footer .btn-group .cluster-resource-link + .cluster-resource-link, .modal-footer .btn-group .pagination-component-container .pagination-links .pagination-link + .cluster-resource-link, .pagination-component-container .pagination-links .modal-footer .btn-group .pagination-link + .cluster-resource-link, .modal-footer .btn-group .schema-actions .schema-action + .cluster-resource-link, .schema-actions .modal-footer .btn-group .schema-action + .cluster-resource-link, .modal-footer .btn-group .pagination-component-container .pagination-links .btn + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn-group .btn + .pagination-link, .modal-footer .btn-group .button-list li .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn-group .button-list li a + .pagination-link, .button-list li .modal-footer .btn-group .pagination-component-container .pagination-links a + .pagination-link, .pagination-component-container .pagination-links .button-list li .modal-footer .btn-group a + .pagination-link, .modal-footer .btn-group .pagination-component-container .pagination-links .cluster-resource-link + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn-group .cluster-resource-link + .pagination-link, .modal-footer .btn-group .pagination-component-container .pagination-links .pagination-link + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn-group .pagination-link + .pagination-link, .modal-footer .btn-group .schema-actions .pagination-component-container .pagination-links .schema-action + .pagination-link, .pagination-component-container .pagination-links .modal-footer .btn-group .schema-actions .schema-action + .pagination-link, .schema-actions .modal-footer .btn-group .pagination-component-container .pagination-links .schema-action + .pagination-link, .pagination-component-container .pagination-links .schema-actions .modal-footer .btn-group .schema-action + .pagination-link, .modal-footer .btn-group .schema-actions .btn + .schema-action, .schema-actions .modal-footer .btn-group .btn + .schema-action, .modal-footer .btn-group .button-list li .schema-actions a + .schema-action, .schema-actions .modal-footer .btn-group .button-list li a + .schema-action, .button-list li .modal-footer .btn-group .schema-actions a + .schema-action, .schema-actions .button-list li .modal-footer .btn-group a + .schema-action, .modal-footer .btn-group .schema-actions .cluster-resource-link + .schema-action, .schema-actions .modal-footer .btn-group .cluster-resource-link + .schema-action, .modal-footer .btn-group .pagination-component-container .pagination-links .schema-actions .pagination-link + .schema-action, .schema-actions .modal-footer .btn-group .pagination-component-container .pagination-links .pagination-link + .schema-action, .pagination-component-container .pagination-links .modal-footer .btn-group .schema-actions .pagination-link + .schema-action, .schema-actions .pagination-component-container .pagination-links .modal-footer .btn-group .pagination-link + .schema-action, .modal-footer .btn-group .schema-actions .schema-action + .schema-action, .schema-actions .modal-footer .btn-group .schema-action + .schema-action {
     margin-left: -1px; }
-  .modal-footer .btn-block + .btn-block {
+  .modal-footer .btn-block + .btn-block, .modal-footer .cluster-resource-link + .btn-block, .modal-footer .btn-block + .cluster-resource-link, .modal-footer .cluster-resource-link + .cluster-resource-link {
     margin-left: 0; }
 
 .modal-scrollbar-measure {
@@ -5788,7 +5951,7 @@ button.close {
   color: #fff;
   text-align: center;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); }
-  .carousel-caption .btn, .carousel-caption .button-list li a, .button-list li .carousel-caption a, .carousel-caption .cluster-resource-link, .carousel-caption .pagination-component-container .pagination-links .pagination-link, .pagination-component-container .pagination-links .carousel-caption .pagination-link {
+  .carousel-caption .btn, .carousel-caption .button-list li a, .button-list li .carousel-caption a, .carousel-caption .cluster-resource-link, .carousel-caption .pagination-component-container .pagination-links .pagination-link, .pagination-component-container .pagination-links .carousel-caption .pagination-link, .carousel-caption .schema-actions .schema-action, .schema-actions .carousel-caption .schema-action {
     text-shadow: none; }
 
 @media screen and (min-width: 768px) {
@@ -6040,10 +6203,10 @@ button.close {
   margin-right: 2px;
   top: 2px; }
 
-.btn-primary, .button-list li a, .cluster-resource-link, .pagination-component-container .pagination-links .pagination-link.selected {
+.btn-primary, .button-list li a, .cluster-resource-link, .pagination-component-container .pagination-links .pagination-link.selected, .schema-actions .edit, .schema-actions .update, .schema-actions .create, .schema-actions .raw {
   background-color: #79AFB7;
   border-color: #79AFB7; }
-  .btn-primary:hover, .button-list li a:hover, .cluster-resource-link:hover, .pagination-component-container .pagination-links .pagination-link.selected:hover, .btn-primary:active, .button-list li a:active, .cluster-resource-link:active, .pagination-component-container .pagination-links .pagination-link.selected:active, .btn-primary:focus, .button-list li a:focus, .cluster-resource-link:focus, .pagination-component-container .pagination-links .pagination-link.selected:focus, .btn-primary:active:focus, .button-list li a:active:focus, .cluster-resource-link:active:focus, .pagination-component-container .pagination-links .pagination-link.selected:active:focus {
+  .btn-primary:hover, .button-list li a:hover, .cluster-resource-link:hover, .pagination-component-container .pagination-links .pagination-link.selected:hover, .schema-actions .edit:hover, .schema-actions .update:hover, .schema-actions .create:hover, .schema-actions .raw:hover, .btn-primary:active, .button-list li a:active, .cluster-resource-link:active, .pagination-component-container .pagination-links .pagination-link.selected:active, .schema-actions .edit:active, .schema-actions .update:active, .schema-actions .create:active, .schema-actions .raw:active, .btn-primary:focus, .button-list li a:focus, .cluster-resource-link:focus, .pagination-component-container .pagination-links .pagination-link.selected:focus, .schema-actions .edit:focus, .schema-actions .update:focus, .schema-actions .create:focus, .schema-actions .raw:focus, .btn-primary:active:focus, .button-list li a:active:focus, .cluster-resource-link:active:focus, .pagination-component-container .pagination-links .pagination-link.selected:active:focus, .schema-actions .edit:active:focus, .schema-actions .update:active:focus, .schema-actions .create:active:focus, .schema-actions .raw:active:focus {
     background-color: #68a5ae;
     border-color: #68a5ae; }
 
@@ -6053,10 +6216,12 @@ button.close {
   margin: 0px; }
   .table thead tr th {
     padding: 10px 15px;
-    border-bottom: 1px; }
+    border-bottom: 1px;
+    text-align: left; }
   .table tbody tr td {
     padding: 10px 15px;
-    vertical-align: middle; }
+    vertical-align: middle;
+    text-align: left; }
 
 body {
   background-color: #FFF;
@@ -6158,7 +6323,6 @@ p:last-child {
     border-top: 1px solid #4d4d4d; }
   .sidebar-panel .sidebar-group .sidebar-group-item {
     color: #FFFFFF;
-    text-transform: capitalize;
     border-bottom: 1px solid #111111; }
     .sidebar-panel .sidebar-group .sidebar-group-item .dev-mode {
       font-size: 9px;
@@ -6351,7 +6515,6 @@ p:last-child {
   .dashboard-module .module-label {
     font-size: 20px;
     font-weight: 500;
-    text-transform: capitalize;
     margin-bottom: 10px; }
 
 .view-header {
@@ -6366,8 +6529,7 @@ p:last-child {
     margin: 0;
     padding: 0;
     background-color: inherit;
-    text-transform: uppercase;
-    font-size: 11px; }
+    font-size: 12px; }
     .breadcrumb-container .breadcrumb li {
       color: #666666; }
       .breadcrumb-container .breadcrumb li:last-child a {
@@ -6410,7 +6572,6 @@ p:last-child {
     animation-delay: -1.0s; }
 
 .view-label {
-  text-transform: capitalize;
   display: block;
   font-size: 24px;
   font-weight: 500; }
@@ -6448,10 +6609,35 @@ p:last-child {
   margin-bottom: 10px; }
 
 .cluster-resource-link {
-  text-transform: capitalize; }
+  text-align: left; }
 
 .pagination-component-container .pagination-links .text-link.invisible {
   visibility: hidden; }
+
+.schema-actions {
+  text-align: right;
+  margin-bottom: 10px; }
+  .schema-actions .schema-action {
+    margin-left: 10px; }
+
+.code-highlighter {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none; }
+  .code-highlighter code {
+    border-radius: 4px; }
+
+code .ember-content-editable {
+  margin-top: -50px;
+  min-height: 100px; }
+  code .ember-content-editable:focus {
+    outline: none; }
+
+pre.editable {
+  background: #FFF;
+  border-color: #000;
+  border-radius: 0px; }
 
 .object-counter-container .counter-value {
   font-size: 24px; }

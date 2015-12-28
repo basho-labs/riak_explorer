@@ -69,18 +69,18 @@
 -export([client/1,
          get_json/3,
          put_json/4,
-         delete_bucket/3,
          delete_bucket/4,
+         delete_bucket/5,
          delete_bucket_job/1]).
 
--export([list_buckets_cache/4,
-         list_buckets/3,
-         clean_buckets/2,
-         put_buckets/3,
-         list_keys_cache/5,
-         list_keys/4,
-         clean_keys/3,
-         put_keys/4]).
+-export([list_buckets_cache/5,
+         list_buckets/4,
+         clean_buckets/3,
+         put_buckets/4,
+         list_keys_cache/6,
+         list_keys/5,
+         clean_keys/4,
+         put_keys/5]).
 
 -export([log_files/1,
          log_file/3,
@@ -97,8 +97,7 @@
          bucket_types/1,
          create_bucket_type/3]).
 
--export([cluster_id_for_node/1,
-         clusters/0,
+-export([clusters/0,
          cluster/1,
          nodes/1]).
 
@@ -380,7 +379,8 @@ aae_status(Node) ->
 %%% Control -- Riak Repl API
 %%%===================================================================
 ensure_repl_available(Node) ->
-    case remote(Node, code, is_loaded, [riak_repl_console]) of
+    load_patch(Node),
+    case remote(Node, re_riak_patch, is_enterprise, []) of
         false -> throw(not_implemented);
         _ -> ok
     end.
@@ -588,27 +588,23 @@ put_json(Node, Bucket, Key, Data) ->
     O = riakc_obj:new(Bucket, Key, RawData, "application/json"),
     riakc_pb_socket:get(C, O).
 
-delete_bucket(Node, BucketType, Bucket) ->
-    delete_bucket(Node, BucketType, Bucket, true).
+delete_bucket(Cluster, Node, BucketType, Bucket) ->
+    delete_bucket(Cluster, Node, BucketType, Bucket, true).
 
-delete_bucket(Node, BucketType, Bucket, RefreshCache) ->
-    case cluster_id_for_node(Node) of
-        [{error, not_found}] -> [{error, not_found}];
-        Cluster ->
-            case re_config:development_mode(Cluster) of
-                true ->
-                    JobType = delete_bucket,
-                    Meta = {JobType, Node, [BucketType, Bucket, RefreshCache]},
-                    re_job_manager:create(JobType, {?MODULE, delete_bucket_job, [Meta]});
-                false ->
-                    lager:warning("Failed request to delete types/~p/buckets/~p because developer mode is off", [BucketType, Bucket]),
-                    {error, developer_mode_off}
-            end
+delete_bucket(Cluster, Node, BucketType, Bucket, RefreshCache) ->
+    case re_config:development_mode(Cluster) of
+        true ->
+            JobType = delete_bucket,
+            Meta = {JobType, Cluster, Node, [BucketType, Bucket, RefreshCache]},
+            re_job_manager:create(JobType, {?MODULE, delete_bucket_job, [Meta]});
+        false ->
+            lager:warning("Failed request to delete types/~p/buckets/~p because developer mode is off", [BucketType, Bucket]),
+            {error, developer_mode_off}
     end.
 
-delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
+delete_bucket_job({delete_bucket, Cluster, Node, [BucketType, Bucket, RefreshCache]}) ->
     C = client(Node),
-    case re_keyjournal:cache_for_each({keys, Node, [BucketType, Bucket]},
+    case re_keyjournal:cache_for_each({keys, Cluster, Node, [BucketType, Bucket]},
             fun(Entry0, {Oks0, Errors0}) ->
                 RT = list_to_binary(BucketType),
                 RB = list_to_binary(Bucket),
@@ -632,8 +628,8 @@ delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
             re_job_manager:finish(delete_bucket),
             case RefreshCache of
                 true ->
-                    clean_buckets(Node, BucketType),
-                    clean_keys(Node, BucketType, Bucket);
+                    clean_buckets(Cluster, Node, BucketType),
+                    clean_keys(Cluster, Node, BucketType, Bucket);
                     %% TODO: Want to list keys here eventually, but need to figure out
                     %% tombstone reaping
                 false ->
@@ -645,47 +641,39 @@ delete_bucket_job({delete_bucket, Node, [BucketType, Bucket, RefreshCache]}) ->
 %%% Keyjournal API
 %%%===================================================================
 
-list_buckets(Node, BucketType, Options) ->
-    case cluster_id_for_node(Node) of
-        [{error, not_found}] -> [{error, not_found}];
-        Cluster ->
-            case re_config:development_mode(Cluster) of
-                true ->
-                    re_keyjournal:write({buckets, Node, [BucketType]}, Options);
-                false ->
-                    {error, developer_mode_off}
-            end
+list_buckets(Cluster, Node, BucketType, Options) ->
+    case re_config:development_mode(Cluster) of
+        true ->
+            re_keyjournal:write({buckets, Cluster, Node, [BucketType]}, Options);
+        false ->
+            {error, developer_mode_off}
     end.
 
-list_buckets_cache(Node, BucketType, Start, Rows) ->
-    re_keyjournal:read_cache({buckets, Node, [BucketType]}, Start, Rows).
+list_buckets_cache(Cluster, Node, BucketType, Start, Rows) ->
+    re_keyjournal:read_cache({buckets, Cluster, Node, [BucketType]}, Start, Rows).
 
-clean_buckets(Node, BucketType) ->
-    re_keyjournal:clean({buckets, Node, [BucketType]}).
+clean_buckets(Cluster, Node, BucketType) ->
+    re_keyjournal:clean({buckets, Cluster, Node, [BucketType]}).
 
-put_buckets(Node, BucketType, Buckets) ->
-    re_keyjournal:write_cache({buckets, Node, [BucketType]}, Buckets).
+put_buckets(Cluster, Node, BucketType, Buckets) ->
+    re_keyjournal:write_cache({buckets, Cluster, Node, [BucketType]}, Buckets).
 
-list_keys(Node, BucketType, Bucket, Options) ->
-    case cluster_id_for_node(Node) of
-        [{error, not_found}] -> [{error, not_found}];
-        Cluster ->
-            case re_config:development_mode(Cluster) of
-                true ->
-                    re_keyjournal:write({keys, Node, [BucketType, Bucket]}, Options);
-                false ->
-                    {error, developer_mode_off}
-            end
+list_keys(Cluster, Node, BucketType, Bucket, Options) ->
+    case re_config:development_mode(Cluster) of
+        true ->
+            re_keyjournal:write({keys, Cluster, Node, [BucketType, Bucket]}, Options);
+        false ->
+            {error, developer_mode_off}
     end.
 
-list_keys_cache(Node, BucketType, Bucket, Start, Rows) ->
-    re_keyjournal:read_cache({keys, Node, [BucketType, Bucket]}, Start, Rows).
+list_keys_cache(Cluster, Node, BucketType, Bucket, Start, Rows) ->
+    re_keyjournal:read_cache({keys, Cluster, Node, [BucketType, Bucket]}, Start, Rows).
 
-clean_keys(Node, BucketType, Bucket) ->
-    re_keyjournal:clean({keys, Node, [BucketType, Bucket]}).
+clean_keys(Cluster, Node, BucketType, Bucket) ->
+    re_keyjournal:clean({keys, Cluster, Node, [BucketType, Bucket]}).
 
-put_keys(Node, BucketType, Bucket, Keys) ->
-    re_keyjournal:write_cache({keys, Node, [BucketType, Bucket]}, Keys).
+put_keys(Cluster, Node, BucketType, Bucket, Keys) ->
+    re_keyjournal:write_cache({keys, Cluster, Node, [BucketType, Bucket]}, Keys).
 
 %%%===================================================================
 %%% Node Properties API
@@ -768,9 +756,10 @@ node_config(_, Node) ->
     end.
 
 riak_type(Node) ->
-    case remote(Node, code, is_loaded, [riak_repl_console]) of
+    load_patch(Node),
+    case remote(Node, re_riak_patch, is_enterprise, []) of
         false -> oss;
-        {file, _} -> ee;
+        true -> ee;
         Other when is_atom(Other) -> Other;
         _ -> oss
     end.
@@ -829,14 +818,6 @@ create_bucket_type(Node, BucketType, RawValue) ->
 %%%===================================================================
 %%% Cluster API
 %%%===================================================================
-
-cluster_id_for_node(Node) ->
-    [{clusters, Clusters}] = clusters(),
-
-    case find_cluster_by_node(Node, Clusters) of
-        [{error, not_found}] -> [{error, not_found}];
-        [{id, Id}|_] -> Id
-    end.
 
 cluster_info({C, _}) ->
     case re_config:riak_node(C) of
@@ -903,7 +884,8 @@ node_exists(Cluster, Node) ->
 %%%===================================================================
 
 load_patch(Node) ->
-    IsLoaded = remote(Node, code, is_loaded, [re_riak_patch]),
+
+    IsLoaded = remote(Node, code, ensure_loaded, [re_riak_patch]),
     maybe_load_patch(Node, IsLoaded).
 
 remote(N, M, F, A) ->
@@ -944,18 +926,18 @@ bucket_type_action(Node, BucketType, RawValue, [update|Rest], Accum) ->
         U -> bucket_type_action(Node, BucketType, RawValue, Rest, [{update, U}|Accum])
     end.
 
-maybe_load_patch(Node, false) ->
-    lager:info("Loading re_riak_patch module into node[~p].", [Node]),
-    {Mod, Bin, _} = code:get_object_code(re_riak_patch),
-    remote(Node, code, load_binary, [Mod, "/tmp/re_riak_patch.beam", Bin]);
-maybe_load_patch(Node, _) ->
+maybe_load_patch(Node, {module,re_riak_patch}) ->
     LocalVersion = re_riak_patch:version(),
     RemoteVersion = remote(Node, re_riak_patch, version, []),
     lager:info("Found version ~p of re_riak_patch on node[~p], current version is ~p.", [RemoteVersion, Node, LocalVersion]),
     case LocalVersion == RemoteVersion of
         false -> maybe_load_patch(Node, false);
         _ -> ok
-    end.
+    end;
+maybe_load_patch(Node, _) ->
+    lager:info("Loading re_riak_patch module into node[~p].", [Node]),
+    {Mod, Bin, _} = code:get_object_code(re_riak_patch),
+    remote(Node, code, load_binary, [Mod, "/tmp/re_riak_patch.beam", Bin]).
 
 safe_rpc(Node, Module, Function, Args, Timeout) ->
     try rpc:call(Node, Module, Function, Args, Timeout) of
@@ -977,21 +959,4 @@ handle_error(Action) ->
             lager:info("~p:~p", [Exception, Reason]),
             lager:info("Backtrace: ~p", [erlang:get_stacktrace()]),
             [{control, [{error, Error}]}]
-    end.
-
-% find_cluster_by_id(_, []) ->
-%     [{error, not_found}];
-% find_cluster_by_id(Id, [[{id, Id}|_]=Props|_]) ->
-%     Props;
-% find_cluster_by_id(Id, [_|Rest]) ->
-%     find_cluster_by_id(Id, Rest).
-
-find_cluster_by_node(_, []) ->
-    [{error, not_found}];
-find_cluster_by_node(Node, [[_,{riak_node,Node}|_]=Props|_]) ->
-    Props;
-find_cluster_by_node(Node, [[{id, Cluster}|_]=Props|Rest]) ->
-    case node_exists(Cluster, Node) of
-        true -> Props;
-        false -> find_cluster_by_node(Node, Rest)
     end.

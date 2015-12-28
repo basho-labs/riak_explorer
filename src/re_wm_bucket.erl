@@ -118,20 +118,24 @@ resource_exists(RD, Ctx=?noNode(Error)) ->
 resource_exists(RD, Ctx=?putBuckets(_Node, _BucketType)) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx=?cleanBuckets(Node, BucketType)) ->
-    re_riak:clean_buckets(Node, BucketType),
+    Cluster = Ctx#ctx.cluster,
+    re_riak:clean_buckets(Cluster, Node, BucketType),
     {true, RD, Ctx};
 resource_exists(RD, Ctx=?listBucketsCache(Node, BucketType)) ->
+    Cluster = Ctx#ctx.cluster,
     set_response(RD, Ctx, buckets,
-        re_riak:list_buckets_cache(Node, BucketType, Ctx#ctx.start, Ctx#ctx.rows));
+        re_riak:list_buckets_cache(Cluster, Node, BucketType, Ctx#ctx.start, Ctx#ctx.rows));
 resource_exists(RD, Ctx=?listBuckets(Node, BucketType, Sort)) ->
     Options = [{sort, Sort}],
     JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "refresh_buckets") - 1) ++ "jobs",
+    Cluster = Ctx#ctx.cluster,
     re_wm_util:set_jobs_response(RD, Ctx, JobsPath,
-        re_riak:list_buckets(Node, BucketType, Options));
+        re_riak:list_buckets(Cluster, Node, BucketType, Options));
 resource_exists(RD, Ctx=?deleteBucket(Node, BucketType, Bucket)) ->
     JobsPath = wrq:path(RD) ++ "/jobs",
+    Cluster = Ctx#ctx.cluster,
     re_wm_util:set_jobs_response(RD, Ctx, JobsPath,
-        re_riak:delete_bucket(Node, BucketType, Bucket));
+        re_riak:delete_bucket(Cluster, Node, BucketType, Bucket));
 resource_exists(RD, Ctx=?bucketInfo(_Node, _BucketType, Bucket)) ->
     Id = list_to_binary(Bucket),
     Response = [{buckets, [{id,Id}, {props, []}]}],
@@ -167,16 +171,18 @@ provide_japi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
 %% ====================================================================
 
 write_cache_json(RD, Ctx, Node, BucketType) ->
+    Cluster = Ctx#ctx.cluster,
     RawValue = wrq:req_body(RD),
     {struct, [{<<"buckets">>, Buckets}]} = mochijson2:decode(RawValue),
-    re_riak:put_buckets(Node, BucketType, Buckets),
+    re_riak:put_buckets(Cluster, Node, BucketType, Buckets),
     {true, RD, Ctx}.
 
 write_cache_text(RD, Ctx, Node, BucketType) ->
+    Cluster = Ctx#ctx.cluster,
     RawValue = binary_to_list(wrq:req_body(RD)),
     BucketsStr = string:tokens(RawValue, "\n"),
     Buckets = lists:map(fun(B) -> list_to_binary(B) end, BucketsStr),
-    re_riak:put_buckets(Node, BucketType, Buckets),
+    re_riak:put_buckets(Cluster, Node, BucketType, Buckets),
     {true, RD, Ctx}.
 
 set_response(RD, Ctx, Id, Response) ->

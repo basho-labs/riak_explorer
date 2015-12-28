@@ -24,6 +24,7 @@
          data_dir/0,
          resources/0,
          dispatch/0,
+         is_standalone/0,
          development_mode/1,
          routes/0,
          props/0,
@@ -83,7 +84,11 @@ resources() ->
 dispatch() -> lists:flatten(dispatch(resources(), [])).
 
 development_mode(Cluster) ->
-    proplists:get_value(development_mode, cluster(Cluster)).
+    case proplists:get_value(development_mode, cluster(Cluster)) of
+        true -> true;
+        false -> false;
+        _ -> true
+    end.
 
 props() ->
     props_to_bin(application:get_all_env(riak_explorer), []).
@@ -138,12 +143,7 @@ url(Ip, Port) ->
 clusters() ->
     case default_cluster_exists() of
         true ->
-            DefNode = case is_standalone() of
-                true -> "riak@127.0.0.1";
-                false -> atom_to_list(node())
-            end,
-            Def = [{default,[{riak_node,DefNode},
-                   {development_mode,true}]}],
+            Def = [{default,default_cluster_config()}],
             application:get_env(riak_explorer, clusters, Def);
         _ ->
             proplists:delete(default, application:get_env(riak_explorer, clusters, []))
@@ -165,6 +165,15 @@ default_cluster_exists() ->
         false -> true
     end.
 
+default_cluster_config() ->
+    DefNode = case is_standalone() of
+        true -> "riak@127.0.0.1";
+        false -> atom_to_list(node())
+    end,
+    [{riak_node,DefNode}, {development_mode,true}].
+
+cluster(undefined) ->
+    default_cluster_config();
 cluster(Cluster) ->
     proplists:get_value(Cluster, clusters(), [{error, not_found}]).
 
@@ -228,9 +237,9 @@ props_to_bin([{Name, Value} | Rest], Accum) ->
     props_to_bin(Rest, [{Name, Value} | Accum]).
 
 is_standalone() ->
-    case code:is_loaded(riak_core) of
-        false -> true;
-        _ -> false
+    case code:ensure_loaded(riak_core) of
+        {module,riak_core} -> false;
+        _ -> true
     end.
 
 build_routes(_, [], _, Acc) ->
