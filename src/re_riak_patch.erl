@@ -20,6 +20,7 @@
 
 -module(re_riak_patch).
 -export([
+  is_enterprise/0,
   version/0,
   bucket_type_create/1,
   bucket_type_activate/1,
@@ -39,8 +40,14 @@
 %%% API
 %%%===================================================================
 
+is_enterprise() ->
+    case code:ensure_loaded(riak_repl_console) of
+        {module,riak_repl_console} -> true;
+        _ -> false
+    end.
+
 %% Increment this when code changes
-version() -> 9.
+version() -> 10.
 
 bucket_type_print_status(Type, undefined) ->
     [{error, format, [{error, list_to_binary(io_lib:format("~ts is not an existing bucket type", [Type]))}]}];

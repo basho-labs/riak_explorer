@@ -24,6 +24,7 @@
          data_dir/0,
          resources/0,
          dispatch/0,
+         is_standalone/0,
          development_mode/1,
          routes/0,
          props/0,
@@ -228,9 +229,9 @@ props_to_bin([{Name, Value} | Rest], Accum) ->
     props_to_bin(Rest, [{Name, Value} | Accum]).
 
 is_standalone() ->
-    case code:is_loaded(riak_core) of
-        false -> true;
-        _ -> false
+    case code:ensure_loaded(riak_core) of
+        {module,riak_core} -> false;
+        _ -> true
     end.
 
 build_routes(_, [], _, Acc) ->

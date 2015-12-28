@@ -380,7 +380,8 @@ aae_status(Node) ->
 %%% Control -- Riak Repl API
 %%%===================================================================
 ensure_repl_available(Node) ->
-    case remote(Node, code, is_loaded, [riak_repl_console]) of
+    load_patch(Node),
+    case remote(Node, re_riak_patch, is_enterprise, []) of
         false -> throw(not_implemented);
         _ -> ok
     end.
@@ -768,9 +769,10 @@ node_config(_, Node) ->
     end.
 
 riak_type(Node) ->
-    case remote(Node, code, is_loaded, [riak_repl_console]) of
+    load_patch(Node),
+    case remote(Node, re_riak_patch, is_enterprise, []) of
         false -> oss;
-        {file, _} -> ee;
+        true -> ee;
         Other when is_atom(Other) -> Other;
         _ -> oss
     end.
@@ -903,7 +905,8 @@ node_exists(Cluster, Node) ->
 %%%===================================================================
 
 load_patch(Node) ->
-    IsLoaded = remote(Node, code, is_loaded, [re_riak_patch]),
+
+    IsLoaded = remote(Node, code, ensure_loaded, [re_riak_patch]),
     maybe_load_patch(Node, IsLoaded).
 
 remote(N, M, F, A) ->
@@ -944,18 +947,18 @@ bucket_type_action(Node, BucketType, RawValue, [update|Rest], Accum) ->
         U -> bucket_type_action(Node, BucketType, RawValue, Rest, [{update, U}|Accum])
     end.
 
-maybe_load_patch(Node, false) ->
-    lager:info("Loading re_riak_patch module into node[~p].", [Node]),
-    {Mod, Bin, _} = code:get_object_code(re_riak_patch),
-    remote(Node, code, load_binary, [Mod, "/tmp/re_riak_patch.beam", Bin]);
-maybe_load_patch(Node, _) ->
+maybe_load_patch(Node, {module,re_riak_patch}) ->
     LocalVersion = re_riak_patch:version(),
     RemoteVersion = remote(Node, re_riak_patch, version, []),
     lager:info("Found version ~p of re_riak_patch on node[~p], current version is ~p.", [RemoteVersion, Node, LocalVersion]),
     case LocalVersion == RemoteVersion of
         false -> maybe_load_patch(Node, false);
         _ -> ok
-    end.
+    end;
+maybe_load_patch(Node, _) ->
+    lager:info("Loading re_riak_patch module into node[~p].", [Node]),
+    {Mod, Bin, _} = code:get_object_code(re_riak_patch),
+    remote(Node, code, load_binary, [Mod, "/tmp/re_riak_patch.beam", Bin]).
 
 safe_rpc(Node, Module, Function, Args, Timeout) ->
     try rpc:call(Node, Module, Function, Args, Timeout) of
