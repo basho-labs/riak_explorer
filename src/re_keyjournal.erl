@@ -32,107 +32,88 @@
 %%% API
 %%%===================================================================
 
-cache_for_each({Operation, Node, Path}, Fun, Mode, InitAccum) ->
-    case re_riak:cluster_id_for_node(Node) of
-        [{error, not_found}] -> [{error, not_found}];
-        Cluster ->
-            Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
-            {ok, Files} = file:list_dir(Dir),
-            case Files of
-               [File|_] ->
-                  DirFile = filename:join([Dir, File]),
-                  re_file_util:for_each_line_in_file(DirFile,Fun, Mode, InitAccum);
-               [] -> [{error, not_found}]
-            end
+cache_for_each({Operation, Cluster, _Node, Path}, Fun, Mode, InitAccum) ->
+
+    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+    {ok, Files} = file:list_dir(Dir),
+    case Files of
+       [File|_] ->
+          DirFile = filename:join([Dir, File]),
+          re_file_util:for_each_line_in_file(DirFile,Fun, Mode, InitAccum);
+       [] -> [{error, not_found}]
+   end.
+
+clean({Operation, Cluster, _Node, Path}) ->
+    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+    {ok, Files} = file:list_dir(Dir),
+
+    case Files of
+        [] ->
+            [{error, not_found}];
+        _ ->
+            lists:foreach(fun(File) ->
+                DirFile = filename:join([Dir, File]),
+                file:delete(DirFile)
+            end, Files),
+            ok
     end.
 
-clean({Operation, Node, Path}) ->
-   case re_riak:cluster_id_for_node(Node) of
-       [{error, not_found}] -> [{error, not_found}];
-       Cluster ->
-           Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
-           {ok, Files} = file:list_dir(Dir),
-
-           case Files of
-                [] ->
-                    [{error, not_found}];
-                _ ->
-                    lists:foreach(fun(File) ->
-                        DirFile = filename:join([Dir, File]),
-                        file:delete(DirFile)
-                    end, Files),
-                    ok
-           end
+read_cache({Operation, Cluster, _Node, Path}, Start, Rows) ->
+    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+    {ok, Files} = file:list_dir(Dir),
+    case Files of
+        [File|_] ->
+            DirFile = filename:join([Dir, File]),
+            {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows - 1),
+            [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(timestamp_human(File))},{Operation, Entries}]}];
+        [] -> [{error, not_found}]
     end.
 
-read_cache({Operation, Node, Path}, Start, Rows) ->
-   case re_riak:cluster_id_for_node(Node) of
-       [{error, not_found}] -> [{error, not_found}];
-       Cluster ->
-           Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
-           {ok, Files} = file:list_dir(Dir),
-           case Files of
-              [File|_] ->
-                 DirFile = filename:join([Dir, File]),
-                 {Total, ResultCount, _S, _E, Entries} = entries_from_file(DirFile, Start - 1, Rows - 1),
-                 [{Operation, [{total, Total},{count, ResultCount},{created, list_to_binary(timestamp_human(File))},{Operation, Entries}]}];
-              [] -> [{error, not_found}]
-           end
-    end.
-
-write({Operation, _, _}=Meta, Options) ->
+write({Operation, _, _, _}=Meta, Options) ->
    re_job_manager:create(Operation, {?MODULE, handle_list, [Meta, Options]}).
 
-write_cache({Operation, Node, Path}, Objects) ->
-   case re_riak:cluster_id_for_node(Node) of
-       [{error, not_found}] -> [{error, not_found}];
-       Cluster ->
-           Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
-           {ok, Files} = file:list_dir(Dir),
-           DirFile = case Files of
-              [File|_] -> filename:join([Dir, File]);
-              [] -> filename:join([Dir, timestamp_string()])
-           end,
+write_cache({Operation, Cluster, _Node, Path}, Objects) ->
+    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+    {ok, Files} = file:list_dir(Dir),
+    DirFile = case Files of
+        [File|_] -> filename:join([Dir, File]);
+        [] -> filename:join([Dir, timestamp_string()])
+    end,
 
-           {ok, Device} = file:open(DirFile, [append]),
-           update_cache(Objects, Device),
-           file:close(Device),
-           ok
-    end.
+    {ok, Device} = file:open(DirFile, [append]),
+    update_cache(Objects, Device),
+    file:close(Device),
+    ok.
 
 %%%===================================================================
 %%% Callbacks
 %%%===================================================================
 
-handle_list({buckets, Node, [BucketType]}=Meta, Options) ->
+handle_list({buckets, _Cluster, Node, [BucketType]}=Meta, Options) ->
    C = re_riak:client(Node),
    Stream = riakc_pb_socket:stream_list_buckets(C, list_to_binary(BucketType)),
    handle_stream(Meta, Stream, Options);
-handle_list({keys, Node, [BucketType, Bucket]}=Meta, Options) ->
+handle_list({keys, _Cluster, Node, [BucketType, Bucket]}=Meta, Options) ->
    C = re_riak:client(Node),
    B = {list_to_binary(BucketType), list_to_binary(Bucket)},
    Stream = riakc_pb_socket:stream_list_keys(C, B),
    handle_stream(Meta, Stream, Options).
 
-handle_stream({Operation, Node, Path}=Meta, {ok, ReqId}, Options) ->
-   case re_riak:cluster_id_for_node(Node) of
-       [{error, not_found}] -> [{error, not_found}];
-       Cluster ->
-           Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
-           TimeStamp = timestamp_string(),
-           Filename = filename:join([Dir, TimeStamp]),
-           file:write_file(Filename, "", [write]),
-           clean(Meta),
-           lager:info("list started for file: ~p at: ~p", [Filename, TimeStamp]),
-           {ok, Device} = file:open(Filename, [append]),
-           write_loop(Meta, ReqId, Device, 0),
-           handle_stream_finished(Meta, Filename, Options)
-    end;
-handle_stream({Operation, _Node, Path}, Error, _) ->
+handle_stream({Operation, Cluster, _Node, Path}=Meta, {ok, ReqId}, Options) ->
+    Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
+    TimeStamp = timestamp_string(),
+    Filename = filename:join([Dir, TimeStamp]),
+    file:write_file(Filename, "", [write]),
+    clean(Meta),
+    lager:info("list started for file: ~p at: ~p", [Filename, TimeStamp]),
+    {ok, Device} = file:open(Filename, [append]),
+    write_loop(Meta, ReqId, Device, 0),
+    handle_stream_finished(Meta, Filename, Options);
+handle_stream({Operation, _Cluster, _Node, Path}, Error, _) ->
    re_job_manager:finish(Operation),
    lager:error(atom_to_list(Operation) ++ " list failed for path: ~p with reason: ~p", [Path, Error]).
 
-handle_stream_finished({Operation, _, _}, Filename, Options) ->
+handle_stream_finished({Operation, _, _, _}, Filename, Options) ->
     case proplists:get_value(sort, Options, true) of
         true -> sort_file(Filename);
         _ -> ok
@@ -148,7 +129,7 @@ sort_file(Filename) ->
     NewFile = string:join(SortedLines, io_lib:nl()),
     file:write_file(Filename, NewFile, [write]).
 
-write_loop({Operation, _,_}=Meta, ReqId, Device, Count) ->
+write_loop({Operation, _,_,_}=Meta, ReqId, Device, Count) ->
     receive
         {ReqId, done} ->
             lager:info("list finished for file with ~p", [{count, Count}]),

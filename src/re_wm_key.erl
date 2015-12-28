@@ -110,16 +110,19 @@ resource_exists(RD, Ctx=?noNode(Error)) ->
 resource_exists(RD, Ctx=?putKeys(_Node, _BucketType, _Bucket)) ->
     {true, RD, Ctx};
 resource_exists(RD, Ctx=?cleanKeys(Node, BucketType, Bucket)) ->
-    re_riak:clean_keys(Node, BucketType, Bucket),
+    Cluster = Ctx#ctx.cluster,
+    re_riak:clean_keys(Cluster, Node, BucketType, Bucket),
     {true, RD, Ctx};
 resource_exists(RD, Ctx=?listKeysCache(Node, BucketType, Bucket)) ->
+    Cluster = Ctx#ctx.cluster,
     set_response(RD, Ctx, keys,
-        re_riak:list_keys_cache(Node, BucketType, Bucket, Ctx#ctx.start, Ctx#ctx.rows));
+        re_riak:list_keys_cache(Cluster, Node, BucketType, Bucket, Ctx#ctx.start, Ctx#ctx.rows));
 resource_exists(RD, Ctx=?listKeys(Node, BucketType, Bucket, Sort)) ->
+    Cluster = Ctx#ctx.cluster,
     Options = [{sort, Sort}],
     JobsPath = string:substr(wrq:path(RD),1, string:str(wrq:path(RD), "refresh_keys") - 1) ++ "jobs",
     re_wm_util:set_jobs_response(RD, Ctx, JobsPath,
-        re_riak:list_keys(Node, BucketType, Bucket, Options));
+        re_riak:list_keys(Cluster, Node, BucketType, Bucket, Options));
 resource_exists(RD, Ctx) ->
     {false, RD, Ctx}.
 
@@ -143,16 +146,18 @@ provide_japi_content(RD, Ctx=#ctx{id=Id, response=Response}) ->
 %% ====================================================================
 
 write_cache_json(RD, Ctx, Node, BucketType, Bucket) ->
+    Cluster = Ctx#ctx.cluster,
     RawValue = wrq:req_body(RD),
     {struct, [{<<"keys">>, Keys}]} = mochijson2:decode(RawValue),
-    re_riak:put_keys(Node, BucketType, Bucket, Keys),
+    re_riak:put_keys(Cluster, Node, BucketType, Bucket, Keys),
     {true, RD, Ctx}.
 
 write_cache_text(RD, Ctx, Node, BucketType, Bucket) ->
+    Cluster = Ctx#ctx.cluster,
     RawValue = binary_to_list(wrq:req_body(RD)),
     KeysStr = string:tokens(RawValue, "\n"),
     Keys = lists:map(fun(B) -> list_to_binary(B) end, KeysStr),
-    re_riak:put_keys(Node, BucketType, Bucket, Keys),
+    re_riak:put_keys(Cluster, Node, BucketType, Bucket, Keys),
     {true, RD, Ctx}.
 
 set_response(RD, Ctx, Id, Response) ->
