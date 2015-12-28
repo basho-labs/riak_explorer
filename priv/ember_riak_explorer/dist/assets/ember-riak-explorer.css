@@ -6457,7 +6457,7 @@ p:last-child {
 
 .riak-object .object-contents-info {
   float: left;
-  font-family: Consolas,"Liberation Mono",Courier,monospace;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
   font-size: 12px; }
 
 .riak-object .object-contents-body {
@@ -6471,7 +6471,7 @@ p:last-child {
   border-bottom-right-radius: 2px;
   padding: 5px 10px;
   line-height: 30px;
-  font-family: Consolas,"Liberation Mono",Courier,monospace;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
   font-size: 11px; }
 
 .riak-object .value-counter {
@@ -6584,7 +6584,8 @@ p:last-child {
     display: inline-block;
     cursor: pointer;
     font-weight: bold;
-    color: #E67716; }
+    color: #E67716;
+    border: none; }
     .em-tabs .em-tab-list .em-tab[active=true] {
       cursor: default;
       color: #333333;
@@ -6638,6 +6639,11 @@ pre.editable {
   background: #FFF;
   border-color: #000;
   border-radius: 0px; }
+
+.code-list {
+  margin-bottom: 20px; }
+  .code-list li {
+    margin-bottom: 5px; }
 
 .object-counter-container .counter-value {
   font-size: 24px; }
