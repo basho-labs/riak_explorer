@@ -11,6 +11,22 @@ The `/explore` set of endpoints serves as an enhancement to
 Riak's own HTTP API, and fills in missing data browsing and
 management functionality.
 
+## Explorer Ping [/explore/ping]
+## Get Ping Result [GET]
+Perform an HTTP Ping, to ensure the Explorer service is up and running.
+
++ Response 200 (application/json)
+
+        {
+            "ping": {
+                "id": "ping",
+                "message": "pong"
+            },
+            "links": {
+                "self": "/explore/ping"
+            }
+        }
+
 ## Clusters Collection [/explore/clusters/]
 
 ### List All Clusters [GET]
