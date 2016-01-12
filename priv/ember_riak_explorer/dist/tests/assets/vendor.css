@@ -1,0 +1,117 @@
+/*
+
+Original highlight.js style (c) Ivan Sagalaev <maniac@softwaremaniacs.org>
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: #F0F0F0;
+}
+
+.hljs,
+.hljs-subst {
+  color: #444;
+}
+
+.hljs-keyword,
+.hljs-attribute,
+.hljs-selector-tag,
+.hljs-meta-keyword,
+.hljs-doctag,
+.hljs-name {
+  font-weight: bold;
+}
+
+.hljs-built_in,
+.hljs-literal,
+.hljs-bullet,
+.hljs-code,
+.hljs-addition {
+  color: #1F811F;
+}
+
+.hljs-regexp,
+.hljs-symbol,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-link,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: #BC6060;
+}
+
+.hljs-type,
+.hljs-string,
+.hljs-number,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-quote,
+.hljs-template-tag,
+.hljs-deletion {
+  color: #880000;
+}
+
+.hljs-title,
+.hljs-section {
+  color: #880000;
+  font-weight: bold;
+}
+
+.hljs-comment {
+  color: #888888;
+}
+
+.hljs-meta {
+  color: #2B6EA1;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+[contenteditable=true]:empty:not(:focus):before {
+  content: attr(placeholder);
+}
+
+[contenteditable=true] {
+  cursor: text;
+}
+
+.ember-content-editable:empty {
+  color: #a9a9a9;
+}
+
+.ember-content-editable:empty:after {
+  content: "\0000a0";
+}
+
+.em-tabs, .em-tab-list, .em-tab-panel {
+  display: block;
+}
+
+.em-tab-list {
+  border-bottom: 1px solid #eee;
+}
+
+.em-tab {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  cursor: pointer;
+  margin-bottom: -1px;
+  position: relative;
+}
+
+.em-tab[active=true] {
+  border-color: #eee;
+  border-bottom-color: #fff;
+}
