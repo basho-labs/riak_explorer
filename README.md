@@ -1,5 +1,7 @@
 # Riak Explorer
 
+[![Join the chat at https://gitter.im/basho-labs/riak_explorer](https://badges.gitter.im/basho-labs/riak_explorer.svg)](https://gitter.im/basho-labs/riak_explorer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Riak Explorer provides browsing and admin capabilities for [Riak
 KV](http://basho.com/products/riak-kv/), a distributed NoSQL key-value data
 store that offers high availability, fault tolerance, operational simplicity,
