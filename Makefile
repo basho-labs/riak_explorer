@@ -3,6 +3,7 @@ ERLANG_BIN       = $(shell dirname $(shell which erl))
 REBAR           ?= $(BASE_DIR)/rebar
 BUILD_DIR ?= _build
 OVERLAY_VARS    ?=
+RIAK_BASE        ?= root/riak
 
 .PHONY: deps
 
@@ -40,6 +41,15 @@ riak-addon:
 	cp -R deps/riakc/ebin/* rel/riak-addon/ebin/
 	cp -R ebin/* rel/riak-addon/ebin/
 	cp -R priv/* rel/riak-addon/priv/
+
+riak-package: compile
+	-rm -rf rel/$(RIAK_BASE)
+	mkdir -p rel/$(RIAK_BASE)/lib/basho-patches
+	mkdir -p rel/$(RIAK_BASE)/priv
+	cp -R deps/riakc/ebin/* rel/$(RIAK_BASE)/lib/basho-patches/
+	cp -R ebin/* rel/$(RIAK_BASE)/lib/basho-patches/
+	cp -R priv/* rel/$(RIAK_BASE)/priv/
+	cd rel && tar -czf riak-explorer.tar.gz root # creates rel/riak-explorer.tar.gz
 
 # Build steps for posterity
 ## From riak_explorer
