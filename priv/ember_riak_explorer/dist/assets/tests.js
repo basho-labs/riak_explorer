@@ -830,13 +830,13 @@ define('ember-riak-explorer/tests/integration/components/pagination-component-te
     assert.ok(true, 'integration/components/pagination-component-test.js should pass jshint.');
   });
 });
-define('ember-riak-explorer/tests/mixins/sidebar-select.jshint', ['exports'], function (exports) {
+define('ember-riak-explorer/tests/mixins/wrapper-state.jshint', ['exports'], function (exports) {
   'use strict';
 
   QUnit.module('JSHint - mixins');
-  QUnit.test('mixins/sidebar-select.js should pass jshint', function (assert) {
+  QUnit.test('mixins/wrapper-state.js should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'mixins/sidebar-select.js should pass jshint.');
+    assert.ok(true, 'mixins/wrapper-state.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/models/bucket-list.jshint', ['exports'], function (exports) {
@@ -1352,13 +1352,13 @@ define('ember-riak-explorer/tests/routes/error/unknown.jshint', ['exports'], fun
     assert.ok(true, 'routes/error/unknown.js should pass jshint.');
   });
 });
-define('ember-riak-explorer/tests/routes/explorer-api.jshint', ['exports'], function (exports) {
+define('ember-riak-explorer/tests/routes/help.jshint', ['exports'], function (exports) {
   'use strict';
 
   QUnit.module('JSHint - routes');
-  QUnit.test('routes/explorer-api.js should pass jshint', function (assert) {
+  QUnit.test('routes/help.js should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'routes/explorer-api.js should pass jshint.');
+    assert.ok(true, 'routes/help.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/routes/index.jshint', ['exports'], function (exports) {
@@ -1615,24 +1615,24 @@ define('ember-riak-explorer/tests/unit/controllers/application-test.jshint', ['e
     assert.ok(true, 'unit/controllers/application-test.js should pass jshint.');
   });
 });
-define('ember-riak-explorer/tests/unit/mixins/sidebar-select-test', ['exports', 'ember', 'ember-riak-explorer/mixins/sidebar-select', 'qunit'], function (exports, _ember, _emberRiakExplorerMixinsSidebarSelect, _qunit) {
+define('ember-riak-explorer/tests/unit/mixins/wrapper-state-test', ['exports', 'ember', 'ember-riak-explorer/mixins/wrapper-state', 'qunit'], function (exports, _ember, _emberRiakExplorerMixinsWrapperState, _qunit) {
 
-  (0, _qunit.module)('Unit | Mixin | sidebar select');
+  (0, _qunit.module)('Unit | Mixin | wrapper state');
 
   // Replace this with your real tests.
   (0, _qunit.test)('it works', function (assert) {
-    var SidebarSelectObject = _ember['default'].Object.extend(_emberRiakExplorerMixinsSidebarSelect['default']);
+    var SidebarSelectObject = _ember['default'].Object.extend(_emberRiakExplorerMixinsWrapperState['default']);
     var subject = SidebarSelectObject.create();
     assert.ok(subject);
   });
 });
-define('ember-riak-explorer/tests/unit/mixins/sidebar-select-test.jshint', ['exports'], function (exports) {
+define('ember-riak-explorer/tests/unit/mixins/wrapper-state-test.jshint', ['exports'], function (exports) {
   'use strict';
 
   QUnit.module('JSHint - unit/mixins');
-  QUnit.test('unit/mixins/sidebar-select-test.js should pass jshint', function (assert) {
+  QUnit.test('unit/mixins/wrapper-state-test.js should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'unit/mixins/sidebar-select-test.js should pass jshint.');
+    assert.ok(true, 'unit/mixins/wrapper-state-test.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/unit/models/bucket-list-test', ['exports', 'ember-qunit', 'ember'], function (exports, _emberQunit, _ember) {
@@ -2453,6 +2453,27 @@ define('ember-riak-explorer/tests/unit/models/search-schema-test.jshint', ['expo
   QUnit.test('unit/models/search-schema-test.js should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/models/search-schema-test.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/unit/routes/help-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('route:help', 'Unit | Route | help', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var route = this.subject();
+    assert.ok(route);
+  });
+});
+define('ember-riak-explorer/tests/unit/routes/help-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/routes');
+  QUnit.test('unit/routes/help-test.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/routes/help-test.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/unit/serializers/config-file-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
