@@ -23,8 +23,10 @@ itest: recompile cleantest
 	INTEGRATION_TEST=true $(REBAR) skip_deps=true eunit
 reitest: cleantest
 	INTEGRATION_TEST=true $(REBAR) skip_deps=true eunit
+clean: relclean
 relclean:
-	rm -rf rel/riak_explorer
+	-rm -rf rel/riak_explorer
+	-rm -rf rel/root
 rel: relclean deps compile
 	$(REBAR) compile
 	$(REBAR) skip_deps=true generate $(OVERLAY_VARS)
