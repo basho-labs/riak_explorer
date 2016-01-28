@@ -178,6 +178,24 @@ define('ember-riak-explorer/tests/components/code-highlighter.jshint', ['exports
     assert.ok(true, 'components/code-highlighter.js should pass jshint.');
   });
 });
+define('ember-riak-explorer/tests/components/dashboard-module-body.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components');
+  QUnit.test('components/dashboard-module-body.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/dashboard-module-body.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/dashboard-module-header.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components');
+  QUnit.test('components/dashboard-module-header.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/dashboard-module-header.js should pass jshint.');
+  });
+});
 define('ember-riak-explorer/tests/components/dashboard-module.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -239,6 +257,51 @@ define('ember-riak-explorer/tests/components/loading-spinner.jshint', ['exports'
   QUnit.test('components/loading-spinner.js should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'components/loading-spinner.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/map-contents.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components');
+  QUnit.test('components/map-contents.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/map-contents.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/map-sub-map.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components');
+  QUnit.test('components/map-sub-map.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/map-sub-map.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/map-sub-section.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components');
+  QUnit.test('components/map-sub-section.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/map-sub-section.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/map-sub-set.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components');
+  QUnit.test('components/map-sub-set.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/map-sub-set.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/maps-list.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components');
+  QUnit.test('components/maps-list.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/maps-list.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/components/nav-cluster-link.jshint', ['exports'], function (exports) {
@@ -691,6 +754,282 @@ define('ember-riak-explorer/tests/initializers/explorer.jshint', ['exports'], fu
     assert.ok(true, 'initializers/explorer.js should pass jshint.');
   });
 });
+define('ember-riak-explorer/tests/integration/components/dashboard-module-body-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleForComponent)('dashboard-module-body', 'Integration | Component | dashboard module body', {
+    integration: true
+  });
+
+  (0, _emberQunit.test)('it renders', function (assert) {
+
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });" + EOL + EOL +
+
+    this.render(Ember.HTMLBars.template((function () {
+      return {
+        meta: {
+          'revision': 'Ember@1.13.11',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 1,
+              'column': 25
+            }
+          }
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          dom.insertBoundary(fragment, null);
+          return morphs;
+        },
+        statements: [['content', 'dashboard-module-body', ['loc', [null, [1, 0], [1, 25]]]]],
+        locals: [],
+        templates: []
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), '');
+
+    // Template block usage:" + EOL +
+    this.render(Ember.HTMLBars.template((function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            'revision': 'Ember@1.13.11',
+            'loc': {
+              'source': null,
+              'start': {
+                'line': 2,
+                'column': 4
+              },
+              'end': {
+                'line': 4,
+                'column': 4
+              }
+            }
+          },
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode('      template block text\n');
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() {
+            return [];
+          },
+          statements: [],
+          locals: [],
+          templates: []
+        };
+      })();
+
+      return {
+        meta: {
+          'revision': 'Ember@1.13.11',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 5,
+              'column': 2
+            }
+          }
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode('\n');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode('  ');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [['block', 'dashboard-module-body', [], [], 0, null, ['loc', [null, [2, 4], [4, 30]]]]],
+        locals: [],
+        templates: [child0]
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), 'template block text');
+  });
+});
+define('ember-riak-explorer/tests/integration/components/dashboard-module-body-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - integration/components');
+  QUnit.test('integration/components/dashboard-module-body-test.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'integration/components/dashboard-module-body-test.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/integration/components/dashboard-module-header-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleForComponent)('dashboard-module-header', 'Integration | Component | dashboard module header', {
+    integration: true
+  });
+
+  (0, _emberQunit.test)('it renders', function (assert) {
+
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });" + EOL + EOL +
+
+    this.render(Ember.HTMLBars.template((function () {
+      return {
+        meta: {
+          'revision': 'Ember@1.13.11',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 1,
+              'column': 27
+            }
+          }
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          dom.insertBoundary(fragment, null);
+          return morphs;
+        },
+        statements: [['content', 'dashboard-module-header', ['loc', [null, [1, 0], [1, 27]]]]],
+        locals: [],
+        templates: []
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), '');
+
+    // Template block usage:" + EOL +
+    this.render(Ember.HTMLBars.template((function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            'revision': 'Ember@1.13.11',
+            'loc': {
+              'source': null,
+              'start': {
+                'line': 2,
+                'column': 4
+              },
+              'end': {
+                'line': 4,
+                'column': 4
+              }
+            }
+          },
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode('      template block text\n');
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() {
+            return [];
+          },
+          statements: [],
+          locals: [],
+          templates: []
+        };
+      })();
+
+      return {
+        meta: {
+          'revision': 'Ember@1.13.11',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 5,
+              'column': 2
+            }
+          }
+        },
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode('\n');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode('  ');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [['block', 'dashboard-module-header', [], [], 0, null, ['loc', [null, [2, 4], [4, 32]]]]],
+        locals: [],
+        templates: [child0]
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), 'template block text');
+  });
+});
+define('ember-riak-explorer/tests/integration/components/dashboard-module-header-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - integration/components');
+  QUnit.test('integration/components/dashboard-module-header-test.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'integration/components/dashboard-module-header-test.js should pass jshint.');
+  });
+});
 define('ember-riak-explorer/tests/integration/components/pagination-component-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
 
   (0, _emberQunit.moduleForComponent)('pagination-component', 'Integration | Component | pagination component', {
@@ -830,13 +1169,13 @@ define('ember-riak-explorer/tests/integration/components/pagination-component-te
     assert.ok(true, 'integration/components/pagination-component-test.js should pass jshint.');
   });
 });
-define('ember-riak-explorer/tests/mixins/sidebar-select.jshint', ['exports'], function (exports) {
+define('ember-riak-explorer/tests/mixins/wrapper-state.jshint', ['exports'], function (exports) {
   'use strict';
 
   QUnit.module('JSHint - mixins');
-  QUnit.test('mixins/sidebar-select.js should pass jshint', function (assert) {
+  QUnit.test('mixins/wrapper-state.js should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'mixins/sidebar-select.js should pass jshint.');
+    assert.ok(true, 'mixins/wrapper-state.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/models/bucket-list.jshint', ['exports'], function (exports) {
@@ -1352,13 +1691,13 @@ define('ember-riak-explorer/tests/routes/error/unknown.jshint', ['exports'], fun
     assert.ok(true, 'routes/error/unknown.js should pass jshint.');
   });
 });
-define('ember-riak-explorer/tests/routes/explorer-api.jshint', ['exports'], function (exports) {
+define('ember-riak-explorer/tests/routes/help.jshint', ['exports'], function (exports) {
   'use strict';
 
   QUnit.module('JSHint - routes');
-  QUnit.test('routes/explorer-api.js should pass jshint', function (assert) {
+  QUnit.test('routes/help.js should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'routes/explorer-api.js should pass jshint.');
+    assert.ok(true, 'routes/help.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/routes/index.jshint', ['exports'], function (exports) {
@@ -1615,24 +1954,24 @@ define('ember-riak-explorer/tests/unit/controllers/application-test.jshint', ['e
     assert.ok(true, 'unit/controllers/application-test.js should pass jshint.');
   });
 });
-define('ember-riak-explorer/tests/unit/mixins/sidebar-select-test', ['exports', 'ember', 'ember-riak-explorer/mixins/sidebar-select', 'qunit'], function (exports, _ember, _emberRiakExplorerMixinsSidebarSelect, _qunit) {
+define('ember-riak-explorer/tests/unit/mixins/wrapper-state-test', ['exports', 'ember', 'ember-riak-explorer/mixins/wrapper-state', 'qunit'], function (exports, _ember, _emberRiakExplorerMixinsWrapperState, _qunit) {
 
-  (0, _qunit.module)('Unit | Mixin | sidebar select');
+  (0, _qunit.module)('Unit | Mixin | wrapper state');
 
   // Replace this with your real tests.
   (0, _qunit.test)('it works', function (assert) {
-    var SidebarSelectObject = _ember['default'].Object.extend(_emberRiakExplorerMixinsSidebarSelect['default']);
+    var SidebarSelectObject = _ember['default'].Object.extend(_emberRiakExplorerMixinsWrapperState['default']);
     var subject = SidebarSelectObject.create();
     assert.ok(subject);
   });
 });
-define('ember-riak-explorer/tests/unit/mixins/sidebar-select-test.jshint', ['exports'], function (exports) {
+define('ember-riak-explorer/tests/unit/mixins/wrapper-state-test.jshint', ['exports'], function (exports) {
   'use strict';
 
   QUnit.module('JSHint - unit/mixins');
-  QUnit.test('unit/mixins/sidebar-select-test.js should pass jshint', function (assert) {
+  QUnit.test('unit/mixins/wrapper-state-test.js should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'unit/mixins/sidebar-select-test.js should pass jshint.');
+    assert.ok(true, 'unit/mixins/wrapper-state-test.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/unit/models/bucket-list-test', ['exports', 'ember-qunit', 'ember'], function (exports, _emberQunit, _ember) {
@@ -2453,6 +2792,27 @@ define('ember-riak-explorer/tests/unit/models/search-schema-test.jshint', ['expo
   QUnit.test('unit/models/search-schema-test.js should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/models/search-schema-test.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/unit/routes/help-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('route:help', 'Unit | Route | help', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var route = this.subject();
+    assert.ok(route);
+  });
+});
+define('ember-riak-explorer/tests/unit/routes/help-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/routes');
+  QUnit.test('unit/routes/help-test.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/routes/help-test.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/unit/serializers/config-file-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
