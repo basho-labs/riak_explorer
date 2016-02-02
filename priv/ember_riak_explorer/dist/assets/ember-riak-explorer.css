@@ -7252,15 +7252,9 @@ p:last-child {
     -moz-flex: none;
     -ms-flex: none;
     flex: none;
-<<<<<<< HEAD
-    background-color: rgba(0, 0, 0, 0.03);
-    border-bottom: 1px solid #E4E4E4;
-    padding: 20px 40px; }
-=======
     border-bottom: 1px solid #E4E4E4;
     padding: 20px 40px;
     height: 98px; }
->>>>>>> 60c587075f1a82a977fab0da200ba218956416d7
   .results-panel .view-body {
     -webkit-box-flex: 1;
     -webkit-flex: 1;
@@ -7269,13 +7263,9 @@ p:last-child {
     -ms-flex: 1;
     flex: 1;
     height: 100%;
-<<<<<<< HEAD
-    overflow-y: auto; }
-=======
     overflow-y: auto;
     background-color: rgba(0, 0, 0, 0.03);
     position: relative; }
->>>>>>> 60c587075f1a82a977fab0da200ba218956416d7
 
 .legacy-map-styling th {
   background: #FFF; }
