@@ -60,16 +60,15 @@ sync-standalone:
 		s3cmd put --acl-public $(PKGNAME) s3://$(DEPLOY_BASE) && \
 		s3cmd put --acl-public $(PKGNAME).sha s3://$(DEPLOY_BASE)
 
-export PKGNAME = $(REPO)-patch-$(PKG_VERSION)-$(ARCH).tar.gz
-RIAK_BASE     ?= root/riak
+RIAK_BASE     ?= root
 tarball: compile
 	echo "Creating packages/"$(PKGNAME)
 	-rm -rf rel/$(RIAK_BASE)
-	mkdir -p rel/$(RIAK_BASE)/lib/basho-patches
-	mkdir -p rel/$(RIAK_BASE)/priv
-	cp -R deps/riakc/ebin/* rel/$(RIAK_BASE)/lib/basho-patches/
-	cp -R ebin/* rel/$(RIAK_BASE)/lib/basho-patches/
-	cp -R priv/* rel/$(RIAK_BASE)/priv/
+	mkdir -p rel/$(RIAK_BASE)/riak/lib/basho-patches
+	mkdir -p rel/$(RIAK_BASE)/riak/priv
+	cp -R deps/riakc/ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R priv/* rel/$(RIAK_BASE)/riak/priv/
 	mkdir -p packages
 	tar -C rel -czf $(PKGNAME) root
 	mv $(PKGNAME) packages/
