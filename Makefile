@@ -1,9 +1,17 @@
+REPO            ?= riak_explorer
+PKG_VERSION	    ?= $(shell git describe --tags --abbrev=0 | tr - .)
+MAJOR           ?= $(shell echo $(PKG_VERSION) | cut -d'.' -f1)
+MINOR           ?= $(shell echo $(PKG_VERSION) | cut -d'.' -f2)
+ARCH            ?= amd64
+OSNAME          ?= ubuntu
+OSVERSION       ?= trusty
+DEPLOY_BASE  ?= riak-tools/$(REPO)/$(MAJOR).$(MINOR)/$(PKG_VERSION)/$(OSNAME)/$(OSVERSION)/
+PKGNAME = $(REPO)-$(PKG_VERSION)-$(ARCH).tar.gz
+
 BASE_DIR         = $(shell pwd)
 ERLANG_BIN       = $(shell dirname $(shell which erl))
 REBAR           ?= $(BASE_DIR)/rebar
-BUILD_DIR ?= _build
 OVERLAY_VARS    ?=
-RIAK_BASE        ?= root/riak
 
 .PHONY: deps
 
@@ -15,6 +23,8 @@ recompile:
 	$(REBAR) compile skip_deps=true
 deps:
 	$(REBAR) get-deps
+clean: cleantest relclean
+	-rm -rf packages
 cleantest:
 	rm -rf .eunit/*
 test: cleantest
@@ -23,7 +33,6 @@ itest: recompile cleantest
 	INTEGRATION_TEST=true $(REBAR) skip_deps=true eunit
 reitest: cleantest
 	INTEGRATION_TEST=true $(REBAR) skip_deps=true eunit
-clean: relclean
 relclean:
 	-rm -rf rel/riak_explorer
 	-rm -rf rel/root
@@ -35,64 +44,38 @@ stage: rel
 	$(foreach app,$(wildcard apps/*), rm -rf rel/riak_explorer/lib/$(shell basename $(app))-* && ln -sf $(abspath $(app)) rel/riak_explorer/lib;)
 	rm -rf rel/riak_explorer/priv/ember_riak_explorer/dist && ln -sf $(abspath priv/ember_riak_explorer/dist) rel/riak_explorer/priv/ember_riak_explorer
 
-riak-addon:
-	-rm -rf rel/riak-addon
-	mkdir -p rel/riak-addon/ebin
-	mkdir -p rel/riak-addon/priv
-	$(REBAR) compile
-	cp -R deps/riakc/ebin/* rel/riak-addon/ebin/
-	cp -R ebin/* rel/riak-addon/ebin/
-	cp -R priv/* rel/riak-addon/priv/
 
-riak-package: compile
+##
+## Packaging targets
+##
+tarball-standalone: rel
+	echo "Creating packages/"$(PKGNAME)
+	mkdir -p packages
+	tar -C rel -czf $(PKGNAME) $(REPO)/
+	mv $(PKGNAME) packages/
+	cd packages && shasum -a 256 $(PKGNAME) > $(PKGNAME).sha
+sync-standalone:
+	echo "Uploading to "$(DEPLOY_BASE)
+	cd packages && \
+		s3cmd put --acl-public $(PKGNAME) s3://$(DEPLOY_BASE) && \
+		s3cmd put --acl-public $(PKGNAME).sha s3://$(DEPLOY_BASE)
+
+export PKGNAME = $(REPO)-patch-$(PKG_VERSION)-$(ARCH).tar.gz
+RIAK_BASE     ?= root/riak
+tarball: compile
+	echo "Creating packages/"$(PKGNAME)
 	-rm -rf rel/$(RIAK_BASE)
 	mkdir -p rel/$(RIAK_BASE)/lib/basho-patches
 	mkdir -p rel/$(RIAK_BASE)/priv
 	cp -R deps/riakc/ebin/* rel/$(RIAK_BASE)/lib/basho-patches/
 	cp -R ebin/* rel/$(RIAK_BASE)/lib/basho-patches/
 	cp -R priv/* rel/$(RIAK_BASE)/priv/
-	cd rel && tar -czf riak-explorer.tar.gz root # creates rel/riak-explorer.tar.gz
-
-# Build steps for posterity
-## From riak_explorer
-# git checkout master && git pull && git checkout riak-addon-master && git pull origin master
-## From riak-explorer-gui
-# git checkout master && git pull && git checkout riak-addon-master && git pull origin master && make && rm -rf ../riak_explorer/priv/ember_riak_explorer/dist/* && cp -R dist/* ../riak_explorer/priv/ember_riak_explorer/dist/
-## From riak_explorer
-# git commit -a -m "udating gui" && git push origin riak-addon-master
-# make riak-addon && git checkout master
-## From riak-explorer-gui
-# git checkout master && make && rm -rf ../riak_explorer/priv/ember_riak_explorer/dist/* && cp -R dist/* ../riak_explorer/priv/ember_riak_explorer/dist/
-## From riak_explorer
-# git commit -a -m "udating gui" && git push origin master
-# make rel
-
-## Package steps for posterity
-## From riak_explorer
-# make package-mac
-# make deploy-mac
-
-# Deployment
-deploy-mac:
-	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_darwin_amd64.tar.gz s3://riak-tools/
-	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_addon_darwin_amd64.tar.gz s3://riak-tools/
-deploy-linux:
-	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_linux_amd64.tar.gz s3://riak-tools/
-	cd $(BUILD_DIR) && s3cmd put --acl-public riak_explorer_addon_linux_amd64.tar.gz s3://riak-tools/
-
-# Packaging
-clean-package:
-	-rm -rf $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)
-package-mac: clean-package
-	cd rel && tar -zcvf riak_explorer_darwin_amd64.tar.gz riak_explorer
-	mv rel/riak_explorer_darwin_amd64.tar.gz $(BUILD_DIR)/
-	cd rel && tar -zcvf riak_explorer_addon_darwin_amd64.tar.gz riak-addon
-	mv rel/riak_explorer_addon_darwin_amd64.tar.gz $(BUILD_DIR)/
-package-trusty64:
-	cd vagrant/ubuntu/trusty64 && vagrant up
-package-linux: clean-package
-	cd rel && tar -zcvf riak_explorer_linux_amd64.tar.gz riak_explorer
-	mv rel/riak_explorer_linux_amd64.tar.gz $(BUILD_DIR)/
-	cd rel && tar -zcvf riak_explorer_addon_linux_amd64.tar.gz riak-addon
-	mv rel/riak_explorer_addon_linux_amd64.tar.gz $(BUILD_DIR)/
+	mkdir -p packages
+	tar -C rel -czf $(PKGNAME) root
+	mv $(PKGNAME) packages/
+	cd packages && shasum -a 256 $(PKGNAME) > $(PKGNAME).sha
+sync:
+	echo "Uploading to "$(DEPLOY_BASE)
+	cd packages && \
+		s3cmd put --acl-public $(PKGNAME) s3://$(DEPLOY_BASE) && \
+		s3cmd put --acl-public $(PKGNAME).sha s3://$(DEPLOY_BASE)
