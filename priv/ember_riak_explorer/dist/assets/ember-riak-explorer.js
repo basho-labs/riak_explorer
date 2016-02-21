@@ -10951,7 +10951,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
               dom.appendChild(el4, el5);
               var el5 = dom.createElement("td");
               dom.setAttribute(el5, "class", "key");
-              var el6 = dom.createTextNode("Content Type:");
+              var el6 = dom.createTextNode("Data:");
               dom.appendChild(el5, el6);
               dom.appendChild(el4, el5);
               var el5 = dom.createTextNode("\n              ");
