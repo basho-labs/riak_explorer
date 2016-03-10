@@ -17,3 +17,5 @@ configure.sh
 .DS_Store
 *~
 .vagrant
+packages
+rel/root
