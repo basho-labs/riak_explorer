@@ -34,6 +34,9 @@
 %%% API
 %%%===================================================================
 
+maybe_to_list(Data) when is_list(Data) -> Data;
+maybe_to_list(Data) when is_atom(Data) -> atom_to_list(Data).
+
 maybe_atomize(Data) when is_list(Data) -> list_to_atom(Data);
 maybe_atomize(Data) when is_atom(Data) -> Data.
 
@@ -43,7 +46,8 @@ node_from_context(Cluster, undefined) ->
         Error -> Error
     end;
 node_from_context(_, Node0) ->
-    Node = maybe_atomize(Node0),
+    Node1 = re:replace(maybe_to_list(Node0), "%40", "@", [{return, list}]),
+    Node = maybe_atomize(Node1),
     case re_riak:node_is_alive(Node) of
         true -> Node;
         _ -> [{error, not_found, [{error, <<"Node is not running.">>}]}]

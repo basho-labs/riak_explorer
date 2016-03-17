@@ -72,7 +72,7 @@ service_available(RD, Ctx) ->
     {true, RD, Ctx#ctx{
         resource = wrq:path_info(resource, RD),
         cluster = Cluster,
-        node = Node
+        node = re_wm_util:node_from_context(Cluster, Node)
     }}.
 
 allowed_methods(RD, Ctx) ->

@@ -234,7 +234,7 @@ th {
   .dropup > .remove-item > .caret, .object-content-list li
   .dropup > .button-add-item > .caret {
     border-top-color: #000 !important; }
-  .label, .cluster-status.cluster-status-label {
+  .label, .cluster-status.cluster-status-label, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title {
     border: 1px solid #000; }
   .table {
     border-collapse: collapse !important; }
@@ -5134,7 +5134,7 @@ tbody.collapse.in {
     background-color: #fff;
     cursor: not-allowed; }
 
-.label, .cluster-status.cluster-status-label {
+.label, .cluster-status.cluster-status-label, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title {
   display: inline;
   padding: .2em .6em .3em;
   font-size: 75%;
@@ -5145,20 +5145,20 @@ tbody.collapse.in {
   white-space: nowrap;
   vertical-align: baseline;
   border-radius: .25em; }
-  .label:empty, .cluster-status.cluster-status-label:empty {
+  .label:empty, .cluster-status.cluster-status-label:empty, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title:empty {
     display: none; }
-  .btn .label, .dashboard-module .module-header .module-actions .action-button .label, .button-list li a .label, .cluster-resource-link .label, .pagination-component-container .pagination-links .pagination-link .label, .action-buttons .action-button .label, .map-section .item-instance button .label, .map-section .add-instance .add-instance-button .label, .object-content-list li .remove-item .label, .object-content-list li .button-add-item .label, .btn .cluster-status.cluster-status-label, .dashboard-module .module-header .module-actions .action-button .cluster-status.cluster-status-label, .button-list li a .cluster-status.cluster-status-label, .cluster-resource-link .cluster-status.cluster-status-label, .pagination-component-container .pagination-links .pagination-link .cluster-status.cluster-status-label, .action-buttons .action-button .cluster-status.cluster-status-label, .map-section .item-instance button .cluster-status.cluster-status-label, .map-section .add-instance .add-instance-button .cluster-status.cluster-status-label, .object-content-list li .remove-item .cluster-status.cluster-status-label, .object-content-list li .button-add-item .cluster-status.cluster-status-label {
+  .btn .label, .dashboard-module .module-header .module-actions .action-button .label, .button-list li a .label, .cluster-resource-link .label, .pagination-component-container .pagination-links .pagination-link .label, .action-buttons .action-button .label, .map-section .item-instance button .label, .map-section .add-instance .add-instance-button .label, .object-content-list li .remove-item .label, .object-content-list li .button-add-item .label, .btn .cluster-status.cluster-status-label, .dashboard-module .module-header .module-actions .action-button .cluster-status.cluster-status-label, .button-list li a .cluster-status.cluster-status-label, .cluster-resource-link .cluster-status.cluster-status-label, .pagination-component-container .pagination-links .pagination-link .cluster-status.cluster-status-label, .action-buttons .action-button .cluster-status.cluster-status-label, .map-section .item-instance button .cluster-status.cluster-status-label, .map-section .add-instance .add-instance-button .cluster-status.cluster-status-label, .object-content-list li .remove-item .cluster-status.cluster-status-label, .object-content-list li .button-add-item .cluster-status.cluster-status-label, .btn .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .btn .title, .dashboard-module .module-header .module-actions .action-button .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .dashboard-module .module-header .module-actions .action-button .title, .button-list li a .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .button-list li a .title, .cluster-resource-link .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .cluster-resource-link .title, .pagination-component-container .pagination-links .pagination-link .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .pagination-component-container .pagination-links .pagination-link .title, .action-buttons .action-button .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .action-buttons .action-button .title, .map-section .item-instance button .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .map-section .item-instance button .title, .map-section .add-instance .add-instance-button .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .map-section .add-instance .add-instance-button .title, .object-content-list li .remove-item .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .object-content-list li .remove-item .title, .object-content-list li .button-add-item .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .object-content-list li .button-add-item .title {
     position: relative;
     top: -1px; }
 
-a.label:hover, a.cluster-status.cluster-status-label:hover, a.label:focus, a.cluster-status.cluster-status-label:focus {
+a.label:hover, a.cluster-status.cluster-status-label:hover, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper a.title:hover, a.label:focus, a.cluster-status.cluster-status-label:focus, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper a.title:focus {
   color: #fff;
   text-decoration: none;
   cursor: pointer; }
 
-.label-default {
+.label-default, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title {
   background-color: #777777; }
-  .label-default[href]:hover, .label-default[href]:focus {
+  .label-default[href]:hover, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper [href].title:hover, .label-default[href]:focus, .ember-application .tooltip .tooltip-content-wrapper .title-wrapper [href].title:focus {
     background-color: #5e5e5e; }
 
 .label-primary {
@@ -7005,6 +7005,10 @@ button.close {
 .alert.alert-info a {
   color: #474747; }
 
+code {
+  background-color: #fef8f3;
+  color: #dd7215; }
+
 body {
   background-color: #FFF;
   text-rendering: optimizeLegibility;
@@ -7253,8 +7257,7 @@ p:last-child {
     -ms-flex: none;
     flex: none;
     border-bottom: 1px solid #E4E4E4;
-    padding: 20px 40px;
-    height: 98px; }
+    padding: 20px 40px; }
   .results-panel .view-body {
     -webkit-box-flex: 1;
     -webkit-flex: 1;
@@ -7425,10 +7428,10 @@ p:last-child {
   background: #FFF;
   border: 1px solid #E4E4E4;
   border-top: 3px solid #E4E4E4; }
-  .dashboard-module.half {
-    width: 50%; }
-  .dashboard-module.two-thirds {
-    width: 66.6%; }
+  .dashboard-module.small-width {
+    max-width: 600px; }
+  .dashboard-module.medium-width {
+    max-width: 800px; }
   .dashboard-module.no-border {
     border: none;
     background: none; }
@@ -7454,7 +7457,8 @@ p:last-child {
     padding: 10px 20px;
     border-bottom: 1px solid #E4E4E4; }
     .dashboard-module .module-header .module-label {
-      font-size: 18px; }
+      font-size: 18px;
+      line-height: 30px; }
     .dashboard-module .module-header .module-actions .action-button {
       margin-left: 5px; }
   .dashboard-module .module-body {
@@ -7472,7 +7476,7 @@ p:last-child {
 
 .breadcrumb-container {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   min-height: 17px; }
   .breadcrumb-container .breadcrumb {
     margin: 0;
@@ -7480,7 +7484,8 @@ p:last-child {
     background-color: inherit;
     font-size: 12px; }
     .breadcrumb-container .breadcrumb li {
-      color: #666666; }
+      color: #666666;
+      margin-bottom: 0; }
       .breadcrumb-container .breadcrumb li:last-child a {
         cursor: default;
         color: #666666; }
@@ -7582,6 +7587,12 @@ p:last-child {
   100% {
     background-color: transparent; } }
 
+.ember-application .loading-slider {
+  height: 3px; }
+  .ember-application .loading-slider span {
+    height: 3px;
+    background-color: #E67716; }
+
 .view-label {
   display: block;
   font-size: 24px;
@@ -7589,6 +7600,8 @@ p:last-child {
 
 .ivy-tabs .ivy-tab-list {
   border-bottom: 1px solid #E4E4E4; }
+  .ivy-tabs .ivy-tab-list.capitalize {
+    text-transform: capitalize; }
   .ivy-tabs .ivy-tab-list .ivy-tab {
     padding: 15px 0;
     margin: 0 30px 0 0;
@@ -7610,6 +7623,53 @@ p:last-child {
 .ivy-tabs.half-width {
   display: inline-block;
   width: 50%; }
+
+.ivy-tabs.vertical {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -webkit-flex-direction: row;
+  -moz-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  margin-top: 20px; }
+  .ivy-tabs.vertical .ivy-tab-list {
+    -webkit-box-flex: none;
+    -webkit-flex: none;
+    -moz-box-flex: none;
+    -moz-flex: none;
+    -ms-flex: none;
+    flex: none;
+    border-right: 1px solid #E4E4E4;
+    border-bottom: none; }
+    .ivy-tabs.vertical .ivy-tab-list .ivy-tab {
+      display: block;
+      padding: 8px 20px 8px 0;
+      margin: 0;
+      cursor: pointer;
+      font-weight: bold;
+      color: #E67716;
+      border: none;
+      outline: none; }
+      .ivy-tabs.vertical .ivy-tab-list .ivy-tab:first-child {
+        padding-top: 0px; }
+      .ivy-tabs.vertical .ivy-tab-list .ivy-tab[aria-selected=true] {
+        cursor: default;
+        color: #333333;
+        border-right: 1px solid #4d4d4d;
+        margin-right: -1px; }
+  .ivy-tabs.vertical .ivy-tab-panel {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    -moz-box-flex: 1;
+    -moz-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    padding: 0 20px 0 30px; }
 
 .key-value-table th, .key-value-table td {
   padding-bottom: 10px;
@@ -7703,6 +7763,42 @@ pre.editable {
     .object-content-list li .input-add-item {
       display: inline;
       width: 60%; }
+
+.view-body .alert {
+  border-radius: 0;
+  padding-left: 40px;
+  padding-right: 20px; }
+
+.alert ul {
+  list-style: disc inside; }
+
+.ember-application .tooltip-icon {
+  font-size: 10px;
+  color: #777;
+  cursor: help; }
+
+.ember-application .tooltip.in {
+  opacity: 1; }
+
+.ember-application .tooltip.tooltip-wide {
+  max-width: 400px; }
+
+.ember-application .tooltip .tooltip-content-wrapper {
+  padding: 10px; }
+  .ember-application .tooltip .tooltip-content-wrapper .title-wrapper {
+    margin-bottom: 10px; }
+    .ember-application .tooltip .tooltip-content-wrapper .title-wrapper .title {
+      font-size: 14px;
+      word-break: break-word; }
+  .ember-application .tooltip .tooltip-content-wrapper .description-wrapper {
+    margin-bottom: 5px; }
+    .ember-application .tooltip .tooltip-content-wrapper .description-wrapper .description {
+      display: inline-block;
+      word-break: break-word; }
+  .ember-application .tooltip .tooltip-content-wrapper .small {
+    font-style: italic;
+    font-size: 12px;
+    word-break: break-word; }
 
 .object-counter-container .counter-value {
   font-size: 24px; }
