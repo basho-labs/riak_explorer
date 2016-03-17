@@ -46,6 +46,14 @@ stage: rel
 	$(foreach app,$(wildcard apps/*), rm -rf rel/riak_explorer/lib/$(shell basename $(app))-* && ln -sf $(abspath $(app)) rel/riak_explorer/lib;)
 	rm -rf rel/riak_explorer/priv/ember_riak_explorer/dist && ln -sf $(abspath priv/ember_riak_explorer/dist) rel/riak_explorer/priv/ember_riak_explorer
 
+riak-addon:
+	-rm -rf rel/riak-addon
+	mkdir -p rel/riak-addon/ebin
+	mkdir -p rel/riak-addon/priv
+	$(REBAR) compile
+	cp -R deps/riakc/ebin/* rel/riak-addon/ebin/
+	cp -R ebin/* rel/riak-addon/ebin/
+	cp -R priv/* rel/riak-addon/priv/
 
 ##
 ## Packaging targets
