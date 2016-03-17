@@ -106,7 +106,7 @@ var mainContext = this;
   }
 })();
 
-enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/_error_old', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugHandlers) {
+enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugHandlers) {
   /*global __fail__*/
 
   'use strict';
@@ -199,7 +199,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/_er
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only). Ember build tools will remove any calls to
     `Ember.deprecate()` when doing a production build.
-
+  
     @method deprecate
     @param {String} message A description of the deprecation.
     @param {Boolean} test A boolean. If falsy, the deprecation
@@ -329,7 +329,7 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug'
   /**
     Display a warning with the provided message. Ember build tools will
     remove any calls to `Ember.warn()` when doing a production build.
-
+  
     @method warn
     @param {String} message A warning to display.
     @param {Boolean} test An optional boolean. If falsy, the warning
@@ -362,7 +362,7 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug'
     _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(_slice.call(arguments)));
   }
 });
-enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/_error_old', 'ember-metal/logger', 'ember-metal/environment', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/is-plain-function', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment, _emberDebugDeprecate, _emberDebugWarn, _emberDebugIsPlainFunction, _emberDebugHandlers) {
+enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/is-plain-function', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment, _emberDebugDeprecate, _emberDebugWarn, _emberDebugIsPlainFunction, _emberDebugHandlers) {
   'use strict';
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
@@ -381,15 +381,15 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     Define an assertion that will throw an exception if the condition is not
     met. Ember build tools will remove any calls to `Ember.assert()` when
     doing a production build. Example:
-
+  
     ```javascript
     // Test for truthiness
     Ember.assert('Must pass a valid object', obj);
-
+  
     // Fail unconditionally
     Ember.assert('This code path should never be run');
     ```
-
+  
     @method assert
     @param {String} desc A description of the assertion. This will become
       the text of the Error thrown if the assertion fails.
@@ -416,11 +416,11 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   /**
     Display a debug notice. Ember build tools will remove any calls to
     `Ember.debug()` when doing a production build.
-
+  
     ```javascript
     Ember.debug('I\'m a debug notice!');
     ```
-
+  
     @method debug
     @param {String} message A debug message to display.
     @public
@@ -431,7 +431,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
 
   /**
     Display an info notice.
-
+  
     @method info
     @private
   */
@@ -441,17 +441,17 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
 
   /**
     Alias an old, deprecated method with its new counterpart.
-
+  
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only) when the assigned method is called.
-
+  
     Ember build tools will not remove calls to `Ember.deprecateFunc()`, though
     no warnings will be shown in production.
-
+  
     ```javascript
     Ember.oldMethod = Ember.deprecateFunc('Please use the new, updated method', Ember.newMethod);
     ```
-
+  
     @method deprecateFunc
     @param {String} message A description of the deprecation.
     @param {Object} [options] The options object for Ember.deprecate.
@@ -499,7 +499,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   /**
     Run a function meant for debugging. Ember build tools will remove any calls to
     `Ember.runInDebug()` when doing a production build.
-
+  
     ```javascript
     Ember.runInDebug(() => {
       Ember.Component.reopen({
@@ -509,7 +509,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
       });
     });
     ```
-
+  
     @method runInDebug
     @param {Function} func The function to be executed.
     @since 1.5.0
@@ -530,9 +530,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   /**
     Will call `Ember.warn()` if ENABLE_OPTIONAL_FEATURES or
     any specific FEATURES flag is truthy.
-
+  
     This method is called automatically in debug canary builds.
-
+  
     @private
     @method _warnIfUsingStrippedFeatureFlags
     @return {void}
@@ -587,7 +587,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   /**
     Allows for runtime registration of handler functions that override the default deprecation behavior.
     Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
-    The following example demonstrates its usage by registering a handler that throws an _error_old if the
+    The following example demonstrates its usage by registering a handler that throws an error if the
     message contains the word "should", otherwise defers to the default handler.
      ```javascript
     Ember.Debug.registerDeprecationHandler((message, options, next) => {
@@ -645,7 +645,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   /*
     We are transitioning away from `ember.js` to `ember.debug.js` to make
     it much clearer that it is only for local development purposes.
-
+  
     This flag value is changed by the tooling (by a simple string replacement)
     so that if `ember.js` (which must be output for backwards compat reasons) is
     used a nice helpful warning message will be printed out.
@@ -671,7 +671,7 @@ enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/objec
   /**
     The primary purpose of this class is to create hooks that can be implemented
     by an adapter for various test frameworks.
-
+  
     @class Adapter
     @namespace Ember.Test
     @public
@@ -699,8 +699,8 @@ enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/objec
       promise to fail.
        QUnit example:
        ```javascript
-        exception: function(_error_old) {
-          ok(false, _error_old);
+        exception: function(error) {
+          ok(false, error);
         };
       ```
        @public
@@ -720,7 +720,7 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
   /**
     This class implements the methods defined by Ember.Test.Adapter for the
     QUnit testing framework.
-
+  
     @class QUnitAdapter
     @namespace Ember.Test
     @extends Ember.Test.Adapter
@@ -738,7 +738,7 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
     }
   });
 });
-enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-metal/_error_old', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
+enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
   'use strict';
 
   /**
@@ -958,15 +958,15 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
     Loads a route, sets up any controllers, and renders any templates associated
     with the route as though a real user had triggered the route change while
     using your app.
-
+  
     Example:
-
+  
     ```javascript
     visit('posts/index').then(function() {
       // assert something
     });
     ```
-
+  
     @method visit
     @param {String} url the name of the route
     @return {RSVP.Promise}
@@ -977,15 +977,15 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   /**
     Clicks an element and triggers any actions triggered by the element's `click`
     event.
-
+  
     Example:
-
+  
     ```javascript
     click('.some-jQuery-selector').then(function() {
       // assert something
     });
     ```
-
+  
     @method click
     @param {String} selector jQuery selector for finding element on the DOM
     @return {RSVP.Promise}
@@ -995,15 +995,15 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
 
   /**
     Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
-
+  
     Example:
-
+  
     ```javascript
     keyEvent('.some-jQuery-selector', 'keypress', 13).then(function() {
      // assert something
     });
     ```
-
+  
     @method keyEvent
     @param {String} selector jQuery selector for finding element on the DOM
     @param {String} type the type of key event, e.g. `keypress`, `keydown`, `keyup`
@@ -1016,15 +1016,15 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
 
   /**
     Fills in an input element with some text.
-
+  
     Example:
-
+  
     ```javascript
     fillIn('#email', 'you@example.com').then(function() {
       // assert something
     });
     ```
-
+  
     @method fillIn
     @param {String} selector jQuery selector finding an input element on the DOM
     to fill text with
@@ -1037,13 +1037,13 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   /**
     Finds an element in the context of the app's container element. A simple alias
     for `app.$(selector)`.
-
+  
     Example:
-
+  
     ```javascript
     var $el = find('.my-selector');
     ```
-
+  
     @method find
     @param {String} selector jQuery string selector for element lookup
     @return {Object} jQuery object representing the results of the query
@@ -1052,19 +1052,19 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   helper('find', find);
 
   /**
-    Like `find`, but throws an _error_old if the element selector returns no results.
-
+    Like `find`, but throws an error if the element selector returns no results.
+  
     Example:
-
+  
     ```javascript
-    var $el = findWithAssert('.doesnt-exist'); // throws _error_old
+    var $el = findWithAssert('.doesnt-exist'); // throws error
     ```
-
+  
     @method findWithAssert
     @param {String} selector jQuery selector string for finding an element within
     the DOM
     @return {Object} jQuery object representing the results of the query
-    @throws {Error} throws _error_old if jQuery object returned has a length of 0
+    @throws {Error} throws error if jQuery object returned has a length of 0
     @public
   */
   helper('findWithAssert', findWithAssert);
@@ -1072,22 +1072,22 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   /**
     Causes the run loop to process any pending events. This is used to ensure that
     any async operations from other helpers (or your assertions) have been processed.
-
+  
     This is most often used as the return value for the helper functions (see 'click',
     'fillIn','visit',etc).
-
+  
     Example:
-
+  
     ```javascript
     Ember.Test.registerAsyncHelper('loginUser', function(app, username, password) {
       visit('secured/path/here')
       .fillIn('#username', username)
       .fillIn('#password', password)
       .click('.submit')
-
+  
       return app.testHelpers.wait();
     });
-
+  
     @method wait
     @param {Object} value The value to be returned.
     @return {RSVP.Promise}
@@ -1098,17 +1098,17 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
 
   /**
     Returns the currently active route name.
-
+  
   Example:
-
+  
   ```javascript
   function validateRouteName() {
     equal(currentRouteName(), 'some.path', "correct route was transitioned into.");
   }
-
+  
   visit('/some/path').then(validateRouteName)
   ```
-
+  
   @method currentRouteName
   @return {Object} The name of the currently active route.
   @since 1.5.0
@@ -1118,17 +1118,17 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
 
   /**
     Returns the current path.
-
+  
   Example:
-
+  
   ```javascript
   function validateURL() {
     equal(currentPath(), 'some.path.index', "correct path was transitioned into.");
   }
-
+  
   click('#some-link-id').then(validateURL);
   ```
-
+  
   @method currentPath
   @return {Object} The currently active path.
   @since 1.5.0
@@ -1138,17 +1138,17 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
 
   /**
     Returns the current URL.
-
+  
   Example:
-
+  
   ```javascript
   function validateURL() {
     equal(currentURL(), '/some/path', "correct URL was transitioned into.");
   }
-
+  
   click('#some-link-id').then(validateURL);
   ```
-
+  
   @method currentURL
   @return {Object} The currently active URL.
   @since 1.5.0
@@ -1159,16 +1159,16 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   /**
    Pauses the current test - this is useful for debugging while testing or for test-driving.
    It allows you to inspect the state of your application at any point.
-
+  
    Example (The test will pause before clicking the button):
-
+  
    ```javascript
    visit('/')
    return pauseTest();
-
+  
    click('.btn');
    ```
-
+  
    @since 1.9.0
    @method pauseTest
    @return {Object} A promise that will never resolve
@@ -1178,19 +1178,19 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
 
   /**
     Triggers the given DOM event on the element identified by the provided selector.
-
+  
     Example:
-
+  
     ```javascript
     triggerEvent('#some-elem-id', 'blur');
     ```
-
+  
     This is actually used internally by the `keyEvent` helper like so:
-
+  
     ```javascript
     triggerEvent('#some-elem-id', 'keypress', { keyCode: 13 });
     ```
-
+  
    @method triggerEvent
    @param {String} selector jQuery selector for finding element on the DOM
    @param {String} [context] jQuery selector that will limit the selector
@@ -1246,10 +1246,10 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
   /**
     Sets Ember up for testing. This is useful to perform
     basic setup steps in order to unit test.
-
+  
     Use `App.setupForTesting` to perform integration tests (full
     application testing).
-
+  
     @method setupForTesting
     @namespace Ember
     @since 1.5.0
@@ -1293,7 +1293,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/sy
     This method creates a checkbox and triggers the click event to fire the
     passed in handler. It is used to correct for a bug in older versions
     of jQuery (e.g 1.8.3).
-
+  
     @private
     @method testCheckboxClick
   */
@@ -1343,12 +1343,12 @@ enifed('ember-testing/test', ['exports', 'ember-metal/run_loop', 'ember-runtime/
 
   /**
     This is a container for an assortment of testing related functionality:
-
+  
     * Choose your default test adapter (for your framework of choice).
     * Register/Unregister additional test helpers.
     * Setup callbacks to be fired when the test helpers are injected into
       your application.
-
+  
     @class Test
     @namespace Ember
     @public

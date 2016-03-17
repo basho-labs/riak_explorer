@@ -631,6 +631,57 @@ define('ember-riak-explorer/components/button/set-element-remove', ['exports', '
     }
   });
 });
+define('ember-riak-explorer/components/cluster-status-indicator', ['exports', 'ember', 'ember-tooltips/utils/render-tooltip'], function (exports, _ember, _emberTooltipsUtilsRenderTooltip) {
+  exports['default'] = _ember['default'].Component.extend({
+    tagName: 'span',
+
+    classNames: ['cluster-status-circle'],
+
+    classNameBindings: ['status'],
+
+    status: null,
+
+    tooltipInstance: null,
+
+    toolTipContent: (function () {
+      var message = '';
+      var status = this.get('status');
+
+      switch (status) {
+        case 'ok':
+          message = "All nodes in the cluster are valid and are reachable";
+          break;
+        case 'warning':
+          message = 'Some nodes in the cluster are either invalid and/or are unreachable';
+          break;
+        case 'down':
+          message = 'All nodes in the cluster are either invalid and/or are unreachable';
+          break;
+        default:
+          break;
+      }
+
+      return '<div class=\'tooltip-content-wrapper\'>' + message + '</div>';
+    }).property('status'),
+
+    didRender: function didRender() {
+      var toolTipContent = this.get('toolTipContent');
+
+      if (!this.get('tooltipInstance')) {
+        var element = this.$()[0];
+
+        this.set('tooltipInstance', (0, _emberTooltipsUtilsRenderTooltip['default'])(element, {
+          content: toolTipContent,
+          event: 'hover',
+          place: 'right',
+          spacing: 20
+        }));
+      } else {
+        this.get('tooltipInstance').content(toolTipContent);
+      }
+    }
+  });
+});
 define('ember-riak-explorer/components/code-highlighter', ['exports', 'ember'], function (exports, _ember) {
   /* global hljs */
 
@@ -11964,7 +12015,7 @@ define('ember-riak-explorer/pods/riak-object/route', ['exports', 'ember', 'ember
         object.destroyRecord().then(function onSuccess() {
           self.transitionTo('bucket', clusterName, bucketTypeName, bucketName);
         }, function onError() {
-          this.showAlert('alerts._error_old-request-was-not-processed');
+          this.showAlert('alerts.error-request-was-not-processed');
         });
       }
     }
@@ -11993,7 +12044,7 @@ define('ember-riak-explorer/pods/riak-object/set/route', ['exports', 'ember-riak
           // Empty out any lingering warnings on success
           this.removeAlert();
         } else {
-          this.showAlert('alerts._error_old-set-items-unique');
+          this.showAlert('alerts.error-set-items-unique');
         }
       },
 
@@ -13828,17 +13879,17 @@ define('ember-riak-explorer/pods/search-schema/create/route', ['exports', 'ember
         try {
           xmlDoc = _ember['default'].$.parseXML(schemaContent);
         } catch (error) {
-          this.showAlert('alerts._error_old-invalid-xml');
+          this.showAlert('alerts.error-invalid-xml');
           return;
         }
 
         if (!_ember['default'].$(xmlDoc).find('schema').attr('name')) {
-          this.showAlert('alerts._error_old-solr-must-have-name');
+          this.showAlert('alerts.error-solr-must-have-name');
           return;
         }
 
         if (!_ember['default'].$(xmlDoc).find('schema').attr('version')) {
-          this.showAlert('alerts._error_old-solr-must-have-version');
+          this.showAlert('alerts.error-solr-must-have-version');
           return;
         }
 
@@ -13846,7 +13897,7 @@ define('ember-riak-explorer/pods/search-schema/create/route', ['exports', 'ember
           // TODO: Need to update this to give better feedback to user on what is going on
           self.transitionTo('cluster.query', clusterName);
         }, function onFail() {
-          self.render('alerts._error_old-schema-not-saved', {
+          self.render('alerts.error-schema-not-saved', {
             into: 'application',
             outlet: 'alert'
           });
@@ -14141,6 +14192,11 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
     };
   })());
 });
+define('ember-riak-explorer/pods/search-schema/edit/controller', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Controller.extend({
+    editableContent: ''
+  });
+});
 define('ember-riak-explorer/pods/search-schema/edit/route', ['exports', 'ember', 'ember-riak-explorer/pods/search-schema/route', 'ember-riak-explorer/mixins/routes/alerts', 'ember-riak-explorer/mixins/routes/scroll-reset'], function (exports, _ember, _emberRiakExplorerPodsSearchSchemaRoute, _emberRiakExplorerMixinsRoutesAlerts, _emberRiakExplorerMixinsRoutesScrollReset) {
   exports['default'] = _emberRiakExplorerPodsSearchSchemaRoute['default'].extend(_emberRiakExplorerMixinsRoutesAlerts['default'], _emberRiakExplorerMixinsRoutesScrollReset['default'], {
     afterModel: function afterModel(model, transition) {
@@ -14149,9 +14205,16 @@ define('ember-riak-explorer/pods/search-schema/edit/route', ['exports', 'ember',
       return this._super(model, transition);
     },
 
+    setupController: function setupController(controller, model) {
+      this._super(controller, model);
+      var currentContent = model.get('content');
+
+      controller.set('editableContent', currentContent);
+    },
+
     actions: {
       updateSchema: function updateSchema(schema) {
-        var xmlString = schema.get('content');
+        var xmlString = this.controller.get('editableContent');
         var xmlDoc = null;
         var clusterName = schema.get('cluster').get('name');
         var schemaName = schema.get('name');
@@ -14160,7 +14223,7 @@ define('ember-riak-explorer/pods/search-schema/edit/route', ['exports', 'ember',
         try {
           xmlDoc = _ember['default'].$.parseXML(xmlString);
         } catch (error) {
-          this.render('alerts._error_old-invalid-xml', {
+          this.render('alerts.error-invalid-xml', {
             into: 'application',
             outlet: 'alert'
           });
@@ -14171,7 +14234,7 @@ define('ember-riak-explorer/pods/search-schema/edit/route', ['exports', 'ember',
         this.explorer.updateSchema(schema, xmlDoc).then(function onSuccess() {
           self.transitionTo('search-schema', clusterName, schemaName);
         }, function onFail() {
-          self.showAlert('alerts._error_old-schema-not-saved');
+          self.showAlert('alerts.error-schema-not-saved');
         });
       }
     }
@@ -14344,7 +14407,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
               morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1, 1]), 1, 1);
               return morphs;
             },
-            statements: [["inline", "content-editable", [], ["value", ["subexpr", "@mut", [["get", "model.content", ["loc", [null, [21, 16], [21, 29]]]]], [], []], "type", "html"], ["loc", [null, [20, 10], [22, 23]]]]],
+            statements: [["inline", "content-editable", [], ["value", ["subexpr", "@mut", [["get", "editableContent", ["loc", [null, [21, 16], [21, 31]]]]], [], []], "type", "html"], ["loc", [null, [20, 10], [22, 23]]]]],
             locals: [],
             templates: []
           };
@@ -15406,7 +15469,7 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember', 'ember-riak
         self.checkNodes(cluster);
 
         // Continue to check on node health
-        //self.pollNodes(cluster);
+        self.pollNodes(cluster);
 
         return cluster;
       });
@@ -15920,37 +15983,26 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember', 'ember-riak
      * @return {String} schema.content
      */
     getSearchSchemaContent: function getSearchSchemaContent(schema) {
-      if (!schema.get('content')) {
-        var _ret = (function () {
+      var url = schema.get('url');
 
-          var url = schema.get('url');
+      return new _ember['default'].RSVP.Promise(function (resolve, reject) {
+        var request = _ember['default'].$.ajax({
+          url: url,
+          type: 'GET',
+          dataType: 'xml'
+        });
 
-          return {
-            v: new _ember['default'].RSVP.Promise(function (resolve, reject) {
-              var request = _ember['default'].$.ajax({
-                url: url,
-                type: 'GET',
-                dataType: 'xml'
-              });
+        request.done(function (data) {
+          var xmlString = new XMLSerializer().serializeToString(data);
+          schema.set('content', xmlString);
 
-              request.done(function (data) {
-                var xmlString = new XMLSerializer().serializeToString(data);
-                schema.set('content', xmlString);
+          resolve(schema.get('content'));
+        });
 
-                resolve(schema.get('content'));
-              });
-
-              request.fail(function (data) {
-                reject(data);
-              });
-            })
-          };
-        })();
-
-        if (typeof _ret === 'object') return _ret.v;
-      } else {
-        return schema.get('content');
-      }
+        request.fail(function (data) {
+          reject(data);
+        });
+      });
     },
 
     /**
@@ -17185,7 +17237,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
           dom.appendChild(el2, el3);
           var el3 = dom.createTextNode("\n            ");
           dom.appendChild(el2, el3);
-          var el3 = dom.createElement("span");
+          var el3 = dom.createComment("");
           dom.appendChild(el2, el3);
           var el3 = dom.createTextNode("\n          ");
           dom.appendChild(el2, el3);
@@ -17215,21 +17267,20 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
           var element1 = dom.childAt(fragment, [1]);
           var element2 = dom.childAt(element1, [1]);
           var element3 = dom.childAt(element2, [3]);
-          var element4 = dom.childAt(element2, [5]);
-          var element5 = dom.childAt(element1, [3]);
+          var element4 = dom.childAt(element1, [3]);
           var morphs = new Array(9);
           morphs[0] = dom.createMorphAt(dom.childAt(element2, [1]), 1, 1);
           morphs[1] = dom.createMorphAt(element3, 1, 1);
           morphs[2] = dom.createMorphAt(element3, 2, 2);
           morphs[3] = dom.createMorphAt(element3, 3, 3);
-          morphs[4] = dom.createAttrMorph(element4, 'class');
-          morphs[5] = dom.createAttrMorph(element5, 'class');
-          morphs[6] = dom.createMorphAt(element5, 1, 1);
-          morphs[7] = dom.createMorphAt(element5, 2, 2);
-          morphs[8] = dom.createMorphAt(element5, 3, 3);
+          morphs[4] = dom.createMorphAt(element2, 5, 5);
+          morphs[5] = dom.createAttrMorph(element4, 'class');
+          morphs[6] = dom.createMorphAt(element4, 1, 1);
+          morphs[7] = dom.createMorphAt(element4, 2, 2);
+          morphs[8] = dom.createMorphAt(element4, 3, 3);
           return morphs;
         },
-        statements: [["content", "currentCluster.name", ["loc", [null, [22, 40], [22, 63]]]], ["block", "if", [["get", "currentCluster.hasVersion", ["loc", [null, [24, 20], [24, 45]]]]], [], 0, null, ["loc", [null, [24, 14], [26, 21]]]], ["block", "if", [["get", "currentCluster.hasType", ["loc", [null, [27, 20], [27, 42]]]]], [], 1, null, ["loc", [null, [27, 14], [29, 21]]]], ["block", "if", [["get", "currentCluster.developmentMode", ["loc", [null, [30, 20], [30, 50]]]]], [], 2, null, ["loc", [null, [30, 14], [32, 21]]]], ["attribute", "class", ["concat", ["cluster-status-circle ", ["get", "currentCluster.status", ["loc", [null, [34, 49], [34, 70]]]]]]], ["attribute", "class", ["concat", ["cluster-section-links current-section-is-", ["get", "clusterSubSection", ["loc", [null, [36, 65], [36, 82]]]]]]], ["block", "link-to", ["cluster.data", ["get", "currentCluster.name", ["loc", [null, [37, 38], [37, 57]]]]], ["class", "data"], 3, null, ["loc", [null, [37, 12], [40, 24]]]], ["block", "link-to", ["cluster.ops", ["get", "currentCluster.name", ["loc", [null, [41, 37], [41, 56]]]]], ["class", "ops"], 4, null, ["loc", [null, [41, 12], [44, 24]]]], ["block", "link-to", ["cluster.query", ["get", "currentCluster.name", ["loc", [null, [45, 39], [45, 58]]]]], ["class", "query"], 5, null, ["loc", [null, [45, 12], [48, 24]]]]],
+        statements: [["content", "currentCluster.name", ["loc", [null, [22, 40], [22, 63]]]], ["block", "if", [["get", "currentCluster.hasVersion", ["loc", [null, [24, 20], [24, 45]]]]], [], 0, null, ["loc", [null, [24, 14], [26, 21]]]], ["block", "if", [["get", "currentCluster.hasType", ["loc", [null, [27, 20], [27, 42]]]]], [], 1, null, ["loc", [null, [27, 14], [29, 21]]]], ["block", "if", [["get", "currentCluster.developmentMode", ["loc", [null, [30, 20], [30, 50]]]]], [], 2, null, ["loc", [null, [30, 14], [32, 21]]]], ["inline", "cluster-status-indicator", [], ["status", ["subexpr", "@mut", [["get", "currentCluster.status", ["loc", [null, [34, 46], [34, 67]]]]], [], []]], ["loc", [null, [34, 12], [34, 69]]]], ["attribute", "class", ["concat", ["cluster-section-links current-section-is-", ["get", "clusterSubSection", ["loc", [null, [36, 65], [36, 82]]]]]]], ["block", "link-to", ["cluster.data", ["get", "currentCluster.name", ["loc", [null, [37, 38], [37, 57]]]]], ["class", "data"], 3, null, ["loc", [null, [37, 12], [40, 24]]]], ["block", "link-to", ["cluster.ops", ["get", "currentCluster.name", ["loc", [null, [41, 37], [41, 56]]]]], ["class", "ops"], 4, null, ["loc", [null, [41, 12], [44, 24]]]], ["block", "link-to", ["cluster.query", ["get", "currentCluster.name", ["loc", [null, [45, 39], [45, 58]]]]], ["class", "query"], 5, null, ["loc", [null, [45, 12], [48, 24]]]]],
         locals: [],
         templates: [child0, child1, child2, child3, child4, child5]
       };
@@ -17379,19 +17430,19 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element6 = dom.childAt(fragment, [2]);
-        var element7 = dom.childAt(element6, [3]);
-        var element8 = dom.childAt(element7, [1]);
-        var element9 = dom.childAt(element7, [3]);
-        var element10 = dom.childAt(element9, [3]);
+        var element5 = dom.childAt(fragment, [2]);
+        var element6 = dom.childAt(element5, [3]);
+        var element7 = dom.childAt(element6, [1]);
+        var element8 = dom.childAt(element6, [3]);
+        var element9 = dom.childAt(element8, [3]);
         var morphs = new Array(7);
         morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(element6, 1, 1);
-        morphs[2] = dom.createMorphAt(element8, 1, 1);
-        morphs[3] = dom.createMorphAt(element8, 3, 3);
-        morphs[4] = dom.createMorphAt(element9, 1, 1);
-        morphs[5] = dom.createMorphAt(element10, 1, 1);
-        morphs[6] = dom.createMorphAt(element10, 3, 3);
+        morphs[1] = dom.createMorphAt(element5, 1, 1);
+        morphs[2] = dom.createMorphAt(element7, 1, 1);
+        morphs[3] = dom.createMorphAt(element7, 3, 3);
+        morphs[4] = dom.createMorphAt(element8, 1, 1);
+        morphs[5] = dom.createMorphAt(element9, 1, 1);
+        morphs[6] = dom.createMorphAt(element9, 3, 3);
         dom.insertBoundary(fragment, 0);
         return morphs;
       },
@@ -20512,6 +20563,52 @@ define("ember-riak-explorer/templates/components/button/set-element-remove", ["e
         return morphs;
       },
       statements: [["element", "action", ["removeElement", ["get", "model", ["loc", [null, [2, 27], [2, 32]]]], ["get", "item", ["loc", [null, [2, 33], [2, 37]]]]], [], ["loc", [null, [2, 2], [2, 39]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("ember-riak-explorer/templates/components/cluster-status-indicator", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type"]
+        },
+        "revision": "Ember@2.3.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/components/cluster-status-indicator.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        return morphs;
+      },
+      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
       locals: [],
       templates: []
     };
@@ -27609,11 +27706,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-<<<<<<< HEAD
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+a367b839"});
-=======
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+9602bdb9"});
->>>>>>> d51efd60ea5b055e2710e84c29d55168fa7136d0
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+e4603104"});
 }
 
 /* jshint ignore:end */
