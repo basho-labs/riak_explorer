@@ -67,12 +67,15 @@ init(_) ->
 
 service_available(RD, Ctx) ->
     Cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD)),
-    Node = re_wm_util:maybe_atomize(wrq:path_info(node, RD)),
+    Node = case wrq:path_info(node, RD) of
+               undefined -> undefined;
+               N -> re_wm_util:node_from_context(Cluster, N)
+           end,
 
     {true, RD, Ctx#ctx{
         resource = wrq:path_info(resource, RD),
         cluster = Cluster,
-        node = re_wm_util:node_from_context(Cluster, Node)
+        node = Node
     }}.
 
 allowed_methods(RD, Ctx) ->
