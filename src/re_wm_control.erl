@@ -113,8 +113,8 @@ service_available(RD, Ctx) ->
     {true, RD, Ctx#ctx{
         cluster = Cluster,
         command = lists:nth(length(re_config:base_route("")) + 3, string:tokens(wrq:path(RD), "/")),
-        arg1 = re_wm_util:maybe_atomize(wrq:path_info(arg1, RD)),
-        arg2 = re_wm_util:maybe_atomize(wrq:path_info(arg2, RD)),
+        arg1 = re_wm_util:maybe_atomize(re_wm_util:url_decode(wrq:path_info(arg1, RD))),
+        arg2 = re_wm_util:maybe_atomize(re_wm_util:url_decode(wrq:path_info(arg2, RD))),
         node = re_wm_util:node_from_context(Cluster, Node)
     }}.
 

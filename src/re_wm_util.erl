@@ -21,6 +21,8 @@
 -module(re_wm_util).
 -export([
   maybe_atomize/1,
+  maybe_to_list/1,
+  url_decode/1,
   node_from_context/2,
   provide_content/4,
   resource_exists/3,
@@ -40,13 +42,16 @@ maybe_to_list(Data) when is_atom(Data) -> atom_to_list(Data).
 maybe_atomize(Data) when is_list(Data) -> list_to_atom(Data);
 maybe_atomize(Data) when is_atom(Data) -> Data.
 
+url_decode(Data) ->
+    re:replace(maybe_to_list(Data), "%40", "@", [{return, list}]).
+
 node_from_context(Cluster, undefined) ->
     case re_config:riak_node(maybe_atomize(Cluster)) of
         N when is_atom(N) -> N;
         Error -> Error
     end;
 node_from_context(_, Node0) ->
-    Node1 = re:replace(maybe_to_list(Node0), "%40", "@", [{return, list}]),
+    Node1 = url_decode(Node0),
     Node = maybe_atomize(Node1),
     case re_riak:node_is_alive(Node) of
         true -> Node;
