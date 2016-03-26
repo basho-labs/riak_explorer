@@ -15,6 +15,12 @@ ERLANG_BIN       = $(shell dirname $(shell which erl))
 REBAR           ?= $(BASE_DIR)/rebar
 OVERLAY_VARS    ?=
 
+ifneq (,$(shell whereis sha256sum | awk '{print $2}';))
+SHASUM = sha256sum
+else
+SHASUM = shasum -a 256
+endif
+
 .PHONY: deps
 
 all: compile
@@ -84,7 +90,7 @@ tarball: compile
 	mkdir -p packages
 	tar -C rel -czf $(PKGNAME) root
 	mv $(PKGNAME) packages/
-	cd packages && shasum -a 256 $(PKGNAME) > $(PKGNAME).sha
+	cd packages && $(SHASUM) $(PKGNAME) > $(PKGNAME).sha
 	cd packages && echo "$(S3_PREFIX)$(DEPLOY_BASE)$(PKGNAME)" > remote.txt
 	cd packages && echo "$(BASE_DIR)/packages/$(PKGNAME)" > local.txt
 sync:
