@@ -1104,6 +1104,15 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-stats-test
     assert.ok(true, 'integration/components/tooltip/node-stats-test.js should pass jshint.');
   });
 });
+define('ember-riak-explorer/tests/mixins/controller/scroll-reset.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - mixins/controller/scroll-reset.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'mixins/controller/scroll-reset.js should pass jshint.');
+  });
+});
 define('ember-riak-explorer/tests/mixins/models/bucket-props.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -1221,6 +1230,42 @@ define('ember-riak-explorer/tests/pods/bucket/route.jshint', ['exports'], functi
     assert.ok(true, 'pods/bucket/route.js should pass jshint.');
   });
 });
+define('ember-riak-explorer/tests/pods/bucket-type/create/controller.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/bucket-type/create/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/bucket-type/create/controller.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/pods/bucket-type/create/route.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/bucket-type/create/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/bucket-type/create/route.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/pods/bucket-type/edit/controller.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/bucket-type/edit/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/bucket-type/edit/controller.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/pods/bucket-type/edit/route.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/bucket-type/edit/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/bucket-type/edit/route.js should pass jshint.');
+  });
+});
 define('ember-riak-explorer/tests/pods/bucket-type/model.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -1237,15 +1282,6 @@ define('ember-riak-explorer/tests/pods/bucket-type/route.jshint', ['exports'], f
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'pods/bucket-type/route.js should pass jshint.');
-  });
-});
-define('ember-riak-explorer/tests/pods/cluster/data/model.jshint', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('JSHint - pods/cluster/data/model.js');
-  QUnit.test('should pass jshint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'pods/cluster/data/model.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/pods/cluster/data/route.jshint', ['exports'], function (exports) {
@@ -1266,13 +1302,13 @@ define('ember-riak-explorer/tests/pods/cluster/model.jshint', ['exports'], funct
     assert.ok(true, 'pods/cluster/model.js should pass jshint.');
   });
 });
-define('ember-riak-explorer/tests/pods/cluster/ops/model.jshint', ['exports'], function (exports) {
+define('ember-riak-explorer/tests/pods/cluster/ops/controller.jshint', ['exports'], function (exports) {
   'use strict';
 
-  QUnit.module('JSHint - pods/cluster/ops/model.js');
+  QUnit.module('JSHint - pods/cluster/ops/controller.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'pods/cluster/ops/model.js should pass jshint.');
+    assert.ok(true, 'pods/cluster/ops/controller.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/pods/cluster/ops/route.jshint', ['exports'], function (exports) {
@@ -1282,15 +1318,6 @@ define('ember-riak-explorer/tests/pods/cluster/ops/route.jshint', ['exports'], f
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'pods/cluster/ops/route.js should pass jshint.');
-  });
-});
-define('ember-riak-explorer/tests/pods/cluster/query/model.jshint', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('JSHint - pods/cluster/query/model.js');
-  QUnit.test('should pass jshint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'pods/cluster/query/model.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/pods/cluster/query/route.jshint', ['exports'], function (exports) {
