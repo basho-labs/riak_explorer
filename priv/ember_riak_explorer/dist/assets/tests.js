@@ -674,7 +674,7 @@ define('ember-riak-explorer/tests/integration/components/cluster-status-indicato
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.1',
+          'revision': 'Ember@2.3.2',
           'loc': {
             'source': null,
             'start': {
@@ -718,7 +718,7 @@ define('ember-riak-explorer/tests/integration/components/cluster-status-indicato
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.3.1',
+            'revision': 'Ember@2.3.2',
             'loc': {
               'source': null,
               'start': {
@@ -756,7 +756,7 @@ define('ember-riak-explorer/tests/integration/components/cluster-status-indicato
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.1',
+          'revision': 'Ember@2.3.2',
           'loc': {
             'source': null,
             'start': {
@@ -823,7 +823,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-config-tes
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.1',
+          'revision': 'Ember@2.3.2',
           'loc': {
             'source': null,
             'start': {
@@ -867,7 +867,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-config-tes
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.3.1',
+            'revision': 'Ember@2.3.2',
             'loc': {
               'source': null,
               'start': {
@@ -905,7 +905,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-config-tes
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.1',
+          'revision': 'Ember@2.3.2',
           'loc': {
             'source': null,
             'start': {
@@ -972,7 +972,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-stats-test
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.1',
+          'revision': 'Ember@2.3.2',
           'loc': {
             'source': null,
             'start': {
@@ -1016,7 +1016,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-stats-test
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.3.1',
+            'revision': 'Ember@2.3.2',
             'loc': {
               'source': null,
               'start': {
@@ -1054,7 +1054,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-stats-test
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.1',
+          'revision': 'Ember@2.3.2',
           'loc': {
             'source': null,
             'start': {

@@ -71,7 +71,10 @@
          put_json/4,
          delete_bucket/4,
          delete_bucket/5,
-         delete_bucket_job/1]).
+         delete_bucket_job/1,
+         get_ts/3,
+         put_ts/3,
+         query_ts/2]).
 
 -export([list_buckets_cache/5,
          list_buckets/4,
@@ -95,6 +98,8 @@
          pb_listener/1,
          bucket_type/2,
          bucket_types/1,
+         table/2,
+         tables/1,
          create_bucket_type/3]).
 
 -export([clusters/0,
@@ -588,6 +593,40 @@ put_json(Node, Bucket, Key, Data) ->
     O = riakc_obj:new(Bucket, Key, RawData, "application/json"),
     riakc_pb_socket:get(C, O).
 
+%% Local TS Client Get
+get_ts(Node, Table, Key) ->
+    C = client(Node),
+    case riakc_ts:get(C, Table, Key, []) of
+        {ok, {Fields, Rows}} -> 
+            [{ts, [{fields, Fields},{rows, Rows}]}];
+        R -> R
+    end.
+
+%% Local TS Client Put
+put_ts(Node, Table, Rows) ->
+    C = client(Node),
+    case riakc_ts:put(C, Table, Rows) of
+        ok -> 
+            [{ts, [{success, true}]}];
+        R -> R
+    end.
+
+%% Local TS Client Query
+query_ts(Node, Query) ->
+    C = client(Node),
+    case riakc_ts:query(C, Query) of
+        {[],[]} ->
+            [{ts, [{fields, []},{rows, []}]}];
+        {Fields, TupleRows} ->
+            TupleToRowFun = 
+                fun(Tuple) ->
+                        [element(I,Tuple) || I <- lists:seq(1,tuple_size(Tuple))]
+                end,
+            Rows = lists:map(TupleToRowFun, TupleRows),
+            [{ts, [{fields, Fields},{rows, Rows}]}];
+        R -> R
+    end.
+
 delete_bucket(Cluster, Node, BucketType, Bucket) ->
     delete_bucket(Cluster, Node, BucketType, Bucket, true).
 
@@ -794,8 +833,33 @@ bucket_type(Node, BucketType) ->
 bucket_types(Node) ->
     load_patch(Node),
     List0 = remote(Node, re_riak_patch, bucket_types, []),
-    List = lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List0),
+    List1 = lists:filtermap(
+              fun([{name, _}, {props, Props}]) ->
+                      proplists:get_value(ddl, Props) =:= undefined
+              end, List0),
+    List = lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List1),
     [{bucket_types, List}].
+
+table(Node, Table) ->
+    FlatProps = lists:flatten([proplists:get_value(props, Prop) ||
+                           Prop <- proplists:get_value(tables, tables(Node)),
+                           Table =:= proplists:get_value(name, Prop)]),
+    case FlatProps of
+        [] ->
+            [{error, not_found}];
+        Props ->
+            [{tables, [{id,Table}, {props, Props}]}]
+    end.
+
+tables(Node) ->
+    load_patch(Node),
+    List0 = remote(Node, re_riak_patch, bucket_types, []),
+    List1 = lists:filtermap(
+              fun([{name, _}, {props, Props}]) ->
+                      proplists:get_value(ddl, Props) =/= undefined
+              end, List0),
+    List = lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List1),
+    [{tables, List}].
 
 create_bucket_type(Node, BucketType, RawValue) ->
     load_patch(Node),
