@@ -70,6 +70,7 @@ resources() ->
         re_wm_key,
         re_wm_bucket,
         re_wm_bucket_type,
+        re_wm_table,
         re_wm_node,
         re_wm_riak_config,
         re_wm_riak_log,

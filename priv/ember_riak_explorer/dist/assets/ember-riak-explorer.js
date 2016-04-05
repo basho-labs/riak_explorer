@@ -9,7 +9,7 @@
 define('ember-riak-explorer/adapters/application', ['exports', 'ember-data', 'ember', 'ember-riak-explorer/config/environment'], function (exports, _emberData, _ember, _emberRiakExplorerConfigEnvironment) {
 
   var ApplicationAdapter = _emberData['default'].RESTAdapter.extend({
-    namespace: _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore'
+    namespace: 'explore'
   });
 
   exports['default'] = ApplicationAdapter;
@@ -17,7 +17,7 @@ define('ember-riak-explorer/adapters/application', ['exports', 'ember-data', 'em
 define('ember-riak-explorer/adapters/bucket-list', ['exports', 'ember-riak-explorer/adapters/application', 'ember-riak-explorer/config/environment'], function (exports, _emberRiakExplorerAdaptersApplication, _emberRiakExplorerConfigEnvironment) {
   exports['default'] = _emberRiakExplorerAdaptersApplication['default'].extend({
     urlForQueryRecord: function urlForQueryRecord(query, modelName) {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters/' + query.clusterName + '/bucket_types/' + query.bucketTypeName + '/buckets?start=1&rows=' + _emberRiakExplorerConfigEnvironment['default'].pageSize;
+      return 'explore/clusters/' + query.clusterName + '/bucket_types/' + query.bucketTypeName + '/buckets?start=1&rows=' + _emberRiakExplorerConfigEnvironment['default'].pageSize;
     },
 
     queryRecord: function queryRecord(store, type, query) {
@@ -43,7 +43,7 @@ define('ember-riak-explorer/adapters/bucket-list', ['exports', 'ember-riak-explo
 define('ember-riak-explorer/adapters/bucket-type', ['exports', 'ember-riak-explorer/adapters/application', 'ember-riak-explorer/config/environment'], function (exports, _emberRiakExplorerAdaptersApplication, _emberRiakExplorerConfigEnvironment) {
   exports['default'] = _emberRiakExplorerAdaptersApplication['default'].extend({
     buildURL: function buildURL(modelName, id, snapshot, requestType, query) {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters/' + query.clusterName + '/bucket_types';
+      return 'explore/clusters/' + query.clusterName + '/bucket_types';
     },
 
     query: function query(store, type, _query) {
@@ -65,7 +65,7 @@ define('ember-riak-explorer/adapters/bucket-type', ['exports', 'ember-riak-explo
 define('ember-riak-explorer/adapters/bucket', ['exports', 'ember', 'ember-riak-explorer/adapters/application', 'ember-riak-explorer/config/environment'], function (exports, _ember, _emberRiakExplorerAdaptersApplication, _emberRiakExplorerConfigEnvironment) {
   exports['default'] = _emberRiakExplorerAdaptersApplication['default'].extend({
     buildURL: function buildURL(modelName, id, snapshot, requestType, query) {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters/' + query.clusterName + '/bucket_types/' + query.bucketTypeName + '/buckets?start=1&rows=' + _emberRiakExplorerConfigEnvironment['default'].pageSize;
+      return 'explore/clusters/' + query.clusterName + '/bucket_types/' + query.bucketTypeName + '/buckets?start=1&rows=' + _emberRiakExplorerConfigEnvironment['default'].pageSize;
     },
 
     query: function query(store, type, _query) {
@@ -91,7 +91,7 @@ define('ember-riak-explorer/adapters/bucket', ['exports', 'ember', 'ember-riak-e
       var clusterName = snapshot.belongsTo('bucketType').belongsTo('cluster').id;
       var bucketTypeName = snapshot.belongsTo('bucketType').attr('name');
       var bucketName = snapshot.attr('name');
-      var url = _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters/' + clusterName + '/bucket_types/' + bucketTypeName + '/buckets/' + bucketName;
+      var url = 'explore/clusters/' + clusterName + '/bucket_types/' + bucketTypeName + '/buckets/' + bucketName;
 
       return new _ember['default'].RSVP.Promise(function (resolve, reject) {
         _ember['default'].$.ajax({
@@ -115,14 +115,14 @@ define('ember-riak-explorer/adapters/bucket', ['exports', 'ember', 'ember-riak-e
 define('ember-riak-explorer/adapters/cluster', ['exports', 'ember-riak-explorer/adapters/application', 'ember-riak-explorer/config/environment'], function (exports, _emberRiakExplorerAdaptersApplication, _emberRiakExplorerConfigEnvironment) {
   exports['default'] = _emberRiakExplorerAdaptersApplication['default'].extend({
     urlForFindAll: function urlForFindAll(modelName) {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters';
+      return 'explore/clusters';
     }
   });
 });
 define('ember-riak-explorer/adapters/config-file', ['exports', 'ember-riak-explorer/adapters/application', 'ember-riak-explorer/config/environment'], function (exports, _emberRiakExplorerAdaptersApplication, _emberRiakExplorerConfigEnvironment) {
   exports['default'] = _emberRiakExplorerAdaptersApplication['default'].extend({
     buildURL: function buildURL(modelName, id, snapshot, requestType, query) {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters/' + query.clusterName + '/nodes/' + query.nodeName + '/config/files';
+      return 'explore/clusters/' + query.clusterName + '/nodes/' + query.nodeName + '/config/files';
     },
 
     query: function query(store, type, _query) {
@@ -147,7 +147,7 @@ define('ember-riak-explorer/adapters/config-file', ['exports', 'ember-riak-explo
 define('ember-riak-explorer/adapters/log-file', ['exports', 'ember-riak-explorer/adapters/application', 'ember-riak-explorer/config/environment'], function (exports, _emberRiakExplorerAdaptersApplication, _emberRiakExplorerConfigEnvironment) {
   exports['default'] = _emberRiakExplorerAdaptersApplication['default'].extend({
     buildURL: function buildURL(modelName, id, snapshot, requestType, query) {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters/' + query.clusterName + '/nodes/' + query.nodeName + '/log/files';
+      return 'explore/clusters/' + query.clusterName + '/nodes/' + query.nodeName + '/log/files';
     },
 
     query: function query(store, type, _query) {
@@ -172,7 +172,7 @@ define('ember-riak-explorer/adapters/log-file', ['exports', 'ember-riak-explorer
 define('ember-riak-explorer/adapters/node', ['exports', 'ember-riak-explorer/adapters/application', 'ember-riak-explorer/config/environment'], function (exports, _emberRiakExplorerAdaptersApplication, _emberRiakExplorerConfigEnvironment) {
   exports['default'] = _emberRiakExplorerAdaptersApplication['default'].extend({
     buildURL: function buildURL(modelName, id, snapshot, requestType, query) {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters/' + query.clusterName + '/nodes';
+      return 'explore/clusters/' + query.clusterName + '/nodes';
     },
 
     query: function query(store, type, _query) {
@@ -194,7 +194,7 @@ define('ember-riak-explorer/adapters/node', ['exports', 'ember-riak-explorer/ada
 define('ember-riak-explorer/adapters/object-list', ['exports', 'ember-riak-explorer/adapters/application', 'ember-riak-explorer/config/environment'], function (exports, _emberRiakExplorerAdaptersApplication, _emberRiakExplorerConfigEnvironment) {
   exports['default'] = _emberRiakExplorerAdaptersApplication['default'].extend({
     urlForQueryRecord: function urlForQueryRecord(query, modelName) {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters/' + query.clusterName + '/bucket_types/' + query.bucketTypeName + '/buckets/' + query.bucketName + '/keys?start=1&rows=' + _emberRiakExplorerConfigEnvironment['default'].pageSize;
+      return 'explore/clusters/' + query.clusterName + '/bucket_types/' + query.bucketTypeName + '/buckets/' + query.bucketName + '/keys?start=1&rows=' + _emberRiakExplorerConfigEnvironment['default'].pageSize;
     },
 
     queryRecord: function queryRecord(store, type, query) {
@@ -221,14 +221,14 @@ define('ember-riak-explorer/adapters/object-list', ['exports', 'ember-riak-explo
       var bucketTypeName = snapshot.belongsTo('bucket').belongsTo('bucketType').attr('name');
       var bucketName = snapshot.belongsTo('bucket').attr('name');
 
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters/' + clusterName + '/bucket_types/' + bucketTypeName + '/buckets/' + bucketName + '/keys';
+      return 'explore/clusters/' + clusterName + '/bucket_types/' + bucketTypeName + '/buckets/' + bucketName + '/keys';
     }
   });
 });
 define('ember-riak-explorer/adapters/riak-object', ['exports', 'ember', 'ember-riak-explorer/adapters/application', 'ember-riak-explorer/config/environment'], function (exports, _ember, _emberRiakExplorerAdaptersApplication, _emberRiakExplorerConfigEnvironment) {
   exports['default'] = _emberRiakExplorerAdaptersApplication['default'].extend({
     buildURL: function buildURL(modelName, id, snapshot, requestType, query) {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'explore/clusters/' + query.clusterName + '/bucket_types/' + query.bucketTypeName + '/buckets/' + query.bucketName + '/keys?start=1&rows=' + _emberRiakExplorerConfigEnvironment['default'].pageSize;
+      return 'explore/clusters/' + query.clusterName + '/bucket_types/' + query.bucketTypeName + '/buckets/' + query.bucketName + '/keys?start=1&rows=' + _emberRiakExplorerConfigEnvironment['default'].pageSize;
     },
 
     query: function query(store, type, _query) {
@@ -320,7 +320,7 @@ define('ember-riak-explorer/adapters/search-index', ['exports', 'ember-data', 'e
 
   var SearchIndexAdapter = _emberData['default'].RESTAdapter.extend({
     buildURL: function buildURL(modelName, id, snapshot, requestType, query) {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'riak/clusters/' + query.clusterName + '/search/index';
+      return 'riak/clusters/' + query.clusterName + '/search/index';
     },
 
     query: function query(store, type, _query) {
@@ -3060,7 +3060,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -3103,7 +3103,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -3162,7 +3162,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -3204,7 +3204,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -3256,7 +3256,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -3308,7 +3308,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -3344,7 +3344,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -3379,7 +3379,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -3426,7 +3426,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -3468,7 +3468,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -3509,7 +3509,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -3558,7 +3558,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -3597,7 +3597,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -3645,7 +3645,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -3697,7 +3697,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -3745,7 +3745,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -3789,7 +3789,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -3848,7 +3848,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -3903,7 +3903,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
                   return {
                     meta: {
                       "fragmentReason": false,
-                      "revision": "Ember@2.3.1",
+                      "revision": "Ember@2.3.2",
                       "loc": {
                         "source": null,
                         "start": {
@@ -3944,7 +3944,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -3991,7 +3991,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -4044,7 +4044,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -4079,7 +4079,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -4176,7 +4176,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -4223,7 +4223,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -4263,7 +4263,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -4304,7 +4304,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -4343,7 +4343,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -4388,7 +4388,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -4613,7 +4613,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -4656,7 +4656,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -4715,7 +4715,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -4756,7 +4756,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -4816,7 +4816,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -4863,7 +4863,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -4952,7 +4952,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -5083,7 +5083,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -5128,7 +5128,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -5378,7 +5378,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -5421,7 +5421,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -5480,7 +5480,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -5522,7 +5522,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -5563,7 +5563,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -5613,7 +5613,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -5671,7 +5671,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -5729,7 +5729,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -5801,7 +5801,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -5875,7 +5875,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -6020,7 +6020,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -6065,7 +6065,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -6198,7 +6198,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -6241,7 +6241,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -6300,7 +6300,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -6342,7 +6342,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -6383,7 +6383,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -6435,7 +6435,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -6471,7 +6471,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -6506,7 +6506,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -6553,7 +6553,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -6595,7 +6595,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -6636,7 +6636,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -6685,7 +6685,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -6724,7 +6724,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -6770,7 +6770,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -6822,7 +6822,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -6870,7 +6870,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -6914,7 +6914,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -6971,7 +6971,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -7023,7 +7023,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -7066,7 +7066,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -7119,7 +7119,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -7154,7 +7154,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -7251,7 +7251,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -7298,7 +7298,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -7338,7 +7338,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -7379,7 +7379,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -7418,7 +7418,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -7463,7 +7463,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -7536,7 +7536,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -7572,7 +7572,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -7608,7 +7608,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -7645,7 +7645,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -7681,7 +7681,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -7722,7 +7722,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -7761,7 +7761,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -7898,7 +7898,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -7946,7 +7946,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -7987,7 +7987,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -8039,7 +8039,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8075,7 +8075,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8110,7 +8110,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -8158,7 +8158,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8200,7 +8200,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8241,7 +8241,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -8282,7 +8282,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8324,7 +8324,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8365,7 +8365,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -8404,7 +8404,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -8453,7 +8453,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -8492,7 +8492,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -8536,7 +8536,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -8879,7 +8879,7 @@ define('ember-riak-explorer/pods/cluster/ops/route', ['exports', 'ember-riak-exp
 
       var clusterName = model.get('name');
 
-      controller.set('replBaseRoute', _emberRiakExplorerConfigEnvironment['default'].baseURL + 'control/clusters/' + clusterName);
+      controller.set('replBaseRoute', 'control/clusters/' + clusterName);
     }
   });
 });
@@ -8890,7 +8890,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -8957,7 +8957,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -9000,7 +9000,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -9043,7 +9043,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -9084,7 +9084,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -9137,7 +9137,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -9204,7 +9204,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -9249,7 +9249,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -9294,7 +9294,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -9341,7 +9341,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -9382,7 +9382,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -9429,7 +9429,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -9468,7 +9468,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -9515,7 +9515,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -9564,7 +9564,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -9605,7 +9605,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -9644,7 +9644,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -9692,7 +9692,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -9765,7 +9765,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -9806,7 +9806,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -9856,7 +9856,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -9898,7 +9898,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -9939,7 +9939,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -9978,7 +9978,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -10022,7 +10022,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -10133,7 +10133,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -10174,7 +10174,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -10216,7 +10216,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -10264,7 +10264,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -10322,7 +10322,7 @@ define("ember-riak-explorer/pods/error/service-not-found/template", ["exports"],
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -10379,7 +10379,7 @@ define("ember-riak-explorer/pods/error/service-not-found/template", ["exports"],
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -10427,7 +10427,7 @@ define("ember-riak-explorer/pods/error/service-not-found/template", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -10471,7 +10471,7 @@ define("ember-riak-explorer/pods/error/template", ["exports"], function (exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -10529,7 +10529,7 @@ define("ember-riak-explorer/pods/error/template", ["exports"], function (exports
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -10577,7 +10577,7 @@ define("ember-riak-explorer/pods/error/template", ["exports"], function (exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -10636,7 +10636,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -10713,7 +10713,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -10760,7 +10760,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -10823,7 +10823,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -10870,7 +10870,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -10965,7 +10965,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -11013,7 +11013,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -11079,7 +11079,7 @@ define("ember-riak-explorer/pods/index/template", ["exports"], function (exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -11135,7 +11135,7 @@ define("ember-riak-explorer/pods/index/template", ["exports"], function (exports
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -11183,7 +11183,7 @@ define("ember-riak-explorer/pods/index/template", ["exports"], function (exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -11326,7 +11326,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -11384,7 +11384,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -11432,7 +11432,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -11510,7 +11510,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -11551,7 +11551,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -11593,7 +11593,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -11638,7 +11638,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -11856,7 +11856,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -11891,7 +11891,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -11933,7 +11933,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -11969,7 +11969,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -12005,7 +12005,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -12041,7 +12041,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -12076,7 +12076,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -12139,7 +12139,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -12200,7 +12200,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -12254,7 +12254,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -12296,7 +12296,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -12341,7 +12341,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -12402,7 +12402,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -12473,7 +12473,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -12536,7 +12536,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                     return {
                       meta: {
                         "fragmentReason": false,
-                        "revision": "Ember@2.3.1",
+                        "revision": "Ember@2.3.2",
                         "loc": {
                           "source": null,
                           "start": {
@@ -12577,7 +12577,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                   return {
                     meta: {
                       "fragmentReason": false,
-                      "revision": "Ember@2.3.1",
+                      "revision": "Ember@2.3.2",
                       "loc": {
                         "source": null,
                         "start": {
@@ -12616,7 +12616,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -12658,7 +12658,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                     return {
                       meta: {
                         "fragmentReason": false,
-                        "revision": "Ember@2.3.1",
+                        "revision": "Ember@2.3.2",
                         "loc": {
                           "source": null,
                           "start": {
@@ -12733,7 +12733,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                   return {
                     meta: {
                       "fragmentReason": false,
-                      "revision": "Ember@2.3.1",
+                      "revision": "Ember@2.3.2",
                       "loc": {
                         "source": null,
                         "start": {
@@ -12787,7 +12787,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -12826,7 +12826,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -12870,7 +12870,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -12912,7 +12912,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -12959,7 +12959,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13008,7 +13008,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13043,7 +13043,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -13085,7 +13085,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.1",
+                    "revision": "Ember@2.3.2",
                     "loc": {
                       "source": null,
                       "start": {
@@ -13132,7 +13132,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13181,7 +13181,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13216,7 +13216,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -13255,7 +13255,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -13319,7 +13319,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -13361,7 +13361,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -13403,7 +13403,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -13469,7 +13469,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -13528,7 +13528,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -13569,7 +13569,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -13703,7 +13703,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -13744,7 +13744,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -13786,7 +13786,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -13831,7 +13831,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -13908,7 +13908,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -13949,7 +13949,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -14016,7 +14016,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -14080,7 +14080,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -14143,7 +14143,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -14317,7 +14317,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -14362,7 +14362,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -14409,7 +14409,7 @@ define("ember-riak-explorer/pods/riak-object/map/template", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -14469,7 +14469,7 @@ define("ember-riak-explorer/pods/riak-object/map/template", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -14513,7 +14513,7 @@ define("ember-riak-explorer/pods/riak-object/map/template", ["exports"], functio
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -14558,7 +14558,7 @@ define("ember-riak-explorer/pods/riak-object/map/template", ["exports"], functio
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -14812,7 +14812,7 @@ define("ember-riak-explorer/pods/riak-object/set/template", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -14889,7 +14889,7 @@ define("ember-riak-explorer/pods/riak-object/set/template", ["exports"], functio
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -14955,7 +14955,7 @@ define("ember-riak-explorer/pods/riak-object/set/template", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -15090,7 +15090,7 @@ define("ember-riak-explorer/pods/riak-object/set/template", ["exports"], functio
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -15135,7 +15135,7 @@ define("ember-riak-explorer/pods/riak-object/set/template", ["exports"], functio
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -15180,7 +15180,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -15221,7 +15221,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -15303,7 +15303,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -15347,7 +15347,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -15390,7 +15390,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -15431,7 +15431,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -15492,7 +15492,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -15582,7 +15582,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -15629,7 +15629,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -15665,7 +15665,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -15701,7 +15701,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.1",
+                  "revision": "Ember@2.3.2",
                   "loc": {
                     "source": null,
                     "start": {
@@ -15736,7 +15736,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -15788,7 +15788,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -15830,7 +15830,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -15872,7 +15872,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -15913,7 +15913,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -15967,7 +15967,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -16006,7 +16006,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -16054,7 +16054,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -16181,7 +16181,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -16224,7 +16224,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -16271,7 +16271,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -16320,7 +16320,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -16355,7 +16355,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -16502,7 +16502,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -16550,7 +16550,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -16653,7 +16653,7 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -16694,7 +16694,7 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -16759,7 +16759,7 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -16841,7 +16841,7 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -16888,7 +16888,7 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -16981,7 +16981,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -17022,7 +17022,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -17094,7 +17094,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -17148,7 +17148,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -17190,7 +17190,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -17235,7 +17235,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -17336,7 +17336,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -17377,7 +17377,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -17451,7 +17451,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.1",
+                "revision": "Ember@2.3.2",
                 "loc": {
                   "source": null,
                   "start": {
@@ -17492,7 +17492,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -17531,7 +17531,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -17573,7 +17573,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -17618,7 +17618,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -18948,7 +18948,7 @@ define("ember-riak-explorer/templates/alerts/empty", ["exports"], function (expo
           "name": "missing-wrapper",
           "problems": ["empty-body"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -18988,7 +18988,7 @@ define("ember-riak-explorer/templates/alerts/error-invalid-xml", ["exports"], fu
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -19035,7 +19035,7 @@ define("ember-riak-explorer/templates/alerts/error-invalid-xml", ["exports"], fu
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -19081,7 +19081,7 @@ define("ember-riak-explorer/templates/alerts/error-request-was-not-processed", [
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -19136,7 +19136,7 @@ define("ember-riak-explorer/templates/alerts/error-request-was-not-processed", [
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -19182,7 +19182,7 @@ define("ember-riak-explorer/templates/alerts/error-schema-not-saved", ["exports"
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -19229,7 +19229,7 @@ define("ember-riak-explorer/templates/alerts/error-schema-not-saved", ["exports"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -19276,7 +19276,7 @@ define("ember-riak-explorer/templates/alerts/error-set-items-unique", ["exports"
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -19329,7 +19329,7 @@ define("ember-riak-explorer/templates/alerts/error-set-items-unique", ["exports"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -19375,7 +19375,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-name", ["expor
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -19422,7 +19422,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-name", ["expor
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -19468,7 +19468,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-version", ["ex
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -19515,7 +19515,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-version", ["ex
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -19561,7 +19561,7 @@ define("ember-riak-explorer/templates/alerts/feedback-welcome", ["exports"], fun
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -19619,7 +19619,7 @@ define("ember-riak-explorer/templates/alerts/feedback-welcome", ["exports"], fun
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -19663,7 +19663,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -19712,7 +19712,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -19756,7 +19756,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -19800,7 +19800,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -19843,7 +19843,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -19885,7 +19885,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -19927,7 +19927,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -19968,7 +19968,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -20073,7 +20073,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -20130,7 +20130,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -20243,7 +20243,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20287,7 +20287,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20335,7 +20335,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20383,7 +20383,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20431,7 +20431,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20473,7 +20473,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20514,7 +20514,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -20580,7 +20580,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20624,7 +20624,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20672,7 +20672,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20716,7 +20716,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20759,7 +20759,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -20815,7 +20815,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20859,7 +20859,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20903,7 +20903,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20947,7 +20947,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -20988,7 +20988,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -21044,7 +21044,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -21103,7 +21103,7 @@ define("ember-riak-explorer/templates/components/bs-accordion-item", ["exports"]
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -21154,7 +21154,7 @@ define("ember-riak-explorer/templates/components/bs-accordion-item", ["exports"]
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -21226,7 +21226,7 @@ define("ember-riak-explorer/templates/components/bs-alert", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -21279,7 +21279,7 @@ define("ember-riak-explorer/templates/components/bs-alert", ["exports"], functio
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -21325,7 +21325,7 @@ define("ember-riak-explorer/templates/components/bs-alert", ["exports"], functio
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -21370,7 +21370,7 @@ define("ember-riak-explorer/templates/components/bs-button", ["exports"], functi
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -21413,7 +21413,7 @@ define("ember-riak-explorer/templates/components/bs-button", ["exports"], functi
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -21462,7 +21462,7 @@ define("ember-riak-explorer/templates/components/bs-form-group", ["exports"], fu
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -21508,7 +21508,7 @@ define("ember-riak-explorer/templates/components/bs-form-group", ["exports"], fu
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -21558,7 +21558,7 @@ define("ember-riak-explorer/templates/components/bs-form", ["exports"], function
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -21601,7 +21601,7 @@ define("ember-riak-explorer/templates/components/bs-modal-dialog", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -21644,7 +21644,7 @@ define("ember-riak-explorer/templates/components/bs-modal-dialog", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -21685,7 +21685,7 @@ define("ember-riak-explorer/templates/components/bs-modal-dialog", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -21725,7 +21725,7 @@ define("ember-riak-explorer/templates/components/bs-modal-dialog", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -21767,7 +21767,7 @@ define("ember-riak-explorer/templates/components/bs-modal-dialog", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -21810,7 +21810,7 @@ define("ember-riak-explorer/templates/components/bs-modal-dialog", ["exports"], 
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -21878,7 +21878,7 @@ define("ember-riak-explorer/templates/components/bs-modal-footer", ["exports"], 
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -21922,7 +21922,7 @@ define("ember-riak-explorer/templates/components/bs-modal-footer", ["exports"], 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -21962,7 +21962,7 @@ define("ember-riak-explorer/templates/components/bs-modal-footer", ["exports"], 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -22001,7 +22001,7 @@ define("ember-riak-explorer/templates/components/bs-modal-footer", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -22049,7 +22049,7 @@ define("ember-riak-explorer/templates/components/bs-modal-footer", ["exports"], 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -22088,7 +22088,7 @@ define("ember-riak-explorer/templates/components/bs-modal-footer", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -22129,7 +22129,7 @@ define("ember-riak-explorer/templates/components/bs-modal-footer", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -22171,7 +22171,7 @@ define("ember-riak-explorer/templates/components/bs-modal-footer", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -22217,7 +22217,7 @@ define("ember-riak-explorer/templates/components/bs-modal-header", ["exports"], 
             "name": "modifiers",
             "modifiers": ["action"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -22268,7 +22268,7 @@ define("ember-riak-explorer/templates/components/bs-modal-header", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -22310,7 +22310,7 @@ define("ember-riak-explorer/templates/components/bs-modal-header", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -22357,7 +22357,7 @@ define("ember-riak-explorer/templates/components/bs-modal-header", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -22404,7 +22404,7 @@ define("ember-riak-explorer/templates/components/bs-modal", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -22446,7 +22446,7 @@ define("ember-riak-explorer/templates/components/bs-modal", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -22492,7 +22492,7 @@ define("ember-riak-explorer/templates/components/bs-modal", ["exports"], functio
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -22541,7 +22541,7 @@ define("ember-riak-explorer/templates/components/bs-modal", ["exports"], functio
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -22585,7 +22585,7 @@ define("ember-riak-explorer/templates/components/bs-progress-bar", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -22627,7 +22627,7 @@ define("ember-riak-explorer/templates/components/bs-progress-bar", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -22668,7 +22668,7 @@ define("ember-riak-explorer/templates/components/bs-progress-bar", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -22709,7 +22709,7 @@ define("ember-riak-explorer/templates/components/bs-progress-bar", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -22754,7 +22754,7 @@ define("ember-riak-explorer/templates/components/bs-progress-bar", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -22800,7 +22800,7 @@ define("ember-riak-explorer/templates/components/bs-progress-bar", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -22843,7 +22843,7 @@ define("ember-riak-explorer/templates/components/bs-progress-bar", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -22889,7 +22889,7 @@ define("ember-riak-explorer/templates/components/bs-progress", ["exports"], func
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -22935,7 +22935,7 @@ define("ember-riak-explorer/templates/components/bs-select", ["exports"], functi
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -22986,7 +22986,7 @@ define("ember-riak-explorer/templates/components/bs-select", ["exports"], functi
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -23039,7 +23039,7 @@ define("ember-riak-explorer/templates/components/bs-select", ["exports"], functi
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23089,7 +23089,7 @@ define("ember-riak-explorer/templates/components/button/delete-object", ["export
           "name": "modifiers",
           "modifiers": ["action"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23146,7 +23146,7 @@ define("ember-riak-explorer/templates/components/button/edit-object", ["exports"
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -23190,7 +23190,7 @@ define("ember-riak-explorer/templates/components/button/edit-object", ["exports"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23235,7 +23235,7 @@ define("ember-riak-explorer/templates/components/button/object-view-raw", ["expo
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23290,7 +23290,7 @@ define("ember-riak-explorer/templates/components/button/refresh-buckets", ["expo
           "name": "modifiers",
           "modifiers": ["action"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23346,7 +23346,7 @@ define("ember-riak-explorer/templates/components/button/refresh-keys", ["exports
           "name": "modifiers",
           "modifiers": ["action"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23402,7 +23402,7 @@ define("ember-riak-explorer/templates/components/button/set-element-remove", ["e
           "name": "modifiers",
           "modifiers": ["action"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23458,7 +23458,7 @@ define("ember-riak-explorer/templates/components/cluster-status-indicator", ["ex
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23501,7 +23501,7 @@ define("ember-riak-explorer/templates/components/code-highlighter", ["exports"],
     return {
       meta: {
         "fragmentReason": false,
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23554,7 +23554,7 @@ define("ember-riak-explorer/templates/components/dashboard-module/body", ["expor
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23600,7 +23600,7 @@ define("ember-riak-explorer/templates/components/dashboard-module/container", ["
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23646,7 +23646,7 @@ define("ember-riak-explorer/templates/components/dashboard-module/header", ["exp
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -23693,7 +23693,7 @@ define("ember-riak-explorer/templates/components/dashboard-module/header", ["exp
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23743,7 +23743,7 @@ define("ember-riak-explorer/templates/components/form-element/errors", ["exports
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -23790,7 +23790,7 @@ define("ember-riak-explorer/templates/components/form-element/errors", ["exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23835,7 +23835,7 @@ define("ember-riak-explorer/templates/components/form-element/feedback-icon", ["
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -23881,7 +23881,7 @@ define("ember-riak-explorer/templates/components/form-element/feedback-icon", ["
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -23925,7 +23925,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/checkbo
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -24001,7 +24001,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/default
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -24071,7 +24071,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/default
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -24133,7 +24133,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/default
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -24179,7 +24179,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/select"
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -24249,7 +24249,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/select"
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -24311,7 +24311,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/select"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -24357,7 +24357,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/select2
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -24427,7 +24427,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/select2
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -24489,7 +24489,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/select2
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -24535,7 +24535,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/textare
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -24605,7 +24605,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/textare
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -24667,7 +24667,7 @@ define("ember-riak-explorer/templates/components/form-element/horizontal/textare
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -24711,7 +24711,7 @@ define("ember-riak-explorer/templates/components/form-element/inline/checkbox", 
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -24773,7 +24773,7 @@ define("ember-riak-explorer/templates/components/form-element/inline/default", [
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -24822,7 +24822,7 @@ define("ember-riak-explorer/templates/components/form-element/inline/default", [
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -24876,7 +24876,7 @@ define("ember-riak-explorer/templates/components/form-element/inline/select", ["
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -24925,7 +24925,7 @@ define("ember-riak-explorer/templates/components/form-element/inline/select", ["
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -24979,7 +24979,7 @@ define("ember-riak-explorer/templates/components/form-element/inline/textarea", 
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -25028,7 +25028,7 @@ define("ember-riak-explorer/templates/components/form-element/inline/textarea", 
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -25086,7 +25086,7 @@ define("ember-riak-explorer/templates/components/form-element/vertical/checkbox"
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -25154,7 +25154,7 @@ define("ember-riak-explorer/templates/components/form-element/vertical/default",
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -25203,7 +25203,7 @@ define("ember-riak-explorer/templates/components/form-element/vertical/default",
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -25261,7 +25261,7 @@ define("ember-riak-explorer/templates/components/form-element/vertical/select", 
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -25310,7 +25310,7 @@ define("ember-riak-explorer/templates/components/form-element/vertical/select", 
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -25364,7 +25364,7 @@ define("ember-riak-explorer/templates/components/form-element/vertical/textarea"
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -25413,7 +25413,7 @@ define("ember-riak-explorer/templates/components/form-element/vertical/textarea"
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -25472,7 +25472,7 @@ define("ember-riak-explorer/templates/components/link/bucket-type", ["exports"],
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -25516,7 +25516,7 @@ define("ember-riak-explorer/templates/components/link/bucket-type", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -25562,7 +25562,7 @@ define("ember-riak-explorer/templates/components/link/link-bucket", ["exports"],
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -25606,7 +25606,7 @@ define("ember-riak-explorer/templates/components/link/link-bucket", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -25650,7 +25650,7 @@ define("ember-riak-explorer/templates/components/link/link-cluster", ["exports"]
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -25688,7 +25688,7 @@ define("ember-riak-explorer/templates/components/link/link-cluster", ["exports"]
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -25748,7 +25748,7 @@ define("ember-riak-explorer/templates/components/link/link-cluster", ["exports"]
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -25794,7 +25794,7 @@ define("ember-riak-explorer/templates/components/link/link-index", ["exports"], 
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -25838,7 +25838,7 @@ define("ember-riak-explorer/templates/components/link/link-index", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -25881,7 +25881,7 @@ define("ember-riak-explorer/templates/components/link/link-object", ["exports"],
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -25926,7 +25926,7 @@ define("ember-riak-explorer/templates/components/link/link-object", ["exports"],
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -25967,7 +25967,7 @@ define("ember-riak-explorer/templates/components/link/link-object", ["exports"],
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -26009,7 +26009,7 @@ define("ember-riak-explorer/templates/components/link/link-object", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -26052,7 +26052,7 @@ define("ember-riak-explorer/templates/components/loading-spinner", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -26102,7 +26102,7 @@ define("ember-riak-explorer/templates/components/loading-spinner", ["exports"], 
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -26220,7 +26220,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -26263,7 +26263,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -26305,7 +26305,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.1",
+              "revision": "Ember@2.3.2",
               "loc": {
                 "source": null,
                 "start": {
@@ -26348,7 +26348,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -26390,7 +26390,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -26432,7 +26432,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -26475,7 +26475,7 @@ define("ember-riak-explorer/templates/components/map-object/map", ["exports"], f
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -26524,7 +26524,7 @@ define("ember-riak-explorer/templates/components/map-object/map", ["exports"], f
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -26574,7 +26574,7 @@ define("ember-riak-explorer/templates/components/map-object/map", ["exports"], f
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -26667,7 +26667,7 @@ define("ember-riak-explorer/templates/components/map-object/maps", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -26711,7 +26711,7 @@ define("ember-riak-explorer/templates/components/map-object/maps", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -26775,7 +26775,7 @@ define("ember-riak-explorer/templates/components/map-object/section", ["exports"
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -26828,7 +26828,7 @@ define("ember-riak-explorer/templates/components/map-object/section", ["exports"
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -26880,7 +26880,7 @@ define("ember-riak-explorer/templates/components/map-object/section", ["exports"
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -26956,7 +26956,7 @@ define("ember-riak-explorer/templates/components/map-object/section", ["exports"
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -27049,7 +27049,7 @@ define("ember-riak-explorer/templates/components/map-object/section", ["exports"
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -27131,7 +27131,7 @@ define("ember-riak-explorer/templates/components/map-object/sets", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -27184,7 +27184,7 @@ define("ember-riak-explorer/templates/components/map-object/sets", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -27260,7 +27260,7 @@ define("ember-riak-explorer/templates/components/map-object/sets", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -27338,7 +27338,7 @@ define("ember-riak-explorer/templates/components/pagination-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -27384,7 +27384,7 @@ define("ember-riak-explorer/templates/components/pagination-component", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -27456,7 +27456,7 @@ define("ember-riak-explorer/templates/components/pagination-component", ["export
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -27510,7 +27510,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-advanced", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -27584,7 +27584,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-advanced", [
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -27627,7 +27627,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -27670,7 +27670,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -27713,7 +27713,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -27797,7 +27797,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -27838,7 +27838,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -27878,7 +27878,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -27916,7 +27916,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -28101,7 +28101,7 @@ define("ember-riak-explorer/templates/components/table/bucket-types", ["exports"
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -28195,7 +28195,7 @@ define("ember-riak-explorer/templates/components/table/bucket-types", ["exports"
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -28278,7 +28278,7 @@ define("ember-riak-explorer/templates/components/table/object-headers", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -28339,7 +28339,7 @@ define("ember-riak-explorer/templates/components/table/object-headers", ["export
     return {
       meta: {
         "fragmentReason": false,
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -28385,7 +28385,7 @@ define("ember-riak-explorer/templates/components/table/object-version", ["export
     return {
       meta: {
         "fragmentReason": false,
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -28496,7 +28496,7 @@ define("ember-riak-explorer/templates/components/table/search-indexes", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.1",
+            "revision": "Ember@2.3.2",
             "loc": {
               "source": null,
               "start": {
@@ -28537,7 +28537,7 @@ define("ember-riak-explorer/templates/components/table/search-indexes", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -28608,7 +28608,7 @@ define("ember-riak-explorer/templates/components/table/search-indexes", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -28646,7 +28646,7 @@ define("ember-riak-explorer/templates/components/table/search-indexes", ["export
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -28725,7 +28725,7 @@ define("ember-riak-explorer/templates/components/tooltip/bucket-props", ["export
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -28771,7 +28771,7 @@ define("ember-riak-explorer/templates/components/tooltip/node-config", ["exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -28817,7 +28817,7 @@ define("ember-riak-explorer/templates/components/tooltip/node-stats", ["exports"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -28861,7 +28861,7 @@ define("ember-riak-explorer/templates/components/view-label", ["exports"], funct
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -28901,7 +28901,7 @@ define("ember-riak-explorer/templates/components/view-label", ["exports"], funct
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -28944,7 +28944,7 @@ define("ember-riak-explorer/templates/components/view-label", ["exports"], funct
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -28992,7 +28992,7 @@ define("ember-riak-explorer/templates/components/wrapper-panel", ["exports"], fu
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
@@ -29049,7 +29049,7 @@ define("ember-riak-explorer/templates/partials/topbar", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -29090,7 +29090,7 @@ define("ember-riak-explorer/templates/partials/topbar", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.1",
+          "revision": "Ember@2.3.2",
           "loc": {
             "source": null,
             "start": {
@@ -29133,7 +29133,7 @@ define("ember-riak-explorer/templates/partials/topbar", ["exports"], function (e
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.1",
+        "revision": "Ember@2.3.2",
         "loc": {
           "source": null,
           "start": {
