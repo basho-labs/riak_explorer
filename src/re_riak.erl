@@ -833,11 +833,7 @@ bucket_type(Node, BucketType) ->
 bucket_types(Node) ->
     load_patch(Node),
     List0 = remote(Node, re_riak_patch, bucket_types, []),
-    List1 = lists:filtermap(
-              fun([{name, _}, {props, Props}]) ->
-                      proplists:get_value(ddl, Props) =:= undefined
-              end, List0),
-    List = lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List1),
+    List = lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List0),
     [{bucket_types, List}].
 
 table(Node, Table) ->
