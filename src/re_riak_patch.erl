@@ -21,6 +21,7 @@
 -module(re_riak_patch).
 -export([
   is_enterprise/0,
+  is_timeseries/0,
   version/0,
   bucket_type_create/1,
   bucket_type_activate/1,
@@ -46,8 +47,14 @@ is_enterprise() ->
         _ -> false
     end.
 
+is_timeseries() ->
+    case code:ensure_loaded(riak_ql_ddl) of
+        {module,riak_ql_ddl} -> true;
+        _ -> false
+    end.
+
 %% Increment this when code changes
-version() -> 10.
+version() -> 11.
 
 bucket_type_print_status(Type, undefined) ->
     [{error, format, [{error, list_to_binary(io_lib:format("~ts is not an existing bucket type", [Type]))}]}];

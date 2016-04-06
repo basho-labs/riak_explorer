@@ -796,9 +796,12 @@ node_config(_, Node) ->
 
 riak_type(Node) ->
     load_patch(Node),
-    case remote(Node, re_riak_patch, is_enterprise, []) of
-        false -> oss;
-        true -> ee;
+    case {remote(Node, re_riak_patch, is_enterprise, []),
+          remote(Node, re_riak_patch, is_timeseries, [])}of
+        {false, false} -> oss;
+        {true, false} -> ee;
+        {false, true} -> ts;
+        {true, true} -> ts_ee;
         Other when is_atom(Other) -> Other;
         _ -> oss
     end.
