@@ -110,6 +110,7 @@ halt_json(Code, Data, RD, Ctx) ->
      wrq:set_resp_headers([{<<"Content-Type">>, <<"application/json">>}],
      wrq:set_resp_body(mochijson2:encode(Data), RD)),
      Ctx}.
+
 %% ====================================================================
 %% Private
 %% ====================================================================

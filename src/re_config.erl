@@ -33,10 +33,9 @@
          web_config/0,
          url/0, url/2,
          clusters/0, cluster/1,
+         cluster_exists/1,
          riak_node/1,
          web_root/0]).
-
--include("riak_explorer.hrl").
 
 %%%===================================================================
 %%% API
@@ -148,6 +147,14 @@ clusters() ->
             application:get_env(riak_explorer, clusters, Def);
         _ ->
             proplists:delete(default, application:get_env(riak_explorer, clusters, []))
+    end.
+
+cluster_exists(Cluster) ->
+    case cluster(Cluster) of
+        [{error, not_found}] ->
+            false;
+        _ ->
+            true
     end.
 
 %% A little hacky, but in order to get rid of cuttlefish's auto-default cluster, we need to do something like this

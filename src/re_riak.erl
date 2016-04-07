@@ -20,7 +20,6 @@
 
 -module(re_riak).
 
--include("riak_explorer.hrl").
 -compile({no_auto_import,[nodes/1]}).
 
 -export([repair/1,
@@ -87,17 +86,21 @@
 
 -export([log_files/1,
          log_file/3,
+         log_file_exists/2,
          config_file/2,
          config_files/1,
+         config_file_exists/2,
          node_info/1,
-         node_config/2,
+         node_config/1,
          node_exists/2,
          riak_type/1,
          riak_version/1,
          http_listener/1,
          pb_listener/1,
+         bucket_type_exists/2,
          bucket_type/2,
          bucket_types/1,
+         table_exists/2,
          table/2,
          tables/1,
          create_bucket_type/3]).
@@ -724,6 +727,10 @@ log_files(Node) ->
     WithIds = lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files),
     [{files, WithIds}].
 
+log_file_exists(Node, File) ->
+    Files = remote(Node, re_riak_patch, get_log_files, []),
+    lists:member(File, Files).
+
 log_file(Node, File, NumLines) ->
     case re:run(File, ".log(.[0-9])?$") of
         {match,_} ->
@@ -744,25 +751,17 @@ config_files(Node) ->
     WithIds = lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files),
     [{files, WithIds}].
 
+config_file_exists(Node, File) ->
+    Files = remote(Node, re_riak_patch, get_config_files, []),
+    lists:member(File, Files).
+
 config_file(Node, File) ->
-    ValidFiles = [
-        "riak.conf",
-        "advanced.config",
-        "solr-log4j.properties",
-        "app.config",
-        "vm.args"
-    ],
-    case lists:member(File, ValidFiles) of
-        true ->
-            load_patch(Node),
-            case remote(Node, re_riak_patch, get_config, [File]) of
-                {error, _} ->
-                    [{error, not_found}];
-                Lines ->
-                    [{files, [{lines, Lines}]}]
-            end;
-        _ ->
-            [{error, not_found}]
+    load_patch(Node),
+    case remote(Node, re_riak_patch, get_config, [File]) of
+        {error, _} ->
+            [{error, not_found}];
+        Lines ->
+            [{files, [{lines, Lines}]}]
     end.
 
 node_info(Node) ->
@@ -773,7 +772,7 @@ node_info(Node) ->
     %  {riak_version, riak_version(Node)}].
     [{id, Node}].
 
-node_config(_, Node) ->
+node_config(Node) ->
     case load_patch(Node) of
         ok ->
             try
@@ -819,6 +818,14 @@ pb_listener(Node) ->
     {ok,[{_,Port}]} = remote(Node, application, get_env, [riak_api, pb]),
     [{pb_listener, list_to_binary(Addr ++ ":" ++ integer_to_list(Port))}].
 
+bucket_type_exists(Node, BucketType) ->
+    case bucket_type(Node, BucketType) of
+        [{error, not_found}] ->
+            false;
+        _ ->
+            true
+    end.
+
 bucket_type(Node, BucketType) ->
     FlatProps = lists:flatten([proplists:get_value(props, Prop) ||
                            Prop <- proplists:get_value(bucket_types, bucket_types(Node)),
@@ -839,6 +846,12 @@ bucket_types(Node) ->
               end, List0),
     List = lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List1),
     [{bucket_types, List}].
+
+table_exists(Node, Table) ->
+    case table(Node, Table) of
+        [{error, not_found}] -> false;
+        _ -> true
+    end.
 
 table(Node, Table) ->
     FlatProps = lists:flatten([proplists:get_value(props, Prop) ||
@@ -904,8 +917,7 @@ cluster_info(Id) ->
 
 clusters() ->
     Clusters = lists:keysort(1, re_config:clusters()),
-    Mapped = [cluster_info(Cluster) || Cluster <- Clusters],
-    [{clusters, Mapped}].
+    [cluster_info(Cluster) || Cluster <- Clusters].
 
 cluster(Id) ->
     cluster_info(Id).
