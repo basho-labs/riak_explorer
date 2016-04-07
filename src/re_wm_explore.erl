@@ -63,15 +63,28 @@
          bucket_delete/1,
          bucket_jobs/1]).
 
+-export([refresh_keys/1,
+         keys/1,
+         keys_delete/1,
+         keys_put/1]).
+
 -define(BASE, "explore").
 -define(EXPLORE_BASE, [?BASE]).
+
 -define(CLUSTER_BASE, [?BASE, "clusters", cluster]).
--define(NODE_BASE, [?CLUSTER_BASE,
-                    ?CLUSTER_BASE ++ ["nodes", node], 
-                    [?BASE, "nodes", node]]).
--define(BUCKET_TYPE_BASE, [?CLUSTER_BASE ++ ["bucket_types", bucket_type],
-                    ?CLUSTER_BASE ++ ["nodes", node, "bucket_types", bucket_type], 
-                    [?BASE, "nodes", node, "bucket_types", bucket_type]]).
+-define(CLUSTER_NODE, ?CLUSTER_BASE ++ ["nodes", node]).
+-define(BASE_NODE, [?BASE, "nodes", node]).
+-define(NODE_BASE, [?CLUSTER_BASE, ?CLUSTER_NODE, ?BASE_NODE]).
+
+-define(CLUSTER_TYPE, ?CLUSTER_BASE ++ ["bucket_types", bucket_type]).
+-define(CLUSTER_NODE_TYPE, ?CLUSTER_BASE ++ ["nodes", node, "bucket_types", bucket_type]).
+-define(BASE_TYPE, [?BASE, "nodes", node, "bucket_types", bucket_type]).
+-define(BUCKET_TYPE_BASE, [?CLUSTER_TYPE, ?CLUSTER_NODE_TYPE, ?BASE_TYPE]).
+
+-define(CLUSTER_BUCKET, ?CLUSTER_TYPE ++ ["buckets", bucket]).
+-define(CLUSTER_NODE_BUCKET, ?CLUSTER_NODE_TYPE ++ ["buckets", bucket]).
+-define(BASE_BUCKET, ?BASE_TYPE ++ ["buckets", bucket]).
+-define(BUCKET_BASE, [?CLUSTER_BUCKET, ?CLUSTER_NODE_BUCKET, ?BASE_BUCKET]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("re_wm.hrl").
@@ -186,7 +199,21 @@ routes() ->
      #route{base=?BUCKET_TYPE_BASE,
             path=["buckets",bucket,"jobs"], 
             exists={?MODULE,bucket_exists},
-            content={?MODULE,bucket_jobs}}
+            content={?MODULE,bucket_jobs}},
+     %% Key
+     #route{base=?BUCKET_BASE,
+            path=["refresh_keys", "source", "riak_kv"],
+            methods=['POST'],
+            exists={?MODULE,bucket_exists},
+            content={?MODULE,refresh_keys}},
+     #route{base=?BUCKET_BASE,
+            path=["keys"],
+            methods=['PUT','GET','DELETE'],
+            exists={?MODULE,bucket_exists},
+            content={?MODULE,keys},
+            accepts=?ACCEPT_TEXT,
+            accept={?MODULE,keys_put},
+            delete={?MODULE,keys_delete}}
     ].
 
 %%%===================================================================
@@ -352,8 +379,7 @@ bucket_type(ReqData) ->
 bucket_type_put(ReqData) ->
     N = rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
-    RawValue = wrq:req_body(RD),
-
+    RawValue = wrq:req_body(ReqData),
     case re_riak:create_bucket_type(N, T, RawValue) of
         [{error, _, Message}] ->
             {false, wrq:append_to_response_body(mochijson2:encode(Message), ReqData)};
@@ -361,7 +387,7 @@ bucket_type_put(ReqData) ->
             {true, wrq:append_to_response_body(mochijson2:encode(Response), ReqData)}
     end.
 
-bucket_type_jobs(_ReqData) ->
+bucket_type_jobs(ReqData) ->
     Jobs = case re_job_manager:get(buckets) of
         [{error, not_found}] -> [];
         J -> [J]
@@ -394,9 +420,12 @@ buckets_delete(ReqData) ->
     C = rd_cluster(ReqData),
     N = rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
-    JobsPath = wrq:path(ReqData) ++ "/jobs",
-    JobResponse = re_riak:clean_buckets(C, N, T),
-    set_jobs_response(JobResponse, JobsPath, ReqData).
+    case re_riak:clean_buckets(C, N, T) of
+        ok ->
+            {true, ReqData};
+        _ ->
+            {false, ReqData}
+    end.
 
 buckets_put(ReqData) ->
     C = rd_cluster(ReqData),
@@ -419,18 +448,22 @@ buckets_put(ReqData) ->
     end.
     
 bucket_exists(ReqData) ->
-    Id = list_to_binary(Bucket),
-    Response = [{buckets, [{id,Id}, {props, []}]}],
+    bucket_type_exists(ReqData).
 
 bucket(ReqData) ->
-    Id = list_to_binary(Bucket),
-    Response = [{buckets, [{id,Id}, {props, []}]}],
+    B = list_to_binary(wrq:path_info(bucket, ReqData)),
+    {[{B, [{id,B}, {props, []}]}], ReqData}.
 
 bucket_delete(ReqData) ->
-    re_riak:delete_bucket(Cluster, Node, BucketType, Bucket));
+    C = rd_cluster(ReqData),
+    N = rd_node(ReqData),
+    T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
+    B = list_to_binary(wrq:path_info(bucket, ReqData)),
+    JobsPath = wrq:path(ReqData) ++ "/jobs",
+    JobResponse = re_riak:delete_bucket(C, N, T, B),
+    set_jobs_response(JobResponse, JobsPath, ReqData).
 
-bucket_jobs(_ReqData) ->
-    %%TODO need to add filter criteria potentially
+bucket_jobs(ReqData) ->
     KeysJobs = case re_job_manager:get(keys) of
         [{error, not_found}] -> [];
         KJ -> [KJ]
@@ -439,7 +472,62 @@ bucket_jobs(_ReqData) ->
         [{error, not_found}] -> [];
         DJ -> [DJ]
     end,
-    [{jobs, KeysJobs ++ DeleteBucketJobs}].
+    {[{jobs, KeysJobs ++ DeleteBucketJobs}], ReqData}.
+
+refresh_keys(ReqData) ->
+    C = rd_cluster(ReqData),
+    N = rd_node(ReqData),
+    T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
+    B = list_to_binary(wrq:path_info(bucket, ReqData)),
+    Sort = list_to_atom(wrq:get_qs_value("sort","true",ReqData)),
+    Options = [{sort, Sort}],
+    JobsPath = string:substr(wrq:path(ReqData),1,
+                             string:str(wrq:path(ReqData), 
+                                        "refresh_keys") - 1) ++ "jobs",
+    JobResponse = re_riak:list_keys(C, N, T, B, Options),
+    set_jobs_response(JobResponse, JobsPath, ReqData).
+
+keys(ReqData) ->
+    C = rd_cluster(ReqData),
+    N = rd_node(ReqData),
+    T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
+    B = list_to_binary(wrq:path_info(bucket, ReqData)),
+    Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
+    Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
+    {re_riak:list_keys_cache(C, N, T, B, Start, Rows), ReqData}.
+
+keys_delete(ReqData) ->
+    C = rd_cluster(ReqData),
+    N = rd_node(ReqData),
+    T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
+    B = list_to_binary(wrq:path_info(bucket, ReqData)),
+    case re_riak:clean_keys(C, N, T, B) of
+        ok ->
+            {true, ReqData};
+        _ ->
+            {false, ReqData}
+    end.
+
+keys_put(ReqData) ->
+    C = rd_cluster(ReqData),
+    N = rd_node(ReqData),
+    T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
+    B = list_to_binary(wrq:path_info(bucket, ReqData)),
+    RawValue = wrq:req_body(ReqData),
+    Keys = case wrq:get_req_header("Content-Type", ReqData) of
+               "application/json" ->
+                   {struct, [{<<"keys">>, K}]} = mochijson2:decode(RawValue),
+                   K;
+               "plain/text" ->
+                   KeysStr = string:tokens(RawValue, "\n"),
+                   lists:map(fun(K) -> list_to_binary(K) end, KeysStr)
+           end,
+    case re_riak:put_keys(C, N, T, B, Keys) of
+        ok ->
+            {true, ReqData};
+        _ ->
+            {false, ReqData}
+    end.
 
 %% ====================================================================
 %% Private
