@@ -92,7 +92,6 @@
          config_file_exists/2,
          node_info/1,
          node_config/1,
-         node_exists/2,
          riak_type/1,
          riak_version/1,
          http_listener/1,
@@ -272,7 +271,7 @@ status(Node) ->
                     {[NodeObj|Nodes0], Joining0, Valid0, Down0, Leaving0, Exiting0 + 1}
             end
         end, {[],0,0,0,0,0}, AllStatus),
-    [{control, [
+    [{status, [
         {nodes, lists:reverse(Nodes)},
         {valid, Valid},
         {leaving, Leaving},
@@ -942,19 +941,6 @@ nodes(Cluster) ->
         Error -> Error
     end.
 
-node_exists(Cluster, Node) ->
-    [{nodes, Nodes}] = nodes(Cluster),
-    Filter = lists:filter(fun(X) ->
-        Id = proplists:get_value(id, X),
-        case Id of
-            Node -> true;
-            _ -> false
-        end end, Nodes),
-    case length(Filter) of
-        N when N > 0 -> true;
-        _ -> false
-    end.
-
 %%%===================================================================
 %%% Utility API
 %%%===================================================================
@@ -967,8 +953,6 @@ load_patch(Node) ->
 remote(N, M, F, A) ->
     safe_rpc(N, M, F, A, 60000).
 
-node_is_alive([{error, _}]) ->
-    false;
 node_is_alive(Node) ->
     case remote(Node, erlang, node, []) of
         {error,_} -> false;

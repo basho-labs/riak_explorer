@@ -20,7 +20,6 @@
 
 -module(re_file_util).
 
--include("riak_explorer.hrl").
 -export([add_slash/1,ensure_data_dir/1,for_each_line_in_file/4]).
 
 %%%===================================================================

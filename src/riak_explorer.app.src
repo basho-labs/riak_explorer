@@ -15,7 +15,7 @@
                   lager,
                   ibrowse
                  ]},
-  {mod, { re_app, []}},
+  {mod, { riak_explorer, []}},
   {env, [
       {listener, {"127.0.0.1", 9000}}
   ]}

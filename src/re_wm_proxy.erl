@@ -18,90 +18,83 @@
 %%
 %% -------------------------------------------------------------------
 
--module(re_wm_riak_proxy).
--export([resources/0, routes/0, dispatch/0]).
--export([init/1]).
--export([service_available/2]).
+-module(re_wm_proxy).
 
--record(ctx, {cluster, node}).
+-export([routes/0]).
+
+-export([proxy_available/1]).
+
+-define(BASE, "riak").
+-define(PROXY_BASE, [?BASE]).
 
 -include_lib("webmachine/include/webmachine.hrl").
--include("riak_explorer.hrl").
+-include("re_wm.hrl").
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-resources() ->
-    [].
-
+-spec routes() -> [route()].
 routes() ->
-    re_config:build_routes(?RE_RIAK_PROXY_ROUTE, [
-        ["clusters", cluster, '*'],
-        ["nodes", node, '*']
-    ]).
-
-dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
+    [#route{base=[?PROXY_BASE], 
+            path=[["clusters", cluster, '*']], 
+            available={?MODULE,proxy_available}},
+     #route{base=[?PROXY_BASE], 
+            path=[["nodes", node, '*']], 
+            available={?MODULE,proxy_available}}
+    ].
 
 %%%===================================================================
 %%% Callbacks
 %%%===================================================================
 
-init(_) ->
-    {ok, #ctx{}}.
-
-service_available(RD, Ctx0) ->
-    Cluster = re_wm_util:maybe_atomize(wrq:path_info(cluster, RD)),
-    Node0 = re_wm_util:maybe_atomize(wrq:path_info(node, RD)),
-    Node = re_wm_util:node_from_context(Cluster, Node0),
-
-    Ctx = Ctx0#ctx{
-        node = Node,
-        cluster = Cluster},
-
-    case Node of
-        [{error, _, Error}] ->
-            re_wm_util:halt_json(404, Error, RD, Ctx);
-        _ ->
-            send_proxy_request(RD, Ctx)
+proxy_available(ReqData) ->
+    case {re_wm_util:rd_cluster_exists(ReqData),
+          re_wm_util:rd_node_exists(ReqData)} of
+        {{true,_}, {true,_}} ->
+            send_proxy_request(ReqData);
+        E ->
+            lager:info("E: ~p", [E]),
+            {{halt, 404}, ReqData}
     end.
 
 %% ====================================================================
 %% Private
 %% ====================================================================
 
-send_proxy_request(RD, Ctx) ->
-    Node = Ctx#ctx.node,
-    Cluster = Ctx#ctx.cluster,
+send_proxy_request(ReqData) ->
+    N = re_wm_util:rd_node(ReqData),
+    C = re_wm_util:rd_cluster(ReqData),
 
-    [{http_listener,Listener}] = re_riak:http_listener(Node),
+    [{http_listener,Listener}] = re_riak:http_listener(N),
     RiakPath = "http://" ++ binary_to_list(Listener) ++ "/",
 
     Path = lists:append(
              [RiakPath,
-              wrq:disp_path(RD),
-              case wrq:req_qs(RD) of
+              wrq:disp_path(ReqData),
+              case wrq:req_qs(ReqData) of
                   [] -> [];
                   Qs -> [$?|mochiweb_util:urlencode(Qs)]
               end]),
 
+    lager:info("proxy url: ~p", [Path]),
+
     %% translate webmachine details to ibrowse details
     Headers = clean_request_headers(
-                mochiweb_headers:to_list(wrq:req_headers(RD))),
-    Method = wm_to_ibrowse_method(wrq:method(RD)),
-    ReqBody = case wrq:req_body(RD) of
+                mochiweb_headers:to_list(wrq:req_headers(ReqData))),
+    Method = wm_to_ibrowse_method(wrq:method(ReqData)),
+    ReqBody = case wrq:req_body(ReqData) of
                   undefined -> [];
                   B -> B
               end,
 
     case ibrowse:send_req(Path, Headers, Method, ReqBody) of
         {ok, Status, RiakHeaders, RespBody} ->
-            RespHeaders = fix_location(RiakHeaders, Cluster, Node),
+            RespHeaders = fix_location(RiakHeaders, C, N),
             {{halt, list_to_integer(Status)},
              wrq:set_resp_headers(RespHeaders,
-                                  wrq:set_resp_body(RespBody, RD)),
-             Ctx};
-        _ -> {false, RD, Ctx}
+                                  wrq:set_resp_body(RespBody, ReqData))};
+        _ -> {false, ReqData}
     end.
 
 clean_request_headers(Headers) ->
@@ -118,8 +111,8 @@ wm_to_ibrowse_method(Method) when is_atom(Method) ->
 
 fix_location([], _, _) -> [];
 fix_location([{"Location", RiakDataPath}|Rest], undefined, Node) ->
-    [{"Location", re_config:url()++re_config:base_route()++"/"++?RE_RIAK_PROXY_ROUTE++"/nodes/"++atom_to_list(Node)++RiakDataPath}|Rest];
+    [{"Location", re_config:url()++re_config:base_route()++"/"++?BASE++"/nodes/"++atom_to_list(Node)++RiakDataPath}|Rest];
 fix_location([{"Location", RiakDataPath}|Rest], Cluster, _) ->
-    [{"Location", re_config:url()++re_config:base_route()++"/"++?RE_RIAK_PROXY_ROUTE++"/clusters/"++atom_to_list(Cluster)++RiakDataPath}|Rest];
+    [{"Location", re_config:url()++re_config:base_route()++"/"++?BASE++"/clusters/"++atom_to_list(Cluster)++RiakDataPath}|Rest];
 fix_location([H|T], Cluster, Node) ->
     [H|fix_location(T, Cluster, Node)].

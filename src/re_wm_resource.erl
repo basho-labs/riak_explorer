@@ -76,7 +76,21 @@ init(_) ->
     {ok, #ctx{}}.
 
 service_available(ReqData, Ctx) ->
-    {true, ReqData, Ctx#ctx{route = get_route(routes(), ReqData)}}.
+    Route = case get_route(routes(), ReqData) of
+                #route{}=R ->
+                    R;
+                _ ->
+                    [R] = re_wm_static:routes(),
+                    R
+            end,
+    lager:info("-----------------------: ~p", [wrq:path(ReqData)]),
+    lager:info("-----------------------: ~p", [Route]),
+    {Available, ReqData1} = 
+        case Route#route.available of
+            {M, F} -> M:F(ReqData);
+            Bool -> {Bool, ReqData}
+        end,
+    {Available, ReqData1, Ctx#ctx{route = Route}}.
 
 allowed_methods(ReqData, Ctx = #ctx{route = Route}) ->
     {Route#route.methods, ReqData, Ctx}.
@@ -150,31 +164,76 @@ last_modified(ReqData, Ctx = #ctx{route = #route{last_modified = {M, F}}}) ->
 
 get_route([], _ReqData) ->
     undefined;
-get_route([Route | Rest], ReqData) ->
-    BaseLength = length(Route#route.base),
-    Tokens = string:tokens(wrq:path(ReqData), "/"),
-    PathTokensLength = length(Tokens),
-    case BaseLength =< PathTokensLength of
-        true ->
-            ReqPath = lists:nthtail(BaseLength, Tokens),
-            case expand_path(Route#route.path, ReqData, []) of
-                ReqPath ->
-                    Route;
-                _ ->
-                    get_route(Rest, ReqData)
-            end;
-        false ->
-            get_route(Rest, ReqData)
+get_route([Route=#route{base=[],path=Paths} | Rest], ReqData) ->
+    case get_route_path([], Paths, Route, ReqData) of
+        undefined ->
+            get_route(Rest, ReqData);
+        R -> R
+    end;
+get_route([Route=#route{base=Bases,path=[]} | Rest], ReqData) ->
+    case get_route_path([], Bases, Route, ReqData) of
+        undefined ->
+            get_route(Rest, ReqData);
+        R -> R
+    end;
+get_route([Route=#route{base=Bases,path=Paths} | Rest], ReqData) ->
+    case get_route_base(Bases, Paths, Route, ReqData) of
+        undefined ->
+            get_route(Rest, ReqData);
+        R -> R
+    end.
+
+
+get_route_base([], _, _, _) ->
+    undefined;
+get_route_base([Base|Rest], Paths, Route, ReqData) ->
+    case get_route_path(Base, Paths, Route, ReqData) of
+        undefined ->
+            get_route_base(Rest, Paths, Route, ReqData);
+        R -> R
+    end.
+
+get_route_path(_, [], _, _) ->
+    undefined;
+get_route_path(Base, [Path|Rest], Route, ReqData) ->
+    ReqPath = string:tokens(wrq:path(ReqData), "/"),
+    case expand_path(Base ++ Path, ReqData, []) of
+        ReqPath ->
+            Route;
+        _ ->
+            get_route_path(Base, Rest, Route, ReqData)
     end.
 
 expand_path([], _ReqData, Acc) ->
     lists:reverse(Acc);
 expand_path([Part|Rest], ReqData, Acc) when is_list(Part) ->
     expand_path(Rest, ReqData, [Part | Acc]);
+expand_path(['*'|Rest], ReqData, Acc) ->
+    Tokens = string:tokens(wrq:path(ReqData), "/"),
+    case length(Acc) > length(Tokens) of
+        true ->
+            undefined;
+        false ->
+            expand_path(Rest, ReqData, lists:reverse(lists:nthtail(length(Acc), Tokens)) ++ Acc)
+    end;
 expand_path([Part|Rest], ReqData, Acc) when is_atom(Part) ->
     expand_path(Rest, ReqData, [wrq:path_info(Part, ReqData) | Acc]).
 
 build_wm_routes([], Acc) ->
-    [lists:reverse(Acc)];
-build_wm_routes([#route{base = Base, path = Path} | Rest], Acc) ->
-    build_wm_routes(Rest, [{Base ++ Path, ?MODULE, []} | Acc]).
+    lists:reverse(lists:flatten(Acc));
+build_wm_routes([#route{base = [], path = Paths} | Rest], Acc) ->
+    build_wm_routes(Rest, [build_wm_route([], Paths, []) | Acc]);
+build_wm_routes([#route{base = Bases, path = []} | Rest], Acc) ->
+    build_wm_routes(Rest, [build_wm_route([], Bases, []) | Acc]);
+build_wm_routes([#route{base = Bases, path = Paths} | Rest], Acc) ->
+    build_wm_routes(Rest, [build_wm_routes(Bases, Paths, []) | Acc]).
+
+build_wm_routes([], _, Acc) ->
+    Acc;
+build_wm_routes([Base|Rest], Paths, Acc) ->
+    build_wm_routes(Rest, Paths, [build_wm_route(Base, Paths, [])|Acc]).
+
+build_wm_route(_, [], Acc) ->
+    Acc;
+build_wm_route(Base, [Path|Rest], Acc) ->
+    build_wm_route(Base, Rest, [{Base ++ Path, ?MODULE, []}|Acc]).

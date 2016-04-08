@@ -25,8 +25,6 @@
 -export([create/2, get_jobs/0, get/1, set_meta/2, error/2, finish/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
--include("riak_explorer.hrl").
-
 -record(job, {pid, status, meta}).
 -record(state, {jobs=[]}).
 

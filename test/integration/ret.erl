@@ -3,7 +3,6 @@
 
 -compile(export_all).
 
--include("../../include/riak_explorer.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 -ifdef(integration_test).

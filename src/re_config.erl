@@ -19,33 +19,33 @@
 %% -------------------------------------------------------------------
 
 -module(re_config).
--export([build_routes/2, build_routes/3,
+-export([
+         %% build_routes/2, build_routes/3,
          base_route/0, base_route/1,
          data_dir/0,
-         resources/0,
-         dispatch/0,
+         %% resources/0,
+         %% dispatch/0,
          is_standalone/0,
          development_mode/1,
-         routes/0,
+         %% routes/0,
          props/0,
-         formatted_routes/0,
-         format_route/2,
+         %% formatted_routes/0,
+         %% format_route/2,
          web_config/0,
          url/0, url/2,
          clusters/0, cluster/1,
          cluster_exists/1,
-         riak_node/1,
-         web_root/0]).
+         riak_node/1]).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-build_routes(Base, Routes) ->
-    build_prefixed_routes(base_route(Base), [], Routes, []).
+%% build_routes(Base, Routes) ->
+%%     build_prefixed_routes(base_route(Base), [], Routes, []).
 
-build_routes(Base, Prefixes, Routes) ->
-    build_routes(Base, Prefixes, Routes, []).
+%% build_routes(Base, Prefixes, Routes) ->
+%%     build_routes(Base, Prefixes, Routes, []).
 
 base_route() ->
     case is_standalone() of
@@ -64,24 +64,24 @@ data_dir() ->
     Dir = application:get_env(riak_explorer, platform_data_dir, Def),
     Dir.
 
-resources() ->
-    [
-        re_wm_key,
-        re_wm_bucket,
-        re_wm_bucket_type,
-        re_wm_table,
-        re_wm_node,
-        re_wm_riak_config,
-        re_wm_riak_log,
-        re_wm_cluster,
-        re_wm_base,
-        re_wm_control,
-        re_wm_riak_proxy,
-        re_wm_static
-    ].
+%% resources() ->
+%%     [
+%%         re_wm_key,
+%%         re_wm_bucket,
+%%         re_wm_bucket_type,
+%%         re_wm_table,
+%%         re_wm_node,
+%%         re_wm_riak_config,
+%%         re_wm_riak_log,
+%%         re_wm_cluster,
+%%         re_wm_base,
+%%         re_wm_control,
+%%         re_wm_riak_proxy,
+%%         re_wm_static
+%%     ].
 
--spec dispatch() -> [webmachine_dispatcher:route()].
-dispatch() -> lists:flatten(dispatch(resources(), [])).
+%% -spec dispatch() -> [webmachine_dispatcher:route()].
+%% dispatch() -> lists:flatten(dispatch(resources(), [])).
 
 development_mode(Cluster) ->
     case proplists:get_value(development_mode, cluster(Cluster)) of
@@ -93,22 +93,22 @@ development_mode(Cluster) ->
 props() ->
     props_to_bin(application:get_all_env(riak_explorer), []).
 
-dispatch([], Accum) ->
-    lists:reverse(Accum);
-dispatch([M | Rest], Accum) ->
-    dispatch(Rest, [M:dispatch() | Accum]).
+%% dispatch([], Accum) ->
+%%     lists:reverse(Accum);
+%% dispatch([M | Rest], Accum) ->
+%%     dispatch(Rest, [M:dispatch() | Accum]).
 
-routes() -> routes(resources(), []).
+%% routes() -> routes(resources(), []).
 
-formatted_routes() ->
-    formatted_routes(resources(), []).
+%% formatted_routes() ->
+%%     formatted_routes(resources(), []).
 
-format_route([], Accum) ->
-    list_to_binary(lists:flatten(Accum));
-format_route([Piece | Rest], Accum) when is_list(Piece) ->
-    format_route(Rest, Accum ++ "/" ++ Piece);
-format_route([Piece | Rest], Accum) when is_atom(Piece) ->
-    format_route(Rest, Accum ++ "/$" ++ atom_to_list(Piece)).
+%% format_route([], Accum) ->
+%%     list_to_binary(lists:flatten(Accum));
+%% format_route([Piece | Rest], Accum) when is_list(Piece) ->
+%%     format_route(Rest, Accum ++ "/" ++ Piece);
+%% format_route([Piece | Rest], Accum) when is_atom(Piece) ->
+%%     format_route(Rest, Accum ++ "/$" ++ atom_to_list(Piece)).
 
 host_port() ->
     case application:get_env(riak_explorer, host) of
@@ -123,7 +123,7 @@ web_config() ->
         {port, Port},
         {nodelay, true},
         {log_dir, "log"},
-        {dispatch, dispatch()}
+        {dispatch, re_wm_resource:dispatch()}
     ],
     WebConfig1 = case application:get_env(riak_explorer, ssl) of
         {ok, SSLOpts} ->
@@ -198,39 +198,36 @@ riak_node(Cluster) ->
             end
     end.
 
-web_root() ->
-    "priv/ember_riak_explorer/dist".
-
 %%%===================================================================
 %%% Private
 %%%===================================================================
 
-md5_hex(S) ->
-    list_to_binary(lists:flatten(
-       [io_lib:format("~.16b",[N]) || N <- binary_to_list(erlang:md5(S))])).
+%% md5_hex(S) ->
+%%     list_to_binary(lists:flatten(
+%%        [io_lib:format("~.16b",[N]) || N <- binary_to_list(erlang:md5(S))])).
 
-routes([], Accum) ->
-    lists:reverse(Accum);
-routes([M | Rest], Accum) ->
-    routes(Rest, [M:routes() | Accum]).
+%% routes([], Accum) ->
+%%     lists:reverse(Accum);
+%% routes([M | Rest], Accum) ->
+%%     routes(Rest, [M:routes() | Accum]).
 
-formatted_routes([], Accum) ->
-    Accum;
-formatted_routes([M | Rest], Accum) ->
-    ModuleRoutes = format_routes({M, M:routes()}, []),
-    formatted_routes(Rest, Accum ++ ModuleRoutes).
+%% formatted_routes([], Accum) ->
+%%     Accum;
+%% formatted_routes([M | Rest], Accum) ->
+%%     ModuleRoutes = format_routes({M, M:routes()}, []),
+%%     formatted_routes(Rest, Accum ++ ModuleRoutes).
 
-format_routes({_,[]}, Accum) ->
-    Accum;
-format_routes({M, [Route | Rest]}, Accum) ->
-    Path = format_route(Route, []),
-    Result0 = [{id, md5_hex(Path)},{links, [{self, Path}]}],
-    Result1 = case string:str(binary_to_list(Path), "$resource") of
-        I when I > 0 -> Result0 ++ [{resources, proplists:get_keys(M:resources())}];
-        _ -> Result0
-    end,
+%% format_routes({_,[]}, Accum) ->
+%%     Accum;
+%% format_routes({M, [Route | Rest]}, Accum) ->
+%%     Path = format_route(Route, []),
+%%     Result0 = [{id, md5_hex(Path)},{links, [{self, Path}]}],
+%%     Result1 = case string:str(binary_to_list(Path), "$resource") of
+%%         I when I > 0 -> Result0 ++ [{resources, proplists:get_keys(M:resources())}];
+%%         _ -> Result0
+%%     end,
 
-    format_routes({M, Rest}, [Result1 | Accum]).
+%%     format_routes({M, Rest}, [Result1 | Accum]).
 
 props_to_bin([], Accum) -> lists:reverse(Accum);
 props_to_bin([{Name, {Host, Port}} | Rest], Accum) ->
@@ -250,14 +247,14 @@ is_standalone() ->
         _ -> true
     end.
 
-build_routes(_, [], _, Acc) ->
-    Acc;
-build_routes(Base, [P|Prefixes], Routes, Acc) ->
-    PRoutes = build_prefixed_routes(base_route(Base), P, Routes, []),
-    build_routes(Base, Prefixes, Routes, Acc ++ PRoutes).
+%% build_routes(_, [], _, Acc) ->
+%%     Acc;
+%% build_routes(Base, [P|Prefixes], Routes, Acc) ->
+%%     PRoutes = build_prefixed_routes(base_route(Base), P, Routes, []),
+%%     build_routes(Base, Prefixes, Routes, Acc ++ PRoutes).
 
-build_prefixed_routes(_, _, [], Acc) ->
-    lists:reverse(Acc);
-build_prefixed_routes(Base, Prefix, [R|Routes], Acc) ->
-    R0 = Base ++ Prefix ++ R,
-    build_prefixed_routes(Base, Prefix, Routes, [R0|Acc]).
+%% build_prefixed_routes(_, _, [], Acc) ->
+%%     lists:reverse(Acc);
+%% build_prefixed_routes(Base, Prefix, [R|Routes], Acc) ->
+%%     R0 = Base ++ Prefix ++ R,
+%%     build_prefixed_routes(Base, Prefix, Routes, [R0|Acc]).

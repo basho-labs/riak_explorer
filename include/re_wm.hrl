@@ -32,6 +32,7 @@
 
 -record(route, {base = [] :: [string()],
                 path :: [string() | atom()],
+                available = true :: {module(), atom()} | boolean(),
                 methods = ['GET'] :: [atom()],
                 accepts = [] :: [{string(), atom()}],
                 provides = [?PROVIDE(?JSON_TYPE)] :: [{string(), atom()}] |
