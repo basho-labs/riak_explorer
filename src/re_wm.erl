@@ -18,11 +18,20 @@
 %%
 %% -------------------------------------------------------------------
 
--module(re_wm_resource).
+-module(re_wm).
 
 -export([resources/0,
          routes/0,
          dispatch/0]).
+
+-export([rd_cluster_exists/1,
+         rd_cluster/1,
+         rd_node_exists/1,
+         rd_node/1,
+         maybe_atomize/1,
+         maybe_to_list/1,
+         url_decode/1
+        ]).
 
 -export([init/1,
          service_available/2,
@@ -49,6 +58,9 @@
 %%% API
 %%%===================================================================
 
+%%% Routing
+
+-spec resources() -> [module()].
 resources() ->
     [
      re_wm_explore,
@@ -57,16 +69,78 @@ resources() ->
      re_wm_static
     ].
 
+-spec routes() -> [route()].
 routes() ->
     routes(resources(), []).
 
+-spec routes([module()], [route()]) -> [route()].
 routes([], Routes) ->
     Routes;
 routes([Resource|Rest], Routes) ->
     routes(Rest, Routes ++ Resource:routes()).
 
+-spec dispatch() -> [{[string() | atom], module(), [term()]}].
 dispatch() ->
     build_wm_routes(routes(), []).
+
+base_route() ->
+    case is_standalone() of
+        true -> "";
+        false -> "admin"
+    end.
+
+base_route(SubRoute) ->
+    case is_standalone() of
+        true -> [SubRoute];
+        false -> [base_route(), SubRoute]
+    end.
+
+%%% Utility
+
+-spec rd_cluster_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
+rd_cluster_exists(ReqData) ->
+    C = rd_cluster(ReqData),
+    {re_cluster:exists(C), ReqData}.
+
+-spec rd_cluster(#wm_reqdata{}) -> re_cluster:re_cluster().
+rd_cluster(ReqData) ->
+    maybe_atomize(wrq:path_info(cluster, ReqData)).
+
+-spec rd_node_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
+rd_node_exists(ReqData) ->
+    case rd_cluster_exists(ReqData) of
+        {true,_} ->
+            case rd_node(ReqData) of
+                {error, not_found} ->
+                    {false, ReqData};
+                N ->
+                    {re_node:exists(N), ReqData}
+            end;
+        _ ->
+            {false, ReqData}
+    end.
+
+-spec rd_node(#wm_reqdata{}) -> {error, not_found} | re_node:re_node().
+rd_node(ReqData) ->
+    N = url_decode(wrq:path_info(node, ReqData)),
+    N1 = maybe_atomize(N),
+    
+    case N1 of
+        undefined ->
+            C = rd_cluster(ReqData),
+            re_cluster:riak_node(maybe_atomize(C));
+        N2 ->
+            N2
+    end.
+
+maybe_to_list(Data) when is_list(Data) -> Data;
+maybe_to_list(Data) when is_atom(Data) -> atom_to_list(Data).
+
+maybe_atomize(Data) when is_list(Data) -> list_to_atom(Data);
+maybe_atomize(Data) when is_atom(Data) -> Data.
+
+url_decode(Data) ->
+    re:replace(maybe_to_list(Data), "%40", "@", [{return, list}]).
 
 %%%===================================================================
 %%% Webmachine Callbacks
@@ -83,8 +157,6 @@ service_available(ReqData, Ctx) ->
                     [R] = re_wm_static:routes(),
                     R
             end,
-    lager:info("-----------------------: ~p", [wrq:path(ReqData)]),
-    lager:info("-----------------------: ~p", [Route]),
     {Available, ReqData1} = 
         case Route#route.available of
             {M, F} -> M:F(ReqData);

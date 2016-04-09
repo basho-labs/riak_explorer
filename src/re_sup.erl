@@ -37,10 +37,31 @@ start_link() ->
 
 init([]) ->
     Web = {webmachine_mochiweb,
-           {webmachine_mochiweb, start, [re_config:web_config()]},
+           {webmachine_mochiweb, start, [web_config()]},
            permanent, 5000, worker, [mochiweb_socket_server]},
     JobManager = {re_job_manager,
            {re_job_manager, start_link, []},
            permanent, 5000, worker, [re_job_manager]},
     Processes = [Web, JobManager],
     {ok, { {one_for_one, 10, 10}, Processes} }.
+
+%% ====================================================================
+%% Private
+%% ====================================================================
+
+web_config() ->
+    {Ip, Port} = riak_explorer:host_port(),
+    WebConfig0 = [
+        {ip, Ip},
+        {port, Port},
+        {nodelay, true},
+        {log_dir, "log"},
+        {dispatch, re_wm:dispatch()}
+    ],
+    WebConfig1 = case application:get_env(riak_explorer, ssl) of
+        {ok, SSLOpts} ->
+            WebConfig0 ++ [{ssl, true}, {ssl_opts, SSLOpts}];
+        undefined ->
+            WebConfig0
+    end,
+    WebConfig1.

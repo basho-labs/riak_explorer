@@ -102,15 +102,15 @@ routes() ->
     [%% Base
      #route{base=?CONTROL_BASE, 
             path=?COMMAND0_ROUTES,
-            exists={re_wm_util, rd_node_exists},
+            exists={?MODULE, command0_exists},
             content={?MODULE,command0}},
      #route{base=?CONTROL_BASE, 
             path=?COMMAND1_ROUTES, 
-            exists={re_wm_util, rd_node_exists},
+            exists={?MODULE, command0_exists},
             content={?MODULE,command1}},
      #route{base=?CONTROL_BASE, 
             path=?COMMAND0_ROUTES, 
-            exists={re_wm_util, rd_node_exists},
+            exists={?MODULE, command0_exists},
             content={?MODULE,command2}}
     ].
 
