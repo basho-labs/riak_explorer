@@ -22,9 +22,11 @@
 
 -export([resources/0,
          routes/0,
-         dispatch/0]).
+         dispatch/0,
+         base_route/0]).
 
--export([rd_cluster_exists/1,
+-export([rd_content/2,
+         rd_cluster_exists/1,
          rd_cluster/1,
          rd_node_exists/1,
          rd_node/1,
@@ -83,19 +85,25 @@ routes([Resource|Rest], Routes) ->
 dispatch() ->
     build_wm_routes(routes(), []).
 
+-spec base_route() -> string().
 base_route() ->
-    case is_standalone() of
-        true -> "";
-        false -> "admin"
-    end.
-
-base_route(SubRoute) ->
-    case is_standalone() of
-        true -> [SubRoute];
-        false -> [base_route(), SubRoute]
+    case riak_explorer:is_riak() of
+        false -> "";
+        true -> "admin"
     end.
 
 %%% Utility
+
+-spec rd_content(term(), #wm_reqdata{}) -> 
+                        {[{binary(), term()}], #wm_reqdata{}}.
+rd_content({error, Reason}, ReqData) ->
+    {[{<<"error">>, 
+       list_to_binary(io_lib:format("~p", [Reason]))}],
+     ReqData};
+rd_content(Content, ReqData) ->
+    Tokens = string:tokens(wrq:path(ReqData), "/"),
+    Last = lists:nth(length(Tokens), Tokens),
+    {[{list_to_binary(Last), Content}], ReqData}.
 
 -spec rd_cluster_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 rd_cluster_exists(ReqData) ->

@@ -104,24 +104,24 @@ routes() ->
             content={?MODULE,clusters}},
      #route{base=[?EXPLORE_BASE], 
             path=[["clusters",cluster]], 
-            exists={re_wm_util,rd_cluster_exists},
+            exists={re_wm,rd_cluster_exists},
             content={?MODULE,cluster}},
      %% Node
      #route{base=[?EXPLORE_BASE,?CLUSTER_BASE],
             path=[["nodes"]], 
-            exists={re_wm_util,rd_cluster_exists},
+            exists={re_wm,rd_cluster_exists},
             content={?MODULE,nodes}},
      #route{base=?NODE_BASE,
             path=[], 
-            exists={re_wm_util,rd_node_exists},
+            exists={re_wm,rd_node_exists},
             content={?MODULE,node}},
      #route{base=?NODE_BASE,
             path=[["config"]], 
-            exists={re_wm_util,rd_node_exists},
+            exists={re_wm,rd_node_exists},
             content={?MODULE,node_config}},
      #route{base=?NODE_BASE,
             path=[["config", "files"]], 
-            exists={re_wm_util,rd_node_exists},
+            exists={re_wm,rd_node_exists},
             content={?MODULE,node_config_files}},
      #route{base=?NODE_BASE,
             path=[["config", "files", file]], 
@@ -129,7 +129,7 @@ routes() ->
             content={?MODULE,node_config_file}},
      #route{base=?NODE_BASE,
             path=[["log", "files"]], 
-            exists={re_wm_util,rd_node_exists},
+            exists={re_wm,rd_node_exists},
             content={?MODULE,node_log_files}},
      #route{base=?NODE_BASE,
             path=[["log", "files", file]], 
@@ -137,12 +137,12 @@ routes() ->
             content={?MODULE,node_log_file}},
      #route{base=?NODE_BASE,
             path=[["tables"]], 
-            exists={re_wm_util,rd_node_exists},
+            exists={re_wm,rd_node_exists},
             content={?MODULE,tables}},
      #route{base=?NODE_BASE,
             path=[["tables", "query"]], 
             methods=['POST'],
-            exists={re_wm_util,rd_node_exists},
+            exists={re_wm,rd_node_exists},
             accepts=?ACCEPT_TEXT,
             accept={?MODULE,tables_query}},
      #route{base=?NODE_BASE,
@@ -161,7 +161,7 @@ routes() ->
      %% Bucket Type
      #route{base=?NODE_BASE,
             path=[["bucket_types"]], 
-            exists={re_wm_util,rd_node_exists},
+            exists={re_wm,rd_node_exists},
             content={?MODULE,bucket_types}},
      #route{base=?BUCKET_TYPE_BASE,
             path=[], 
@@ -222,7 +222,7 @@ routes() ->
 
 -spec ping(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 ping(ReqData) ->
-    {[{ping, pong}], ReqData}.
+    re_wm:rd_content(pong, ReqData).
 
 -spec routes(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 routes(ReqData) ->
@@ -239,78 +239,78 @@ routes(ReqData) ->
                         end|| Part <- Path]
                       || Path <- Paths]}]
            || #route{base=Bases,path=Paths,methods=Methods} <- re_wm:routes()],
-    {[{routes, Formatted}], ReqData}.
+    re_wm:rd_content(Formatted, ReqData).
 
 -spec props(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 props(ReqData) ->
-    {[{props, re_config:props()}], ReqData}.
+    re_wm:rd_content(riak_explorer:props(), ReqData).
 
 -spec jobs(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 jobs(ReqData) ->
-    {[{jobs, re_job_manager:get_jobs()}], ReqData}.
+    re_wm:rd_content(re_job_manager:get_jobs(), ReqData).
 
 %%% Cluster
 
 -spec clusters(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 clusters(ReqData) ->
-    {[{clusters, re_riak:clusters()}], ReqData}.
+    re_wm:rd_content(riak_explorer:clusters(), ReqData).
 
 -spec cluster(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 cluster(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    {re_riak:cluster(C), ReqData}.
+    C = re_wm:rd_cluster(ReqData),
+    re_wm:rd_content(re_cluster:props(C), ReqData).
 
 %%% Node
 
 -spec nodes(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 nodes(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    {re_riak:nodes(C), ReqData}.
+    C = re_wm:rd_cluster(ReqData),
+    re_wm:rd_content(re_cluster:nodes(C), ReqData).
 
 -spec node(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 node(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
-    {re_riak:node_info(N), ReqData}.
+    N = re_wm:rd_node(ReqData),
+    re_wm:rd_content(re_node:props(N), ReqData).
 
 -spec node_config(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 node_config(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
-    {re_riak:node_config(N), ReqData}.
+    N = re_wm:rd_node(ReqData),
+    re_wm:rd_content(re_node:config(N), ReqData).
 
 -spec node_config_files(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 node_config_files(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
-    {re_riak:config_files(N), ReqData}.
+    N = re_wm:rd_node(ReqData),
+    re_wm:rd_content(re_node:config_files(N), ReqData).
 
 -spec node_config_file_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 node_config_file_exists(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
-    case re_wm_util:rd_node_exists(ReqData) of
+    case re_wm:rd_node_exists(ReqData) of
         {true,_} ->
-            {re_riak:config_file_exists(N, F), ReqData};
+            {re_node:config_file_exists(N, F), ReqData};
         _ ->
             {false, ReqData}
     end.
 
 -spec node_config_file(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 node_config_file(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
-    {re_riak:config_file(N, F), ReqData}.
+    re_wm:rd_content(re_node:config_file(N, F), ReqData).
 
 -spec node_log_files(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 node_log_files(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
-    {re_riak:log_files(N), ReqData}.
+    N = re_wm:rd_node(ReqData),
+    re_wm:rd_content(re_node:log_files(N), ReqData).
 
 -spec node_log_file_exists(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 node_log_file_exists(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
-    case re_wm_util:rd_node_exists(ReqData) of
+    case re_wm:rd_node_exists(ReqData) of
         {true,_} ->
-            {re_riak:log_file_exists(N, F), ReqData};
+            {re_node:log_file_exists(N, F), ReqData};
         _ ->
             {false, ReqData}
     end.
@@ -318,46 +318,46 @@ node_log_file_exists(ReqData) ->
 -spec node_log_file(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 node_log_file(ReqData) ->
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
-    {re_riak:log_file(N, F, Rows), ReqData}.
+    re_wm:rd_content(re_node:log_file(N, F, Rows), ReqData).
 
 -spec tables(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 tables(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
-    {re_riak:tables(N), ReqData}.
+    N = re_wm:rd_node(ReqData),
+    re_wm:rd_content(re_node:tables(N), ReqData).
 
 -spec tables_query(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 tables_query(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     Query = wrq:req_body(ReqData),
-    Response = re_riak:query_ts(N, Query),
+    Response = re_node:query_ts(N, Query),
     {true, wrq:append_to_response_body(mochijson2:encode(Response), ReqData)}.
 
 -spec table_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.    
 table_exists(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     Table = list_to_binary(wrq:path_info(table, ReqData)),
-    case re_wm_util:rd_node_exists(ReqData) of
+    case re_wm:rd_node_exists(ReqData) of
         {true,_} ->
-            {re_riak:table_exists(N, Table), ReqData};
+            {re_node:table_exists(N, Table), ReqData};
         _ ->
             {false, ReqData}
     end.
 
 -spec table(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 table(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     Table = list_to_binary(wrq:path_info(table, ReqData)),
-    {re_riak:table(N, Table), ReqData}.
+    re_wm:rd_content(re_node:table(N, Table), ReqData).
 
 -spec table_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 table_put(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     Table = list_to_binary(wrq:path_info(table, ReqData)),
     RawRows = wrq:req_body(ReqData),
     Rows = mochijson2:decode(RawRows),
-    case re_riak:put_ts(N, Table, Rows) of
+    case re_node:put_ts(N, Table, Rows) of
         [{ts, [{success, true}]}] ->
             {true, ReqData};
         _ ->
@@ -366,43 +366,43 @@ table_put(ReqData) ->
 
 -spec table_query(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 table_query(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     Table = list_to_binary(wrq:path_info(table, ReqData)),
     QueryRaw = wrq:req_body(ReqData),
     Query = mochijson2:decode(QueryRaw),
-    Response = re_riak:get_ts(N, Table, Query),
+    Response = re_node:get_ts(N, Table, Query),
     {true, wrq:append_to_response_body(mochijson2:encode(Response), ReqData)}.
 
 %%% Bucket Type
 
 -spec bucket_types(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 bucket_types(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
-    {re_riak:bucket_types(N), ReqData}.
+    N = re_wm:rd_node(ReqData),
+    re_wm:rd_content(re_node:bucket_types(N), ReqData).
 
 -spec bucket_type_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 bucket_type_exists(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
-    case re_wm_util:rd_node_exists(ReqData) of
+    case re_wm:rd_node_exists(ReqData) of
         {true,_} ->
-            {re_riak:bucket_type_exists(N, T), ReqData};
+            {re_node:bucket_type_exists(N, T), ReqData};
         _ ->
             {false, ReqData}
     end.
 
 -spec bucket_type(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.    
 bucket_type(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
-    {re_riak:bucket_type(N, T), ReqData}.
+    re_wm:rd_content(re_node:bucket_type(N, T), ReqData).
 
 -spec bucket_type_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 bucket_type_put(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     RawValue = wrq:req_body(ReqData),
-    case re_riak:create_bucket_type(N, T, RawValue) of
+    case re_node:create_bucket_type(N, T, RawValue) of
         [{error, _, Message}] ->
             {false, wrq:append_to_response_body(mochijson2:encode(Message), ReqData)};
         Response ->
@@ -415,38 +415,39 @@ bucket_type_jobs(ReqData) ->
         [{error, not_found}] -> [];
         J -> [J]
     end,
-    {[{jobs, Jobs}], ReqData}.
+    re_wm:rd_content(Jobs, ReqData).
 
 %%% Bucket
 
 -spec refresh_buckets(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 refresh_buckets(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    N = re_wm_util:rd_node(ReqData),
+    C = re_wm:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     Sort = list_to_atom(wrq:get_qs_value("sort","true",ReqData)),
     Options = [{sort, Sort}],
     JobsPath = string:substr(wrq:path(ReqData),1,
                              string:str(wrq:path(ReqData), 
                                         "refresh_buckets") - 1) ++ "jobs",
-    JobResponse = re_riak:list_buckets(C, N, T, Options),
+    JobResponse = re_node:list_buckets(C, N, T, Options),
     set_jobs_response(JobResponse, JobsPath, ReqData).
 
 -spec buckets(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 buckets(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    N = re_wm_util:rd_node(ReqData),
+    C = re_wm:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
-    {re_riak:list_buckets_cache(C, N, T, Start, Rows), ReqData}.
+    re_wm:rd_content(
+      re_node:list_buckets_cache(C, N, T, Start, Rows), ReqData).
 
 -spec buckets_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 buckets_delete(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    N = re_wm_util:rd_node(ReqData),
+    C = re_wm:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
-    case re_riak:clean_buckets(C, N, T) of
+    case re_node:clean_buckets(C, N, T) of
         ok ->
             {true, ReqData};
         _ ->
@@ -455,8 +456,8 @@ buckets_delete(ReqData) ->
 
 -spec buckets_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 buckets_put(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    N = re_wm_util:rd_node(ReqData),
+    C = re_wm:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     RawValue = wrq:req_body(ReqData),
     Buckets = case wrq:get_req_header("Content-Type", ReqData) of
@@ -467,7 +468,7 @@ buckets_put(ReqData) ->
                       BucketsStr = string:tokens(RawValue, "\n"),
                       lists:map(fun(B) -> list_to_binary(B) end, BucketsStr)
               end,
-    case re_riak:put_buckets(C, N, T, Buckets) of
+    case re_node:put_buckets(C, N, T, Buckets) of
         ok ->
             {true, ReqData};
         _ ->
@@ -481,16 +482,17 @@ bucket_exists(ReqData) ->
 -spec bucket(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 bucket(ReqData) ->
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
-    {[{B, [{id,B}, {props, []}]}], ReqData}.
+    re_wm:rd_content(
+      [{id,B}, {props, []}], ReqData).
 
 -spec bucket_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 bucket_delete(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    N = re_wm_util:rd_node(ReqData),
+    C = re_wm:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
     JobsPath = wrq:path(ReqData) ++ "/jobs",
-    JobResponse = re_riak:delete_bucket(C, N, T, B),
+    JobResponse = re_node:delete_bucket(C, N, T, B),
     set_jobs_response(JobResponse, JobsPath, ReqData).
 
 -spec bucket_jobs(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
@@ -503,12 +505,13 @@ bucket_jobs(ReqData) ->
         [{error, not_found}] -> [];
         DJ -> [DJ]
     end,
-    {[{jobs, KeysJobs ++ DeleteBucketJobs}], ReqData}.
+    re_wm:rd_content(
+      KeysJobs ++ DeleteBucketJobs, ReqData).
 
 -spec refresh_keys(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 refresh_keys(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    N = re_wm_util:rd_node(ReqData),
+    C = re_wm:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
     Sort = list_to_atom(wrq:get_qs_value("sort","true",ReqData)),
@@ -516,26 +519,27 @@ refresh_keys(ReqData) ->
     JobsPath = string:substr(wrq:path(ReqData),1,
                              string:str(wrq:path(ReqData), 
                                         "refresh_keys") - 1) ++ "jobs",
-    JobResponse = re_riak:list_keys(C, N, T, B, Options),
+    JobResponse = re_node:list_keys(C, N, T, B, Options),
     set_jobs_response(JobResponse, JobsPath, ReqData).
 
 -spec keys(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 keys(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    N = re_wm_util:rd_node(ReqData),
+    C = re_wm:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
-    {re_riak:list_keys_cache(C, N, T, B, Start, Rows), ReqData}.
+    re_wm:rd_content(
+      re_node:list_keys_cache(C, N, T, B, Start, Rows), ReqData).
 
 -spec keys_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 keys_delete(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    N = re_wm_util:rd_node(ReqData),
+    C = re_wm:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
-    case re_riak:clean_keys(C, N, T, B) of
+    case re_node:clean_keys(C, N, T, B) of
         ok ->
             {true, ReqData};
         _ ->
@@ -544,8 +548,8 @@ keys_delete(ReqData) ->
 
 -spec keys_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 keys_put(ReqData) ->
-    C = re_wm_util:rd_cluster(ReqData),
-    N = re_wm_util:rd_node(ReqData),
+    C = re_wm:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
     RawValue = wrq:req_body(ReqData),
@@ -557,7 +561,7 @@ keys_put(ReqData) ->
                    KeysStr = string:tokens(RawValue, "\n"),
                    lists:map(fun(K) -> list_to_binary(K) end, KeysStr)
            end,
-    case re_riak:put_keys(C, N, T, B, Keys) of
+    case re_node:put_keys(C, N, T, B, Keys) of
         ok ->
             {true, ReqData};
         _ ->
@@ -568,7 +572,8 @@ keys_put(ReqData) ->
 %% Private
 %% ====================================================================
 
--spec set_jobs_response(term(), string(), #wm_reqdata{}) -> {{halt, 202|102|403}, #wm_reqdata{}}.
+-spec set_jobs_response(term(), string(), #wm_reqdata{}) -> 
+                               {{halt, 202|102|403}, #wm_reqdata{}}.
 set_jobs_response(ok, JobsPath, ReqData) ->
     ReqData1 = wrq:set_resp_headers([{"Location",JobsPath}], ReqData),
     {{halt, 202}, ReqData1};
