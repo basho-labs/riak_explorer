@@ -26,11 +26,7 @@
 
 -export([add_job/2,
          get_job/1,
-         get_jobs/0,
-         get_job_pid/1,
-         set_job_meta/2,
-         set_job_error/2,
-         set_job_finish/1]).
+         get_jobs/0]).
 
 -export([init/1]).
 
@@ -45,25 +41,24 @@ start_link() ->
 -spec add_job(atom(), {module(), atom(), [term()]}) -> ok | {error, term()}.
 add_job(Id, MFA) ->
     case get_job_pid(Id) of
-        {ok, _} ->
-            %% TODO: check state of job, and reuse if it's finished
-            {error, exists};
+        {ok, Pid} ->
+            re_job:start_job(Pid, MFA);
         {error, not_found} ->
             JobSpec = 
                 {Id,
-                 {re_job, start_link, [Id, MFA]},
+                 {re_job, start_link, [Id]},
                  transient, 5000, worker, [re_job]},
             case supervisor:start_child(?MODULE, JobSpec) of
-                {ok, _Pid} ->
-                    ok;
-                {error, {already_started, _Pid}} ->
-                    {error, exists};
+                {ok, Pid} ->
+                    re_job:start_job(Pid, MFA);
+                {error, {already_started, Pid}} ->
+                    re_job:start_job(Pid, MFA);
                 {error, Reason} ->
                     {error, Reason}
             end
     end.
 
--spec get_job(atom()) -> term().
+-spec get_job(atom()) -> {error, term()} | term().
 get_job(Id) ->
     case get_job_pid(Id) of
         {ok, Pid} ->
@@ -83,37 +78,6 @@ get_job_pid(Id) ->
         {_, Pid} ->
             {ok, Pid};
         false ->
-            {error, not_found}
-    end.
-
--spec get_job_pids() -> [{atom(), pid()}].
-get_job_pids() ->
-    [ {Id, Pid} || {Id, Pid, _, _} <- supervisor:which_children(?MODULE) ].
-
--spec set_job_meta(atom(), term()) -> {error, not_found} | ok.
-set_job_meta(Id, Meta) ->
-    case get_job_pid(Id) of
-        {ok, Pid} ->
-            re_job:set_meta(Pid, Meta);
-        {error, not_found} ->
-            {error, not_found}
-    end.
-
--spec set_job_error(atom(), term()) -> {error, not_found} | ok.
-set_job_error(Id, Error) ->
-    case get_job_pid(Id) of
-        {ok, Pid} ->
-            re_job:set_error(Pid, Error);
-        {error, not_found} ->
-            {error, not_found}
-    end.
-
--spec set_job_finish(atom()) -> {error, not_found} | ok.
-set_job_finish(Id) ->
-    case get_job_pid(Id) of
-        {ok, Pid} ->
-            re_job:set_finish(Pid);
-        {error, not_found} ->
             {error, not_found}
     end.
 
@@ -220,3 +184,7 @@ init({}) ->
 %%     put_job(Id, Rest, Job, [{Id, Job}|Accum]);
 %% put_job(Id, [Old|Rest], Job, Accum) ->
 %%     put_job(Id, Rest, Job, [Old|Accum]).
+
+-spec get_job_pids() -> [{atom(), pid()}].
+get_job_pids() ->
+    [ {Id, Pid} || {Id, Pid, _, _} <- supervisor:which_children(?MODULE) ].

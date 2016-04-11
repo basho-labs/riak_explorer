@@ -435,29 +435,39 @@ refresh_buckets(ReqData) ->
 -spec buckets(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 buckets(ReqData) ->
     C = re_wm:rd_cluster(ReqData),
-    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
-    re_wm:rd_content(
-      re_node:list_buckets_cache(C, N, T, Start, Rows), ReqData).
+    Result = re_node:list_buckets_cache(C, T, Start, Rows),
+    case wrq:get_req_header("Accept", ReqData) of
+        "plain/text" ->
+            case Result of
+                {error, _} ->
+                    re_wm:rd_content(Result, ReqData);
+                _ ->
+                    Buckets = proplists:get_value(buckets, Result, []),
+                    {string:join(Buckets, io_lib:nl()), ReqData}
+            end;
+        "application/json" ->
+            re_wm:rd_content(Result, ReqData)
+    end.
+    
 
 -spec buckets_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 buckets_delete(ReqData) ->
     C = re_wm:rd_cluster(ReqData),
-    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
-    case re_node:clean_buckets(C, N, T) of
+    case re_node:clean_buckets_cache(C, T) of
         ok ->
             {true, ReqData};
-        _ ->
-            {false, ReqData}
+        {error, Reason} ->
+            {false, 
+             wrq:append_to_response_body(mochijson2:encode([{error, Reason}]), ReqData)}
     end.
 
 -spec buckets_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 buckets_put(ReqData) ->
     C = re_wm:rd_cluster(ReqData),
-    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     RawValue = wrq:req_body(ReqData),
     Buckets = case wrq:get_req_header("Content-Type", ReqData) of
@@ -468,11 +478,12 @@ buckets_put(ReqData) ->
                       BucketsStr = string:tokens(RawValue, "\n"),
                       lists:map(fun(B) -> list_to_binary(B) end, BucketsStr)
               end,
-    case re_node:put_buckets(C, N, T, Buckets) of
+    case re_node:put_buckets_cache(C, T, Buckets) of
         ok ->
             {true, ReqData};
-        _ ->
-            {false, ReqData}
+        {error, Reason} ->
+            {false, 
+             wrq:append_to_response_body(mochijson2:encode([{error, Reason}]), ReqData)}
     end.
 
 -spec bucket_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
@@ -525,31 +536,29 @@ refresh_keys(ReqData) ->
 -spec keys(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 keys(ReqData) ->
     C = re_wm:rd_cluster(ReqData),
-    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
     re_wm:rd_content(
-      re_node:list_keys_cache(C, N, T, B, Start, Rows), ReqData).
+      re_node:list_keys_cache(C, T, B, Start, Rows), ReqData).
 
 -spec keys_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 keys_delete(ReqData) ->
     C = re_wm:rd_cluster(ReqData),
-    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
-    case re_node:clean_keys(C, N, T, B) of
+    case re_node:clean_keys_cache(C, T, B) of
         ok ->
             {true, ReqData};
-        _ ->
-            {false, ReqData}
+        {error, Reason} ->
+            {false, 
+             wrq:append_to_response_body(mochijson2:encode([{error, Reason}]), ReqData)}
     end.
 
 -spec keys_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 keys_put(ReqData) ->
     C = re_wm:rd_cluster(ReqData),
-    N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
     RawValue = wrq:req_body(ReqData),
@@ -561,11 +570,12 @@ keys_put(ReqData) ->
                    KeysStr = string:tokens(RawValue, "\n"),
                    lists:map(fun(K) -> list_to_binary(K) end, KeysStr)
            end,
-    case re_node:put_keys(C, N, T, B, Keys) of
+    case re_node:put_keys_cache(C, T, B, Keys) of
         ok ->
             {true, ReqData};
-        _ ->
-            {false, ReqData}
+        {error, Reason} ->
+            {false, 
+             wrq:append_to_response_body(mochijson2:encode([{error, Reason}]), ReqData)}
     end.
 
 %% ====================================================================

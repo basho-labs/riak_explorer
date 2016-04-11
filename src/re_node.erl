@@ -48,19 +48,18 @@
 
 -export([delete_bucket/4,
          delete_bucket/5,
-         delete_bucket_job/1,
          get_ts/3,
          put_ts/3,
          query_ts/2]).
 
--export([list_buckets_cache/5,
-         list_buckets/4,
-         clean_buckets/3,
-         put_buckets/4,
-         list_keys_cache/6,
+-export([list_buckets/4,
+         list_buckets_cache/4,
+         clean_buckets_cache/2,
+         put_buckets_cache/3,
          list_keys/5,
-         clean_keys/4,
-         put_keys/5]).
+         list_keys_cache/5,
+         clean_keys_cache/3,
+         put_keys_cache/4]).
 
 -export([log_files/1,
          log_file/3,
@@ -165,6 +164,8 @@ query_ts(Node, Query) ->
         case riakc_ts:query(C, Query) of
             {[],[]} ->
                 {[],[]};
+            {error, Reason} -> 
+                {error, Reason};
             {Fields1, TupleRows} ->
                 TupleToRowFun = 
                     fun(Tuple) ->
@@ -172,9 +173,7 @@ query_ts(Node, Query) ->
                              || I <- lists:seq(1,tuple_size(Tuple))]
                     end,
                 Rows1 = lists:map(TupleToRowFun, TupleRows),
-                {Fields1, Rows1};
-            {error, Reason} -> 
-                {error, Reason}
+                {Fields1, Rows1}
         end,
     case {Fields, Rows} of
         {error, Reason1} ->
@@ -186,93 +185,145 @@ query_ts(Node, Query) ->
 -spec delete_bucket(re_cluster:re_cluster(), re_node(), binary(), binary()) ->
                            {error, term()} | ok.
 delete_bucket(Cluster, Node, BucketType, Bucket) ->
-    delete_bucket(Cluster, Node, BucketType, Bucket, true).
+    delete_bucket(Cluster, Node, BucketType, Bucket, [{refresh_cache, true}]).
 
 -spec delete_bucket(re_cluster:re_cluster(), re_node(), binary(), binary(), binary()) ->
                            {error, term()} | ok.
-delete_bucket(Cluster, Node, BucketType, Bucket, RefreshCache) ->
+delete_bucket(Cluster, Node, BucketType, Bucket, Options) ->
     case re_cluster:development_mode(Cluster) of
         true ->
-            JobType = delete_bucket,
-            Meta = {JobType, Cluster, Node, [BucketType, Bucket, RefreshCache]},
-            re_job_manager:create(JobType, {?MODULE, delete_bucket_job, [Meta]});
+            re_job_manager:add_job(
+              delete_bucket, 
+              {re_jode_job, 
+               start_delete_bucket,
+               [Cluster, Node, BucketType, Bucket, Options]});
         false ->
             lager:warning("Failed request to delete types/~p/buckets/~p because developer mode is off", [BucketType, Bucket]),
             {error, developer_mode_off}
     end.
 
-%%TODO: this is a callback, organize it better.
--spec delete_bucket_job({atom(), re_cluster:re_cluster(), re_node(), [term()]}) ->
-                           {error, term()} | ok.
-delete_bucket_job({delete_bucket, Cluster, Node, [BucketType, Bucket, RefreshCache]}) ->
-    C = client(Node),
-    case re_keyjournal:cache_for_each({keys, Cluster, Node, [BucketType, Bucket]},
-            fun(Entry0, {Oks0, Errors0}) ->
-                RT = list_to_binary(BucketType),
-                RB = list_to_binary(Bucket),
-                RK = list_to_binary(re:replace(Entry0, "(^\\s+)|(\\s+$)", "", [global,{return,list}])),
-                {Oks1,Errors1} = case riakc_pb_socket:delete(C, {RT,RB}, RK) of
-                    ok ->
-                        riakc_pb_socket:get(C, {RT,RB}, RK),
-                        {Oks0+1, Errors0};
-                    {error, Reason} ->
-                        lager:warning("Failed to delete types/~p/buckets/~p/keys/~p with reason ~p", [RT, RB, RK, Reason]),
-                        {Oks0, Errors0+1}
-                end,
-                re_job_manager:set_meta(delete_bucket, [{oks, Oks1},{errors,Errors1}]),
-                {Oks1,Errors1}
-            end, [read], {0, 0}) of
-        [{error, not_found}] ->
-            lager:warning("Deletetion of types/~p/buckets/~p could not be completed because no cache was found", [BucketType, Bucket]),
-            re_job_manager:error(delete_bucket, [{error, cache_not_found}]);
-        {Os,Es} ->
-            lager:info("Completed deletion of types/~p/buckets/~p with ~p successful deletes and ~p errors", [BucketType, Bucket, Os, Es]),
-            re_job_manager:finish(delete_bucket),
-            case RefreshCache of
-                true ->
-                    %% TODO: track errors?
-                    clean_buckets(Cluster, Node, BucketType),
-                    clean_keys(Cluster, Node, BucketType, Bucket);
-                    %% TODO: Want to list keys here eventually, but need to deal with
-                    %% tombstone reaping
-                false ->
-                    ok
-            end
-    end.
-
+-spec list_buckets(re_cluster:re_cluster(), re_node(), binary(), [term()]) ->
+                          {error, term()} | ok.
 list_buckets(Cluster, Node, BucketType, Options) ->
-    case re_config:development_mode(Cluster) of
+    case re_cluster:development_mode(Cluster) of
         true ->
-            re_keyjournal:write({buckets, Cluster, Node, [BucketType]}, Options);
+            re_job_manager:add_job(
+              list_buckets, 
+              {re_jode_job, 
+               start_list_buckets,
+               [Cluster, Node, BucketType, Options]});
         false ->
             {error, developer_mode_off}
     end.
 
-list_buckets_cache(Cluster, Node, BucketType, Start, Rows) ->
-    re_keyjournal:read_cache({buckets, Cluster, Node, [BucketType]}, Start, Rows).
+-spec list_buckets_cache(re_cluster:re_cluster(), 
+                         binary(), non_neg_integer(), non_neg_integer()) ->
+                          {error, term()} | ok.
+list_buckets_cache(Cluster, BucketType, Start, Rows) ->
+    Dir = re_file_util:ensure_data_dir(["buckets", atom_to_list(Cluster), binary_to_list(BucketType)]),
+    case re_file_util:find_single_file(Dir) of
+        {error, Reason} -> 
+            {error, Reason};
+        File ->
+            DirFile = filename:join([Dir, File]),
+            {Total, ResultCount, _, _, Entries} = re_file_util:partial_file(DirFile, Start - 1, Rows - 1),
+            [{total, Total},
+             {count, ResultCount},
+             {created, list_to_binary(re_file_util:timestamp_human(File))},
+             {buckets, Entries}]
+    end.
 
-clean_buckets(Cluster, Node, BucketType) ->
-    re_keyjournal:clean({buckets, Cluster, Node, [BucketType]}).
+-spec clean_buckets_cache(re_cluster:re_cluster(), binary()) -> {error, term()} | ok.
+clean_buckets_cache(Cluster, BucketType) ->
+    Dir = re_file_util:ensure_data_dir(
+            ["buckets", atom_to_list(Cluster), binary_to_list(BucketType)]),
+    re_file_util:clean_dir(Dir).
 
-put_buckets(Cluster, Node, BucketType, Buckets) ->
-    re_keyjournal:write_cache({buckets, Cluster, Node, [BucketType]}, Buckets).
+-spec put_buckets_cache(re_cluster:re_cluster(), binary(), [binary()]) ->
+                               {error, term()} | ok.
+put_buckets_cache(Cluster, BucketType, Buckets) ->
+    Dir = re_file_util:ensure_data_dir(["buckets", atom_to_list(Cluster), binary_to_list(BucketType)]),
+    DirFile = 
+        case re_file_util:find_single_file(Dir) of
+            {error, not_found} -> 
+                filename:join([Dir, re_file_util:timestamp_string()]);
+            {error, Reason} ->
+                {error, Reason};
+            File ->
+                filename:join([Dir, File])
+        end,
+    case DirFile of
+        {error, Reason1} ->
+            {error, Reason1};
+        _ ->
+            {ok, Device} = file:open(DirFile, [append]),
+            io:fwrite(Device, string:join(Buckets, io_lib:nl()), []),
+            file:close(Device),
+            ok
+    end.
 
+-spec list_keys(re_cluster:re_cluster(), re_node(), binary(), binary(), [term()]) ->
+                          {error, term()} | ok.
 list_keys(Cluster, Node, BucketType, Bucket, Options) ->
-    case re_config:development_mode(Cluster) of
+    case re_cluster:development_mode(Cluster) of
         true ->
-            re_keyjournal:write({keys, Cluster, Node, [BucketType, Bucket]}, Options);
+            re_job_manager:add_job(
+              list_keys, 
+              {re_jode_job, 
+               start_list_keys,
+               [Cluster, Node, BucketType, Bucket, Options]});
         false ->
             {error, developer_mode_off}
     end.
 
-list_keys_cache(Cluster, Node, BucketType, Bucket, Start, Rows) ->
-    re_keyjournal:read_cache({keys, Cluster, Node, [BucketType, Bucket]}, Start, Rows).
+-spec list_keys_cache(re_cluster:re_cluster(), 
+                         binary(), binary(), non_neg_integer(), non_neg_integer()) ->
+                          {error, term()} | ok.
+list_keys_cache(Cluster, BucketType, Bucket, Start, Rows) ->
+    Dir = re_file_util:ensure_data_dir(["keys", atom_to_list(Cluster), binary_to_list(BucketType),
+                                        binary_to_list(Bucket)]),
+    case re_file_util:find_single_file(Dir) of
+        {error, Reason} -> 
+            {error, Reason};
+        File ->
+            DirFile = filename:join([Dir, File]),
+            {Total, ResultCount, _, _, Entries} = re_file_util:partial_file(DirFile, Start - 1, Rows - 1),
+            [{total, Total},
+             {count, ResultCount},
+             {created, list_to_binary(re_file_util:timestamp_human(File))},
+             {keys, Entries}]
+    end.
 
-clean_keys(Cluster, Node, BucketType, Bucket) ->
-    re_keyjournal:clean({keys, Cluster, Node, [BucketType, Bucket]}).
+-spec clean_keys_cache(re_cluster:re_cluster(), binary(), binary()) -> {error, term()} | ok.
+clean_keys_cache(Cluster, BucketType, Bucket) ->
+    Dir = re_file_util:ensure_data_dir(
+            ["buckets", atom_to_list(Cluster), binary_to_list(BucketType),
+             binary_to_list(Bucket)]),
+    re_file_util:clean_dir(Dir).
 
-put_keys(Cluster, Node, BucketType, Bucket, Keys) ->
-    re_keyjournal:write_cache({keys, Cluster, Node, [BucketType, Bucket]}, Keys).
+-spec put_keys_cache(re_cluster:re_cluster(), binary(), binary(), [binary()]) ->
+                               {error, term()} | ok.
+put_keys_cache(Cluster, BucketType, Bucket, Keys) ->
+    Dir = re_file_util:ensure_data_dir(["keys", atom_to_list(Cluster), binary_to_list(BucketType),
+                                        binary_to_list(Bucket)]),
+    DirFile = 
+        case re_file_util:find_single_file(Dir) of
+            {error, not_found} -> 
+                filename:join([Dir, re_file_util:timestamp_string()]);
+            {error, Reason} ->
+                {error, Reason};
+            File ->
+                filename:join([Dir, File])
+        end,
+    case DirFile of
+        {error, Reason1} ->
+            {error, Reason1};
+        _ ->
+            {ok, Device} = file:open(DirFile, [append]),
+            io:fwrite(Device, string:join(Keys, io_lib:nl()), []),
+            file:close(Device),
+            ok
+    end.
 
 log_files(Node) ->
     Files = command(Node, re_riak_patch, get_log_files, []),
@@ -418,7 +469,7 @@ command(N, M, F, A) ->
         true ->
             local_command(M, F, A);
         _ ->
-            remote_command(N, M, F, A)
+            command_command(N, M, F, A)
     end.
 
 -spec client(re_node()) -> {error, term()} | pid().
@@ -439,15 +490,15 @@ client(Node) ->
 %%% Private
 %%%===================================================================
 
--spec remote_command(re_node(), module(), atom(), [term()]) -> {error, term()} | term().
-remote_command(N, re_riak_patch, F, A) ->
+-spec command_command(re_node(), module(), atom(), [term()]) -> {error, term()} | term().
+command_command(N, re_riak_patch, F, A) ->
     case ensure_patch_loaded(N) of
         {error, Reason} -> 
             {error, Reason};
         {module, re_riak_patch} ->
             safe_rpc(N, re_riak_patch, F, A, 60000)
     end;
-remote_command(N, M, F, A) ->
+command_command(N, M, F, A) ->
     safe_rpc(N, M, F, A, 60000).
 
 -spec local_command(module(), atom(), [term()]) -> term().
@@ -484,9 +535,9 @@ ensure_patch_loaded(N) ->
     case safe_rpc(N, code, ensure_loaded, [re_riak_patch]) of
         {module, re_riak_patch} ->
             LocalVersion = re_riak_patch:version(),
-            RemoteVersion = safe_rpc(N, re_riak_patch, version, []),
-            lager:info("Found version ~p of re_riak_patch on node[~p], current version is ~p.", [RemoteVersion, N, LocalVersion]),
-            case LocalVersion =:= RemoteVersion of
+            CommandVersion = safe_rpc(N, re_riak_patch, version, []),
+            lager:info("Found version ~p of re_riak_patch on node[~p], current version is ~p.", [CommandVersion, N, LocalVersion]),
+            case LocalVersion =:= CommandVersion of
                 false -> load_patch(N);
                 _ -> {module, re_riak_patch}
             end;
@@ -499,3 +550,25 @@ load_patch(N) ->
     lager:info("Loading re_riak_patch module into ~p.", [N]),
     {Mod, Bin, _} = code:get_object_code(re_riak_patch),
     safe_rpc(N, code, load_binary, [Mod, "/tmp/re_riak_patch.beam", Bin], 60000).
+
+bucket_type_action(_Node, _BucketType, _RawValue, [], Accum) ->
+    [{bucket_types, [{success, true},{actions, lists:reverse(Accum)}]}];
+bucket_type_action(Node, BucketType, RawValue, [create|Rest], Accum) ->
+    Props = case RawValue of
+        <<>> -> "";
+        P -> P
+    end,
+    case command(Node, re_riak_patch, bucket_type_create, [[BucketType, Props]]) of
+        [{error, _, _}]=E -> E;
+        C -> bucket_type_action(Node, BucketType, RawValue, Rest, [{create, C}|Accum])
+    end;
+bucket_type_action(Node, BucketType, RawValue, [activate|Rest], Accum) ->
+    case command(Node, re_riak_patch, bucket_type_activate, [[BucketType]]) of
+        [{error, _, _}]=E -> E;
+        A -> bucket_type_action(Node, BucketType, RawValue, Rest, [{activate, A}|Accum])
+    end;
+bucket_type_action(Node, BucketType, RawValue, [update|Rest], Accum) ->
+    case command(Node, re_riak_patch, bucket_type_update, [[BucketType, RawValue]]) of
+        [{error, _, _}]=E -> E;
+        U -> bucket_type_action(Node, BucketType, RawValue, Rest, [{update, U}|Accum])
+    end.

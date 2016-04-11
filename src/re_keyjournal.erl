@@ -31,7 +31,6 @@
 %%%===================================================================
 
 cache_for_each({Operation, Cluster, _Node, Path}, Fun, Mode, InitAccum) ->
-
     Dir = re_file_util:ensure_data_dir([atom_to_list(Operation), atom_to_list(Cluster)] ++ Path),
     {ok, Files} = file:list_dir(Dir),
     case Files of
