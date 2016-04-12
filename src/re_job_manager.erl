@@ -46,7 +46,7 @@ add_job(Id, MFA) ->
         {error, not_found} ->
             JobSpec = 
                 {Id,
-                 {re_job, start_link, [Id]},
+                 {re_job, start_link, []},
                  transient, 5000, worker, [re_job]},
             case supervisor:start_child(?MODULE, JobSpec) of
                 {ok, Pid} ->
@@ -58,7 +58,7 @@ add_job(Id, MFA) ->
             end
     end.
 
--spec get_job(atom()) -> {error, term()} | term().
+-spec get_job(atom()) -> {error, term()} | [{atom(), term()}].
 get_job(Id) ->
     case get_job_pid(Id) of
         {ok, Pid} ->

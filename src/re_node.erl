@@ -194,7 +194,7 @@ delete_bucket(Cluster, Node, BucketType, Bucket, Options) ->
         true ->
             re_job_manager:add_job(
               delete_bucket, 
-              {re_jode_job, 
+              {re_node_job, 
                start_delete_bucket,
                [Cluster, Node, BucketType, Bucket, Options]});
         false ->
@@ -209,7 +209,7 @@ list_buckets(Cluster, Node, BucketType, Options) ->
         true ->
             re_job_manager:add_job(
               list_buckets, 
-              {re_jode_job, 
+              {re_node_job, 
                start_list_buckets,
                [Cluster, Node, BucketType, Options]});
         false ->
@@ -269,7 +269,7 @@ list_keys(Cluster, Node, BucketType, Bucket, Options) ->
         true ->
             re_job_manager:add_job(
               list_keys, 
-              {re_jode_job, 
+              {re_node_job, 
                start_list_keys,
                [Cluster, Node, BucketType, Bucket, Options]});
         false ->
@@ -440,8 +440,8 @@ bucket_type(Node, BucketType) ->
         Ts ->
             FlatProps = lists:flatten(
                           [proplists:get_value(props, Prop) ||
-                              Prop <- proplists:get_value(bucket_types, Ts),
-                              BucketType =:= proplists:get_value(name, Prop)]),
+                              Prop <- Ts,
+                              BucketType =:= proplists:get_value(id, Prop)]),
             case FlatProps of
                 [] ->
                     {error, not_found};
@@ -456,7 +456,9 @@ bucket_types(Node) ->
         {error, Reason} ->
             {error, Reason};
         List ->
-            lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List)
+            List1 = [ [{id, Name},{props, Props}] 
+                      || [{name, Name},{props, Props}] <- List ],
+            lists:sort(fun([{id, N1}|_], [{id, N2}|_]) -> N1 < N2 end, List1)
     end.
             
 -spec table_exists(re_node(), binary()) -> boolean().
@@ -474,8 +476,8 @@ table(Node, Table) ->
         Ts ->
             FlatProps = lists:flatten(
                           [proplists:get_value(props, Prop) ||
-                              Prop <- proplists:get_value(tables, Ts),
-                              Table =:= proplists:get_value(name, Prop)]),
+                              Prop <- Ts,
+                              Table =:= proplists:get_value(id, Prop)]),
             case FlatProps of
                 [] ->
                     {error, not_found};
@@ -489,12 +491,14 @@ tables(Node) ->
     case command(Node, re_riak_patch, bucket_types, []) of
         {error, Reason} ->
             {error, Reason};
-        List0 ->
-            List1 = lists:filtermap(
-                      fun([{name, _}, {props, Props}]) ->
+        List ->
+            List1 = [ [{id, Name},{props, Props}] 
+                      || [{name, Name},{props, Props}] <- List ],
+            List2 = lists:filtermap(
+                      fun([{id, _}, {props, Props}]) ->
                               proplists:get_value(ddl, Props) =/= undefined
-                      end, List0),
-            lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List1)
+                      end, List1),
+            lists:sort(fun([{id, N1}|_], [{id, N2}|_]) -> N1 < N2 end, List2)
     end.
 
 -spec create_bucket_type(re_node(), binary(), binary()) -> {error, term()} | [{atom(), term()}].
@@ -591,7 +595,6 @@ ensure_patch_loaded(N) ->
         {module, re_riak_patch} ->
             LocalVersion = re_riak_patch:version(),
             CommandVersion = safe_rpc(N, re_riak_patch, version, []),
-            lager:info("Found version ~p of re_riak_patch on node[~p], current version is ~p.", [CommandVersion, N, LocalVersion]),
             case LocalVersion =:= CommandVersion of
                 false -> load_patch(N);
                 _ -> {module, re_riak_patch}

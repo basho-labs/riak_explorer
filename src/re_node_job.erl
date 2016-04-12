@@ -34,17 +34,17 @@
 -spec start_list_buckets(re_cluster:re_cluster(), re_node:re_node(), binary(), [term()]) ->
                                 pid().
 start_list_buckets(Cluster, Node, BucketType, Options) ->
-    spawn(?MODULE, init_list_buckets, [self(), Cluster, Node, BucketType, Options]).
+    spawn(?MODULE, init_list_buckets, [[self(), Cluster, Node, BucketType, Options]]).
 
 -spec start_list_keys(re_cluster:re_cluster(), re_node:re_node(), binary(), binary(), [term()]) ->
                                 pid().
 start_list_keys(Cluster, Node, BucketType, Bucket, Options) ->
-    spawn(?MODULE, init_list_keys, [self(), Cluster, Node, BucketType, Bucket, Options]).
+    spawn(?MODULE, init_list_keys, [[self(), Cluster, Node, BucketType, Bucket, Options]]).
 
 -spec start_delete_bucket(re_cluster:re_cluster(), re_node:re_node(), binary(), binary(), [term()]) ->
                                  pid().
 start_delete_bucket(Cluster, Node, BucketType, Bucket, Options) ->
-    spawn(?MODULE, init_delete_bucket, [self(), Cluster, Node, BucketType, Bucket, Options]).
+    spawn(?MODULE, init_delete_bucket, [[self(), Cluster, Node, BucketType, Bucket, Options]]).
 
 %%%===================================================================
 %%% Callbacks
@@ -55,7 +55,7 @@ init_list_buckets([From, Cluster, Node, BucketType, Options]) ->
     Dir = re_file_util:ensure_data_dir(
                     ["buckets", atom_to_list(Cluster), binary_to_list(BucketType)]),
     C = re_riak:client(Node),
-    Req = riakc_pb_socket:stream_list_buckets(C, list_to_binary(BucketType)),
+    Req = riakc_pb_socket:stream_list_buckets(C, BucketType),
     do_list(From, Req, Dir, Options).
 
 -spec init_list_keys([term()]) -> {error, term()} | ok.
@@ -80,8 +80,8 @@ init_delete_bucket([From, Cluster, Node, BucketType, Bucket, Options]) ->
             C = re_riak:client(Node),
             Fun = 
                 fun(Entry0, {Oks0, Errors0}) ->
-                        RT = list_to_binary(BucketType),
-                        RB = list_to_binary(Bucket),
+                        RT = BucketType,
+                        RB = Bucket,
                         RK = list_to_binary(re:replace(Entry0, "(^\\s+)|(\\s+$)", "", [global,{return,list}])),
                         {Oks1,Errors1} = 
                             case riakc_pb_socket:delete(C, {RT,RB}, RK) of
@@ -158,7 +158,8 @@ write_loop(From, ReqId, Device, Meta) ->
                 {ReqId, {_, Entries}} ->
                     case length(Entries) > 0 of
                         true ->
-                            io:fwrite(Device, string:join(Entries, io_lib:nl()), [])
+                            Entries1 = [ binary_to_list(E) || E <- Entries ],
+                            io:fwrite(Device, string:join(Entries1, io_lib:nl()), [])
                     end,
                     Meta1 = [{count, proplists:get_value(count, Meta, 0) + length(Entries)}],
                     write_loop(From, ReqId, Device, Meta1)

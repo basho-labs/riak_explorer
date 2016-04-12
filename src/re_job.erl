@@ -22,7 +22,7 @@
 
 -behaviour(gen_fsm).
 
--export([start_link/2]).
+-export([start_link/0]).
 
 -export([start_job/2,
          get_info/1,
@@ -58,10 +58,9 @@
 %%% API
 %%%===================================================================
 
--spec start_link(atom(), {module(), atom(), [term()]}) -> 
-                        {ok, pid()} | {error, term()}.
-start_link(Id, MFA) ->
-    gen_fsm:start_link(?MODULE, {Id, MFA}, []).
+-spec start_link() -> {ok, pid()} | {error, term()}.
+start_link() ->
+    gen_fsm:start_link(?MODULE, [], []).
 
 -spec start_job(pid(), term()) -> {error, term()} | ok.
 start_job(Pid, MFA) ->
@@ -88,8 +87,7 @@ set_finish(Pid) ->
 %%%===================================================================
 
 -spec init({atom(), {module(), atom(), [term()]}}) -> {ok, atom(), #state{}}.
-init({_Id, _MFA}) ->
-    %% Start the job, probably don't need ready
+init([]) ->
     {ok, ready, #state{}}.
 
 -type(async_reply() ::

@@ -96,6 +96,8 @@ base_route() ->
 
 -spec rd_content(term(), #wm_reqdata{}) -> 
                         {[{binary(), term()}], #wm_reqdata{}}.
+rd_content({error, not_found}, ReqData) ->
+    {{halt, 404}, ReqData};
 rd_content({error, Reason}, ReqData) ->
     {[{<<"error">>, 
        list_to_binary(io_lib:format("~p", [Reason]))}],
@@ -199,8 +201,12 @@ delete_resource(ReqData, Ctx = #ctx{route = #route{delete = {M, F}}}) ->
     {Success, ReqData1, Ctx}.
 
 provide_content(ReqData, Ctx = #ctx{route = #route{content = {M, F}}}) ->
-    {Body, ReqData1} = M:F(ReqData),
-    {mochijson2:encode(Body), ReqData1, Ctx}.
+    case M:F(ReqData) of
+        {{halt,_}=Body, ReqData1} ->
+            {Body, ReqData1, Ctx};
+        {Body, ReqData1} ->
+            {mochijson2:encode(Body), ReqData1, Ctx}
+    end.
 
 provide_text_content(ReqData, Ctx = #ctx{route = #route{content = {M, F}}}) ->
     {Body, ReqData1} = M:F(ReqData),

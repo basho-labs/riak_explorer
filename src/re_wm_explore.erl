@@ -125,7 +125,7 @@ routes() ->
             content={?MODULE,node_config_files}},
      #route{base=?NODE_BASE,
             path=[["config", "files", file]],
-            provides=?PROVIDE_TEXT ++ ?PROVIDE(?JSON_TYPE),
+            provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
             exists={?MODULE,node_config_file_exists},
             content={?MODULE,node_config_file}},
      #route{base=?NODE_BASE,
@@ -134,7 +134,7 @@ routes() ->
             content={?MODULE,node_log_files}},
      #route{base=?NODE_BASE,
             path=[["log", "files", file]], 
-            provides=?PROVIDE_TEXT ++ ?PROVIDE(?JSON_TYPE),
+            provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
             exists={?MODULE,node_log_file_exists},
             content={?MODULE,node_log_file}},
      #route{base=?NODE_BASE,
@@ -181,10 +181,10 @@ routes() ->
             path=[["refresh_buckets", "source", "riak_kv"]],
             methods=['POST'],
             exists={?MODULE,bucket_type_exists},
-            content={?MODULE,refresh_buckets}},
+            accept={?MODULE,refresh_buckets}},
      #route{base=?BUCKET_TYPE_BASE,
             path=[["buckets"]],
-            provides=?PROVIDE_TEXT ++ ?PROVIDE(?JSON_TYPE),
+            provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
             methods=['PUT','GET','DELETE'],
             exists={?MODULE,bucket_type_exists},
             content={?MODULE,buckets},
@@ -206,10 +206,10 @@ routes() ->
             path=[["refresh_keys", "source", "riak_kv"]],
             methods=['POST'],
             exists={?MODULE,bucket_exists},
-            content={?MODULE,refresh_keys}},
+            accept={?MODULE,refresh_keys}},
      #route{base=?BUCKET_BASE,
             path=[["keys"]],
-            provides=?PROVIDE_TEXT ++ ?PROVIDE(?JSON_TYPE),
+            provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
             methods=['PUT','GET','DELETE'],
             exists={?MODULE,bucket_exists},
             content={?MODULE,keys},
@@ -251,7 +251,11 @@ props(ReqData) ->
 
 -spec jobs(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 jobs(ReqData) ->
-    re_wm:rd_content(re_job_manager:get_jobs(), ReqData).
+    Jobs = case re_job_manager:get_jobs() of
+        {error, not_found} -> [];
+        J -> [J]
+    end,
+    re_wm:rd_content(Jobs, ReqData).
 
 %%% Cluster
 
@@ -302,16 +306,16 @@ node_config_file(ReqData) ->
     N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
     Result = re_node:config_file(N, F),
-    case wrq:get_req_header("Accept", ReqData) of
-        "plain/text" ->
+    case string:str(wrq:get_req_header("Accept", ReqData),"plain/text") > 0 of
+        true ->
             case Result of
                 {error, _} ->
                     re_wm:rd_content(Result, ReqData);
                 _ ->
-                    Lines = proplists:get_value(lines, Result, []),
+                    Lines = [binary_to_list(L) || L <- proplists:get_value(lines, Result, [])],
                     {string:join(Lines, io_lib:nl()), ReqData}
             end;
-        "application/json" ->
+        _ ->
             re_wm:rd_content(Result, ReqData)
     end.
 
@@ -337,16 +341,16 @@ node_log_file(ReqData) ->
     N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
     Result = re_node:log_file(N, F, Rows),
-    case wrq:get_req_header("Accept", ReqData) of
-        "plain/text" ->
+    case string:str(wrq:get_req_header("Accept", ReqData),"plain/text") > 0 of
+         true ->
             case Result of
                 {error, _} ->
                     re_wm:rd_content(Result, ReqData);
                 _ ->
-                    Lines = proplists:get_value(lines, Result, []),
+                    Lines = [binary_to_list(L) || L <- proplists:get_value(lines, Result, [])],
                     {string:join(Lines, io_lib:nl()), ReqData}
             end;
-        "application/json" ->
+        _ ->
             re_wm:rd_content(Result, ReqData)
     end.
 
@@ -360,7 +364,7 @@ tables_query(ReqData) ->
     N = re_wm:rd_node(ReqData),
     Query = wrq:req_body(ReqData),
     Response = re_node:query_ts(N, Query),
-    {true, wrq:append_to_response_body(mochijson2:encode(Response), ReqData)}.
+    add_content(Response, ReqData).
 
 -spec table_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.    
 table_exists(ReqData) ->
@@ -399,7 +403,7 @@ table_query(ReqData) ->
     QueryRaw = wrq:req_body(ReqData),
     Query = mochijson2:decode(QueryRaw),
     Response = re_node:get_ts(N, Table, Query),
-    {true, wrq:append_to_response_body(mochijson2:encode(Response), ReqData)}.
+    add_content(Response, ReqData).
 
 %%% Bucket Type
 
@@ -431,16 +435,16 @@ bucket_type_put(ReqData) ->
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     RawValue = wrq:req_body(ReqData),
     case re_node:create_bucket_type(N, T, RawValue) of
-        [{error, _, Message}] ->
-            {false, wrq:append_to_response_body(mochijson2:encode(Message), ReqData)};
+        {error, Reason} ->
+            {false, add_error(Reason, ReqData)};
         Response ->
-            {true, wrq:append_to_response_body(mochijson2:encode(Response), ReqData)}
+            add_content(Response, ReqData)
     end.
 
 -spec bucket_type_jobs(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 bucket_type_jobs(ReqData) ->
-    Jobs = case re_job_manager:get(buckets) of
-        [{error, not_found}] -> [];
+    Jobs = case re_job_manager:get_job(list_buckets) of
+        {error, not_found} -> [];
         J -> [J]
     end,
     re_wm:rd_content(Jobs, ReqData).
@@ -467,8 +471,8 @@ buckets(ReqData) ->
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
     Result = re_node:list_buckets_cache(C, T, Start, Rows),
-    case wrq:get_req_header("Accept", ReqData) of
-        "plain/text" ->
+    case string:str(wrq:get_req_header("Accept", ReqData),"plain/text") > 0 of
+        true ->
             case Result of
                 {error, _} ->
                     re_wm:rd_content(Result, ReqData);
@@ -476,7 +480,7 @@ buckets(ReqData) ->
                     Buckets = proplists:get_value(buckets, Result, []),
                     {string:join(Buckets, io_lib:nl()), ReqData}
             end;
-        "application/json" ->
+        _ ->
             re_wm:rd_content(Result, ReqData)
     end.
     
@@ -490,7 +494,7 @@ buckets_delete(ReqData) ->
             {true, ReqData};
         {error, Reason} ->
             {false, 
-             wrq:append_to_response_body(mochijson2:encode([{error, Reason}]), ReqData)}
+             add_error(Reason, ReqData)}
     end.
 
 -spec buckets_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
@@ -502,7 +506,7 @@ buckets_put(ReqData) ->
                   "application/json" ->
                       {struct, [{<<"buckets">>, B}]} = mochijson2:decode(RawValue),
                       B;
-                  "plain/text" ->
+                  _ ->
                       BucketsStr = string:tokens(RawValue, "\n"),
                       lists:map(fun(B) -> list_to_binary(B) end, BucketsStr)
               end,
@@ -511,7 +515,7 @@ buckets_put(ReqData) ->
             {true, ReqData};
         {error, Reason} ->
             {false, 
-             wrq:append_to_response_body(mochijson2:encode([{error, Reason}]), ReqData)}
+             add_error(Reason, ReqData)}
     end.
 
 -spec bucket_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
@@ -536,12 +540,12 @@ bucket_delete(ReqData) ->
 
 -spec bucket_jobs(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 bucket_jobs(ReqData) ->
-    KeysJobs = case re_job_manager:get(keys) of
-        [{error, not_found}] -> [];
+    KeysJobs = case re_job_manager:get_job(list_keys) of
+        {error, not_found} -> [];
         KJ -> [KJ]
     end,
-    DeleteBucketJobs = case re_job_manager:get(delete_bucket) of
-        [{error, not_found}] -> [];
+    DeleteBucketJobs = case re_job_manager:get_job(delete_bucket) of
+        {error, not_found} -> [];
         DJ -> [DJ]
     end,
     re_wm:rd_content(
@@ -569,8 +573,8 @@ keys(ReqData) ->
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
     Result = re_node:list_keys_cache(C, T, B, Start, Rows),
-    case wrq:get_req_header("Accept", ReqData) of
-        "plain/text" ->
+    case string:str(wrq:get_req_header("Accept", ReqData), "plain/text") > 0 of
+        true ->
             case Result of
                 {error, _} ->
                     re_wm:rd_content(Result, ReqData);
@@ -578,7 +582,7 @@ keys(ReqData) ->
                     Keys = proplists:get_value(keys, Result, []),
                     {string:join(Keys, io_lib:nl()), ReqData}
             end;
-        "application/json" ->
+        _ ->
             re_wm:rd_content(Result, ReqData)
     end.
 
@@ -592,7 +596,7 @@ keys_delete(ReqData) ->
             {true, ReqData};
         {error, Reason} ->
             {false, 
-             wrq:append_to_response_body(mochijson2:encode([{error, Reason}]), ReqData)}
+             add_error(Reason, ReqData)}
     end.
 
 -spec keys_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
@@ -605,7 +609,7 @@ keys_put(ReqData) ->
                "application/json" ->
                    {struct, [{<<"keys">>, K}]} = mochijson2:decode(RawValue),
                    K;
-               "plain/text" ->
+               _ ->
                    KeysStr = string:tokens(RawValue, "\n"),
                    lists:map(fun(K) -> list_to_binary(K) end, KeysStr)
            end,
@@ -614,7 +618,7 @@ keys_put(ReqData) ->
             {true, ReqData};
         {error, Reason} ->
             {false, 
-             wrq:append_to_response_body(mochijson2:encode([{error, Reason}]), ReqData)}
+             add_error(Reason, ReqData)}
     end.
 
 %% ====================================================================
@@ -626,8 +630,18 @@ keys_put(ReqData) ->
 set_jobs_response(ok, JobsPath, ReqData) ->
     ReqData1 = wrq:set_resp_headers([{"Location",JobsPath}], ReqData),
     {{halt, 202}, ReqData1};
-set_jobs_response([{error, already_started}], JobsPath, ReqData) ->
+set_jobs_response({error, already_started}, JobsPath, ReqData) ->
     ReqData1 = wrq:set_resp_headers([{"Location",JobsPath}], ReqData),
     {{halt, 102}, ReqData1};
 set_jobs_response({error, developer_mode_off}, _, ReqData) ->
-    {{halt, 403}, ReqData}.
+    {{halt, 403}, ReqData};
+set_jobs_response({error, Reason}, _, ReqData) ->
+    {false, add_error(Reason, ReqData)}.
+
+add_error(Error, ReqData) ->
+    wrq:append_to_response_body(mochijson2:encode([{error, list_to_binary(io_lib:format("~p", [Error]))}]), ReqData).
+
+add_content({error, Reason}, ReqData) ->
+    {false, add_error(Reason, ReqData)};
+add_content(Content, ReqData) ->
+    {true, wrq:append_to_response_body(mochijson2:encode(Content), ReqData)}.

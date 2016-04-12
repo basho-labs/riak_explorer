@@ -73,7 +73,8 @@ partial_file(File, Start, Rows) ->
 
 -spec timestamp_string() -> string().
 timestamp_string() ->
-    {{Year,Month,Day},{Hour,Min,Sec}} = calendar:now_to_universal_time(erlang:timestamp()),
+    %% change erlang:now() to erlang:timestamp() for R18 in the future
+    {{Year,Month,Day},{Hour,Min,Sec}} = calendar:now_to_universal_time(erlang:now()),
     lists:flatten(io_lib:fwrite("~4..0B~2.10.0B~2.10.0B~2.10.0B~2.10.0B~2.10.0B",[Year, Month, Day, Hour, Min, Sec])).
 
 -spec timestamp_human(string()) -> string().
