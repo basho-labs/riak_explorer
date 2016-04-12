@@ -40,7 +40,7 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 11.
+version() -> 12.
 
 is_enterprise() ->
     case code:ensure_loaded(riak_repl_console) of
@@ -314,6 +314,8 @@ fetch_types(It, Acc) ->
 
 format_props([], Acc) ->
   lists:reverse(Acc);
+format_props([{ddl, Val} | Rest], Acc) ->
+  format_props(Rest, [{ddl, format_ddl(Val)} | Acc]);
 format_props([{Name, Val} | Rest], Acc) ->
   format_props(Rest, [{Name, format_value(Val)} | Acc]).
 
@@ -335,6 +337,31 @@ format_value(false) ->
 format_value(Val) ->
   list_to_binary(lists:flatten(io_lib:format("~p", [Val]))).
 
+format_ddl({ddl_v1, Name, Fields, {key_v1, PartitionKey}, {key_v1, LocalKey}}) ->
+    [{name, Name},
+     {fields, format_ddl_fields(Fields, [])},
+     {partition_key, format_ddl_key(PartitionKey, [])},
+     {local_key, format_ddl_key(LocalKey, [])}].
+
+format_ddl_fields([], Accum) ->
+    lists:reverse(Accum);
+format_ddl_fields([{riak_field_v1,Name,Position,Type,Optional}|Fields], Accum) ->
+    Field = {Name, [{position, Position},
+                    {type, Type},
+                    {optional, Optional}]},
+    format_ddl_fields(Fields, [Field | Accum]).
+
+format_ddl_key([], Accum) ->
+    lists:reverse(Accum);
+format_ddl_key([{param_v1,[Name]}|Keys], Accum) ->
+    format_ddl_key(Keys, [Name | Accum]);
+format_ddl_key([{hash_fn_v1,riak_ql_quanta,
+                 Fn,[{param_v1,[Name]},N,Unit],_Type}|Keys], Accum) ->
+    format_ddl_key(Keys, [list_to_binary(
+                            atom_to_list(Fn) ++ "(" ++ binary_to_list(Name) ++ "," ++ 
+                                integer_to_list(N) ++ "," ++ 
+                                atom_to_list(Unit) ++ ")")|Accum]).
+    
 %% @doc Wait for `Check' for the given number of `Seconds'.
 wait_for(_, 0) ->
     ok;
