@@ -59,7 +59,11 @@ props(C) ->
     
 -spec from_props(re_cluster(), re_cluster_props()) -> re_cluster_props().
 from_props(C, Props) ->
-    N = proplists:get_value(riak_node, Props, default_riak_node()),
+    N = case proplists:get_value(riak_node, Props, default_riak_node()) of
+            N1 when is_list(N1) -> list_to_atom(N1);
+            N2 when is_atom(N2) -> N2;
+            _ -> default_riak_node()
+        end,
     [{id,C},
      {riak_node, N},
      {development_mode, proplists:get_value(development_mode, Props, true)},

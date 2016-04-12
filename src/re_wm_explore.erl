@@ -124,7 +124,8 @@ routes() ->
             exists={re_wm,rd_node_exists},
             content={?MODULE,node_config_files}},
      #route{base=?NODE_BASE,
-            path=[["config", "files", file]], 
+            path=[["config", "files", file]],
+            provides=?PROVIDE_TEXT ++ ?PROVIDE(?JSON_TYPE),
             exists={?MODULE,node_config_file_exists},
             content={?MODULE,node_config_file}},
      #route{base=?NODE_BASE,
@@ -133,6 +134,7 @@ routes() ->
             content={?MODULE,node_log_files}},
      #route{base=?NODE_BASE,
             path=[["log", "files", file]], 
+            provides=?PROVIDE_TEXT ++ ?PROVIDE(?JSON_TYPE),
             exists={?MODULE,node_log_file_exists},
             content={?MODULE,node_log_file}},
      #route{base=?NODE_BASE,
@@ -182,6 +184,7 @@ routes() ->
             content={?MODULE,refresh_buckets}},
      #route{base=?BUCKET_TYPE_BASE,
             path=[["buckets"]],
+            provides=?PROVIDE_TEXT ++ ?PROVIDE(?JSON_TYPE),
             methods=['PUT','GET','DELETE'],
             exists={?MODULE,bucket_type_exists},
             content={?MODULE,buckets},
@@ -206,6 +209,7 @@ routes() ->
             content={?MODULE,refresh_keys}},
      #route{base=?BUCKET_BASE,
             path=[["keys"]],
+            provides=?PROVIDE_TEXT ++ ?PROVIDE(?JSON_TYPE),
             methods=['PUT','GET','DELETE'],
             exists={?MODULE,bucket_exists},
             content={?MODULE,keys},
@@ -297,7 +301,19 @@ node_config_file_exists(ReqData) ->
 node_config_file(ReqData) ->
     N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
-    re_wm:rd_content(re_node:config_file(N, F), ReqData).
+    Result = re_node:config_file(N, F),
+    case wrq:get_req_header("Accept", ReqData) of
+        "plain/text" ->
+            case Result of
+                {error, _} ->
+                    re_wm:rd_content(Result, ReqData);
+                _ ->
+                    Lines = proplists:get_value(lines, Result, []),
+                    {string:join(Lines, io_lib:nl()), ReqData}
+            end;
+        "application/json" ->
+            re_wm:rd_content(Result, ReqData)
+    end.
 
 -spec node_log_files(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 node_log_files(ReqData) ->
@@ -320,7 +336,19 @@ node_log_file(ReqData) ->
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
     N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
-    re_wm:rd_content(re_node:log_file(N, F, Rows), ReqData).
+    Result = re_node:log_file(N, F, Rows),
+    case wrq:get_req_header("Accept", ReqData) of
+        "plain/text" ->
+            case Result of
+                {error, _} ->
+                    re_wm:rd_content(Result, ReqData);
+                _ ->
+                    Lines = proplists:get_value(lines, Result, []),
+                    {string:join(Lines, io_lib:nl()), ReqData}
+            end;
+        "application/json" ->
+            re_wm:rd_content(Result, ReqData)
+    end.
 
 -spec tables(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 tables(ReqData) ->
@@ -540,8 +568,19 @@ keys(ReqData) ->
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
-    re_wm:rd_content(
-      re_node:list_keys_cache(C, T, B, Start, Rows), ReqData).
+    Result = re_node:list_keys_cache(C, T, B, Start, Rows),
+    case wrq:get_req_header("Accept", ReqData) of
+        "plain/text" ->
+            case Result of
+                {error, _} ->
+                    re_wm:rd_content(Result, ReqData);
+                _ ->
+                    Keys = proplists:get_value(keys, Result, []),
+                    {string:join(Keys, io_lib:nl()), ReqData}
+            end;
+        "application/json" ->
+            re_wm:rd_content(Result, ReqData)
+    end.
 
 -spec keys_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 keys_delete(ReqData) ->

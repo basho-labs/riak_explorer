@@ -109,7 +109,7 @@ type(N) ->
 
 -spec version(re_node()) -> binary() | unavailable.
 version(N) ->
-    case re_call:call(N, re_riak_patch, riak_version, []) of
+    case command(N, re_riak_patch, riak_version, []) of
         {error, _} ->
             unavailable;
         Version ->
@@ -325,134 +325,187 @@ put_keys_cache(Cluster, BucketType, Bucket, Keys) ->
             ok
     end.
 
+-spec log_files(re_node()) -> {error, term()} | [{atom(), term()}].
 log_files(Node) ->
-    Files = command(Node, re_riak_patch, get_log_files, []),
-    WithIds = lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files),
-    [{files, WithIds}].
+    case command(Node, re_riak_patch, get_log_files, []) of
+        {error, Reason} ->
+            {error, Reason};
+        Files ->
+            lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files)
+    end.    
 
+-spec log_file_exists(re_node(), string()) -> boolean().
 log_file_exists(Node, File) ->
-    Files = command(Node, re_riak_patch, get_log_files, []),
-    lists:member(File, Files).
+    case command(Node, re_riak_patch, get_log_files, []) of
+        {error, _} ->
+            false;
+        Files ->
+            lists:member(File, Files)
+    end.
 
+-spec log_file(re_node(), string(), non_neg_integer()) -> {error, term()} | [{atom(), term()}].
 log_file(Node, File, NumLines) ->
     case re:run(File, ".log(.[0-9])?$") of
         {match,_} ->
             case command(Node, re_riak_patch, tail_log, [File, NumLines]) of
                 {error, _} ->
-                    [{error, not_found}];
+                    {error, not_found};
                 {Total, Lines} ->
-                    [{log, [{total_lines, Total},{lines, Lines}]}]
+                    [{total_lines, Total},{lines, Lines}]
             end;
         _ ->
-            [{error, not_found}]
+            {error, not_found}
     end.
 
+-spec config_files(re_node()) -> {error, term()} | [{atom(), term()}].
 config_files(Node) ->
-    Files = command(Node, re_riak_patch, get_config_files, []),
-    WithIds = lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files),
-    [{files, WithIds}].
+    case command(Node, re_riak_patch, get_config_files, []) of
+        {error, Reason} ->
+            {error, Reason};
+        Files ->
+            lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files)
+    end.
 
+-spec config_file_exists(re_node(), string()) -> boolean().
 config_file_exists(Node, File) ->
-    Files = command(Node, re_riak_patch, get_config_files, []),
-    lists:member(File, Files).
+    case command(Node, re_riak_patch, get_config_files, []) of
+        {error, Reason} ->
+            {error, Reason};
+        Files ->
+            lists:member(File, Files)
+    end.
 
+-spec config_file(re_node(), string()) -> {error, term()} | [{atom(), term()}].
 config_file(Node, File) ->
     case command(Node, re_riak_patch, get_config, [File]) of
         {error, _} ->
             [{error, not_found}];
         Lines ->
-            [{files, [{lines, Lines}]}]
+            [{lines, Lines}]
     end.
 
+-spec config(re_node()) -> {error, term()} | [{atom(), term()}].
 config(Node) ->
     try
         case command(Node, re_riak_patch, effective_config, []) of
-            {error, legacy_config} ->
-                [{error, not_found, [{error, <<"Legacy configuration files found, effective config not available.">>}]}];
+            {error, Reason} ->
+                {error, Reason};
             Config ->
-                [{config, Config}]
+                Config
         end
     catch
-        Exception:Reason ->
-            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
-            lager:info("~p:~p", [Exception, Reason]),
+        Exception:Reason1 ->
+            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason1])),
+            lager:info("~p:~p", [Exception, Reason1]),
             lager:info("Backtrace: ~p", [erlang:get_stacktrace()]),
-            [{config, [{error, Error}]}]
+            {error, Error}
     end.
 
+-spec http_listener(re_node()) -> {error, term()} | binary().
 http_listener(Node) ->
     NodeStr = atom_to_list(Node),
     [_,Addr] = string:tokens(NodeStr, "@"),
-    {ok,[{_,Port}]} = command(Node, application, get_env, [riak_api, http]),
-    [{http_listener, list_to_binary(Addr ++ ":" ++ integer_to_list(Port))}].
+    case command(Node, application, get_env, [riak_api, http]) of
+        {error, Reason} ->
+            {error, Reason};
+        {ok,[{_,Port}]} ->
+            list_to_binary(Addr ++ ":" ++ integer_to_list(Port))
+    end.
 
+-spec pb_listener(re_node()) -> {error, term()} | binary().
 pb_listener(Node) ->
     NodeStr = atom_to_list(Node),
     [_,Addr] = string:tokens(NodeStr, "@"),
-    {ok,[{_,Port}]} = command(Node, application, get_env, [riak_api, pb]),
-    [{pb_listener, list_to_binary(Addr ++ ":" ++ integer_to_list(Port))}].
+    case command(Node, application, get_env, [riak_api, pb]) of
+        {error, Reason} ->
+            {error, Reason};
+        {ok,[{_,Port}]} ->
+            list_to_binary(Addr ++ ":" ++ integer_to_list(Port))
+    end.
 
+-spec bucket_type_exists(re_node(), binary()) -> boolean().
 bucket_type_exists(Node, BucketType) ->
     case bucket_type(Node, BucketType) of
-        [{error, not_found}] ->
+        {error, _} ->
             false;
         _ ->
             true
     end.
 
+-spec bucket_type(re_node(), binary()) -> {error, term()} | [{atom(), term()}].
 bucket_type(Node, BucketType) ->
-    FlatProps = lists:flatten([proplists:get_value(props, Prop) ||
-                           Prop <- proplists:get_value(bucket_types, bucket_types(Node)),
-                           BucketType =:= proplists:get_value(name, Prop)]),
-    case FlatProps of
-        [] ->
-            [{error, not_found}];
-        Props ->
-            [{bucket_types, [{id,BucketType}, {props, Props}]}]
+    case bucket_types(Node) of
+        {error, Reason} ->
+            {error, Reason};
+        Ts ->
+            FlatProps = lists:flatten(
+                          [proplists:get_value(props, Prop) ||
+                              Prop <- proplists:get_value(bucket_types, Ts),
+                              BucketType =:= proplists:get_value(name, Prop)]),
+            case FlatProps of
+                [] ->
+                    {error, not_found};
+                Props ->
+                    [{id,BucketType}, {props, Props}]
+            end
     end.
 
+-spec bucket_types(re_node()) -> {error, term()} | [{atom(), term()}].
 bucket_types(Node) ->
-    List0 = command(Node, re_riak_patch, bucket_types, []),
-    List1 = lists:filtermap(
-              fun([{name, _}, {props, Props}]) ->
-                      proplists:get_value(ddl, Props) =:= undefined
-              end, List0),
-    List = lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List1),
-    [{bucket_types, List}].
-
+    case command(Node, re_riak_patch, bucket_types, []) of
+        {error, Reason} ->
+            {error, Reason};
+        List ->
+            lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List)
+    end.
+            
+-spec table_exists(re_node(), binary()) -> boolean().
 table_exists(Node, Table) ->
     case table(Node, Table) of
-        [{error, not_found}] -> false;
+        {error, _} -> false;
         _ -> true
     end.
 
+-spec table(re_node(), binary()) -> {error, term()} | [{atom(), term()}].
 table(Node, Table) ->
-    FlatProps = lists:flatten([proplists:get_value(props, Prop) ||
-                           Prop <- proplists:get_value(tables, tables(Node)),
-                           Table =:= proplists:get_value(name, Prop)]),
-    case FlatProps of
-        [] ->
-            [{error, not_found}];
-        Props ->
-            [{tables, [{id,Table}, {props, Props}]}]
+    case tables(Node) of
+        {error, Reason} ->
+            {error, Reason};
+        Ts ->
+            FlatProps = lists:flatten(
+                          [proplists:get_value(props, Prop) ||
+                              Prop <- proplists:get_value(tables, Ts),
+                              Table =:= proplists:get_value(name, Prop)]),
+            case FlatProps of
+                [] ->
+                    {error, not_found};
+                Props ->
+                    [{id,Table}, {props, Props}]
+            end
     end.
 
+-spec tables(re_node()) -> {error, term()} | [{atom(), term()}].
 tables(Node) ->
-    List0 = command(Node, re_riak_patch, bucket_types, []),
-    List1 = lists:filtermap(
-              fun([{name, _}, {props, Props}]) ->
-                      proplists:get_value(ddl, Props) =/= undefined
-              end, List0),
-    List = lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List1),
-    [{tables, List}].
+    case command(Node, re_riak_patch, bucket_types, []) of
+        {error, Reason} ->
+            {error, Reason};
+        List0 ->
+            List1 = lists:filtermap(
+                      fun([{name, _}, {props, Props}]) ->
+                              proplists:get_value(ddl, Props) =/= undefined
+                      end, List0),
+            lists:sort(fun([{name, N1}|_], [{name, N2}|_]) -> N1 < N2 end, List1)
+    end.
 
+-spec create_bucket_type(re_node(), binary(), binary()) -> {error, term()} | [{atom(), term()}].
 create_bucket_type(Node, BucketType, RawValue) ->
-    {Created, Active} = case bucket_type(Node, list_to_binary(BucketType)) of
-        [{error, not_found}] -> {false, false};
-        [{bucket_types, Type}] ->
-            Props = proplists:get_value(props, Type),
-            {true, proplists:get_value(active, Props, false)}
-    end,
+    {Created, Active} = 
+        case bucket_type(Node, list_to_binary(BucketType)) of
+            {error, _} -> {false, false};
+            Type ->
+                Props = proplists:get_value(props, Type),
+                {true, proplists:get_value(active, Props, false)}
+        end,
 
     case {Created, Active} of
         {false, _} ->
@@ -469,7 +522,7 @@ command(N, M, F, A) ->
         true ->
             local_command(M, F, A);
         _ ->
-            command_command(N, M, F, A)
+            remote_command(N, M, F, A)
     end.
 
 -spec client(re_node()) -> {error, term()} | pid().
@@ -490,15 +543,15 @@ client(Node) ->
 %%% Private
 %%%===================================================================
 
--spec command_command(re_node(), module(), atom(), [term()]) -> {error, term()} | term().
-command_command(N, re_riak_patch, F, A) ->
+-spec remote_command(re_node(), module(), atom(), [term()]) -> {error, term()} | term().
+remote_command(N, re_riak_patch, F, A) ->
     case ensure_patch_loaded(N) of
         {error, Reason} -> 
             {error, Reason};
         {module, re_riak_patch} ->
             safe_rpc(N, re_riak_patch, F, A, 60000)
     end;
-command_command(N, M, F, A) ->
+remote_command(N, M, F, A) ->
     safe_rpc(N, M, F, A, 60000).
 
 -spec local_command(module(), atom(), [term()]) -> term().
@@ -516,7 +569,9 @@ safe_rpc(N, M, F, A, Timeout) ->
                      R
              catch
                  'EXIT':{noproc, _NoProcDetails} ->
-                     {badrpc, rpc_process_down}
+                     {badrpc, rpc_process_down};
+                 'EXIT':{timeout, _} ->
+                     {badrpc, timeout}
              end,
     case Result of
         {badrpc, Reason} -> {error, Reason};
@@ -552,23 +607,23 @@ load_patch(N) ->
     safe_rpc(N, code, load_binary, [Mod, "/tmp/re_riak_patch.beam", Bin], 60000).
 
 bucket_type_action(_Node, _BucketType, _RawValue, [], Accum) ->
-    [{bucket_types, [{success, true},{actions, lists:reverse(Accum)}]}];
+    [{success, true},{actions, lists:reverse(Accum)}];
 bucket_type_action(Node, BucketType, RawValue, [create|Rest], Accum) ->
     Props = case RawValue of
         <<>> -> "";
         P -> P
     end,
     case command(Node, re_riak_patch, bucket_type_create, [[BucketType, Props]]) of
-        [{error, _, _}]=E -> E;
+        {error, Reason} -> {error, Reason};
         C -> bucket_type_action(Node, BucketType, RawValue, Rest, [{create, C}|Accum])
     end;
 bucket_type_action(Node, BucketType, RawValue, [activate|Rest], Accum) ->
     case command(Node, re_riak_patch, bucket_type_activate, [[BucketType]]) of
-        [{error, _, _}]=E -> E;
+        {error, Reason} -> {error, Reason};
         A -> bucket_type_action(Node, BucketType, RawValue, Rest, [{activate, A}|Accum])
     end;
 bucket_type_action(Node, BucketType, RawValue, [update|Rest], Accum) ->
     case command(Node, re_riak_patch, bucket_type_update, [[BucketType, RawValue]]) of
-        [{error, _, _}]=E -> E;
+        {error, Reason} -> {error, Reason};
         U -> bucket_type_action(Node, BucketType, RawValue, Rest, [{update, U}|Accum])
     end.

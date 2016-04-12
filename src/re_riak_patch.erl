@@ -38,19 +38,19 @@
 %%% API
 %%%===================================================================
 
+%% Increment this when code changes
+version() -> 10.
+
 is_enterprise() ->
     case code:ensure_loaded(riak_repl_console) of
         {module,riak_repl_console} -> true;
         _ -> false
     end.
 
-%% Increment this when code changes
-version() -> 10.
-
 bucket_type_print_status(Type, undefined) ->
-    [{error, format, [{error, list_to_binary(io_lib:format("~ts is not an existing bucket type", [Type]))}]}];
+    {error, list_to_binary(io_lib:format("~ts is not an existing bucket type", [Type]))};
 bucket_type_print_status(Type, created) ->
-    [{error, format, [{error, list_to_binary(io_lib:format("~ts has been created but cannot be activated yet", [Type]))}]}];
+    {error, list_to_binary(io_lib:format("~ts has been created but cannot be activated yet", [Type]))};
 bucket_type_print_status(Type, ready) ->
     list_to_binary(io_lib:format("~ts has been created and may be activated", [Type]));
 bucket_type_print_status(Type, active) ->
@@ -107,7 +107,7 @@ bucket_type_create(CreateTypeFn, Type, {struct, Fields}) ->
                             CreateTypeFn(Props3);
                         {error, ErrorMessage} when is_list(ErrorMessage) orelse is_binary(ErrorMessage) ->
                             bucket_type_print_create_result_error_header(Type),
-                            [{error, format, [{error, list_to_binary(io_lib:format("~ts", [ErrorMessage]))}]}];
+                            {error, list_to_binary(io_lib:format("~ts", [ErrorMessage]))};
                         {error, Error} ->
                             bucket_type_print_create_result(Type, {error, Error})
                     end;
@@ -116,19 +116,19 @@ bucket_type_create(CreateTypeFn, Type, {struct, Fields}) ->
                     CreateTypeFn(Props2)
             end;
         _ ->
-            [{error, format, [{error, list_to_binary(io_lib:format("Cannot create bucket type ~ts: no props field found in json", [Type]))}]}]
+            {error, list_to_binary(io_lib:format("Cannot create bucket type ~ts: no props field found in json", [Type]))}
     end;
 bucket_type_create(_, Type, _) ->
-    [{error, format, [{error, list_to_binary(io_lib:format("Cannot create bucket type ~ts: invalid json", [Type]))}]}].
+    {error, list_to_binary(io_lib:format("Cannot create bucket type ~ts: invalid json", [Type]))}.
 
 bucket_type_print_create_result(Type, ok) ->
     list_to_binary(io_lib:format("~ts created", [Type]));
 bucket_type_print_create_result(Type, {error, Reason}) ->
     bucket_type_print_create_result_error_header(Type),
-    [{error, format, [{error, list_to_binary(io_lib:format("Error creating bucket type: ~p", [Reason]))}]}].
+    {error, list_to_binary(io_lib:format("Error creating bucket type: ~p", [Reason]))}.
 
 bucket_type_print_create_result_error_header(Type) ->
-    [{error, format, [{error, list_to_binary(io_lib:format("Error creating bucket type ~ts:", [Type]))}]}].
+    {error, list_to_binary(io_lib:format("Error creating bucket type ~ts:", [Type]))}.
 
 bucket_type_update([TypeStr, PropsStr]) ->
     Type = unicode:characters_to_binary(TypeStr, utf8, utf8),
@@ -140,15 +140,15 @@ bucket_type_update(Type, {struct, Fields}) ->
             ErlProps = [riak_kv_wm_utils:erlify_bucket_prop(P) || P <- Props],
             bucket_type_print_update_result(Type, riak_core_bucket_type:update(Type, ErlProps));
         _ ->
-            [{error, format, [{error, list_to_binary(io_lib:format("Cannot create bucket type ~ts: no props field found in json", [Type]))}]}]
+            {error, list_to_binary(io_lib:format("Cannot create bucket type ~ts: no props field found in json", [Type]))}
     end;
 bucket_type_update(Type, _) ->
-    [{error, format, [{error, list_to_binary(io_lib:format("Cannot update bucket type: ~ts: invalid json", [Type]))}]}].
+    {error, list_to_binary(io_lib:format("Cannot update bucket type: ~ts: invalid json", [Type]))}.
 
 bucket_type_print_update_result(Type, ok) ->
     list_to_binary(io_lib:format("~ts updated", [Type]));
 bucket_type_print_update_result(Type, {error, Reason}) ->
-    [{error, format, [{error, list_to_binary(io_lib:format("Error updating bucket type ~ts, Reason:~p", [Type, Reason]))}]}].
+    {error, list_to_binary(io_lib:format("Error updating bucket type ~ts, Reason:~p", [Type, Reason]))}.
 
 bucket_types() ->
   It = riak_core_bucket_type:iterator(),
@@ -178,7 +178,7 @@ tail_log(Name, NumLines) ->
             Lines1 = lists:nthtail(max(Count-NumLines, 0), Lines0),
             {Count, lists:map(fun(Line) -> list_to_binary(re:replace(Line, "(^\\s+)|(\\s+$)", "", [global,{return,list}])) end, Lines1)};
         _ ->
-            [{error, not_found}]
+            {error, not_found}
     end.
 
 get_config_files() ->
@@ -209,7 +209,7 @@ get_config(Name) ->
             Lines = for_each_line(Device, Proc, ""),
             lists:reverse(Lines);
         _ ->
-            [{error, not_found}]
+            {error, not_found}
     end.
 
 effective_config() ->
@@ -263,7 +263,8 @@ load_advanced_config(EtcDir) ->
                     AdvancedConfig;
                 {error, Error} ->
                     [],
-                    lager:error("Error parsing advanced.config: ~s", [file:format_error(Error)])
+                    lager:error("Error parsing advanced.config: ~s", [file:format_error(Error)]),
+                    {error, Error}
             end;
         _ ->
             []
