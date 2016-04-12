@@ -21,6 +21,7 @@
 -module(re_riak_patch).
 -export([
   is_enterprise/0,
+  is_timeseries/0,
   version/0,
   bucket_type_create/1,
   bucket_type_activate/1,
@@ -39,11 +40,17 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 10.
+version() -> 11.
 
 is_enterprise() ->
     case code:ensure_loaded(riak_repl_console) of
         {module,riak_repl_console} -> true;
+        _ -> false
+    end.
+
+is_timeseries() ->
+    case code:ensure_loaded(riak_ql_ddl) of
+        {module,riak_ql_ddl} -> true;
         _ -> false
     end.
 
