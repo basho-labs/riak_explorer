@@ -54,7 +54,7 @@ start_delete_bucket(Cluster, Node, BucketType, Bucket, Options) ->
 init_list_buckets([From, Cluster, Node, BucketType, Options]) ->
     Dir = re_file_util:ensure_data_dir(
                     ["buckets", atom_to_list(Cluster), binary_to_list(BucketType)]),
-    C = re_riak:client(Node),
+    C = re_node:client(Node),
     Req = riakc_pb_socket:stream_list_buckets(C, BucketType),
     do_list(From, Req, Dir, Options).
 
@@ -63,7 +63,7 @@ init_list_keys([From, Cluster, Node, BucketType, Bucket, Options]) ->
     Dir = re_file_util:ensure_data_dir(
                     ["keys", atom_to_list(Cluster), binary_to_list(BucketType),
                      binary_to_list(Bucket)]),
-    C = re_riak:client(Node),
+    C = re_node:client(Node),
     Req = riakc_pb_socket:stream_list_keys(C, {BucketType, Bucket}),
     do_list(From, Req, Dir, Options).
 
@@ -77,7 +77,7 @@ init_delete_bucket([From, Cluster, Node, BucketType, Bucket, Options]) ->
             {error, Reason};
         File ->
             DirFile = filename:join([Dir, File]),
-            C = re_riak:client(Node),
+            C = re_node:client(Node),
             Fun = 
                 fun(Entry0, {Oks0, Errors0}) ->
                         RT = BucketType,

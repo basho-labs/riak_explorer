@@ -25,7 +25,9 @@
          dispatch/0,
          base_route/0]).
 
--export([rd_content/2,
+-export([add_content/2,
+         add_error/2,
+         rd_content/2,
          rd_cluster_exists/1,
          rd_cluster/1,
          rd_node_exists/1,
@@ -83,16 +85,26 @@ routes([Resource|Rest], Routes) ->
 
 -spec dispatch() -> [{[string() | atom], module(), [term()]}].
 dispatch() ->
-    build_wm_routes(routes(), []).
+    build_wm_routes(base_route(), routes(), []).
 
 -spec base_route() -> string().
 base_route() ->
     case riak_explorer:is_riak() of
-        false -> "";
-        true -> "admin"
+        false -> [];
+        true -> ["admin"]
     end.
 
 %%% Utility
+
+-spec add_content(term(), #wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
+add_content({error, Reason}, ReqData) ->
+    {false, add_error(Reason, ReqData)};
+add_content(Content, ReqData) ->
+    {true, wrq:append_to_response_body(mochijson2:encode(Content), ReqData)}.
+
+-spec add_error(term(), #wm_reqdata{}) -> #wm_reqdata{}.
+add_error(Error, ReqData) ->
+    wrq:append_to_response_body(mochijson2:encode([{error, list_to_binary(io_lib:format("~p", [Error]))}]), ReqData).
 
 -spec rd_content(term(), #wm_reqdata{}) -> 
                         {[{binary(), term()}], #wm_reqdata{}}.
@@ -269,7 +281,6 @@ get_route([Route=#route{base=Bases,path=Paths} | Rest], ReqData) ->
         R -> R
     end.
 
-
 get_route_base([], _, _, _) ->
     undefined;
 get_route_base([Base|Rest], Paths, Route, ReqData) ->
@@ -305,21 +316,21 @@ expand_path(['*'|Rest], ReqData, Acc) ->
 expand_path([Part|Rest], ReqData, Acc) when is_atom(Part) ->
     expand_path(Rest, ReqData, [wrq:path_info(Part, ReqData) | Acc]).
 
-build_wm_routes([], Acc) ->
+build_wm_routes(_BaseRoute, [], Acc) ->
     lists:reverse(lists:flatten(Acc));
-build_wm_routes([#route{base = [], path = Paths} | Rest], Acc) ->
-    build_wm_routes(Rest, [build_wm_route([], Paths, []) | Acc]);
-build_wm_routes([#route{base = Bases, path = []} | Rest], Acc) ->
-    build_wm_routes(Rest, [build_wm_route([], Bases, []) | Acc]);
-build_wm_routes([#route{base = Bases, path = Paths} | Rest], Acc) ->
-    build_wm_routes(Rest, [build_wm_routes(Bases, Paths, []) | Acc]).
+build_wm_routes(BaseRoute, [#route{base = [], path = Paths} | Rest], Acc) ->
+    build_wm_routes(BaseRoute, Rest, [build_wm_route(BaseRoute, [], Paths, []) | Acc]);
+build_wm_routes(BaseRoute, [#route{base = Bases, path = []} | Rest], Acc) ->
+    build_wm_routes(BaseRoute, Rest, [build_wm_route(BaseRoute, [], Bases, []) | Acc]);
+build_wm_routes(BaseRoute, [#route{base = Bases, path = Paths} | Rest], Acc) ->
+    build_wm_routes(BaseRoute, Rest, [build_wm_routes(BaseRoute, Bases, Paths, []) | Acc]).
 
-build_wm_routes([], _, Acc) ->
+build_wm_routes(_BaseRoute, [], _, Acc) ->
     Acc;
-build_wm_routes([Base|Rest], Paths, Acc) ->
-    build_wm_routes(Rest, Paths, [build_wm_route(Base, Paths, [])|Acc]).
+build_wm_routes(BaseRoute, [Base|Rest], Paths, Acc) ->
+    build_wm_routes(BaseRoute, Rest, Paths, [build_wm_route(BaseRoute, Base, Paths, [])|Acc]).
 
-build_wm_route(_, [], Acc) ->
+build_wm_route(_, _, [], Acc) ->
     Acc;
-build_wm_route(Base, [Path|Rest], Acc) ->
-    build_wm_route(Base, Rest, [{Base ++ Path, ?MODULE, []}|Acc]).
+build_wm_route(BaseRoute, Base, [Path|Rest], Acc) ->
+    build_wm_route(BaseRoute, Base, Rest, [{BaseRoute ++ Base ++ Path, ?MODULE, []}|Acc]).

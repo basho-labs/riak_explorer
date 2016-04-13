@@ -71,11 +71,13 @@ init([]) ->
     % end.
     end,
 
+    %%TODO: make a better application start entry point in riak_explorer to avoid this
+
     %% In order to easily inject Riak Explorer into a riak installation,
     %% we're hijacking the old riak_control_sup module's init/1 to start up
     %% Riak Explorer.
 
-    RexRoutes = lists:reverse(re_config:dispatch()),
+    RexRoutes = lists:reverse(re_wm:dispatch()),
     _ = [webmachine_router:add_route(R) || R <- RexRoutes],
 
     JobManager = {re_job_manager,

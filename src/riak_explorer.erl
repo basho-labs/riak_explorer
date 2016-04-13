@@ -86,7 +86,12 @@ url() ->
 
 -spec url(string(), integer()) -> string().
 url(Ip, Port) ->
-    "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/".
+    case re_wm:base_route() of
+        [] ->
+            "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/";
+        [R] ->
+            "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/" ++ R ++ "/"
+    end.
 
 -spec props() -> [{atom(), atom() | binary()}].
 props() ->

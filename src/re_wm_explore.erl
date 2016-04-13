@@ -364,7 +364,7 @@ tables_query(ReqData) ->
     N = re_wm:rd_node(ReqData),
     Query = wrq:req_body(ReqData),
     Response = re_node:query_ts(N, Query),
-    add_content(Response, ReqData).
+    re_wm:add_content(Response, ReqData).
 
 -spec table_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.    
 table_exists(ReqData) ->
@@ -403,7 +403,7 @@ table_query(ReqData) ->
     QueryRaw = wrq:req_body(ReqData),
     Query = mochijson2:decode(QueryRaw),
     Response = re_node:get_ts(N, Table, Query),
-    add_content(Response, ReqData).
+    re_wm:add_content(Response, ReqData).
 
 %%% Bucket Type
 
@@ -436,9 +436,9 @@ bucket_type_put(ReqData) ->
     RawValue = wrq:req_body(ReqData),
     case re_node:create_bucket_type(N, T, RawValue) of
         {error, Reason} ->
-            {false, add_error(Reason, ReqData)};
+            {false, re_wm:add_error(Reason, ReqData)};
         Response ->
-            add_content(Response, ReqData)
+            re_wm:add_content(Response, ReqData)
     end.
 
 -spec bucket_type_jobs(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
@@ -494,7 +494,7 @@ buckets_delete(ReqData) ->
             {true, ReqData};
         {error, Reason} ->
             {false, 
-             add_error(Reason, ReqData)}
+             re_wm:add_error(Reason, ReqData)}
     end.
 
 -spec buckets_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
@@ -515,7 +515,7 @@ buckets_put(ReqData) ->
             {true, ReqData};
         {error, Reason} ->
             {false, 
-             add_error(Reason, ReqData)}
+             re_wm:add_error(Reason, ReqData)}
     end.
 
 -spec bucket_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
@@ -596,7 +596,7 @@ keys_delete(ReqData) ->
             {true, ReqData};
         {error, Reason} ->
             {false, 
-             add_error(Reason, ReqData)}
+             re_wm:add_error(Reason, ReqData)}
     end.
 
 -spec keys_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
@@ -618,7 +618,7 @@ keys_put(ReqData) ->
             {true, ReqData};
         {error, Reason} ->
             {false, 
-             add_error(Reason, ReqData)}
+             re_wm:add_error(Reason, ReqData)}
     end.
 
 %% ====================================================================
@@ -636,12 +636,4 @@ set_jobs_response({error, already_started}, JobsPath, ReqData) ->
 set_jobs_response({error, developer_mode_off}, _, ReqData) ->
     {{halt, 403}, ReqData};
 set_jobs_response({error, Reason}, _, ReqData) ->
-    {false, add_error(Reason, ReqData)}.
-
-add_error(Error, ReqData) ->
-    wrq:append_to_response_body(mochijson2:encode([{error, list_to_binary(io_lib:format("~p", [Error]))}]), ReqData).
-
-add_content({error, Reason}, ReqData) ->
-    {false, add_error(Reason, ReqData)};
-add_content(Content, ReqData) ->
-    {true, wrq:append_to_response_body(mochijson2:encode(Content), ReqData)}.
+    {false, re_wm:add_error(Reason, ReqData)}.

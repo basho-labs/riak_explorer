@@ -49,8 +49,8 @@ routes() ->
 %%%===================================================================
 
 proxy_available(ReqData) ->
-    case {re_wm_util:rd_cluster_exists(ReqData),
-          re_wm_util:rd_node_exists(ReqData)} of
+    case {re_wm:rd_cluster_exists(ReqData),
+          re_wm:rd_node_exists(ReqData)} of
         {{true,_}, {true,_}} ->
             send_proxy_request(ReqData);
         E ->
@@ -63,38 +63,43 @@ proxy_available(ReqData) ->
 %% ====================================================================
 
 send_proxy_request(ReqData) ->
-    N = re_wm_util:rd_node(ReqData),
-    C = re_wm_util:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
+    C = re_wm:rd_cluster(ReqData),
 
-    [{http_listener,Listener}] = re_riak:http_listener(N),
-    RiakPath = "http://" ++ binary_to_list(Listener) ++ "/",
-
-    Path = lists:append(
-             [RiakPath,
-              wrq:disp_path(ReqData),
-              case wrq:req_qs(ReqData) of
-                  [] -> [];
-                  Qs -> [$?|mochiweb_util:urlencode(Qs)]
-              end]),
-
-    lager:info("proxy url: ~p", [Path]),
-
-    %% translate webmachine details to ibrowse details
-    Headers = clean_request_headers(
-                mochiweb_headers:to_list(wrq:req_headers(ReqData))),
-    Method = wm_to_ibrowse_method(wrq:method(ReqData)),
-    ReqBody = case wrq:req_body(ReqData) of
-                  undefined -> [];
-                  B -> B
-              end,
-
-    case ibrowse:send_req(Path, Headers, Method, ReqBody) of
-        {ok, Status, RiakHeaders, RespBody} ->
-            RespHeaders = fix_location(RiakHeaders, C, N),
-            {{halt, list_to_integer(Status)},
-             wrq:set_resp_headers(RespHeaders,
-                                  wrq:set_resp_body(RespBody, ReqData))};
-        _ -> {false, ReqData}
+    case re_node:http_listener(N) of
+        {error, Reason} ->
+            re_wm:add_content({error, Reason}, ReqData);
+        Listener ->
+            RiakPath = "http://" ++ binary_to_list(Listener) ++ "/",
+            
+            Path = lists:append(
+                     [RiakPath,
+                      wrq:disp_path(ReqData),
+                      case wrq:req_qs(ReqData) of
+                          [] -> [];
+                          Qs -> [$?|mochiweb_util:urlencode(Qs)]
+                      end]),
+            
+            %% translate webmachine details to ibrowse details
+            Headers = clean_request_headers(
+                        mochiweb_headers:to_list(wrq:req_headers(ReqData))),
+            Method = wm_to_ibrowse_method(wrq:method(ReqData)),
+            ReqBody = case wrq:req_body(ReqData) of
+                          undefined -> [];
+                          B -> B
+                      end,
+            
+            case ibrowse:send_req(Path, Headers, Method, ReqBody) of
+                {ok, Status, RiakHeaders, RespBody} ->
+                    RespHeaders = fix_location(RiakHeaders, C, N),
+                    {{halt, list_to_integer(Status)},
+                     wrq:set_resp_headers(RespHeaders,
+                                          wrq:set_resp_body(RespBody, ReqData))};
+                {error, Reason} -> 
+                    re_wm:add_content({error, Reason}, ReqData);
+                _ ->
+                    {false, ReqData}
+            end
     end.
 
 clean_request_headers(Headers) ->
@@ -111,8 +116,8 @@ wm_to_ibrowse_method(Method) when is_atom(Method) ->
 
 fix_location([], _, _) -> [];
 fix_location([{"Location", RiakDataPath}|Rest], undefined, Node) ->
-    [{"Location", re_config:url()++re_config:base_route()++"/"++?BASE++"/nodes/"++atom_to_list(Node)++RiakDataPath}|Rest];
+    [{"Location", riak_explorer:url() ++ ?BASE++"/nodes/"++atom_to_list(Node)++RiakDataPath}|Rest];
 fix_location([{"Location", RiakDataPath}|Rest], Cluster, _) ->
-    [{"Location", re_config:url()++re_config:base_route()++"/"++?BASE++"/clusters/"++atom_to_list(Cluster)++RiakDataPath}|Rest];
+    [{"Location", riak_explorer:url() ++ ?BASE++"/clusters/"++atom_to_list(Cluster)++RiakDataPath}|Rest];
 fix_location([H|T], Cluster, Node) ->
     [H|fix_location(T, Cluster, Node)].

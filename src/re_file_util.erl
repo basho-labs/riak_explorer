@@ -105,7 +105,7 @@ add_slash(Str) ->
     end.
 
 ensure_data_dir(Path) ->
-    DataPath = add_slash(filename:join([re_config:data_dir() | Path])),
+    DataPath = add_slash(filename:join([riak_explorer:data_dir() | Path])),
     filelib:ensure_dir(DataPath),
     DataPath.
 

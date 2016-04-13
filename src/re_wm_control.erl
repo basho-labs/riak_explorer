@@ -120,7 +120,7 @@ routes() ->
 
 command0_exists(ReqData) ->
     Command = rd_command(ReqData),
-    case re_wm_util:rd_node_exists(ReqData) of
+    case re_wm:rd_node_exists(ReqData) of
         {true, _} ->
             {lists:member([Command], ?COMMAND0_ROUTES), ReqData};
         _ ->
@@ -129,38 +129,38 @@ command0_exists(ReqData) ->
     
 
 command0(ReqData) ->
-    Node = re_wm_util:rd_node(ReqData),
+    Node = re_wm:rd_node(ReqData),
     Command = rd_command(ReqData),
     Response = 
         case Command of
-            "repair" -> re_riak:repair(Node);
-            "staged-leave" -> re_riak:staged_leave(Node);
-            "plan" -> re_riak:plan(Node);
-            "commit" -> re_riak:commit(Node);
-            "clear" -> re_riak:clear(Node);
-            "status" -> re_riak:status(Node);
-            "ringready" -> re_riak:ringready(Node);
-            "transfers" -> re_riak:transfers(Node);
-            "aae-status" -> re_riak:aae_status(Node);
-            "repl-clustername" -> re_riak:repl_clustername(Node);
-            "repl-connections" -> re_riak:repl_connections(Node);
-            "repl-realtime-start" -> re_riak:repl_realtime_start(Node);
-            "repl-realtime-stop" -> re_riak:repl_realtime_stop(Node);
-            "repl-fullsync-start" -> re_riak:repl_fullsync_start(Node);
-            "repl-fullsync-stop" -> re_riak:repl_fullsync_stop(Node);
-            "repl-clusterstats" -> re_riak:repl_clusterstats(Node);
-            "repl-clusterstats-cluster_mgr" -> re_riak:repl_clusterstats_cluster_mgr(Node);
-            "repl-clusterstats-fs_coordinate" -> re_riak:repl_clusterstats_fs_coordinate(Node);
-            "repl-clusterstats-fullsync" -> re_riak:repl_clusterstats_fullsync(Node);
-            "repl-clusterstats-proxy_get" -> re_riak:repl_clusterstats_proxy_get(Node);
-            "repl-clusterstats-realtime" -> re_riak:repl_clusterstats_realtime(Node);
+            "repair" -> re_node_control:repair(Node);
+            "staged-leave" -> re_node_control:staged_leave(Node);
+            "plan" -> re_node_control:plan(Node);
+            "commit" -> re_node_control:commit(Node);
+            "clear" -> re_node_control:clear(Node);
+            "status" -> re_node_control:status(Node);
+            "ringready" -> re_node_control:ringready(Node);
+            "transfers" -> re_node_control:transfers(Node);
+            "aae-status" -> re_node_control:aae_status(Node);
+            "repl-clustername" -> re_node_control:repl_clustername(Node);
+            "repl-connections" -> re_node_control:repl_connections(Node);
+            "repl-realtime-start" -> re_node_control:repl_realtime_start(Node);
+            "repl-realtime-stop" -> re_node_control:repl_realtime_stop(Node);
+            "repl-fullsync-start" -> re_node_control:repl_fullsync_start(Node);
+            "repl-fullsync-stop" -> re_node_control:repl_fullsync_stop(Node);
+            "repl-clusterstats" -> re_node_control:repl_clusterstats(Node);
+            "repl-clusterstats-cluster_mgr" -> re_node_control:repl_clusterstats_cluster_mgr(Node);
+            "repl-clusterstats-fs_coordinate" -> re_node_control:repl_clusterstats_fs_coordinate(Node);
+            "repl-clusterstats-fullsync" -> re_node_control:repl_clusterstats_fullsync(Node);
+            "repl-clusterstats-proxy_get" -> re_node_control:repl_clusterstats_proxy_get(Node);
+            "repl-clusterstats-realtime" -> re_node_control:repl_clusterstats_realtime(Node);
             _ -> [{error, not_found}]
         end,
     {Response, ReqData}.
 
 command1_exists(ReqData) ->
     Command = rd_command(ReqData),
-    case re_wm_util:rd_node_exists(ReqData) of
+    case re_wm:rd_node_exists(ReqData) of
         {true, _} ->
             {lists:member([Command], ?COMMAND1_ROUTES), ReqData};
         _ ->
@@ -168,33 +168,33 @@ command1_exists(ReqData) ->
     end.
 
 command1(ReqData) ->
-    Node = re_wm_util:rd_node(ReqData),
+    Node = re_wm:rd_node(ReqData),
     Arg1 = rd_arg1(ReqData),
     Command = rd_command(ReqData),
     Response = 
         case Command of
-            "join" -> re_riak:join(Node, Arg1);
-            "staged-join" -> re_riak:staged_join(Node, Arg1);
-            "leave" -> re_riak:leave(Node, Arg1);
-            "staged-leave" -> re_riak:staged_leave(Node, Arg1);
-            "force-remove" -> re_riak:force_remove(Node, Arg1);
-            "repl-clustername" -> re_riak:repl_clustername(Node, Arg1);
-            "repl-disconnect" -> re_riak:repl_disconnect(Node, Arg1);
-            "repl-realtime-enable" -> re_riak:repl_realtime_enable(Node, Arg1);
-            "repl-realtime-disable" -> re_riak:repl_realtime_disable(Node, Arg1);
-            "repl-realtime-start" -> re_riak:repl_realtime_start(Node, Arg1);
-            "repl-realtime-stop" -> re_riak:repl_realtime_stop(Node, Arg1);
-            "repl-fullsync-enable" -> re_riak:repl_fullsync_enable(Node, Arg1);
-            "repl-fullsync-disable" -> re_riak:repl_fullsync_disable(Node, Arg1);
-            "repl-fullsync-start" -> re_riak:repl_fullsync_start(Node, Arg1);
-            "repl-fullsync-stop" -> re_riak:repl_fullsync_stop(Node, Arg1);
+            "join" -> re_node_control:join(Node, Arg1);
+            "staged-join" -> re_node_control:staged_join(Node, Arg1);
+            "leave" -> re_node_control:leave(Node, Arg1);
+            "staged-leave" -> re_node_control:staged_leave(Node, Arg1);
+            "force-remove" -> re_node_control:force_remove(Node, Arg1);
+            "repl-clustername" -> re_node_control:repl_clustername(Node, Arg1);
+            "repl-disconnect" -> re_node_control:repl_disconnect(Node, Arg1);
+            "repl-realtime-enable" -> re_node_control:repl_realtime_enable(Node, Arg1);
+            "repl-realtime-disable" -> re_node_control:repl_realtime_disable(Node, Arg1);
+            "repl-realtime-start" -> re_node_control:repl_realtime_start(Node, Arg1);
+            "repl-realtime-stop" -> re_node_control:repl_realtime_stop(Node, Arg1);
+            "repl-fullsync-enable" -> re_node_control:repl_fullsync_enable(Node, Arg1);
+            "repl-fullsync-disable" -> re_node_control:repl_fullsync_disable(Node, Arg1);
+            "repl-fullsync-start" -> re_node_control:repl_fullsync_start(Node, Arg1);
+            "repl-fullsync-stop" -> re_node_control:repl_fullsync_stop(Node, Arg1);
             _ -> [{error, not_found}]
         end,
     {Response, ReqData}.
 
 command2_exists(ReqData) ->
     Command = rd_command(ReqData),
-    case re_wm_util:rd_node_exists(ReqData) of
+    case re_wm:rd_node_exists(ReqData) of
         {true, _} ->
             {lists:member([Command], ?COMMAND2_ROUTES), ReqData};
         _ ->
@@ -202,17 +202,17 @@ command2_exists(ReqData) ->
     end.
 
 command2(ReqData) ->
-    Node = re_wm_util:rd_node(ReqData),
+    Node = re_wm:rd_node(ReqData),
     Arg1 = rd_arg1(ReqData),
     Arg2 = rd_arg2(ReqData),
     Command = rd_command(ReqData),
     Response = 
         case Command of
-            "staged-replace" -> re_riak:staged_replace(Node, Arg1, Arg2);
-            "replace" -> re_riak:replace(Node, Arg1, Arg2);
-            "force-replace" -> re_riak:force_replace(Node, Arg1, Arg2);
-            "repl-connect" -> re_riak:repl_connect(Node, Arg1, Arg2);
-            "repl-clusterstats" -> re_riak:repl_clusterstats(Node, Arg1, Arg2);
+            "staged-replace" -> re_node_control:staged_replace(Node, Arg1, Arg2);
+            "replace" -> re_node_control:replace(Node, Arg1, Arg2);
+            "force-replace" -> re_node_control:force_replace(Node, Arg1, Arg2);
+            "repl-connect" -> re_node_control:repl_connect(Node, Arg1, Arg2);
+            "repl-clusterstats" -> re_node_control:repl_clusterstats(Node, Arg1, Arg2);
             _ -> [{error, not_found}]
         end,
     {Response, ReqData}.
@@ -222,10 +222,15 @@ command2(ReqData) ->
 %% ====================================================================
 
 rd_command(ReqData) ->
-    lists:nth(length(re_config:base_route("")) + 3, string:tokens(wrq:path(ReqData), "/")).
+    case riak_explorer:is_riak() of
+        true ->
+            lists:nth(5, string:tokens(wrq:path(ReqData), "/"));
+        false ->
+            lists:nth(4, string:tokens(wrq:path(ReqData), "/"))
+    end.
 
 rd_arg1(ReqData) ->
-    re_wm_util:maybe_atomize(re_wm_util:url_decode(wrq:path_info(arg1, ReqData))).
+    re_wm:maybe_atomize(re_wm:url_decode(wrq:path_info(arg1, ReqData))).
 
 rd_arg2(ReqData) ->
-    re_wm_util:maybe_atomize(re_wm_util:url_decode(wrq:path_info(arg2, ReqData))).
+    re_wm:maybe_atomize(re_wm:url_decode(wrq:path_info(arg2, ReqData))).
