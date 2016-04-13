@@ -154,9 +154,9 @@ command0(ReqData) ->
             "repl-clusterstats-fullsync" -> re_node_control:repl_clusterstats_fullsync(Node);
             "repl-clusterstats-proxy_get" -> re_node_control:repl_clusterstats_proxy_get(Node);
             "repl-clusterstats-realtime" -> re_node_control:repl_clusterstats_realtime(Node);
-            _ -> [{error, not_found}]
+            _ -> {error, not_found}
         end,
-    {Response, ReqData}.
+    re_wm:rd_content(Response, ReqData).
 
 command1_exists(ReqData) ->
     Command = rd_command(ReqData),
@@ -188,9 +188,9 @@ command1(ReqData) ->
             "repl-fullsync-disable" -> re_node_control:repl_fullsync_disable(Node, Arg1);
             "repl-fullsync-start" -> re_node_control:repl_fullsync_start(Node, Arg1);
             "repl-fullsync-stop" -> re_node_control:repl_fullsync_stop(Node, Arg1);
-            _ -> [{error, not_found}]
+            _ -> {error, not_found}
         end,
-    {Response, ReqData}.
+    re_wm:rd_content(Response, ReqData).
 
 command2_exists(ReqData) ->
     Command = rd_command(ReqData),
@@ -213,9 +213,9 @@ command2(ReqData) ->
             "force-replace" -> re_node_control:force_replace(Node, Arg1, Arg2);
             "repl-connect" -> re_node_control:repl_connect(Node, Arg1, Arg2);
             "repl-clusterstats" -> re_node_control:repl_clusterstats(Node, Arg1, Arg2);
-            _ -> [{error, not_found}]
+            _ -> {error, not_found}
         end,
-    {Response, ReqData}.
+    re_wm:rd_content(Response, ReqData).
 
 %% ====================================================================
 %% Private
