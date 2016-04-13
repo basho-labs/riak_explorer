@@ -8734,7 +8734,7 @@ define('ember-riak-explorer/pods/cluster/model', ['exports', 'ember-data', 'embe
      * @return {String} URL
      */
     proxyUrl: (function () {
-      return _emberRiakExplorerConfigEnvironment['default'].baseURL + 'riak/clusters/' + this.get('name');
+      return 'riak/clusters/' + this.get('name');
     }).property('name'),
 
     /**
@@ -17847,7 +17847,7 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember', 'ember-riak
      * @type String
      * @default '/'
      */
-    apiURL: _emberRiakExplorerConfigEnvironment['default'].baseURL,
+    apiURL: '',
 
     name: 'explorer',
 
@@ -30593,7 +30593,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+76bdd167"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+d21f5360"});
 }
 
 /* jshint ignore:end */
