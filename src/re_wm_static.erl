@@ -19,118 +19,81 @@
 %% -------------------------------------------------------------------
 
 -module(re_wm_static).
--export([resources/0, routes/0, dispatch/0]).
--export([init/1]).
--export([service_available/2,
-         allowed_methods/2,
-         content_types_provided/2,
-         resource_exists/2,
-         provide_content/2,
-         last_modified/2,
-         generate_etag/2]).
 
--record(ctx, {first_path, web_root, resource, response=undefined, metadata=[]}).
+-export([routes/0]).
+
+-export([static_types/1,
+         static_file_exists/1,
+         static_last_modified/1,
+         static_file/1]).
+
+-define(STATIC_ROOT, "priv/ember_riak_explorer/dist").
+-define(DEFAULT_INDEX, "index.html").
 
 -include_lib("kernel/include/file.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
--include("riak_explorer.hrl").
-
--define(explorePath(), #ctx{first_path=?RE_BASE_ROUTE}).
--define(controlPath(), #ctx{first_path=?RE_CONTROL_ROUTE}).
--define(proxyPath(), #ctx{first_path=?RE_RIAK_PROXY_ROUTE}).
+-include("re_wm.hrl").
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-resources() ->
-    [].
-
 routes() ->
-    re_config:build_routes('*', [
-        [] % self
-    ]).
-
-dispatch() -> lists:map(fun(Route) -> {Route, ?MODULE, []} end, routes()).
+    [
+     #route{base = [],
+            path = [['*']],
+            exists = {?MODULE, static_file_exists},
+            provides = {?MODULE, static_types},
+            content = {?MODULE, static_file},
+            last_modified = {?MODULE, static_last_modified}}
+    ].
 
 %%%===================================================================
 %%% Callbacks
 %%%===================================================================
 
-init(_) ->
-    WebRoot = re_config:web_root(),
-    {ok, #ctx{web_root=WebRoot}}.
+%% Static.
 
-service_available(RD, Ctx0=#ctx{web_root=WebRoot}) ->
-    BaseLength = length(re_config:base_route("")),
-    PathTokens = string:tokens(wrq:path(RD), "/"),
-    FirstPath = case {BaseLength, length(PathTokens)} of
-        {B, P} when B > P ->
-            "/";
-        {B, _} ->
-            lists:nth(B, PathTokens)
-    end,
-    Resource0 = get_resource(WebRoot, wrq:disp_path(RD)),
-    {Resource1, Response} = get_response(filelib:is_regular(Resource0), WebRoot, Resource0),
-    Ctx1 = Ctx0#ctx{
-        first_path=FirstPath,
-        resource=Resource1, response=Response
-    },
-    {true, RD, Ctx1}.
-
-allowed_methods(RD, Ctx) ->
-    {['HEAD', 'GET'], RD, Ctx}.
-
-content_types_provided(RD, Ctx0=#ctx{resource=Resource}) ->
+static_types(ReqData) ->
+    Resource = static_filename(ReqData),
     CT = webmachine_util:guess_mime(Resource),
-    CTHeader = {'content-type', CT},
-    Ctx1 = Ctx0#ctx{metadata=[CTHeader|Ctx0#ctx.metadata]},
-    {[{CT, provide_content}], RD, Ctx1}.
+    {[{CT, provide_static_content}], ReqData}.
 
-resource_exists(RD, Ctx=?explorePath()) ->
-    {false, RD, Ctx};
-resource_exists(RD, Ctx=?controlPath()) ->
-    {false, RD, Ctx};
-resource_exists(RD, Ctx=?proxyPath()) ->
-    {false, RD, Ctx};
-resource_exists(RD, Ctx) ->
-    {true, RD, Ctx}.
+static_file_exists(ReqData) ->
+    case wrq:disp_path(ReqData) of
+        "" ->
+            case [lists:nth(length(wrq:path(ReqData)), wrq:path(ReqData))] of
+                "/" ->
+                    {true, ReqData};
+                _ ->
+                    {{halt, 302}, wrq:set_resp_header("Location", re_wm:rd_url(ReqData), ReqData)}
+            end;
+        _ ->
+            Filename = static_filename(ReqData),
+            {filelib:is_regular(Filename), ReqData}
+    end.
 
-provide_content(RD, Ctx=#ctx{response=Response}) ->
-    {Response, RD, Ctx}.
+static_last_modified(ReqData) ->
+    LM = filelib:last_modified(static_filename(ReqData)),
+    {LM, ReqData}.
 
-last_modified(RD, Ctx0=#ctx{resource=Resource}) ->
-    LM = filelib:last_modified(Resource),
-    LMHeader = {'last-modified', httpd_util:rfc1123_date(LM)},
-    Ctx1 = Ctx0#ctx{metadata=[LMHeader|Ctx0#ctx.metadata]},
-    {LM, RD, Ctx1}.
-
-generate_etag(RD, Ctx0=#ctx{response=Response}) ->
+static_file(ReqData) ->
+    Filename = static_filename(ReqData),
+    {ok, Response} = file:read_file(Filename),
     ET = hash_body(Response),
-    ETHeader = {etag,ET},
-    Ctx1 = Ctx0#ctx{metadata=[ETHeader|Ctx0#ctx.metadata]},
-    {ET, RD, Ctx1}.
+    ReqData1 = wrq:set_resp_header("ETag", webmachine_util:quoted_string(ET), ReqData),
+    {Response, ReqData1}.
 
 %% ====================================================================
 %% Private
 %% ====================================================================
 
-get_resource(WebRoot, Path) ->
-    Name = resource_name(Path),
-    RelName = rel_resource_name(Name),
-    filename:join([WebRoot, RelName]).
-
-resource_name([]) -> ?RE_DEFAULT_INDEX;
-resource_name(P) -> P.
-
-rel_resource_name(["/"|T]) -> T;
-rel_resource_name(N) -> N.
-
-get_response(false, WebRoot, _) ->
-    Resource = get_resource(WebRoot, ?RE_DEFAULT_INDEX),
-    get_response(true, WebRoot, Resource);
-get_response(true, _, Resource) ->
-    {ok, Response} = file:read_file(Resource),
-    {Resource, Response}.
+static_filename(ReqData) ->
+    case wrq:disp_path(ReqData) of
+        "" ->
+            filename:join([?STATIC_ROOT, "index.html"]);
+        F ->
+            filename:join([?STATIC_ROOT, F])
+    end.
 
 hash_body(Body) -> mochihex:to_hex(binary_to_list(crypto:hash(sha,Body))).

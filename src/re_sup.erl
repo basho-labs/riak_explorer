@@ -20,29 +20,61 @@
 
 -module(re_sup).
 -behaviour(supervisor).
--export([start_link/0]).
+-export([start_link/1]).
+-export([add_wm_routes/0, supervisor_specs/1]).
 -export([init/1]).
-
--include("riak_explorer.hrl").
 
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-start_link() ->
-    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+start_link(StartArgs) ->
+    supervisor:start_link({local, ?MODULE}, ?MODULE, StartArgs).
 
+add_wm_routes() ->
+    [webmachine_router:add_route(R) || R <- lists:reverse(re_wm:dispatch())].
+
+supervisor_specs(Args) ->
+    Mode = proplists:get_value(mode, Args, "standalone"),
+    JobManager = {re_job_manager,
+                  {re_job_manager, start_link, []},
+                  permanent, 5000, worker, [re_job_manager]},
+    case Mode of
+        "riak" ->
+            [JobManager];
+        _ ->
+            Web = {webmachine_mochiweb,
+                   {webmachine_mochiweb, start, [web_config()]},
+                   permanent, 5000, worker, [mochiweb_socket_server]},
+            [Web, JobManager]
+    end.
+            
 %%%===================================================================
 %%% Callbacks
 %%%===================================================================
 
-init([]) ->
-    Web = {webmachine_mochiweb,
-           {webmachine_mochiweb, start, [re_config:web_config()]},
-           permanent, 5000, worker, [mochiweb_socket_server]},
-    JobManager = {re_job_manager,
-           {re_job_manager, start_link, []},
-           permanent, 5000, worker, [re_job_manager]},
-    Processes = [Web, JobManager],
-    {ok, { {one_for_one, 10, 10}, Processes} }.
+init(Args) ->
+    Specs = supervisor_specs(Args),
+    {ok, { {one_for_one, 10, 10}, Specs} }.
+
+%% ====================================================================
+%% Private
+%% ====================================================================
+
+web_config() ->
+    {Ip, Port} = riak_explorer:host_port(),
+    WebConfig0 = [
+        {ip, Ip},
+        {port, Port},
+        {nodelay, true},
+        {log_dir, "log"},
+        {dispatch, re_wm:dispatch()}
+    ],
+    WebConfig1 = case application:get_env(riak_explorer, ssl) of
+        {ok, SSLOpts} ->
+            WebConfig0 ++ [{ssl, true}, {ssl_opts, SSLOpts}];
+        undefined ->
+            WebConfig0
+    end,
+    WebConfig1.

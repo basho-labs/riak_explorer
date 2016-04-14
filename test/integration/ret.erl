@@ -3,7 +3,6 @@
 
 -compile(export_all).
 
--include("../../include/riak_explorer.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 -ifdef(integration_test).
@@ -24,7 +23,7 @@ re_port() ->
     end.
 
 url(Path) ->
-    fmt("http://~s:~B/" ++ ?RE_BASE_ROUTE ++ "/~s", [re_host(), re_port(), Path]).
+    fmt("http://~s:~B/~s", [re_host(), re_port(), Path]).
 
 ensure_ibrowse() ->
     case whereis(ibrowse) of
@@ -33,15 +32,15 @@ ensure_ibrowse() ->
     end.
 
 http(Method, URL, Body, H0, ReturnHeader) ->
+    Method1 = list_to_atom(string:to_lower(atom_to_list(Method))),
     ensure_ibrowse(),
     Opts = [],
-    
-    Headers = H0 ++ [
-        {"content-type", "application/json"},
-        {"accept", "application/json"}
-    ],
 
-    Res = ibrowse:send_req(URL, Headers, Method, Body, Opts),
+    Headers = H0 ++ [
+                     {"Content-Type", "application/json"}
+                    ],
+
+    Res = ibrowse:send_req(URL, Headers, Method1, Body, Opts),
 
     case ReturnHeader of
         true -> Res;

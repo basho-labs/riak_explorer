@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2015 Basho Technologies, Inc.
+%% Copyright (c) 2011 Basho Technologies, Inc.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -53,7 +53,7 @@ init([]) ->
                          [riak_control_session]},
 
     %% determine if riak_control is enabled or not
-    RiakControlProcesses = case app_helper:get_env(riak_control, enabled, false) of
+    case app_helper:get_env(riak_control, enabled, false) of
         true ->
             Resources = [riak_control_wm_gui,
                          riak_control_wm_cluster,
@@ -63,24 +63,9 @@ init([]) ->
             _ = [webmachine_router:add_route(R) || R <- Routes],
 
             %% start riak control
-            % {ok, { {one_for_one, 5, 10}, [RiakControlSession] } };
-            [RiakControlSession];
+            re_sup:add_wm_routes(),
+            {ok, { {one_for_one, 5, 10}, [RiakControlSession] ++ re_sup:supervisor_specs([{mode, "riak"}]) } };
         _ ->
-            % {ok, { {one_for_one, 5, 10}, [] } }
-            []
-    % end.
-    end,
-
-    %% In order to easily inject Riak Explorer into a riak installation,
-    %% we're hijacking the old riak_control_sup module's init/1 to start up
-    %% Riak Explorer.
-
-    RexRoutes = lists:reverse(re_config:dispatch()),
-    _ = [webmachine_router:add_route(R) || R <- RexRoutes],
-
-    JobManager = {re_job_manager,
-           {re_job_manager, start_link, []},
-           permanent, 5000, worker, [re_job_manager]},
-    Processes = [JobManager] ++ RiakControlProcesses,
-    {ok, { {one_for_one, 10, 10}, Processes} }.
-    %% End Riak Explorer injection
+            re_sup:add_wm_routes(),
+            {ok, { {one_for_one, 5, 10}, re_sup:supervisor_specs([{mode, "riak"}]) } }
+    end.
