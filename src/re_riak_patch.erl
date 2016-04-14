@@ -361,7 +361,7 @@ format_ddl_key([{hash_fn_v1,riak_ql_quanta,
                             atom_to_list(Fn) ++ "(" ++ binary_to_list(Name) ++ "," ++ 
                                 integer_to_list(N) ++ "," ++ 
                                 atom_to_list(Unit) ++ ")")|Accum]).
-    
+
 %% @doc Wait for `Check' for the given number of `Seconds'.
 wait_for(_, 0) ->
     ok;
