@@ -25,7 +25,8 @@
          dispatch/0,
          base_route/0]).
 
--export([rd_maybe_text/2,
+-export([rd_url/1,
+         rd_maybe_text/2,
          rd_maybe_text/3,
          rd_accepts/2,
          add_content/2,
@@ -67,31 +68,6 @@
 
 %%% Routing
 
--spec rd_maybe_text(term(), #wm_reqdata{}) -> {term(), #wm_reqdata{}}.
-rd_maybe_text(Result, ReqData) ->
-    rd_maybe_text(lines, Result, ReqData).
-
--spec rd_maybe_text(atom(), term(), #wm_reqdata{}) -> {term(), #wm_reqdata{}}.
-rd_maybe_text(_, {error, Reason}, ReqData) ->
-    rd_content({error, Reason}, ReqData);
-rd_maybe_text(Key, Result, ReqData) ->
-    case rd_accepts("plain/text", ReqData) of
-        true ->
-            Lines = [binary_to_list(L) || L <- proplists:get_value(Key, Result, [])],
-            {string:join(Lines, io_lib:nl()), ReqData};
-        _ ->
-            rd_content(Result, ReqData)
-    end.
-
--spec rd_accepts(string(), #wm_reqdata{}) -> boolean().
-rd_accepts(CT, ReqData) ->
-    case wrq:get_req_header("Accept", ReqData) of
-        undefined ->
-            true;
-        Accept ->
-            string:str(Accept,CT) > 0
-    end.
-
 -spec resources() -> [module()].
 resources() ->
     [
@@ -123,6 +99,41 @@ base_route() ->
     end.
 
 %%% Utility
+
+-spec rd_url(#wm_reqdata{}) -> string().
+rd_url(ReqData) ->
+    BaseUrl = wrq:base_uri(ReqData),
+    case base_route() of
+        [] ->
+            BaseUrl ++ "/";
+        [R] ->
+            BaseUrl ++ "/" ++ R ++ "/"
+    end.
+
+-spec rd_maybe_text(term(), #wm_reqdata{}) -> {term(), #wm_reqdata{}}.
+rd_maybe_text(Result, ReqData) ->
+    rd_maybe_text(lines, Result, ReqData).
+
+-spec rd_maybe_text(atom(), term(), #wm_reqdata{}) -> {term(), #wm_reqdata{}}.
+rd_maybe_text(_, {error, Reason}, ReqData) ->
+    rd_content({error, Reason}, ReqData);
+rd_maybe_text(Key, Result, ReqData) ->
+    case rd_accepts("plain/text", ReqData) of
+        true ->
+            Lines = [binary_to_list(L) || L <- proplists:get_value(Key, Result, [])],
+            {string:join(Lines, io_lib:nl()), ReqData};
+        _ ->
+            rd_content(Result, ReqData)
+    end.
+
+-spec rd_accepts(string(), #wm_reqdata{}) -> boolean().
+rd_accepts(CT, ReqData) ->
+    case wrq:get_req_header("Accept", ReqData) of
+        undefined ->
+            true;
+        Accept ->
+            string:str(Accept,CT) > 0
+    end.
 
 -spec add_content(term(), #wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 add_content({error, not_found}, ReqData) ->
@@ -204,7 +215,7 @@ init(_) ->
     {ok, #ctx{}}.
 
 service_available(ReqData, Ctx) ->
-    Route = case get_route(routes(), ReqData) of
+    Route = case get_route(base_route(), routes(), ReqData) of
                 #route{}=R ->
                     R;
                 _ ->
@@ -292,45 +303,45 @@ last_modified(ReqData, Ctx = #ctx{route = #route{last_modified = {M, F}}}) ->
 %% Private
 %% ====================================================================
 
-get_route([], _ReqData) ->
+get_route(_, [], _ReqData) ->
     undefined;
-get_route([Route=#route{base=[],path=Paths} | Rest], ReqData) ->
-    case get_route_path([], Paths, Route, ReqData) of
+get_route(BaseRoute, [Route=#route{base=[],path=Paths} | Rest], ReqData) ->
+    case get_route_path(BaseRoute, [], Paths, Route, ReqData) of
         undefined ->
-            get_route(Rest, ReqData);
+            get_route(BaseRoute, Rest, ReqData);
         R -> R
     end;
-get_route([Route=#route{base=Bases,path=[]} | Rest], ReqData) ->
-    case get_route_path([], Bases, Route, ReqData) of
+get_route(BaseRoute, [Route=#route{base=Bases,path=[]} | Rest], ReqData) ->
+    case get_route_path(BaseRoute, [], Bases, Route, ReqData) of
         undefined ->
-            get_route(Rest, ReqData);
+            get_route(BaseRoute, Rest, ReqData);
         R -> R
     end;
-get_route([Route=#route{base=Bases,path=Paths} | Rest], ReqData) ->
-    case get_route_base(Bases, Paths, Route, ReqData) of
+get_route(BaseRoute, [Route=#route{base=Bases,path=Paths} | Rest], ReqData) ->
+    case get_route_base(BaseRoute, Bases, Paths, Route, ReqData) of
         undefined ->
-            get_route(Rest, ReqData);
+            get_route(BaseRoute, Rest, ReqData);
         R -> R
     end.
 
-get_route_base([], _, _, _) ->
+get_route_base(_, [], _, _, _) ->
     undefined;
-get_route_base([Base|Rest], Paths, Route, ReqData) ->
-    case get_route_path(Base, Paths, Route, ReqData) of
+get_route_base(BaseRoute, [Base|Rest], Paths, Route, ReqData) ->
+    case get_route_path(BaseRoute, Base, Paths, Route, ReqData) of
         undefined ->
-            get_route_base(Rest, Paths, Route, ReqData);
+            get_route_base(BaseRoute, Rest, Paths, Route, ReqData);
         R -> R
     end.
 
-get_route_path(_, [], _, _) ->
+get_route_path(_, _, [], _, _) ->
     undefined;
-get_route_path(Base, [Path|Rest], Route, ReqData) ->
+get_route_path(BaseRoute, Base, [Path|Rest], Route, ReqData) ->
     ReqPath = string:tokens(wrq:path(ReqData), "/"),
-    case expand_path(Base ++ Path, ReqData, []) of
+    case expand_path(BaseRoute ++ Base ++ Path, ReqData, []) of
         ReqPath ->
             Route;
         _ ->
-            get_route_path(Base, Rest, Route, ReqData)
+            get_route_path(BaseRoute, Base, Rest, Route, ReqData)
     end.
 
 expand_path([], _ReqData, Acc) ->

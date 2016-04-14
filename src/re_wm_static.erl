@@ -60,10 +60,18 @@ static_types(ReqData) ->
     {[{CT, provide_static_content}], ReqData}.
 
 static_file_exists(ReqData) ->
-    Filename = static_filename(ReqData),
-    lager:info("Attempting to fetch static file: ~p", [Filename]),
-    Result = filelib:is_regular(Filename),
-    {Result, ReqData}.
+    case wrq:disp_path(ReqData) of
+        "" ->
+            case [lists:nth(length(wrq:path(ReqData)), wrq:path(ReqData))] of
+                "/" ->
+                    {true, ReqData};
+                _ ->
+                    {{halt, 302}, wrq:set_resp_header("Location", re_wm:rd_url(ReqData), ReqData)}
+            end;
+        _ ->
+            Filename = static_filename(ReqData),
+            {filelib:is_regular(Filename), ReqData}
+    end.
 
 static_last_modified(ReqData) ->
     LM = filelib:last_modified(static_filename(ReqData)),
@@ -81,12 +89,11 @@ static_file(ReqData) ->
 %% ====================================================================
 
 static_filename(ReqData) ->
-    Resource = wrq:disp_path(ReqData),
-    Resource1 = case Resource of
-        "" -> "index.html";
-        "/" -> "index.html";
-        R -> R
-    end,
-    filename:join([?STATIC_ROOT, Resource1]).
+    case wrq:disp_path(ReqData) of
+        "" ->
+            filename:join([?STATIC_ROOT, "index.html"]);
+        F ->
+            filename:join([?STATIC_ROOT, F])
+    end.
 
 hash_body(Body) -> mochihex:to_hex(binary_to_list(crypto:hash(sha,Body))).

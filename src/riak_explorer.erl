@@ -86,11 +86,23 @@ url() ->
 
 -spec url(string(), integer()) -> string().
 url(Ip, Port) ->
+    Base = 
+        case is_riak() of
+            true ->
+                case re_node:http_listener(node()) of
+                    {error, _} ->
+                        "/";
+                    U ->
+                        binary_to_list(U) ++ "/"
+                end;
+            false ->
+                "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/"
+        end,
     case re_wm:base_route() of
         [] ->
-            "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/";
+            Base;
         [R] ->
-            "http://" ++ Ip ++ ":" ++ integer_to_list(Port) ++ "/" ++ R ++ "/"
+            Base ++ R ++ "/"
     end.
 
 -spec props() -> [{atom(), atom() | binary()}].

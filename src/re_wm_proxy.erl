@@ -91,7 +91,7 @@ send_proxy_request(ReqData) ->
             
             case ibrowse:send_req(Path, Headers, Method, ReqBody) of
                 {ok, Status, RiakHeaders, RespBody} ->
-                    RespHeaders = fix_location(RiakHeaders, C, N),
+                    RespHeaders = fix_location(RiakHeaders, C, N, ReqData),
                     {{halt, list_to_integer(Status)},
                      wrq:set_resp_headers(RespHeaders,
                                           wrq:set_resp_body(RespBody, ReqData))};
@@ -114,10 +114,10 @@ wm_to_ibrowse_method(Method) when is_list(Method) ->
 wm_to_ibrowse_method(Method) when is_atom(Method) ->
     wm_to_ibrowse_method(atom_to_list(Method)).
 
-fix_location([], _, _) -> [];
-fix_location([{"Location", RiakDataPath}|Rest], undefined, Node) ->
-    [{"Location", riak_explorer:url() ++ ?BASE++"/nodes/"++atom_to_list(Node)++RiakDataPath}|Rest];
-fix_location([{"Location", RiakDataPath}|Rest], Cluster, _) ->
-    [{"Location", riak_explorer:url() ++ ?BASE++"/clusters/"++atom_to_list(Cluster)++RiakDataPath}|Rest];
-fix_location([H|T], Cluster, Node) ->
-    [H|fix_location(T, Cluster, Node)].
+fix_location([], _, _, _) -> [];
+fix_location([{"Location", RiakDataPath}|Rest], undefined, Node, ReqData) ->
+    [{"Location", re_wm:rd_url(ReqData) ++ ?BASE++"/nodes/"++atom_to_list(Node)++RiakDataPath}|Rest];
+fix_location([{"Location", RiakDataPath}|Rest], Cluster, _, ReqData) ->
+    [{"Location", re_wm:rd_url(ReqData) ++ ?BASE++"/clusters/"++atom_to_list(Cluster)++RiakDataPath}|Rest];
+fix_location([H|T], Cluster, Node, ReqData) ->
+    [H|fix_location(T, Cluster, Node, ReqData)].

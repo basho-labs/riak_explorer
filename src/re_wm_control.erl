@@ -119,7 +119,6 @@ routes() ->
 
 command0_exists(ReqData) ->
     Command = rd_command(ReqData),
-    lager:info("Control Exists Call. Command: ~p", [Command]),
     case re_wm:rd_node_exists(ReqData) of
         {true, _} ->
             {lists:member([Command], ?COMMAND0_ROUTES), ReqData};
@@ -156,12 +155,10 @@ command0(ReqData) ->
             "repl-clusterstats-realtime" -> re_node_control:repl_clusterstats_realtime(Node);
             _ -> {error, not_found}
         end,
-    lager:info("Control Call. Node: ~p, Command: ~p, Response: ~p", [Node, Command, Response]),
     re_wm:rd_content(Response, ReqData).
 
 command1_exists(ReqData) ->
     Command = rd_command(ReqData),
-    lager:info("Control Exists Call. Command: ~p", [Command]),
     case re_wm:rd_node_exists(ReqData) of
         {true, _} ->
             {lists:member([Command, arg1], ?COMMAND1_ROUTES), ReqData};
@@ -192,12 +189,10 @@ command1(ReqData) ->
             "repl-fullsync-stop" -> re_node_control:repl_fullsync_stop(Node, Arg1);
             _ -> {error, not_found}
         end,
-    lager:info("Control Call. Node: ~p, Command: ~p, Arg1: ~p, Response: ~p", [Node, Command, Arg1, Response]),
     re_wm:rd_content(Response, ReqData).
 
 command2_exists(ReqData) ->
     Command = rd_command(ReqData),
-    lager:info("Control Exists Call. Command: ~p", [Command]),
     case re_wm:rd_node_exists(ReqData) of
         {true, _} ->
             {lists:member([Command, arg1, arg2], ?COMMAND2_ROUTES), ReqData};
@@ -219,7 +214,6 @@ command2(ReqData) ->
             "repl-clusterstats" -> re_node_control:repl_clusterstats(Node, Arg1, Arg2);
             _ -> {error, not_found}
         end,
-    lager:info("Control Call. Node: ~p, Command: ~p, Arg1: ~p, Arg2: ~p, Response: ~p", [Node, Command, Arg1, Arg2, Response]),
     re_wm:rd_content(Response, ReqData).
 
 %% ====================================================================
