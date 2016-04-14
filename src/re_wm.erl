@@ -132,7 +132,9 @@ add_content({error, Reason}, ReqData) ->
 add_content(ok, ReqData) ->
     {true, ReqData};
 add_content(Content, ReqData) ->
-    {true, wrq:append_to_response_body(mochijson2:encode(Content), ReqData)}.
+    Tokens = string:tokens(wrq:path(ReqData), "/"),
+    Last = lists:nth(length(Tokens), Tokens),
+    {true, wrq:append_to_response_body(mochijson2:encode([{list_to_binary(Last), Content}]), ReqData)}.
 
 -spec add_error(term(), #wm_reqdata{}) -> #wm_reqdata{}.
 add_error(Error, ReqData) ->
