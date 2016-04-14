@@ -536,7 +536,7 @@ handle_error(Action) ->
         Action()
     catch
         Exception:Reason ->
-            Error = list_to_binary(io_lib:format("~p:~p", [Exception,Reason])),
+            Error = list_to_binary(io_lib:format("~p:~p, Check console.log.", [Exception,Reason])),
             lager:info("~p:~p", [Exception, Reason]),
             lager:info("Backtrace: ~p", [erlang:get_stacktrace()]),
             {error, Error}
@@ -674,7 +674,7 @@ repl_command(Node, Protocol, Command, ClusterName) ->
                           ensure_repl_available(Node),
                           Args = case ClusterName of
                                      [] -> [[Command]];
-                                     ClusterName -> [[atom_to_list(ClusterName)]]
+                                     ClusterName -> [[Command, atom_to_list(ClusterName)]]
                                  end,
                          case re_node:command(Node, riak_repl_console, Protocol, Args) of
                              {error, Reason} ->
@@ -697,7 +697,7 @@ clusterstats_protocol(Node, Protocol) ->
                                   {error, term()} | [{atom(), [term()]}].
 combine_clusterstats(_Node, {error, Reason}) ->
     {error, Reason};
-combine_clusterstats(Node, [_|_]=Stats1) ->
+combine_clusterstats(Node, Stats1) ->
     case re_node:command(Node, riak_repl_console, cluster_mgr_stats, []) of
         {error, Reason} ->
             {error, Reason};

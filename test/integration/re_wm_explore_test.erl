@@ -16,9 +16,7 @@ re_wm_explore_test_() ->
      end,
      fun (_) -> ok end,
      {timeout, 60, [
-                    expected_data(),
-                    assert_list_types(),
-                    explore_routes()
+                    all_routes()
                    ]}
     }.
 
@@ -26,26 +24,8 @@ re_wm_explore_test_() ->
 %%% ACTUAL TESTS %%%
 %%%%%%%%%%%%%%%%%%%%
 
-expected_data() ->
-    [
-     ?_assertEqual({ok, "200", home()}, ret:http(get, ret:url("explore"))),
-     ?_assertEqual({ok, "200", ping()}, ret:http(get, ret:url("explore/ping")))
-    ].
-
-assert_list_types() ->
-    {Ok, Code, Payload} = ret:http(get, ret:url("explore/clusters/default/bucket_types")),
-    {_,[{<<"bucket_types">>, [{_,DefaultType} | _]}]} = mochijson2:decode(Payload),
-    [DefaultName, {<<"props">>, _}] = DefaultType,
-    Expected = {<<"id">>,<<"default">>},
-    
-    [
-     ?_assertEqual(ok, Ok),
-     ?_assertEqual("200", Code),
-     ?_assertEqual(Expected, DefaultName)
-    ].
-
-explore_routes() ->
-    Routes = re_wm_explore:routes(),
+all_routes() ->
+    Routes = re_wm:routes(),
     lists:flatten([ [ assert_paths(Method, Base, Paths, []) 
         || Method <- Methods ]
       || #route{base=[Base|_],path=Paths,methods=Methods} <- Routes ]).
@@ -63,14 +43,19 @@ to_path_str(["config", "files", file]) ->
 to_path_str(["log", "files", file]) ->
     string:join(["log", "files", "console.log"], "/");
 to_path_str(Path) ->
-    string:join([ path_part(P) || P <- Path ], "/").
+    string:join([ path_part(P, Path) || P <- Path ], "/").
 
-path_part(P) when is_list(P) -> P;
-path_part(cluster) -> "default";
-path_part(node) -> "riak@127.0.0.1";
-path_part(bucket_type) -> "mytype";
-path_part(bucket) -> "test";
-path_part(table) -> "GeoCheckin".
+path_part(P, _) when is_list(P) -> P;
+path_part(cluster, _) -> "default";
+path_part(node, _) -> "riak@127.0.0.1";
+path_part(bucket_type, _) -> "mytype";
+path_part(bucket, _) -> "test";
+path_part(table, _) -> "GeoCheckin";
+path_part(arg1, _) -> "riak@127.0.0.1";
+path_part(arg2, _) -> "riak@127.0.0.1";
+path_part('*',["clusters",cluster,'*']) -> "ping";
+path_part('*',["nodes",node,'*']) -> "ping";
+path_part('*',['*']) -> "index.html".
 
 path_body('PUT', ["keys"]) ->
     <<"{\"keys\":[\"test\"]}">>;
@@ -90,6 +75,14 @@ path_body(_, _) ->
 path_code('POST', ["tables", "query"]) -> "200";
 path_code('POST', ["tables", table, "query"]) -> "200";
 path_code('POST', _) -> "202";
+path_code('GET', ["staged-leave"]) -> "500";
+path_code('GET', ["commit"]) -> "500";
+path_code('GET', ["join", arg1]) -> "500";
+path_code('GET', ["leave", arg1]) -> "500";
+path_code('GET', ["staged-join", arg1]) -> "500";
+path_code('GET', ["staged-leave", arg1]) -> "500";
+path_code('GET', ["force-remove", arg1]) -> "500";
+path_code('GET', ["repl-fullsync-start", arg1]) -> "500";
 path_code('GET', _) -> "200";
 path_code('DELETE', ["buckets",bucket]) -> "202";
 path_code('DELETE', _) -> "204";
