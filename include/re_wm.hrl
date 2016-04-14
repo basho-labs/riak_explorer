@@ -40,7 +40,7 @@
                 exists = true :: {module(), atom()} | boolean(),
                 content = [{success, true}] :: {module(), atom()} |
                           nonempty_list(),
-                accept :: {module(), atom()} | undefined,
+                accept = ?ACCEPT_TEXT :: {module(), atom()} | undefined,
                 delete :: {module(), atom()} | undefined,
                 post_create = false :: boolean(),
                 post_path :: {module(), atom()} | undefined,

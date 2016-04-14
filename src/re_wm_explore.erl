@@ -22,7 +22,8 @@
 
 -export([routes/0]).
 
--export([ping/1,
+-export([home/1,
+         ping/1,
          routes/1,
          props/1,
          jobs/1]).
@@ -94,6 +95,7 @@
 -spec routes() -> [route()].
 routes() ->
     [%% Base
+     #route{base=[], path=[?EXPLORE_BASE], content={?MODULE,home}},
      #route{base=[?EXPLORE_BASE], path=[["ping"]], content={?MODULE,ping}},
      #route{base=[?EXPLORE_BASE], path=[["routes"]], content={?MODULE,routes}},
      #route{base=[?EXPLORE_BASE], path=[["props"]], content={?MODULE,props}},
@@ -224,6 +226,10 @@ routes() ->
 
 %%% Explore
 
+-spec home(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
+home(ReqData) ->
+    re_wm:rd_content(<<"riak_explorer api">>, ReqData).
+
 -spec ping(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 ping(ReqData) ->
     re_wm:rd_content(pong, ReqData).
@@ -306,18 +312,7 @@ node_config_file(ReqData) ->
     N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
     Result = re_node:config_file(N, F),
-    case string:str(wrq:get_req_header("Accept", ReqData),"plain/text") > 0 of
-        true ->
-            case Result of
-                {error, _} ->
-                    re_wm:rd_content(Result, ReqData);
-                _ ->
-                    Lines = [binary_to_list(L) || L <- proplists:get_value(lines, Result, [])],
-                    {string:join(Lines, io_lib:nl()), ReqData}
-            end;
-        _ ->
-            re_wm:rd_content(Result, ReqData)
-    end.
+    re_wm:rd_maybe_text(Result, ReqData).
 
 -spec node_log_files(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 node_log_files(ReqData) ->
@@ -341,18 +336,7 @@ node_log_file(ReqData) ->
     N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
     Result = re_node:log_file(N, F, Rows),
-    case string:str(wrq:get_req_header("Accept", ReqData),"plain/text") > 0 of
-         true ->
-            case Result of
-                {error, _} ->
-                    re_wm:rd_content(Result, ReqData);
-                _ ->
-                    Lines = [binary_to_list(L) || L <- proplists:get_value(lines, Result, [])],
-                    {string:join(Lines, io_lib:nl()), ReqData}
-            end;
-        _ ->
-            re_wm:rd_content(Result, ReqData)
-    end.
+    re_wm:rd_maybe_text(Result, ReqData).
 
 -spec tables(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 tables(ReqData) ->
@@ -471,19 +455,7 @@ buckets(ReqData) ->
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
     Result = re_node:list_buckets_cache(C, T, Start, Rows),
-    case string:str(wrq:get_req_header("Accept", ReqData),"plain/text") > 0 of
-        true ->
-            case Result of
-                {error, _} ->
-                    re_wm:rd_content(Result, ReqData);
-                _ ->
-                    Buckets = proplists:get_value(buckets, Result, []),
-                    {string:join(Buckets, io_lib:nl()), ReqData}
-            end;
-        _ ->
-            re_wm:rd_content(Result, ReqData)
-    end.
-    
+    re_wm:rd_maybe_text(buckets, Result, ReqData).
 
 -spec buckets_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 buckets_delete(ReqData) ->
@@ -573,18 +545,7 @@ keys(ReqData) ->
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
     Result = re_node:list_keys_cache(C, T, B, Start, Rows),
-    case string:str(wrq:get_req_header("Accept", ReqData), "plain/text") > 0 of
-        true ->
-            case Result of
-                {error, _} ->
-                    re_wm:rd_content(Result, ReqData);
-                _ ->
-                    Keys = proplists:get_value(keys, Result, []),
-                    {string:join(Keys, io_lib:nl()), ReqData}
-            end;
-        _ ->
-            re_wm:rd_content(Result, ReqData)
-    end.
+    re_wm:rd_maybe_text(keys, Result, ReqData).
 
 -spec keys_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 keys_delete(ReqData) ->

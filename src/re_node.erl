@@ -458,7 +458,8 @@ bucket_types(Node) ->
         List ->
             List1 = [ [{id, Name},{props, Props}] 
                       || [{name, Name},{props, Props}] <- List ],
-            lists:sort(fun([{id, N1}|_], [{id, N2}|_]) -> N1 < N2 end, List1)
+            lists:sort(fun([{id, N1}|_], [{id, N2}|_]) -> 
+                               string:to_lower(binary_to_list(N1)) < string:to_lower(binary_to_list(N2)) end, List1)
     end.
             
 -spec table_exists(re_node(), binary()) -> boolean().
@@ -488,17 +489,15 @@ table(Node, Table) ->
 
 -spec tables(re_node()) -> {error, term()} | [{atom(), term()}].
 tables(Node) ->
-    case command(Node, re_riak_patch, bucket_types, []) of
+    case bucket_types(Node) of
         {error, Reason} ->
             {error, Reason};
         List ->
-            List1 = [ [{id, Name},{props, Props}] 
-                      || [{name, Name},{props, Props}] <- List ],
-            List2 = lists:filtermap(
-                      fun([{id, _}, {props, Props}]) ->
-                              proplists:get_value(ddl, Props) =/= undefined
-                      end, List1),
-            lists:sort(fun([{id, N1}|_], [{id, N2}|_]) -> N1 < N2 end, List2)
+            lists:filtermap(
+              fun(Type) ->
+                      Props = proplists:get_value(props, Type),
+                      proplists:get_value(ddl, Props) =/= undefined
+              end, List)
     end.
 
 -spec create_bucket_type(re_node(), binary(), binary()) -> {error, term()} | [{atom(), term()}].

@@ -159,10 +159,14 @@ write_loop(From, ReqId, Device, Meta) ->
                     case length(Entries) > 0 of
                         true ->
                             Entries1 = [ binary_to_list(E) || E <- Entries ],
-                            io:fwrite(Device, string:join(Entries1, io_lib:nl()), [])
+                            io:fwrite(Device, string:join(Entries1, io_lib:nl()), []);
+                        _ ->
+                            ok
                     end,
                     Meta1 = [{count, proplists:get_value(count, Meta, 0) + length(Entries)}],
-                    write_loop(From, ReqId, Device, Meta1)
+                    write_loop(From, ReqId, Device, Meta1);
+                Reason ->
+                    {error, Reason}
             end
                 
     end.

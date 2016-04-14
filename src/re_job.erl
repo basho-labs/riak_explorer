@@ -76,7 +76,7 @@ set_meta(Pid, Meta) ->
 
 -spec set_error(pid(), term()) -> {error, term()} | ok.
 set_error(Pid, Error) ->
-    gen_fsm:sync_send_event(Pid, {set_error, Error}).
+    gen_fsm:sync_send_all_state_event(Pid, {set_error, Error}).
 
 -spec set_finish(pid()) -> {error, term()} | ok.
 set_finish(Pid) ->
@@ -131,9 +131,6 @@ started({start_job, _}, _From, State) ->
 started({set_meta, Meta}, _From, State) ->
     State1 = State#state{meta=Meta},
     {reply, ok, started, State1};
-started({set_error, Error}, _From, State) ->
-    State1 = State#state{error=Error},
-    {reply, ok, failed, State1};
 started(set_finish, _From, State) ->
     {reply, ok, finished, State};
 started(_Event, _From, State) ->
@@ -163,6 +160,9 @@ handle_sync_event(get_info, _From, StateName,
             {meta, Meta},
             {error, Error}],
     {reply, Info, StateName, State};
+handle_sync_event({set_error, Error}, _From, _, State) ->
+    State1 = State#state{error=Error},
+    {reply, ok, failed, State1};
 handle_sync_event(_Event, _From, StateName, State) ->
     {reply, {error, unhandled_event}, StateName, State}.
 

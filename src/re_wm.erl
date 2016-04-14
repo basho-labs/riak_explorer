@@ -25,7 +25,10 @@
          dispatch/0,
          base_route/0]).
 
--export([add_content/2,
+-export([rd_maybe_text/2,
+         rd_maybe_text/3,
+         rd_accepts/2,
+         add_content/2,
          add_error/2,
          rd_content/2,
          rd_cluster_exists/1,
@@ -63,6 +66,31 @@
 %%%===================================================================
 
 %%% Routing
+
+-spec rd_maybe_text(term(), #wm_reqdata{}) -> {term(), #wm_reqdata{}}.
+rd_maybe_text(Result, ReqData) ->
+    rd_maybe_text(lines, Result, ReqData).
+
+-spec rd_maybe_text(atom(), term(), #wm_reqdata{}) -> {term(), #wm_reqdata{}}.
+rd_maybe_text(_, {error, Reason}, ReqData) ->
+    rd_content({error, Reason}, ReqData);
+rd_maybe_text(Key, Result, ReqData) ->
+    case rd_accepts("plain/text", ReqData) of
+        true ->
+            Lines = [binary_to_list(L) || L <- proplists:get_value(Key, Result, [])],
+            {string:join(Lines, io_lib:nl()), ReqData};
+        _ ->
+            rd_content(Result, ReqData)
+    end.
+
+-spec rd_accepts(string(), #wm_reqdata{}) -> boolean().
+rd_accepts(CT, ReqData) ->
+    case wrq:get_req_header("Accept", ReqData) of
+        undefined ->
+            true;
+        Accept ->
+            string:str(Accept,CT) > 0
+    end.
 
 -spec resources() -> [module()].
 resources() ->
