@@ -125,8 +125,12 @@ base_route() ->
 %%% Utility
 
 -spec add_content(term(), #wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
+add_content({error, not_found}, ReqData) ->
+    {{halt, 404}, ReqData};
 add_content({error, Reason}, ReqData) ->
-    {false, add_error(Reason, ReqData)};
+    {{halt, 500}, add_error(Reason, ReqData)};
+add_content(ok, ReqData) ->
+    {true, ReqData};
 add_content(Content, ReqData) ->
     {true, wrq:append_to_response_body(mochijson2:encode(Content), ReqData)}.
 
@@ -139,9 +143,7 @@ add_error(Error, ReqData) ->
 rd_content({error, not_found}, ReqData) ->
     {{halt, 404}, ReqData};
 rd_content({error, Reason}, ReqData) ->
-    {[{<<"error">>, 
-       list_to_binary(io_lib:format("~p", [Reason]))}],
-     ReqData};
+    {{halt, 500}, add_error(Reason, ReqData)};
 rd_content(Content, ReqData) ->
     Tokens = string:tokens(wrq:path(ReqData), "/"),
     Last = lists:nth(length(Tokens), Tokens),

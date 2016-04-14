@@ -12,7 +12,7 @@
 re_wm_explore_test_() ->
     {setup,
      fun () -> 
-             {ok, "204", _} = ret:http(put, "http://localhost:8098/buckets/test/keys/test", <<"testing">>)
+             {ok, "204", _} = ret:http(put, "http://localhost:8098/types/mytype/buckets/test/keys/test", <<"testing">>)
      end,
      fun (_) -> ok end,
      {timeout, 60, [
@@ -51,32 +51,12 @@ explore_routes() ->
       || #route{base=[Base|_],path=Paths,methods=Methods} <- Routes ]).
 
 assert_paths(_, _, [], Accum) -> lists:reverse(Accum);
-assert_paths('DELETE'=Method, Base, [Path|Paths], Accum) ->
+assert_paths(Method, Base, [Path|Paths], Accum) ->
     Url = ret:url(to_path_str(Base) ++ "/" ++ to_path_str(Path)),
-    ?debugMsg("------------------------------------------------------"),
-    ?debugFmt("Method: ~p, Url: ~p", [Method, Url]),
-    {ok, Code, Content} = ret:http(Method, Url),
-    ?debugFmt("Code: ~p, Content: ~p", [Code, Content]),
-    ExpectedCode = path_code(Method, Path),
-    assert_paths(Method, Base, Paths, [?_assertEqual(ExpectedCode, Code)|Accum]);
-assert_paths('POST'=Method, Base, [Path|Paths], Accum) ->
-    Url = ret:url(to_path_str(Base) ++ "/" ++ to_path_str(Path)),
-    Body = path_body(Path),
-    ?debugMsg("------------------------------------------------------"),
-    ?debugFmt("Method: ~p, Url: ~p", [Method, Url]),
+    Body = path_body(Method, Path),
     {ok, Code, Content} = ret:http(Method, Url, Body),
-    ?debugFmt("Code: ~p, Content: ~p", [Code, Content]),
     ExpectedCode = path_code(Method, Path),
-    assert_paths(Method, Base, Paths, [?_assertEqual(ExpectedCode, Code)|Accum]);
-assert_paths('GET'=Method, Base, [Path|Paths], Accum) ->
-    Url = ret:url(to_path_str(Base) ++ "/" ++ to_path_str(Path)),
-    {ok, Code, Content} = ret:http(Method, Url),
-    ?debugMsg("------------------------------------------------------"),
-    ?debugFmt("Method: ~p, Url: ~p", [Method, Url]),
-    ?debugFmt("Code: ~p, Content: ~p", [Code, Content]),
-    ExpectedCode = path_code(Method, Path),
-    assert_paths(Method, Base, Paths, [?_assertEqual(ExpectedCode, Code)|Accum]);
-assert_paths(_, _, _, _) -> [].
+    assert_paths(Method, Base, Paths, [?_assertEqual({ExpectedCode, Method, Url, Content}, {Code, Method, Url, Content})|Accum]).
 
 to_path_str(["config", "files", file]) ->
     string:join(["config", "files", "riak.conf"], "/");
@@ -88,15 +68,23 @@ to_path_str(Path) ->
 path_part(P) when is_list(P) -> P;
 path_part(cluster) -> "default";
 path_part(node) -> "riak@127.0.0.1";
-path_part(bucket_type) -> "default";
+path_part(bucket_type) -> "mytype";
 path_part(bucket) -> "test";
 path_part(table) -> "GeoCheckin".
 
-path_body(["tables", "query"]) ->
+path_body('PUT', ["keys"]) ->
+    <<"{\"keys\":[\"test\"]}">>;
+path_body('PUT', ["buckets"]) ->
+    <<"{\"buckets\":[\"test\"]}">>;
+path_body('PUT', ["bucket_types", bucket_type]) ->
+    <<"{\"props\":{\"n_val\":3}}">>;
+path_body('PUT', ["tables", table]) ->
+   <<"[[\"family1\", \"series1\", 25, \"hot\", 23]]">>;
+path_body('POST', ["tables", "query"]) ->
     <<"select * from GeoCheckin where time > 24 and time < 26 and myfamily = 'family1' and myseries = 'series1'">>;
-path_body(["tables", table, "query"]) ->
+path_body('POST', ["tables", table, "query"]) ->
    <<"[\"family2\", \"series99\", 26]">>;
-path_body(_) ->
+path_body(_, _) ->
    <<>>.
 
 path_code('POST', ["tables", "query"]) -> "200";
@@ -104,7 +92,9 @@ path_code('POST', ["tables", table, "query"]) -> "200";
 path_code('POST', _) -> "202";
 path_code('GET', _) -> "200";
 path_code('DELETE', ["buckets",bucket]) -> "202";
-path_code('DELETE', _) -> "204".
+path_code('DELETE', _) -> "204";
+path_code('PUT', ["bucket_types", bucket_type]) -> "200";
+path_code('PUT', _) -> "204".
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%% HELPER FUNCTIONS %%%

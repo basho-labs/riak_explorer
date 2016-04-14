@@ -167,8 +167,8 @@ routes() ->
             path=[["bucket_types"]], 
             exists={re_wm,rd_node_exists},
             content={?MODULE,bucket_types}},
-     #route{base=?BUCKET_TYPE_BASE,
-            path=[], 
+     #route{base=?NODE_BASE,
+            path=[["bucket_types", bucket_type]], 
             methods=['PUT','GET'],
             exists={?MODULE,bucket_type_exists},
             content={?MODULE,bucket_type},
@@ -418,12 +418,8 @@ bucket_type_put(ReqData) ->
     N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     RawValue = wrq:req_body(ReqData),
-    case re_node:create_bucket_type(N, T, RawValue) of
-        {error, Reason} ->
-            {false, re_wm:add_error(Reason, ReqData)};
-        Response ->
-            re_wm:add_content(Response, ReqData)
-    end.
+    Response = re_node:create_bucket_type(N, T, RawValue),
+    re_wm:add_content(Response, ReqData).
 
 -spec bucket_type_jobs(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 bucket_type_jobs(ReqData) ->
@@ -461,13 +457,8 @@ buckets(ReqData) ->
 buckets_delete(ReqData) ->
     C = re_wm:rd_cluster(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
-    case re_node:clean_buckets_cache(C, T) of
-        ok ->
-            {true, ReqData};
-        {error, Reason} ->
-            {false, 
-             re_wm:add_error(Reason, ReqData)}
-    end.
+    Response = re_node:clean_buckets_cache(C, T),
+    re_wm:add_content(Response, ReqData).
 
 -spec buckets_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 buckets_put(ReqData) ->
@@ -482,13 +473,8 @@ buckets_put(ReqData) ->
                       BucketsStr = string:tokens(RawValue, "\n"),
                       lists:map(fun(B) -> list_to_binary(B) end, BucketsStr)
               end,
-    case re_node:put_buckets_cache(C, T, Buckets) of
-        ok ->
-            {true, ReqData};
-        {error, Reason} ->
-            {false, 
-             re_wm:add_error(Reason, ReqData)}
-    end.
+    Response = re_node:put_buckets_cache(C, T, Buckets),
+    re_wm:add_content(Response, ReqData).
 
 -spec bucket_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 bucket_exists(ReqData) ->
@@ -552,13 +538,8 @@ keys_delete(ReqData) ->
     C = re_wm:rd_cluster(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
     B = list_to_binary(wrq:path_info(bucket, ReqData)),
-    case re_node:clean_keys_cache(C, T, B) of
-        ok ->
-            {true, ReqData};
-        {error, Reason} ->
-            {false, 
-             re_wm:add_error(Reason, ReqData)}
-    end.
+    Response = re_node:clean_keys_cache(C, T, B),
+    re_wm:add_content(Response, ReqData).
 
 -spec keys_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 keys_put(ReqData) ->
@@ -574,13 +555,8 @@ keys_put(ReqData) ->
                    KeysStr = string:tokens(RawValue, "\n"),
                    lists:map(fun(K) -> list_to_binary(K) end, KeysStr)
            end,
-    case re_node:put_keys_cache(C, T, B, Keys) of
-        ok ->
-            {true, ReqData};
-        {error, Reason} ->
-            {false, 
-             re_wm:add_error(Reason, ReqData)}
-    end.
+    Response = re_node:put_keys_cache(C, T, B, Keys),
+    re_wm:add_content(Response, ReqData).
 
 %% ====================================================================
 %% Private
@@ -597,4 +573,4 @@ set_jobs_response({error, already_started}, JobsPath, ReqData) ->
 set_jobs_response({error, developer_mode_off}, _, ReqData) ->
     {{halt, 403}, ReqData};
 set_jobs_response({error, Reason}, _, ReqData) ->
-    {false, re_wm:add_error(Reason, ReqData)}.
+    {{halt, 500}, re_wm:add_error(Reason, ReqData)}.

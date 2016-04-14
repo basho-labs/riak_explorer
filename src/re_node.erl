@@ -257,7 +257,8 @@ put_buckets_cache(Cluster, BucketType, Buckets) ->
             {error, Reason1};
         _ ->
             {ok, Device} = file:open(DirFile, [append]),
-            io:fwrite(Device, string:join(Buckets, io_lib:nl()), []),
+            StrBuckets = [binary_to_list(B) || B <- Buckets],
+            io:fwrite(Device, string:join(StrBuckets, io_lib:nl()), []),
             file:close(Device),
             ok
     end.
@@ -320,7 +321,8 @@ put_keys_cache(Cluster, BucketType, Bucket, Keys) ->
             {error, Reason1};
         _ ->
             {ok, Device} = file:open(DirFile, [append]),
-            io:fwrite(Device, string:join(Keys, io_lib:nl()), []),
+            StrKeys = [binary_to_list(K) || K <- Keys],
+            io:fwrite(Device, string:join(StrKeys, io_lib:nl()), []),
             file:close(Device),
             ok
     end.
@@ -503,7 +505,7 @@ tables(Node) ->
 -spec create_bucket_type(re_node(), binary(), binary()) -> {error, term()} | [{atom(), term()}].
 create_bucket_type(Node, BucketType, RawValue) ->
     {Created, Active} = 
-        case bucket_type(Node, list_to_binary(BucketType)) of
+        case bucket_type(Node, BucketType) of
             {error, _} -> {false, false};
             Type ->
                 Props = proplists:get_value(props, Type),
