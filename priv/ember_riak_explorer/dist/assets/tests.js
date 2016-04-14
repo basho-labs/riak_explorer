@@ -97,6 +97,15 @@ define('ember-riak-explorer/tests/adapters/search-index.jshint', ['exports'], fu
     assert.ok(true, 'adapters/search-index.js should pass jshint.');
   });
 });
+define('ember-riak-explorer/tests/adapters/table.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - adapters/table.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'adapters/table.js should pass jshint.');
+  });
+});
 define('ember-riak-explorer/tests/app.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -241,6 +250,33 @@ define('ember-riak-explorer/tests/components/dashboard-module/header.jshint', ['
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'components/dashboard-module/header.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/form/table/create-table.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components/form/table/create-table.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/form/table/create-table.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/form/table/insert-data.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components/form/table/insert-data.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/form/table/insert-data.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/form/table/query-table.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components/form/table/query-table.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/form/table/query-table.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/components/link/bucket-type.jshint', ['exports'], function (exports) {
@@ -403,6 +439,24 @@ define('ember-riak-explorer/tests/components/table/search-indexes.jshint', ['exp
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'components/table/search-indexes.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/table/table-overview.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components/table/table-overview.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/table/table-overview.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/components/table/ts-tables.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components/table/ts-tables.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/table/ts-tables.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/components/tooltip/bucket-props.jshint', ['exports'], function (exports) {
@@ -1104,6 +1158,15 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-stats-test
     assert.ok(true, 'integration/components/tooltip/node-stats-test.js should pass jshint.');
   });
 });
+define('ember-riak-explorer/tests/mixins/component/scroll-reset.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - mixins/component/scroll-reset.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'mixins/component/scroll-reset.js should pass jshint.');
+  });
+});
 define('ember-riak-explorer/tests/mixins/controller/scroll-reset.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -1554,6 +1617,78 @@ define('ember-riak-explorer/tests/pods/search-schema/route.jshint', ['exports'],
     assert.ok(true, 'pods/search-schema/route.js should pass jshint.');
   });
 });
+define('ember-riak-explorer/tests/pods/table/create/controller.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/table/create/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/table/create/controller.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/pods/table/create/route.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/table/create/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/table/create/route.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/pods/table/model.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/table/model.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/table/model.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/pods/table/query/controller.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/table/query/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/table/query/controller.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/pods/table/query/route.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/table/query/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/table/query/route.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/pods/table/route.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/table/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/table/route.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/pods/table/write/controller.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/table/write/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/table/write/controller.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/pods/table/write/route.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/table/write/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/table/write/route.js should pass jshint.');
+  });
+});
 define('ember-riak-explorer/tests/resolver.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -1642,6 +1777,15 @@ define('ember-riak-explorer/tests/serializers/search-index.jshint', ['exports'],
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'serializers/search-index.js should pass jshint.');
+  });
+});
+define('ember-riak-explorer/tests/serializers/table.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - serializers/table.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'serializers/table.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/services/explorer.jshint', ['exports'], function (exports) {
@@ -1879,6 +2023,28 @@ define('ember-riak-explorer/tests/unit/adapters/search-index-test.jshint', ['exp
     assert.ok(true, 'unit/adapters/search-index-test.js should pass jshint.');
   });
 });
+define('ember-riak-explorer/tests/unit/adapters/table-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('adapter:table', 'Unit | Adapter | table', {
+    // Specify the other units that are required for this test.
+    // needs: ['serializer:foo']
+  });
+
+  // Replace this with your real tests.
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var adapter = this.subject();
+    assert.ok(adapter);
+  });
+});
+define('ember-riak-explorer/tests/unit/adapters/table-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/adapters/table-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/adapters/table-test.js should pass jshint.');
+  });
+});
 define('ember-riak-explorer/tests/unit/controllers/application-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
 
   (0, _emberQunit.moduleFor)('controller:application', {
@@ -2104,7 +2270,7 @@ define('ember-riak-explorer/tests/unit/models/bucket-type-test.jshint', ['export
 define('ember-riak-explorer/tests/unit/models/cluster-test', ['exports', 'ember-qunit', 'ember'], function (exports, _emberQunit, _ember) {
 
   (0, _emberQunit.moduleForModel)('cluster', 'Unit | Model | cluster', {
-    needs: ['model:bucketType', 'model:node', 'model:searchIndex', 'model:searchSchema', 'model:config-file', 'model:log-file']
+    needs: ['model:bucketType', 'model:node', 'model:searchIndex', 'model:searchSchema', 'model:config-file', 'model:log-file', 'model:table']
   });
 
   (0, _emberQunit.test)('it exists', function (assert) {
@@ -2144,6 +2310,14 @@ define('ember-riak-explorer/tests/unit/models/cluster-test', ['exports', 'ember-
     var relationship = _ember['default'].get(klass, 'relationshipsByName').get('searchSchemas');
 
     assert.equal(relationship.key, 'searchSchemas');
+    assert.equal(relationship.kind, 'hasMany');
+  });
+
+  (0, _emberQunit.test)('tables relationship', function (assert) {
+    var klass = this.subject({}).constructor;
+    var relationship = _ember['default'].get(klass, 'relationshipsByName').get('tables');
+
+    assert.equal(relationship.key, 'tables');
     assert.equal(relationship.kind, 'hasMany');
   });
 
