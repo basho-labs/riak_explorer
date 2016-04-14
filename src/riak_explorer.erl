@@ -24,7 +24,8 @@
 
 -behaviour(application).
 
--export([start/2, 
+-export([start/1,
+         start/2, 
          stop/1]).
 
 -export([cluster_config/1,
@@ -126,8 +127,11 @@ data_dir() ->
 %%% Callbacks
 %%%===================================================================
 
-start(_Type, _StartArgs) ->
-    re_sup:start_link().
+start(StartArgs) ->
+    start(normal, StartArgs).
+
+start(_Type, StartArgs) ->
+    re_sup:start_link([StartArgs]).
 
 stop(_State) ->
     ok.
