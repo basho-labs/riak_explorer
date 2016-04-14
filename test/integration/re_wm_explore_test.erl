@@ -11,7 +11,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 re_wm_explore_test_() ->
     {setup,
-     fun () -> ok end,
+     fun () -> 
+             {ok, "204", _} = ret:http(put, "http://localhost:8098/buckets/test/keys/test", <<"testing">>)
+     end,
      fun (_) -> ok end,
      {timeout, 60, [
                     expected_data(),
@@ -49,6 +51,14 @@ explore_routes() ->
       || #route{base=[Base|_],path=Paths,methods=Methods} <- Routes ]).
 
 assert_paths(_, _, [], Accum) -> lists:reverse(Accum);
+assert_paths('DELETE'=Method, Base, [Path|Paths], Accum) ->
+    Url = ret:url(to_path_str(Base) ++ "/" ++ to_path_str(Path)),
+    ?debugMsg("------------------------------------------------------"),
+    ?debugFmt("Method: ~p, Url: ~p", [Method, Url]),
+    {ok, Code, Content} = ret:http(Method, Url),
+    ?debugFmt("Code: ~p, Content: ~p", [Code, Content]),
+    ExpectedCode = path_code(Method, Path),
+    assert_paths(Method, Base, Paths, [?_assertEqual(ExpectedCode, Code)|Accum]);
 assert_paths('POST'=Method, Base, [Path|Paths], Accum) ->
     Url = ret:url(to_path_str(Base) ++ "/" ++ to_path_str(Path)),
     Body = path_body(Path),
@@ -92,7 +102,9 @@ path_body(_) ->
 path_code('POST', ["tables", "query"]) -> "200";
 path_code('POST', ["tables", table, "query"]) -> "200";
 path_code('POST', _) -> "202";
-path_code('GET', _) -> "200".
+path_code('GET', _) -> "200";
+path_code('DELETE', ["buckets",bucket]) -> "202";
+path_code('DELETE', _) -> "204".
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%% HELPER FUNCTIONS %%%
