@@ -23,6 +23,7 @@
 -export([resources/0,
          routes/0,
          dispatch/0,
+         dispatch/1,
          base_route/0]).
 
 -export([rd_url/1,
@@ -60,7 +61,10 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include("re_wm.hrl").
 
--record(ctx, {route :: route()}).
+-record(ctx, {
+          proxy :: {module(), atom()} | undefined,
+          route :: route()
+         }).
 
 %%%===================================================================
 %%% API
@@ -89,7 +93,12 @@ routes([Resource|Rest], Routes) ->
 
 -spec dispatch() -> [{[string() | atom], module(), [term()]}].
 dispatch() ->
-    build_wm_routes(base_route(), routes(), []).
+    dispatch([]).
+
+-spec dispatch([term()]) -> [{[string() | atom], module(), [term()]}].
+dispatch(Args) ->
+    WmRoutes = build_wm_routes(base_route(), routes(), []),
+    [ {R, M, A ++ Args} || {R, M, A} <- WmRoutes ].
 
 -spec base_route() -> string().
 base_route() ->
@@ -211,8 +220,15 @@ url_decode(Data) ->
 %%% Webmachine Callbacks
 %%%===================================================================
 
-init(_) ->
-    {ok, #ctx{}}.
+init(Args) ->
+    Ctx = 
+        case proplists:get_value(proxy, Args) of
+            undefined ->
+                #ctx{};
+            {PM, PF} ->
+                #ctx{proxy = {PM, PF}}
+        end,
+    {ok, Ctx}.
 
 service_available(ReqData, Ctx) ->
     Route = case get_route(base_route(), routes(), ReqData) of
@@ -224,7 +240,7 @@ service_available(ReqData, Ctx) ->
             end,
     {Available, ReqData1} = 
         case Route#route.available of
-            {M, F} -> M:F(ReqData);
+            {M, F} -> maybe_proxy_request(M, F, ReqData, Ctx);
             Bool -> {Bool, ReqData}
         end,
     {Available, ReqData1, Ctx#ctx{route = Route}}.
@@ -235,7 +251,7 @@ allowed_methods(ReqData, Ctx = #ctx{route = Route}) ->
 content_types_provided(ReqData, Ctx = #ctx{route = Route}) ->
     case Route#route.provides of
         {M, F} ->
-            {CTs, ReqData1} = M:F(ReqData),
+            {CTs, ReqData1} = maybe_proxy_request(M, F, ReqData, Ctx),
             {CTs, ReqData1, Ctx};
         Provides ->
             {Provides, ReqData, Ctx}
@@ -245,18 +261,18 @@ content_types_accepted(ReqData, Ctx = #ctx{route = Route}) ->
     {Route#route.accepts, ReqData, Ctx}.
 
 resource_exists(ReqData, Ctx = #ctx{route = #route{exists = {M, F}}}) ->
-    {Success, ReqData1} = M:F(ReqData),
+    {Success, ReqData1} = maybe_proxy_request(M, F, ReqData, Ctx),
     {Success, ReqData1, Ctx};
 resource_exists(ReqData, Ctx = #ctx{route = #route{exists = Exists}})
   when is_boolean(Exists) ->
     {Exists, ReqData, Ctx}.
 
 delete_resource(ReqData, Ctx = #ctx{route = #route{delete = {M, F}}}) ->
-    {Success, ReqData1} = M:F(ReqData),
+    {Success, ReqData1} = maybe_proxy_request(M, F, ReqData, Ctx),
     {Success, ReqData1, Ctx}.
 
 provide_content(ReqData, Ctx = #ctx{route = #route{content = {M, F}}}) ->
-    case M:F(ReqData) of
+    case maybe_proxy_request(M, F, ReqData, Ctx) of
         {{halt,_}=Body, ReqData1} ->
             {Body, ReqData1, Ctx};
         {Body, ReqData1} ->
@@ -264,7 +280,7 @@ provide_content(ReqData, Ctx = #ctx{route = #route{content = {M, F}}}) ->
     end.
 
 provide_text_content(ReqData, Ctx = #ctx{route = #route{content = {M, F}}}) ->
-    {Body, ReqData1} = M:F(ReqData),
+    {Body, ReqData1} = maybe_proxy_request(M, F, ReqData, Ctx),
     case is_binary(Body) of
         true ->
             {binary_to_list(Body), ReqData1, Ctx};
@@ -273,30 +289,30 @@ provide_text_content(ReqData, Ctx = #ctx{route = #route{content = {M, F}}}) ->
     end.
 
 provide_static_content(ReqData, Ctx = #ctx{route = #route{content = {M, F}}}) ->
-    {Body, ReqData1} = M:F(ReqData),
+    {Body, ReqData1} = maybe_proxy_request(M, F, ReqData, Ctx),
     {Body, ReqData1, Ctx}.
 
 accept_content(ReqData, Ctx = #ctx{route = #route{accept = {M, F}}}) ->
-    {Success, ReqData1} = M:F(ReqData),
+    {Success, ReqData1} = maybe_proxy_request(M, F, ReqData, Ctx),
     {Success, ReqData1, Ctx};
 accept_content(ReqData, Ctx = #ctx{route = #route{accept = undefined}}) ->
     {false, ReqData, Ctx}.
 
 process_post(ReqData, Ctx = #ctx{route = #route{accept = {M, F}}}) ->
-    {Success, ReqData1} = M:F(ReqData),
+    {Success, ReqData1} = maybe_proxy_request(M, F, ReqData, Ctx),
     {Success, ReqData1, Ctx}.
 
 post_is_create(ReqData, Ctx = #ctx{route = #route{post_create = PostCreate}}) ->
     {PostCreate, ReqData, Ctx}.
 
 create_path(ReqData, Ctx = #ctx{route = #route{post_path = {M, F}}}) ->
-    {Path, ReqData1} = M:F(ReqData),
+    {Path, ReqData1} = maybe_proxy_request(M, F, ReqData, Ctx),
     {Path, ReqData1, Ctx}.
 
 last_modified(ReqData, Ctx = #ctx{route = #route{last_modified = undefined}}) ->
     {undefined, ReqData, Ctx};
 last_modified(ReqData, Ctx = #ctx{route = #route{last_modified = {M, F}}}) ->
-    {LM, ReqData1} = M:F(ReqData),
+    {LM, ReqData1} = maybe_proxy_request(M, F, ReqData, Ctx),
     {LM, ReqData1, Ctx}.
 
 %% ====================================================================
@@ -377,3 +393,15 @@ build_wm_route(_, _, [], Acc) ->
     Acc;
 build_wm_route(BaseRoute, Base, [Path|Rest], Acc) ->
     build_wm_route(BaseRoute, Base, Rest, [{BaseRoute ++ Base ++ Path, ?MODULE, []}|Acc]).
+
+maybe_proxy_request(M, F, ReqData, #ctx{proxy = undefined}) ->
+    M:F(ReqData);
+maybe_proxy_request(M, F, ReqData, #ctx{proxy = {PM, PF}}) ->
+    case PM:PF(M, F, ReqData) of
+        {ok, Result} ->
+            Result;
+        {forward, local} ->
+            M:F(ReqData);
+        {forward, {location, Location, Path, NewPath}} ->
+            re_wm_proxy:send_proxy_request(Location, Path, NewPath, ReqData)
+    end.
