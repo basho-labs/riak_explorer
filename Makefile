@@ -78,9 +78,13 @@ sync-standalone:
 		s3cmd put --acl-public $(PKGNAME) s3://$(S3_BASE)/$(DEPLOY_BASE) && \
 		s3cmd put --acl-public $(PKGNAME).sha s3://$(S3_BASE)/$(DEPLOY_BASE)
 
-RIAK_BASE     ?= root
+RIAK_BASE             ?= root
+PATCH_PKG_VERSION     ?= $(PKG_VERSION).patch
+PATCH_PKGNAME         ?= $(REPO)-$(PATCH_PKG_VERSION)-$(ARCH).tar.gz
+PATCH_DEPLOY_BASE     ?= $(REPO)/$(MAJOR).$(MINOR)/$(PATCH_PKG_VERSION)/$(OSNAME)/$(OSVERSION)/
+PATCH_PKGNAME         ?= $(REPO)-$(PATCH_PKG_VERSION)-$(ARCH).tar.gz
 tarball: compile
-	echo "Creating packages/"$(PKGNAME)
+	echo "Creating packages/"$(PATCH_PKGNAME)
 	-rm -rf rel/$(RIAK_BASE)
 	mkdir -p rel/$(RIAK_BASE)/riak/lib/basho-patches
 	mkdir -p rel/$(RIAK_BASE)/riak/priv
@@ -88,13 +92,13 @@ tarball: compile
 	cp -R ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
 	cp -R priv/* rel/$(RIAK_BASE)/riak/priv/
 	mkdir -p packages
-	tar -C rel -czf $(PKGNAME) root
-	mv $(PKGNAME) packages/
-	cd packages && $(SHASUM) $(PKGNAME) > $(PKGNAME).sha
-	cd packages && echo "$(S3_PREFIX)$(DEPLOY_BASE)$(PKGNAME)" > remote.txt
-	cd packages && echo "$(BASE_DIR)/packages/$(PKGNAME)" > local.txt
+	tar -C rel -czf $(PATCH_PKGNAME) root
+	mv $(PATCH_PKGNAME) packages/
+	cd packages && $(SHASUM) $(PATCH_PKGNAME) > $(PATCH_PKGNAME).sha
+	cd packages && echo "$(S3_PREFIX)$(DEPLOY_BASE)$(PATCH_PKGNAME)" > remote.txt
+	cd packages && echo "$(BASE_DIR)/packages/$(PATCH_PKGNAME)" > local.txt
 sync:
 	echo "Uploading to "$(DEPLOY_BASE)
 	cd packages && \
-		s3cmd put --acl-public $(PKGNAME) s3://$(S3_BASE)/$(DEPLOY_BASE) && \
-		s3cmd put --acl-public $(PKGNAME).sha s3://$(S3_BASE)/$(DEPLOY_BASE)
+		s3cmd put --acl-public $(PATCH_PKGNAME) s3://$(S3_BASE)/$(DEPLOY_BASE) && \
+		s3cmd put --acl-public $(PATCH_PKGNAME).sha s3://$(S3_BASE)/$(DEPLOY_BASE)
