@@ -7604,7 +7604,8 @@ button.close {
   .table tbody tr td {
     padding: 10px 15px;
     vertical-align: middle;
-    text-align: left; }
+    text-align: left;
+    border-top: 1px solid rgba(221, 221, 221, 0.2); }
 
 .list-inline {
   margin: 0; }
@@ -8118,7 +8119,7 @@ p:last-child {
     -webkit-justify-content: space-between;
     -moz-justify-content: space-between;
     justify-content: space-between;
-    padding: 10px 20px;
+    padding: 20px;
     border-bottom: 1px solid #E4E4E4; }
     .dashboard-module .module-header .module-label {
       font-size: 18px;
@@ -8502,7 +8503,7 @@ pre.editable {
 .ember-power-select .ember-power-select-trigger:focus {
   outline: none; }
 
-.table.cluster-table .riak-type {
+.table.cluster-table .object-type {
   min-width: 125px; }
 
 .cluster-ops-container .repl-action-select {

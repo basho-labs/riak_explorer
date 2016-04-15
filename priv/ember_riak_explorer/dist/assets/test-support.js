@@ -8934,7 +8934,7 @@ pp.parseReturnStatement = function (node) {
 
   // In `return` (and `break`/`continue`), the keywords with
   // optional arguments, we eagerly look for a semicolon or the
-  // possibility to write one.
+  // possibility to insert one.
 
   if (this.eat(tt.semi) || this.insertSemicolon()) node.argument = null;else {
     node.argument = this.parseExpression();this.semicolon();
@@ -12139,7 +12139,6 @@ if (typeof QUnit !== 'undefined'){
     }
 }
 })();
-
 define('ember-qunit/module-for-component', ['exports', 'ember-qunit/qunit-module', 'ember-test-helpers'], function (exports, _emberQunitQunitModule, _emberTestHelpers) {
   'use strict';
 
