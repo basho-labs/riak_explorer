@@ -11,6 +11,7 @@ ebin/*.beam
 ebin/*.app
 rel/riak_explorer
 rel/riak-addon
+rel/root
 .concrete/DEV_MODE
 .rebar
 configure.sh
