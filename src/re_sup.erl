@@ -21,7 +21,6 @@
 -module(re_sup).
 -behaviour(supervisor).
 -export([start_link/1]).
--export([add_wm_routes/0, supervisor_specs/1]).
 -export([init/1]).
 
 
@@ -31,45 +30,43 @@
 
 start_link(StartArgs) ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, StartArgs).
-
-add_wm_routes() ->
-    [webmachine_router:add_route(R) || R <- lists:reverse(re_wm:dispatch())].
-
-supervisor_specs(Args) ->
-    Mode = proplists:get_value(mode, Args, "standalone"),
-    JobManager = {re_job_manager,
-                  {re_job_manager, start_link, []},
-                  permanent, 5000, worker, [re_job_manager]},
-    case Mode of
-        "riak" ->
-            [JobManager];
-        _ ->
-            Web = {webmachine_mochiweb,
-                   {webmachine_mochiweb, start, [web_config()]},
-                   permanent, 5000, worker, [mochiweb_socket_server]},
-            [Web, JobManager]
-    end.
             
 %%%===================================================================
 %%% Callbacks
 %%%===================================================================
 
 init(Args) ->
-    Specs = supervisor_specs(Args),
+    JobManager = {re_job_manager,
+                  {re_job_manager, start_link, []},
+                  permanent, 5000, worker, [re_job_manager]},
+    Specs = case webmachine_is_running() of
+        true ->
+            add_wm_routes(Args),
+            [JobManager];
+        _ ->
+            Web = {webmachine_mochiweb,
+                   {webmachine_mochiweb, start, [web_config(Args)]},
+                   permanent, 5000, worker, [mochiweb_socket_server]},
+            [Web, JobManager]
+    end,
+
     {ok, { {one_for_one, 10, 10}, Specs} }.
 
 %% ====================================================================
 %% Private
 %% ====================================================================
 
-web_config() ->
+add_wm_routes(Args) ->
+    [webmachine_router:add_route(R) || R <- lists:reverse(re_wm:dispatch(Args))].
+
+web_config(Args) ->
     {Ip, Port} = riak_explorer:host_port(),
     WebConfig0 = [
         {ip, Ip},
         {port, Port},
         {nodelay, true},
         {log_dir, "log"},
-        {dispatch, re_wm:dispatch()}
+        {dispatch, re_wm:dispatch(Args)}
     ],
     WebConfig1 = case application:get_env(riak_explorer, ssl) of
         {ok, SSLOpts} ->
@@ -78,3 +75,10 @@ web_config() ->
             WebConfig0
     end,
     WebConfig1.
+
+-spec webmachine_is_running() -> boolean().
+webmachine_is_running() ->
+    Info = application:info(),
+    Started = proplists:get_value(started, Info),
+    Webmachine = proplists:get_value(webmachine, Started),
+    Webmachine =:= permanent.

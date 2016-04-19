@@ -51,6 +51,9 @@ init([]) ->
                          5000,
                          worker,
                          [riak_control_session]},
+    ExplorerSpec = {riak_explorer,
+                    {riak_explorer, start, [[]]},
+                    permanent, 5000, worker, [riak_explorer]},
 
     %% determine if riak_control is enabled or not
     case app_helper:get_env(riak_control, enabled, false) of
@@ -63,9 +66,7 @@ init([]) ->
             _ = [webmachine_router:add_route(R) || R <- Routes],
 
             %% start riak control
-            re_sup:add_wm_routes(),
-            {ok, { {one_for_one, 5, 10}, [RiakControlSession] ++ re_sup:supervisor_specs([{mode, "riak"}]) } };
+            {ok, { {one_for_one, 5, 10}, [RiakControlSession, ExplorerSpec]} };
         _ ->
-            re_sup:add_wm_routes(),
-            {ok, { {one_for_one, 5, 10}, re_sup:supervisor_specs([{mode, "riak"}]) } }
+            {ok, { {one_for_one, 5, 10}, [ExplorerSpec] } }
     end.

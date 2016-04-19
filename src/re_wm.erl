@@ -126,14 +126,21 @@ rd_maybe_text(Result, ReqData) ->
 -spec rd_maybe_text(atom(), term(), #wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 rd_maybe_text(_, {error, Reason}, ReqData) ->
     rd_content({error, Reason}, ReqData);
-rd_maybe_text(Key, Result, ReqData) ->
+rd_maybe_text(Key, Result=[{_, Props}], ReqData) ->
     case rd_accepts("plain/text", ReqData) of
         true ->
-            Lines = [binary_to_list(L) || L <- proplists:get_value(Key, Result, [])],
-            {string:join(Lines, io_lib:nl()), ReqData};
+            case proplists:get_value(Key, Props) of
+                undefined ->
+                    rd_content(Result, ReqData);
+                Values ->
+                    Lines = [binary_to_list(L) || L <- Values],
+                    {string:join(Lines, io_lib:nl()), ReqData}
+            end;
         _ ->
             rd_content(Result, ReqData)
-    end.
+    end;
+rd_maybe_text(_, Result, ReqData) ->
+    rd_content(Result, ReqData).
 
 -spec rd_accepts(string(), #wm_reqdata{}) -> boolean().
 rd_accepts(CT, ReqData) ->
