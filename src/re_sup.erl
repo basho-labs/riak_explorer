@@ -78,7 +78,12 @@ web_config(Args) ->
 
 -spec webmachine_is_running() -> boolean().
 webmachine_is_running() ->
-    Info = application:info(),
-    Started = proplists:get_value(started, Info),
-    Webmachine = proplists:get_value(webmachine, Started),
-    Webmachine =:= permanent.
+    try
+        case mochiweb_socket_server:get(webmachine_mochiweb, port) of
+            P when is_integer(P) -> true;
+            _ -> false
+        end
+    catch
+        _:_ ->
+            riak_explorer:is_riak()
+    end.

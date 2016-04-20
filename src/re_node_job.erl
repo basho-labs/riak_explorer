@@ -21,11 +21,13 @@
 
 -export([start_list_buckets/4,
          start_list_keys/5,
-         start_delete_bucket/5]).
+         start_delete_bucket/5,
+         start_list_keys_ts/4]).
 
 -export([init_list_buckets/1,
          init_list_keys/1,
-         init_delete_bucket/1]).
+         init_delete_bucket/1,
+         init_list_keys_ts/1]).
 
 %%%===================================================================
 %%% API
@@ -45,6 +47,11 @@ start_list_keys(Cluster, Node, BucketType, Bucket, Options) ->
                                  pid().
 start_delete_bucket(Cluster, Node, BucketType, Bucket, Options) ->
     spawn(?MODULE, init_delete_bucket, [[self(), Cluster, Node, BucketType, Bucket, Options]]).
+
+-spec start_list_keys_ts(re_cluster:re_cluster(), re_node:re_node(), binary(), [term()]) ->
+                                pid().
+start_list_keys_ts(Cluster, Node, Table, Options) ->
+    spawn(?MODULE, init_list_keys_ts, [[self(), Cluster, Node, Table, Options]]).
 
 %%%===================================================================
 %%% Callbacks
@@ -110,6 +117,14 @@ init_delete_bucket([From, Cluster, Node, BucketType, Bucket, Options]) ->
             end
     end.
 
+-spec init_list_keys_ts([term()]) -> {error, term()} | ok.
+init_list_keys_ts([From, Cluster, Node, Table, Options]) ->
+    Dir = re_file_util:ensure_data_dir(
+                    ["keys_ts", atom_to_list(Cluster), binary_to_list(Table)]),
+    C = re_node:client(Node),
+    Req = riakc_ts:stream_list_keys(C, Table, []),
+    do_list(From, Req, Dir, Options).
+
 %%%===================================================================
 %%% Private
 %%%===================================================================
@@ -158,8 +173,14 @@ write_loop(From, ReqId, Device, Meta) ->
                 {ReqId, {_, Entries}} ->
                     case length(Entries) > 0 of
                         true ->
-                            Entries1 = [ binary_to_list(E) || E <- Entries ],
-                            io:fwrite(Device, string:join(Entries1, io_lib:nl()), []);
+                            Entries1 = [ case E of
+                                             {_,_,_} ->
+                                                 ts_entry_to_list(E);
+                                             _ ->
+                                                 binary_to_list(E) 
+                                         end
+                                         || E <- Entries ],
+                            io:fwrite(Device, string:join(Entries1, io_lib:nl()) ++ io_lib:nl(), []);
                         _ ->
                             ok
                     end,
@@ -170,3 +191,6 @@ write_loop(From, ReqId, Device, Meta) ->
             end
                 
     end.
+
+ts_entry_to_list({F1, F2, F3}) ->
+    binary_to_list(list_to_binary(mochijson2:encode([F1, F2, F3]))).

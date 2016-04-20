@@ -45,7 +45,11 @@
          tables_query/1,
          table_exists/1,
          table/1,
-         table_query/1]).
+         table_query/1,
+         refresh_keys_ts/1,
+         keys_ts/1,
+         keys_ts_put/1,
+         keys_ts_delete/1]).
 
 -export([bucket_types/1,
          bucket_type_exists/1,
@@ -127,7 +131,7 @@ routes() ->
             content={?MODULE,node_config_files}},
      #route{base=?NODE_BASE,
             path=[["config", "files", file]],
-            provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
+            provides=[?PROVIDE(?JSON_TYPE)] ++ ?PROVIDE_TEXT,
             exists={?MODULE,node_config_file_exists},
             content={?MODULE,node_config_file}},
      #route{base=?NODE_BASE,
@@ -136,7 +140,7 @@ routes() ->
             content={?MODULE,node_log_files}},
      #route{base=?NODE_BASE,
             path=[["log", "files", file]], 
-            provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
+            provides=[?PROVIDE(?JSON_TYPE)] ++ ?PROVIDE_TEXT,
             exists={?MODULE,node_log_file_exists},
             content={?MODULE,node_log_file}},
      #route{base=?NODE_BASE,
@@ -156,6 +160,20 @@ routes() ->
             content={?MODULE,table},
             accepts = ?ACCEPT_TEXT,
             accept = {?MODULE, table_put}},
+     #route{base=?NODE_BASE,
+            path=[["tables", table, "refresh_keys", "source", "riak_kv"]],
+            methods=['POST'],
+            exists={?MODULE,table_exists},
+            accept={?MODULE,refresh_keys_ts}},
+     #route{base=?NODE_BASE,
+            path=[["tables", table, "keys"]],
+            provides=[?PROVIDE(?JSON_TYPE)] ++ ?PROVIDE_TEXT,
+            methods=['PUT','GET','DELETE'],
+            exists={?MODULE,table_exists},
+            content={?MODULE,keys_ts},
+            accepts=?ACCEPT_TEXT,
+            accept={?MODULE,keys_ts_put},
+            delete={?MODULE,keys_ts_delete}},
      #route{base=?NODE_BASE,
             path=[["tables", table, "query"]], 
             methods=['POST'],
@@ -186,7 +204,7 @@ routes() ->
             accept={?MODULE,refresh_buckets}},
      #route{base=?BUCKET_TYPE_BASE,
             path=[["buckets"]],
-            provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
+            provides=[?PROVIDE(?JSON_TYPE)] ++ ?PROVIDE_TEXT,
             methods=['PUT','GET','DELETE'],
             exists={?MODULE,bucket_type_exists},
             content={?MODULE,buckets},
@@ -211,7 +229,7 @@ routes() ->
             accept={?MODULE,refresh_keys}},
      #route{base=?BUCKET_BASE,
             path=[["keys"]],
-            provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
+            provides=[?PROVIDE(?JSON_TYPE)] ++ ?PROVIDE_TEXT,
             methods=['PUT','GET','DELETE'],
             exists={?MODULE,bucket_exists},
             content={?MODULE,keys},
@@ -387,6 +405,51 @@ table_query(ReqData) ->
     QueryRaw = wrq:req_body(ReqData),
     Query = mochijson2:decode(QueryRaw),
     Response = re_node:get_ts(N, Table, Query),
+    re_wm:add_content(Response, ReqData).
+
+-spec refresh_keys_ts(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
+refresh_keys_ts(ReqData) ->
+    C = re_wm:rd_cluster(ReqData),
+    N = re_wm:rd_node(ReqData),
+    T = list_to_binary(wrq:path_info(table, ReqData)),
+    Sort = list_to_atom(wrq:get_qs_value("sort","true",ReqData)),
+    Options = [{sort, Sort}],
+    JobsPath = string:substr(wrq:path(ReqData),1,
+                             string:str(wrq:path(ReqData), 
+                                        "refresh_keys") - 1) ++ "jobs",
+    JobResponse = re_node:list_keys_ts(C, N, T, Options),
+    set_jobs_response(JobResponse, JobsPath, ReqData).
+
+-spec keys_ts(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
+keys_ts(ReqData) ->
+    C = re_wm:rd_cluster(ReqData),
+    T = list_to_binary(wrq:path_info(table, ReqData)),
+    Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
+    Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
+    Result = re_node:list_keys_ts_cache(C, T, Start, Rows),
+    re_wm:rd_maybe_text(keys, Result, ReqData).
+
+-spec keys_ts_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
+keys_ts_delete(ReqData) ->
+    C = re_wm:rd_cluster(ReqData),
+    T = list_to_binary(wrq:path_info(table, ReqData)),
+    Response = re_node:clean_keys_ts_cache(C, T),
+    re_wm:add_content(Response, ReqData).
+
+-spec keys_ts_put(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
+keys_ts_put(ReqData) ->
+    C = re_wm:rd_cluster(ReqData),
+    T = list_to_binary(wrq:path_info(table, ReqData)),
+    RawValue = wrq:req_body(ReqData),
+    Keys = case wrq:get_req_header("Content-Type", ReqData) of
+               "application/json" ->
+                   {struct, [{<<"keys">>, K}]} = mochijson2:decode(RawValue),
+                   K;
+               _ ->
+                   KeysStr = string:tokens(RawValue, "\n"),
+                   lists:map(fun(K) -> list_to_binary(K) end, KeysStr)
+           end,
+    Response = re_node:put_keys_ts_cache(C, T, Keys),
     re_wm:add_content(Response, ReqData).
 
 %%% Bucket Type

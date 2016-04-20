@@ -59,7 +59,11 @@
          list_keys/5,
          list_keys_cache/5,
          clean_keys_cache/3,
-         put_keys_cache/4]).
+         put_keys_cache/4,
+         list_keys_ts/4,
+         list_keys_ts_cache/4,
+         put_keys_ts_cache/3,
+         clean_keys_ts_cache/2]).
 
 -export([log_files/1,
          log_file/3,
@@ -182,6 +186,19 @@ query_ts(Node, Query) ->
             [{fields, Fields},{rows, Rows}]
     end.
 
+-spec list_keys_ts(re_cluster:re_cluster(), re_node(), binary(), [term()]) -> ts_result().
+list_keys_ts(Cluster, Node, Table, Options) ->
+    case re_cluster:development_mode(Cluster) of
+        true ->
+            re_job_manager:add_job(
+              list_keys_ts, 
+              {re_node_job, 
+               start_list_keys_ts,
+               [Cluster, Node, Table, Options]});
+        false ->
+            {error, developer_mode_off}
+    end.
+
 -spec delete_bucket(re_cluster:re_cluster(), re_node(), binary(), binary()) ->
                            {error, term()} | ok.
 delete_bucket(Cluster, Node, BucketType, Bucket) ->
@@ -294,6 +311,53 @@ list_keys_cache(Cluster, BucketType, Bucket, Start, Rows) ->
              {created, list_to_binary(re_file_util:timestamp_human(File))},
              {keys, Entries}]
     end.
+
+-spec list_keys_ts_cache(re_cluster:re_cluster(), 
+                         binary(), non_neg_integer(), non_neg_integer()) ->
+                          {error, term()} | ok.
+list_keys_ts_cache(Cluster, Table, Start, Rows) ->
+    Dir = re_file_util:ensure_data_dir(["keys_ts", atom_to_list(Cluster), binary_to_list(Table)]),
+    case re_file_util:find_single_file(Dir) of
+        {error, Reason} -> 
+            {error, Reason};
+        File ->
+            DirFile = filename:join([Dir, File]),
+            {Total, ResultCount, _, _, Entries} = re_file_util:partial_file(DirFile, Start - 1, Rows - 1),
+            [{total, Total},
+             {count, ResultCount},
+             {created, list_to_binary(re_file_util:timestamp_human(File))},
+             {keys, Entries}]
+    end.
+
+-spec put_keys_ts_cache(re_cluster:re_cluster(), binary(), [binary()]) ->
+                               {error, term()} | ok.
+put_keys_ts_cache(Cluster, Table, Keys) ->
+    Dir = re_file_util:ensure_data_dir(["keys_ts", atom_to_list(Cluster), binary_to_list(Table)]),
+    DirFile = 
+        case re_file_util:find_single_file(Dir) of
+            {error, not_found} -> 
+                filename:join([Dir, re_file_util:timestamp_string()]);
+            {error, Reason} ->
+                {error, Reason};
+            File ->
+                filename:join([Dir, File])
+        end,
+    case DirFile of
+        {error, Reason1} ->
+            {error, Reason1};
+        _ ->
+            {ok, Device} = file:open(DirFile, [append]),
+            StrKeys = [binary_to_list(list_to_binary(mochijson2:encode(K))) || K <- Keys],
+            io:fwrite(Device, string:join(StrKeys, io_lib:nl()), []),
+            file:close(Device),
+            ok
+    end.
+
+-spec clean_keys_ts_cache(re_cluster:re_cluster(), binary()) -> {error, term()} | ok.
+clean_keys_ts_cache(Cluster, Table) ->
+    Dir = re_file_util:ensure_data_dir(
+            ["keys_ts", atom_to_list(Cluster), binary_to_list(Table)]),
+    re_file_util:clean_dir(Dir).
 
 -spec clean_keys_cache(re_cluster:re_cluster(), binary(), binary()) -> {error, term()} | ok.
 clean_keys_cache(Cluster, BucketType, Bucket) ->
@@ -463,6 +527,25 @@ bucket_types(Node) ->
             lists:sort(fun([{id, N1}|_], [{id, N2}|_]) -> 
                                string:to_lower(binary_to_list(N1)) < string:to_lower(binary_to_list(N2)) end, List1)
     end.
+
+-spec create_bucket_type(re_node(), binary(), binary()) -> {error, term()} | [{atom(), term()}].
+create_bucket_type(Node, BucketType, RawValue) ->
+    {Created, Active} = 
+        case bucket_type(Node, BucketType) of
+            {error, _} -> {false, false};
+            Type ->
+                Props = proplists:get_value(props, Type),
+                {true, proplists:get_value(active, Props, false)}
+        end,
+
+    case {Created, Active} of
+        {false, _} ->
+            bucket_type_action(Node, BucketType, RawValue, [create, activate], []);
+        {true, false} ->
+            bucket_type_action(Node, BucketType, RawValue, [activate], []);
+        {true, true} ->
+            bucket_type_action(Node, BucketType, RawValue, [update], [])
+    end.
             
 -spec table_exists(re_node(), binary()) -> boolean().
 table_exists(Node, Table) ->
@@ -500,25 +583,6 @@ tables(Node) ->
                       Props = proplists:get_value(props, Type),
                       proplists:get_value(ddl, Props) =/= undefined
               end, List)
-    end.
-
--spec create_bucket_type(re_node(), binary(), binary()) -> {error, term()} | [{atom(), term()}].
-create_bucket_type(Node, BucketType, RawValue) ->
-    {Created, Active} = 
-        case bucket_type(Node, BucketType) of
-            {error, _} -> {false, false};
-            Type ->
-                Props = proplists:get_value(props, Type),
-                {true, proplists:get_value(active, Props, false)}
-        end,
-
-    case {Created, Active} of
-        {false, _} ->
-            bucket_type_action(Node, BucketType, RawValue, [create, activate], []);
-        {true, false} ->
-            bucket_type_action(Node, BucketType, RawValue, [activate], []);
-        {true, true} ->
-            bucket_type_action(Node, BucketType, RawValue, [update], [])
     end.
 
 -spec command(re_node(), module(), atom(), [term()]) -> {error, term()} | term().
