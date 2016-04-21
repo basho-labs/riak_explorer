@@ -1,9 +1,9 @@
 REPO            ?= riak_explorer
 PKG_VERSION	    ?= $(shell git describe --tags --abbrev=0 | tr - .)
 ARCH            ?= amd64
-OSNAME          ?= ubuntu
-OSVERSION       ?= trusty
-PKGNAME         ?= $(REPO)-$(PKG_VERSION)-$(OSNAME)-$(OSVERSION)-$(ARCH).tar.gz
+OS_FAMILY          ?= ubuntu
+OS_VERSION       ?= trusty
+PKGNAME         ?= $(REPO)-$(PKG_VERSION)-$(OS_FAMILY)-$(OS_VERSION)-$(ARCH).tar.gz
 OAUTH_TOKEN     ?= $(shell cat oauth.txt)
 RELEASE_ID      ?= $(shell curl --silent https://api.github.com/repos/basho-labs/$(REPO)/releases/tags/$(PKG_VERSION) | python -c 'import sys, json; print json.load(sys.stdin)["id"]')
 DEPLOY_BASE     ?= "https://uploads.github.com/repos/basho-labs/$(REPO)/releases/$(RELEASE_ID)/assets?access_token=$(OAUTH_TOKEN)&name=$(PKGNAME)"
@@ -79,7 +79,7 @@ sync-standalone:
 
 RIAK_BASE             ?= root
 PATCH_PKG_VERSION     ?= $(PKG_VERSION).patch
-PATCH_PKGNAME         ?= $(REPO)-$(PATCH_PKG_VERSION)-$(OSNAME)-$(OSVERSION)-$(ARCH).tar.gz
+PATCH_PKGNAME         ?= $(REPO)-$(PATCH_PKG_VERSION)-$(OS_FAMILY)-$(OS_VERSION)-$(ARCH).tar.gz
 PATCH_DEPLOY_BASE     ?= "https://uploads.github.com/repos/basho-labs/$(REPO)/releases/$(RELEASE_ID)/assets?access_token=$(OAUTH_TOKEN)&name=$(PATCH_PKGNAME)"
 PATCH_DOWNLOAD_BASE   ?= https://github.com/basho-labs/$(REPO)/releases/download/$(PKG_VERSION)/$(PATCH_PKGNAME)
 tarball: compile
