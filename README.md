@@ -34,7 +34,7 @@ the pre-compiled packages below. These include both the Erlang backend API code
 
 #### Standalone Version
 
-1. Download and extract [riak_explorer_darwin_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer/0.1/0.1.1/osx/10.11/riak_explorer-0.1.1-amd64.tar.gz) for Mac OSX or [riak_explorer_linux_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer/0.1/0.1.1/ubuntu/trusty/riak_explorer-0.1.1-amd64.tar.gz) for Ubuntu 14.04.
+1. Download and extract a `.tar.gz` release from the releases page: [https://github.com/basho-labs/riak_explorer/releases](https://github.com/basho-labs/riak_explorer/releases).
      * *Note: If you'd like to support further OSes, please [open an Issue](https://github.com/basho-labs/riak_explorer/issues)*
 
 2. Verify the default settings in `riak_explorer/etc/riak_explorer.conf`
@@ -50,9 +50,9 @@ the pre-compiled packages below. These include both the Erlang backend API code
 
 #### Riak Patch Version
 
-1. Download and extract [riak_explorer_addon_darwin_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_addon_darwin_amd64.tar.gz) for Mac OSX or [riak_explorer_addon_linux_amd64.tar.gz](http://riak-tools.s3.amazonaws.com/riak_explorer_addon_linux_amd64.tar.gz) for Ubuntu 14.04.
+1. Download and extract a `patch` release from the releases page: [https://github.com/basho-labs/riak_explorer/releases](https://github.com/basho-labs/riak_explorer/releases).
 
-2. Locate your Riak installation and `cp -R riak-addon/priv /path/to/riak/priv`, `cp -R riak-addon/ebin/* /path/to/riak/lib/basho-patches/`
+2. Locate your Riak installation and `cp -R root/riak/lib/basho-patches/* /path/to/riak/lib/basho-patches/`, `cp -R /root/riak/priv /path/to/riak/priv`.
 
 3. Run `riak/bin/riak start`
 
