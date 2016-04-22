@@ -131,7 +131,7 @@ routes() ->
             content={?MODULE,node_config_files}},
      #route{base=?NODE_BASE,
             path=[["config", "files", file]],
-            provides=[?PROVIDE(?JSON_TYPE)] ++ ?PROVIDE_TEXT,
+            provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
             exists={?MODULE,node_config_file_exists},
             content={?MODULE,node_config_file}},
      #route{base=?NODE_BASE,
@@ -140,7 +140,7 @@ routes() ->
             content={?MODULE,node_log_files}},
      #route{base=?NODE_BASE,
             path=[["log", "files", file]], 
-            provides=[?PROVIDE(?JSON_TYPE)] ++ ?PROVIDE_TEXT,
+            provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
             exists={?MODULE,node_log_file_exists},
             content={?MODULE,node_log_file}},
      #route{base=?NODE_BASE,
@@ -330,7 +330,7 @@ node_config_file(ReqData) ->
     N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
     Result = re_node:config_file(N, F),
-    re_wm:rd_maybe_text(Result, ReqData).
+    re_wm:rd_content(Result, ReqData).
 
 -spec node_log_files(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 node_log_files(ReqData) ->
@@ -354,7 +354,7 @@ node_log_file(ReqData) ->
     N = re_wm:rd_node(ReqData),
     F = wrq:path_info(file, ReqData),
     Result = re_node:log_file(N, F, Rows),
-    re_wm:rd_maybe_text(Result, ReqData).
+    re_wm:rd_content(Result, ReqData).
 
 -spec tables(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 tables(ReqData) ->
@@ -427,7 +427,7 @@ keys_ts(ReqData) ->
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
     Result = re_node:list_keys_ts_cache(C, T, Start, Rows),
-    re_wm:rd_maybe_text(keys, Result, ReqData).
+    re_wm:rd_content(Result, ReqData).
 
 -spec keys_ts_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 keys_ts_delete(ReqData) ->
@@ -514,7 +514,7 @@ buckets(ReqData) ->
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
     Result = re_node:list_buckets_cache(C, T, Start, Rows),
-    re_wm:rd_maybe_text(buckets, Result, ReqData).
+    re_wm:rd_content(Result, ReqData).
 
 -spec buckets_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 buckets_delete(ReqData) ->
@@ -594,7 +594,7 @@ keys(ReqData) ->
     Start = list_to_integer(wrq:get_qs_value("start","0",ReqData)),
     Rows = list_to_integer(wrq:get_qs_value("rows","1000",ReqData)),
     Result = re_node:list_keys_cache(C, T, B, Start, Rows),
-    re_wm:rd_maybe_text(keys, Result, ReqData).
+    re_wm:rd_content(Result, ReqData).
 
 -spec keys_delete(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 keys_delete(ReqData) ->

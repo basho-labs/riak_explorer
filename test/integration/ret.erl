@@ -45,8 +45,12 @@ http(Method, URL, Body, H0, ReturnHeader) ->
     case ReturnHeader of
         true -> Res;
         _ ->
-            {ok, S, _, B} = Res,
-            {ok, S, B}
+            case Res of
+                {error, Reason} ->
+                    {ok, 000, Reason};
+                {ok, S, _, B} ->
+                    {ok, S, B}
+            end
     end.
 
 http(Method, URL) ->

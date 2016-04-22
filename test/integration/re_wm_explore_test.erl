@@ -59,6 +59,8 @@ path_part('*',['*']) -> "index.html".
 
 path_body('PUT', ["keys"]) ->
     <<"{\"keys\":[\"test\"]}">>;
+path_body('PUT', ["tables", table, "keys"]) ->
+    <<"{\"keys\":[[\"family1\", \"series1\", 25]]}">>;
 path_body('PUT', ["buckets"]) ->
     <<"{\"buckets\":[\"test\"]}">>;
 path_body('PUT', ["bucket_types", bucket_type]) ->
