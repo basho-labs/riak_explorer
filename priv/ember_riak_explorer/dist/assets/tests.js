@@ -1644,15 +1644,6 @@ define('ember-riak-explorer/tests/pods/table/model.jshint', ['exports'], functio
     assert.ok(true, 'pods/table/model.js should pass jshint.');
   });
 });
-define('ember-riak-explorer/tests/pods/table/query/controller.jshint', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('JSHint - pods/table/query/controller.js');
-  QUnit.test('should pass jshint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'pods/table/query/controller.js should pass jshint.');
-  });
-});
 define('ember-riak-explorer/tests/pods/table/query/route.jshint', ['exports'], function (exports) {
   'use strict';
 
