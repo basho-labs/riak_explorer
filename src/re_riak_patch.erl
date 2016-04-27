@@ -40,7 +40,7 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 12.
+version() -> 13.
 
 is_enterprise() ->
     case code:ensure_loaded(riak_repl_console) of
@@ -82,7 +82,7 @@ bucket_type_create([TypeStr, PropsStr]) ->
             bucket_type_print_create_result(Type, Result)
         end,
     Result = bucket_type_create(CreateTypeFn, Type, decode_json_props(PropsStr)),
-    wait_for({re_riak_patch, bucket_type_exists, list_to_binary(TypeStr)}, 10),
+    wait_for({re_riak_patch, bucket_type_exists, TypeStr}, 10),
     Result.
 
 bucket_type_exists(Type) ->
