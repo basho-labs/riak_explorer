@@ -450,6 +450,15 @@ define('ember-riak-explorer/tests/components/table/table-overview.jshint', ['exp
     assert.ok(true, 'components/table/table-overview.js should pass jshint.');
   });
 });
+define('ember-riak-explorer/tests/components/table/ts-table-reference.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components/table/ts-table-reference.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/table/ts-table-reference.js should pass jshint.');
+  });
+});
 define('ember-riak-explorer/tests/components/table/ts-tables.jshint', ['exports'], function (exports) {
   'use strict';
 

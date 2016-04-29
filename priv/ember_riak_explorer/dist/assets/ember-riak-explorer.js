@@ -785,168 +785,168 @@ define('ember-riak-explorer/components/ember-wormhole', ['exports', 'ember-wormh
     }
   });
 });
-define('ember-riak-explorer/components/form/table/create-table', ['exports', 'ember', 'ember-riak-explorer/mixins/component/scroll-reset'], function (exports, _ember, _emberRiakExplorerMixinsComponentScrollReset) {
+define('ember-riak-explorer/components/form/table/create-table', ['exports', 'ember', 'ember-riak-explorer/mixins/component/scroll-reset', 'lodash/lodash'], function (exports, _ember, _emberRiakExplorerMixinsComponentScrollReset, _lodashLodash) {
   exports['default'] = _ember['default'].Component.extend(_emberRiakExplorerMixinsComponentScrollReset['default'], {
     tagName: 'form',
 
     explorer: _ember['default'].inject.service(),
 
-    cluster: null,
-
-    name: '',
+    table: null,
 
     errors: [],
 
-    hasMultipleTimestampFields: false,
+    availableFieldTypes: ['varchar', 'boolean', 'timestamp', 'sint64', 'double'],
 
-    family: { name: '', type: 'varchar' },
+    availableTimeUnits: ['days', 'hours', 'minutes', 'seconds'],
 
-    series: { name: '', type: 'varchar' },
+    // tableFields: [{ name: '', type: 'varchar' }, { name: '', type: 'varchar' }, { name: '', type: 'varchar' }],
 
-    fields: [{ name: '', type: 'varchar' }],
+    // [{type: '', value: ''}]
+    // partitionKeyFields: [],
+
+    // localKeyFields: [],
 
     quantum: {
-      fieldName: '',
+      name: '',
       quantity: null,
       unit: 'days'
     },
 
-    fieldTypes: ['varchar', 'boolean', 'timestamp', 'sint64', 'double'],
+    // availablePrimaryKeyFields: [],
 
-    timeUnits: ['days', 'hours', 'minutes', 'seconds'],
+    // localKeyFields: [],
 
-    clearErrors: function clearErrors() {
-      return this.set('errors', []);
-    },
-
-    // returns an object with all the table data
-    collectTableData: function collectTableData() {
-      var tableData = {};
-
-      tableData.name = this.get('name');
-      tableData.family = this.get('family');
-      tableData.series = this.get('series');
-      tableData.fields = this.get('fields');
-      tableData.quantum = this.get('quantum');
-
-      return tableData;
-    },
-
-    prepareTableData: function prepareTableData() {
-      var table = this.collectTableData();
-      var quantumUnitValueAbbr = table.quantum.unit.split('')[0]; // The first letter of the quantum unit value
-      var fieldsString = '';
-
-      // Dynamically construct the fieldString
-      table.fields.forEach(function (field, index) {
-        return fieldsString = fieldsString + (field.name + ' ' + field.type + ' not null, ');
-      });
-
-      var tableDefinition = 'CREATE TABLE ' + table.name + ' ' + ('(' + table.family.name + ' ' + table.family.type + ' not null, ') + (table.series.name + ' ' + table.series.type + ' not null, ') + ('' + fieldsString) + ('PRIMARY KEY ((' + table.family.name + ', ' + table.series.name + ', quantum(' + table.quantum.fieldName + ', ' + table.quantum.quantity + ', \'' + quantumUnitValueAbbr + '\')), ') + (table.family.name + ', ' + table.series.name + ', ' + table.quantum.fieldName + '))');
-
-      return {
-        name: table.name,
-        data: {
-          props: {
-            table_def: tableDefinition
-          }
-        }
-      };
-    },
-
-    validateNotDupe: function validateNotDupe() {
-      var name = this.get('name');
-      var existingTables = this.get('cluster').get('tables').mapBy('name');
-      var notDupe = existingTables.indexOf(name) === -1;
-
-      if (!notDupe) {
-        this.get('errors').pushObject('A table named "' + name + '" already exists on this cluster. Please give this table a unique name.');
-      }
-
-      return notDupe;
-    },
-
-    // Name can not have whitespace
-    validateName: function validateName() {
-      var name = this.get('name');
-      var isValid = name.length && name.indexOf(' ') === -1;
-
-      if (!isValid) {
-        this.get('errors').pushObject('Table name must be present and can not have whitespace');
-      }
-
-      return isValid;
-    },
-
-    validateFamily: function validateFamily() {
-      var family = this.get('family');
-      var isValid = _ember['default'].isPresent(family.name);
-
-      if (!isValid) {
-        this.get('errors').pushObject('Table requires a family name');
-      }
-
-      return isValid;
-    },
-
-    validateSeries: function validateSeries() {
-      var series = this.get('series');
-      var isValid = _ember['default'].isPresent(series.name);
-
-      if (!isValid) {
-        this.get('errors').pushObject('Table requires a series name');
-      }
-
-      return isValid;
-    },
-
-    validateFields: function validateFields() {
-      var fields = this.get('fields');
-      var isValid = !!fields.filter(function (field) {
-        return field.type === 'timestamp';
-      }).length;
-
-      if (!isValid) {
-        this.get('errors').pushObject('You must have at least one field that is a timestamp value.');
-      }
-
-      return isValid;
-    },
-
-    validateQuantum: function validateQuantum() {
-      var quantum = this.get('quantum');
-      var isPresent = _ember['default'].isPresent(quantum.quantity);
-
-      if (!isPresent) {
-        this.get('errors').pushObject('Quantum must have a quantity value assigned to it.');
-      }
-
-      var timeFields = this.get('fields').filter(function (field) {
-        return field.type === 'timestamp';
-      });
-      var hasMatchingTimeField = timeFields.filter(function (field) {
-        return quantum.fieldName === field.name;
-      }).length;
-
-      if (!hasMatchingTimeField) {
-        this.get('errors').pushObject('Quantum must have a table field name that matches one a field name with a "timestamp" type.');
-      }
-
-      var isValid = isPresent && hasMatchingTimeField;
-
-      return isValid;
-    },
-
-    validateTable: function validateTable() {
-      var notDupe = this.validateNotDupe();
-      var hasValidName = this.validateName();
-      var hasValidFamily = this.validateFamily();
-      var hasValidSeries = this.validateSeries();
-      var hasValidFields = this.validateFields();
-      var hasValidQuantum = this.validateQuantum();
-
-      return notDupe && hasValidName && hasValidFamily && hasValidSeries && hasValidFields && hasValidQuantum;
-    },
+    // clearErrors: function() {
+    //   return this.set('errors', []);
+    // },
+    //
+    // // returns an object with all the table data
+    // collectTableData: function() {
+    //   let tableData = {};
+    //
+    //   tableData.name = this.get('name');
+    //   tableData.family = this.get('family');
+    //   tableData.series = this.get('series');
+    //   tableData.fields = this.get('fields');
+    //   tableData.quantum = this.get('quantum');
+    //
+    //   return tableData;
+    // },
+    //
+    // prepareTableData: function() {
+    //   let table = this.collectTableData();
+    //   let quantumUnitValueAbbr = table.quantum.unit.split('')[0]; // The first letter of the quantum unit value
+    //   let fieldsString = '';
+    //
+    //   // Dynamically construct the fieldString
+    //   table.fields.forEach(function(field, index) {
+    //     return fieldsString = fieldsString + `${field.name} ${field.type} not null, `;
+    //   });
+    //
+    //   let tableDefinition = `CREATE TABLE ${table.name} ` +
+    //      `(${table.family.name} ${table.family.type} not null, ` +
+    //      `${table.series.name} ${table.series.type} not null, ` +
+    //      `${fieldsString}` +
+    //      `PRIMARY KEY ((${table.family.name}, ${table.series.name}, quantum(${table.quantum.fieldName}, ${table.quantum.quantity}, '${quantumUnitValueAbbr}')), ` +
+    //       `${table.family.name}, ${table.series.name}, ${table.quantum.fieldName}))`;
+    //
+    //   return {
+    //     name: table.name,
+    //     data: {
+    //       props: {
+    //         table_def: tableDefinition
+    //       }
+    //     }
+    //   };
+    // },
+    //
+    // validateNotDupe: function() {
+    //   let name = this.get('name');
+    //   let existingTables = this.get('cluster').get('tables').mapBy('name');
+    //   let notDupe = (existingTables.indexOf(name) === -1);
+    //
+    //   if (!notDupe) {
+    //     this.get('errors').pushObject(`A table named "${name}" already exists on this cluster. Please give this table a unique name.`);
+    //   }
+    //
+    //   return notDupe;
+    // },
+    //
+    // // Name can not have whitespace
+    // validateName: function() {
+    //   let name = this.get('name');
+    //   let isValid = name.length && name.indexOf(' ') === -1;
+    //
+    //   if (!isValid) {
+    //     this.get('errors').pushObject('Table name must be present and can not have whitespace');
+    //   }
+    //
+    //   return isValid;
+    // },
+    //
+    // validateFamily: function() {
+    //   let family = this.get('family');
+    //   let isValid = Ember.isPresent(family.name);
+    //
+    //   if (!isValid) {
+    //     this.get('errors').pushObject('Table requires a family name');
+    //   }
+    //
+    //   return isValid;
+    // },
+    //
+    // validateSeries: function() {
+    //   let series = this.get('series');
+    //   let isValid = Ember.isPresent(series.name);
+    //
+    //   if (!isValid) {
+    //     this.get('errors').pushObject('Table requires a series name');
+    //   }
+    //
+    //   return isValid;
+    // },
+    //
+    // validateFields: function() {
+    //   let fields = this.get('fields');
+    //   let isValid = !!(fields.filter(function(field) { return field.type === 'timestamp'; }).length);
+    //
+    //   if (!isValid) {
+    //     this.get('errors').pushObject('You must have at least one field that is a timestamp value.');
+    //   }
+    //
+    //   return isValid;
+    // },
+    //
+    // validateQuantum: function() {
+    //   let quantum = this.get('quantum');
+    //   let isPresent = Ember.isPresent(quantum.quantity);
+    //
+    //   if (!isPresent) {
+    //     this.get('errors').pushObject('Quantum must have a quantity value assigned to it.');
+    //   }
+    //
+    //   let timeFields = this.get('fields').filter(function(field) { return field.type === 'timestamp'; });
+    //   let hasMatchingTimeField = timeFields.filter(function(field) { return quantum.fieldName === field.name; }).length;
+    //
+    //   if (!hasMatchingTimeField) {
+    //     this.get('errors').pushObject('Quantum must have a table field name that matches one a field name with a "timestamp" type.');
+    //   }
+    //
+    //   let isValid = isPresent && hasMatchingTimeField;
+    //
+    //   return isValid;
+    // },
+    //
+    // validateTable: function() {
+    //   let notDupe = this.validateNotDupe();
+    //   let hasValidName = this.validateName();
+    //   let hasValidFamily = this.validateFamily();
+    //   let hasValidSeries = this.validateSeries();
+    //   let hasValidFields = this.validateFields();
+    //   let hasValidQuantum = this.validateQuantum();
+    //
+    //   return (notDupe && hasValidName && hasValidFamily && hasValidSeries && hasValidFields && hasValidQuantum);
+    // },
 
     submit: function submit() {
       this.clearErrors();
@@ -971,12 +971,40 @@ define('ember-riak-explorer/components/form/table/create-table', ['exports', 'em
     },
 
     actions: {
-      addNewField: function addNewField() {
-        this.get('fields').pushObject({ name: '', type: 'varchar' });
+      addField: function addField(type) {
+        return this.sendAction('addField', type);
       },
 
-      removeField: function removeField(index) {
-        this.get('fields').removeAt(index);
+      removeField: function removeField(group, index) {
+        return this.sendAction('removeField', group, index);
+      },
+
+      addPartitionKey: function addPartitionKey(type) {},
+
+      addNewPartionKeyField: function addNewPartionKeyField(type) {
+        var availableFieldNames = this.get('tableFields').mapBy('name').filter(function (name) {
+          return _ember['default'].isPresent(name);
+        });
+
+        if (_ember['default'].isPresent(availableFieldNames)) {
+          this.set('availablePrimaryKeyFields', availableFieldNames);
+          this.get('partitionKeyFields').pushObject({ type: type, value: availableFieldNames[0] });
+        } else {
+          alert('Partition Key fields are derived from existing table fields. Please create at least one table field first in order to assign a partion field.');
+        }
+      },
+
+      addNewLocalKeyField: function addNewLocalKeyField() {
+        var availableFieldNames = this.get('tableFields').mapBy('name').filter(function (name) {
+          return _ember['default'].isPresent(name);
+        });
+
+        if (_ember['default'].isPresent(availableFieldNames)) {
+          this.set('availablePrimaryKeyFields', availableFieldNames);
+          this.get('localKeyFields').pushObject({ type: 'localKeyField', value: availableFieldNames[0] });
+        } else {
+          alert('Local Key fields are derived from existing table fields. Please create at least one table field first in order to assign a partion field.');
+        }
       }
     }
   });
@@ -1048,7 +1076,7 @@ define('ember-riak-explorer/components/form/table/insert-data', ['exports', 'emb
       var self = this;
 
       if (isValid) {
-        return this.get('explorer').updateTable(this.get('table'), data).then(function onSuccess() {
+        this.get('explorer').updateTable(this.get('table'), data).then(function onSuccess(data) {
           var tableName = self.get('table').get('name');
 
           self.set('successMessage', 'Your data was saved to the ' + tableName + ' table.');
@@ -1059,6 +1087,8 @@ define('ember-riak-explorer/components/form/table/insert-data', ['exports', 'emb
           self.scrollToTop();
         });
       }
+
+      return false;
     }
   });
 });
@@ -1095,15 +1125,22 @@ define('ember-riak-explorer/components/form/table/query-table', ['exports', 'emb
       return this.set('isDisabled', _ember['default'].isBlank(this.get('queryString')));
     }).observes('queryString'),
 
+    // TODO: Come back and make the example dynamic
     setExampleMessage: function setExampleMessage() {
-      var table = this.get('table');
-      var tableName = table.get('name');
-      var familyName = table.get('familyField').name;
-      var seriesName = table.get('seriesField').name;
-      var quantumName = table.get('quantumField').name;
-      var example = 'select * from ' + tableName + ' where ' + quantumName + ' > 1 and ' + quantumName + ' < 100 and ' + familyName + ' = \'foo\' and ' + seriesName + ' = \'bar\'';
+      // let table = this.get('table');
+      // let tableName = table.get('name');
+      // let example = '';
+      //
+      //
+      // if (table.get('hasQuantum')) {
+      //   let quantumName = table.get('quantumName');
+      //   example = `select * from ${tableName} where ${quantumName} > 1 and ${quantumName} < 100`;
+      // } else {
+      // }
 
-      return this.set('example', example);
+      var temporaryExample = "select weather, temperature from GeoCheckin where time > 1234560 and time < 1234569 and region = 'South Atlantic' and state = 'South Carolina'";
+
+      return this.set('example', temporaryExample);
     },
 
     didReceiveAttrs: function didReceiveAttrs() {
@@ -1123,7 +1160,7 @@ define('ember-riak-explorer/components/form/table/query-table', ['exports', 'emb
       this.set('queryResult', this.get('loadingMessage'));
 
       // Execute Query
-      return this.get('explorer').queryTable(this.get('table'), this.get('queryString')).then(function onSuccess(data) {
+      this.get('explorer').queryTable(this.get('table'), this.get('queryString')).then(function onSuccess(data) {
         enforceMinDelay.then(function () {
           if (_ember['default'].isEmpty(data.query.rows)) {
             self.set('queryResultLength', null);
@@ -1146,6 +1183,8 @@ define('ember-riak-explorer/components/form/table/query-table', ['exports', 'emb
       }, function onFail(error) {
         self.set('queryResult', error.status + ' ' + error.statusText + ' trying to execute statement: \n\n' + self.get('queryString'));
       });
+
+      return false;
     },
 
     actions: {
@@ -1154,6 +1193,14 @@ define('ember-riak-explorer/components/form/table/query-table', ['exports', 'emb
         this.set('queryResult', '');
         this.set('queryResultLength', null);
       }
+    }
+  });
+});
+define('ember-riak-explorer/components/ivy-codemirror', ['exports', 'ivy-codemirror/components/ivy-codemirror'], function (exports, _ivyCodemirrorComponentsIvyCodemirror) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _ivyCodemirrorComponentsIvyCodemirror['default'];
     }
   });
 });
@@ -1742,6 +1789,15 @@ define('ember-riak-explorer/components/table/table-overview', ['exports', 'ember
 
     classNames: ['key-value-table', 'table-overview']
   });
+});
+define('ember-riak-explorer/components/table/ts-table-reference', ['exports', 'ember'], function (exports, _ember) {
+    exports['default'] = _ember['default'].Component.extend({
+        tagName: 'table',
+
+        classNames: ['key-value-table'],
+
+        table: null
+    });
 });
 define('ember-riak-explorer/components/table/ts-tables', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Component.extend({
@@ -4040,7 +4096,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "ivy-tabs", [], [], 0, null, ["loc", [null, [26, 6], [39, 19]]]]],
+          statements: [["block", "ivy-tabs", [], ["on-select", ["subexpr", "action", [["subexpr", "mut", [["get", "selectedIndex", ["loc", [null, [26, 41], [26, 54]]]]], [], ["loc", [null, [26, 36], [26, 55]]]]], [], ["loc", [null, [26, 28], [26, 56]]]], "selected-index", ["subexpr", "@mut", [["get", "selectedIndex", ["loc", [null, [26, 72], [26, 85]]]]], [], []]], 0, null, ["loc", [null, [26, 6], [39, 19]]]]],
           locals: [],
           templates: [child0]
         };
@@ -7167,7 +7223,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "ivy-tabs", [], [], 0, null, ["loc", [null, [23, 6], [36, 19]]]]],
+          statements: [["block", "ivy-tabs", [], ["on-select", ["subexpr", "action", [["subexpr", "mut", [["get", "selectedIndex", ["loc", [null, [23, 41], [23, 54]]]]], [], ["loc", [null, [23, 36], [23, 55]]]]], [], ["loc", [null, [23, 28], [23, 56]]]], "selected-index", ["subexpr", "@mut", [["get", "selectedIndex", ["loc", [null, [23, 72], [23, 85]]]]], [], []]], 0, null, ["loc", [null, [23, 6], [36, 19]]]]],
           locals: [],
           templates: [child0]
         };
@@ -9079,7 +9135,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "ivy-tabs", [], [], 0, null, ["loc", [null, [67, 6], [90, 19]]]]],
+          statements: [["block", "ivy-tabs", [], ["on-select", ["subexpr", "action", [["subexpr", "mut", [["get", "selectedIndex", ["loc", [null, [67, 41], [67, 54]]]]], [], ["loc", [null, [67, 36], [67, 55]]]]], [], ["loc", [null, [67, 28], [67, 56]]]], "selected-index", ["subexpr", "@mut", [["get", "selectedIndex", ["loc", [null, [67, 72], [67, 85]]]]], [], []]], 0, null, ["loc", [null, [67, 6], [90, 19]]]]],
           locals: [],
           templates: [child0]
         };
@@ -14001,7 +14057,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 dom.insertBoundary(fragment, null);
                 return morphs;
               },
-              statements: [["block", "ivy-tabs", [], ["class", "vertical"], 0, null, ["loc", [null, [57, 8], [85, 21]]]]],
+              statements: [["block", "ivy-tabs", [], ["on-select", ["subexpr", "action", [["subexpr", "mut", [["get", "selectedIndex", ["loc", [null, [57, 43], [57, 56]]]]], [], ["loc", [null, [57, 38], [57, 57]]]]], [], ["loc", [null, [57, 30], [57, 58]]]], "selected-index", ["subexpr", "@mut", [["get", "selectedIndex", ["loc", [null, [57, 74], [57, 87]]]]], [], []], "class", "vertical"], 0, null, ["loc", [null, [57, 8], [85, 21]]]]],
               locals: [],
               templates: [child0]
             };
@@ -14450,7 +14506,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "ivy-tabs", [], [], 0, null, ["loc", [null, [3, 4], [115, 17]]]]],
+          statements: [["block", "ivy-tabs", [], ["on-select", ["subexpr", "action", [["subexpr", "mut", [["get", "selectedIndex", ["loc", [null, [3, 39], [3, 52]]]]], [], ["loc", [null, [3, 34], [3, 53]]]]], [], ["loc", [null, [3, 26], [3, 54]]]], "selected-index", ["subexpr", "@mut", [["get", "selectedIndex", ["loc", [null, [3, 70], [3, 83]]]]], [], []]], 0, null, ["loc", [null, [3, 4], [115, 17]]]]],
           locals: [],
           templates: [child0]
         };
@@ -17056,7 +17112,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "ivy-tabs", [], [], 0, null, ["loc", [null, [56, 4], [74, 19]]]]],
+          statements: [["block", "ivy-tabs", [], ["on-select", ["subexpr", "action", [["subexpr", "mut", [["get", "selectedIndex", ["loc", [null, [56, 39], [56, 52]]]]], [], ["loc", [null, [56, 34], [56, 53]]]]], [], ["loc", [null, [56, 26], [56, 54]]]], "selected-index", ["subexpr", "@mut", [["get", "selectedIndex", ["loc", [null, [56, 70], [56, 83]]]]], [], []]], 0, null, ["loc", [null, [56, 4], [74, 19]]]]],
           locals: [],
           templates: [child0]
         };
@@ -18675,19 +18731,32 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
 });
 define('ember-riak-explorer/pods/table/create/controller', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({
-    errors: []
+    errors: [],
+
+    exampleTemplate: 'CREATE TABLE GeoCheckin\n(\n  region       varchar   not null,\n  state        varchar   not null,\n  time         timestamp not null,\n  weather      varchar   not null,\n  temperature  double,\n  PRIMARY KEY (\n    (region, state, quantum(time, 15, \'m\')),\n    region, state, time\n  )\n)',
+
+    statement: ''
   });
 });
-define('ember-riak-explorer/pods/table/create/route', ['exports', 'ember', 'ember-riak-explorer/mixins/routes/alerts', 'ember-riak-explorer/mixins/routes/loading-slider', 'ember-riak-explorer/mixins/routes/scroll-reset', 'ember-riak-explorer/mixins/routes/wrapper-state'], function (exports, _ember, _emberRiakExplorerMixinsRoutesAlerts, _emberRiakExplorerMixinsRoutesLoadingSlider, _emberRiakExplorerMixinsRoutesScrollReset, _emberRiakExplorerMixinsRoutesWrapperState) {
+define('ember-riak-explorer/pods/table/create/route', ['exports', 'ember', 'ember-riak-explorer/mixins/routes/alerts', 'ember-riak-explorer/mixins/routes/loading-slider', 'ember-riak-explorer/mixins/routes/scroll-reset', 'ember-riak-explorer/mixins/routes/wrapper-state', 'lodash/lodash'], function (exports, _ember, _emberRiakExplorerMixinsRoutesAlerts, _emberRiakExplorerMixinsRoutesLoadingSlider, _emberRiakExplorerMixinsRoutesScrollReset, _emberRiakExplorerMixinsRoutesWrapperState, _lodashLodash) {
   exports['default'] = _ember['default'].Route.extend(_emberRiakExplorerMixinsRoutesAlerts['default'], _emberRiakExplorerMixinsRoutesLoadingSlider['default'], _emberRiakExplorerMixinsRoutesScrollReset['default'], _emberRiakExplorerMixinsRoutesWrapperState['default'], {
     model: function model(params) {
-      return this.explorer.getCluster(params.clusterName);
+      var self = this;
+
+      return this.explorer.getCluster(params.clusterName).then(function (cluster) {
+        return self.store.createRecord('table', {
+          cluster: cluster,
+          fields: [{ name: '', type: 'varchar' }, { name: '', type: 'varchar' }, { name: '', type: 'varchar' }],
+          partitionKey: [],
+          localKey: []
+        });
+      });
     },
 
     afterModel: function afterModel(model, transition) {
-      this.setSidebarCluster(model);
+      this.setSidebarCluster(model.get('cluster'));
       this.setBreadCrumbs({
-        cluster: model,
+        cluster: model.get('cluster'),
         tableCreate: true
       });
       this.setViewLabel({
@@ -18700,13 +18769,84 @@ define('ember-riak-explorer/pods/table/create/route', ['exports', 'ember', 'embe
       this._super(controller, model);
 
       controller.set('errors', []);
+      controller.set('statement', controller.get('exampleTemplate'));
     },
 
     actions: {
-      onTableCreate: function onTableCreate(tableName) {
-        var cluster = this.currentModel;
+      willTransition: function willTransition() {
+        var table = this.currentModel;
 
-        this.transitionTo('table', cluster.get('name'), tableName);
+        // Destroy in memory model. If the table is successfully created, it will be saved through the normal Ember Data flow.
+        table.destroyRecord();
+      },
+
+      createTable: function createTable(tableName) {
+        // let cluster = this.currentModel;
+        //
+        // this.transitionTo('table', cluster.get('name'), tableName);
+      },
+
+      createTableManually: function createTableManually() {
+        var self = this;
+        var controller = this.controller;
+        var clusterName = this.currentModel.get('cluster').get('name');
+        var statement = controller.get('statement');
+
+        var formatted = _lodashLodash['default'].trim(statement.replace(/\s\s+/g, ' ') // reduces multiple whitespaces into one
+        .replace(/(\r\n|\n|\r)/gm, ' ') // removes any leftover newlines
+        .replace(/\( /g, '(') // removes any spacing following left parenthesis
+        .replace(/ \)/g, ')')); // removes any spacing preceding right parenthesis
+
+        var tableName = formatted.split(' ')[2]; // Table name should always come after CREATE TABLE
+
+        var data = {
+          name: tableName,
+          data: { props: { table_def: formatted } }
+        };
+
+        this.explorer.createBucketType(clusterName, data).then(function onSuccess() {
+          self.transitionTo('table', clusterName, tableName);
+        }, function onFail(error) {
+          self.scrollToTop();
+          controller.get('errors').pushObject('Sorry, something went wrong. Table was not created');
+        });
+      },
+
+      addField: function addField(type) {
+        switch (type) {
+          case 'tableField':
+            this.currentModel.get('fields').pushObject({ name: '', type: 'varchar' });
+            break;
+          case 'partitionKeyField':
+            var suggestedPartitionKeyField = this.currentModel.get('suggestedPartitionKey');
+            this.currentModel.get('partitionKey').pushObject({ name: suggestedPartitionKeyField, quantum: false });
+            break;
+          case 'partitionKeyQuantum':
+            var suggestedPartitionKeyQuantum = this.currentModel.get('suggestedPartitionKeyQuantum');
+            this.currentModel.get('partitionKey').pushObject({ name: suggestedPartitionKeyQuantum, quantum: true });
+            break;
+          case 'localKey':
+            this.currentModel.get('localKey').pushObject('');
+            break;
+        }
+      },
+
+      removeField: function removeField(group, index) {
+        var table = this.currentModel;
+
+        switch (group) {
+          case 'tableField':
+            table.get('fields').removeAt(index);
+            break;
+          case 'partitionKey':
+            table.get('partitionKey').removeAt(index);
+            break;
+          case 'localKey':
+            table.get('localKey').removeAt(index);
+            break;
+          default:
+            break;
+        }
       }
     }
   });
@@ -19025,7 +19165,7 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 1, 1);
             return morphs;
           },
-          statements: [["block", "link-to", ["cluster.data", ["get", "model.name", ["loc", [null, [25, 34], [25, 44]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [25, 8], [28, 20]]]]],
+          statements: [["block", "link-to", ["cluster.data", ["get", "model.cluster.name", ["loc", [null, [25, 34], [25, 52]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [25, 8], [28, 20]]]]],
           locals: [],
           templates: [child0]
         };
@@ -19042,7 +19182,7 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
                 "column": 4
               },
               "end": {
-                "line": 36,
+                "line": 57,
                 "column": 4
               }
             },
@@ -19054,20 +19194,59 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
           hasRendered: false,
           buildFragment: function buildFragment(dom) {
             var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("      ");
+            var el1 = dom.createTextNode("\n      ");
             dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
+            var el1 = dom.createElement("div");
+            dom.setAttribute(el1, "class", "manually-create");
+            var el2 = dom.createTextNode("\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("label");
+            var el3 = dom.createTextNode("Schema Editor");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("div");
+            dom.setAttribute(el2, "class", "help-block");
+            var el3 = dom.createTextNode("\n          Use the editor below to define your table. A sample template has been inserted to get you started.\n        ");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createComment("");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("div");
+            dom.setAttribute(el2, "class", "form-group create-button");
+            var el3 = dom.createTextNode("\n          ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("button");
+            dom.setAttribute(el3, "class", "btn btn-primary");
+            var el4 = dom.createTextNode("Create Table");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n        ");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n      ");
+            dom.appendChild(el1, el2);
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n\n\n");
             dom.appendChild(el0, el1);
             var el1 = dom.createTextNode("\n");
             dom.appendChild(el0, el1);
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+            var element0 = dom.childAt(fragment, [1]);
+            var element1 = dom.childAt(element0, [7, 1]);
+            var morphs = new Array(2);
+            morphs[0] = dom.createMorphAt(element0, 5, 5);
+            morphs[1] = dom.createElementMorph(element1);
             return morphs;
           },
-          statements: [["inline", "form.table.create-table", [], ["errors", ["subexpr", "mut", [["get", "errors", ["loc", [null, [33, 20], [33, 26]]]]], [], ["loc", [null, [33, 15], [33, 27]]]], "cluster", ["subexpr", "@mut", [["get", "model", ["loc", [null, [34, 16], [34, 21]]]]], [], []], "tableCreated", "onTableCreate"], ["loc", [null, [32, 6], [35, 38]]]]],
+          statements: [["inline", "ivy-codemirror", [], ["mode", "sql", "theme", "material", "autofocus", true, "value", ["subexpr", "@mut", [["get", "statement", ["loc", [null, [42, 16], [42, 25]]]]], [], []]], ["loc", [null, [38, 8], [42, 27]]]], ["element", "action", ["createTableManually"], [], ["loc", [null, [45, 42], [45, 74]]]]],
           locals: [],
           templates: []
         };
@@ -19083,7 +19262,7 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
               "column": 2
             },
             "end": {
-              "line": 37,
+              "line": 58,
               "column": 2
             }
           },
@@ -19109,7 +19288,7 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "dashboard-module.header", [], ["label", "New Table"], 0, null, ["loc", [null, [23, 4], [30, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [31, 4], [36, 30]]]]],
+        statements: [["block", "dashboard-module.header", [], ["label", "New Table"], 0, null, ["loc", [null, [23, 4], [30, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [31, 4], [57, 30]]]]],
         locals: [],
         templates: [child0, child1]
       };
@@ -19128,7 +19307,7 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
             "column": 0
           },
           "end": {
-            "line": 39,
+            "line": 60,
             "column": 0
           }
         },
@@ -19168,13 +19347,13 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
         dom.insertBoundary(fragment, 0);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [1, 0], [8, 13]]]], ["block", "if", [["get", "errors", ["loc", [null, [10, 6], [10, 12]]]]], [], 1, null, ["loc", [null, [10, 0], [19, 7]]]], ["block", "dashboard-module.container", [], ["class", "medium-width"], 2, null, ["loc", [null, [22, 2], [37, 33]]]]],
+      statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [1, 0], [8, 13]]]], ["block", "if", [["get", "errors", ["loc", [null, [10, 6], [10, 12]]]]], [], 1, null, ["loc", [null, [10, 0], [19, 7]]]], ["block", "dashboard-module.container", [], ["class", "medium-width"], 2, null, ["loc", [null, [22, 2], [58, 33]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
   })());
 });
-define('ember-riak-explorer/pods/table/model', ['exports', 'ember-data', 'ember-riak-explorer/mixins/models/bucket-props', 'lodash/lodash'], function (exports, _emberData, _emberRiakExplorerMixinsModelsBucketProps, _lodashLodash) {
+define('ember-riak-explorer/pods/table/model', ['exports', 'ember', 'ember-data', 'ember-riak-explorer/mixins/models/bucket-props', 'lodash/lodash'], function (exports, _ember, _emberData, _emberRiakExplorerMixinsModelsBucketProps, _lodashLodash) {
 
   /**
    * Represents a Riak TS Table
@@ -19207,49 +19386,50 @@ define('ember-riak-explorer/pods/table/model', ['exports', 'ember-data', 'ember-
 
     partitionKey: _emberData['default'].attr(),
 
-    quantum: _emberData['default'].attr('string'),
+    hasQuantum: (function () {
+      return _ember['default'].isPresent(this.get('partitionKey').filterBy('quantum'));
+    }).property('partitionKey.@each.quantum'),
 
-    familyField: (function () {
-      var fields = this.get('fields');
-      var familyField = null;
+    quantumFieldName: (function () {
+      if (this.get('hasQuantum')) {
+        var quantumField = _lodashLodash['default'].head(this.get('partitionKey').filterBy('quantum'));
+        var quantumFieldName = _lodashLodash['default'].head(quantumField.name.replace('quantum(', '').slice(0, -1).split(','));
 
-      Object.keys(fields).forEach(function (key) {
-        if (fields[key].position === 1) {
-          familyField = _lodashLodash['default'].extend({ name: key }, fields[key]);
-        }
+        return quantumFieldName;
+      }
+    }).property('hasQuantum'),
+
+    possiblePartitionKeys: (function () {
+      var fieldNames = this.get('fields').mapBy('name');
+
+      return fieldNames.filter(function (field) {
+        return _ember['default'].isPresent(field);
       });
+    }).property('partitionKey.@each.quantum'),
 
-      return familyField;
-    }).property('fields'),
+    possiblePartitionKeyQuantum: (function () {
+      return this.get('fields').filterBy('type', 'timestamp').mapBy('name');
+    }).property('fields.@each.type'),
 
-    seriesField: (function () {
-      var fields = this.get('fields');
-      var seriesField = null;
+    // returns first possible partition key that isn't being used already
+    suggestedPartitionKey: (function () {
+      var possibleKeys = this.get('possiblePartitionKeys');
+      var partitionKeyNames = this.get('partitionKey').mapBy('name');
 
-      Object.keys(fields).forEach(function (key) {
-        if (fields[key].position === 2) {
-          seriesField = _lodashLodash['default'].extend({ name: key }, fields[key]);
-        }
-      });
+      return _lodashLodash['default'].head(possibleKeys.filter(function (fieldName) {
+        return partitionKeyNames.indexOf(fieldName) === -1;
+      }));
+    }).property('possiblePartitionKeys', 'partitionKey.@each.name'),
 
-      return seriesField;
-    }).property('fields'),
+    // returns first possible partition key that isn't being used already
+    suggestedPartitionKeyQuantum: (function () {
+      var possibleKeys = this.get('possiblePartitionKeyQuantum');
+      var partitionKeyNames = this.get('partitionKey').mapBy('name');
 
-    quantumField: (function () {
-      var quantumField = null;
-      var fields = this.get('fields');
-      var quantumString = this.get('quantum');
-      // Removes parenthesis, splits on comma into array, and grabs first item
-      var quantumFieldName = quantumString.replace(/[()]/g, '').split(',')[0];
-
-      quantumField = _lodashLodash['default'].extend({ name: quantumFieldName }, fields[quantumFieldName]);
-
-      return quantumField;
-    }).property('fields'),
-
-    stringifiedFields: (function () {
-      return JSON.stringify(this.get('fields'), null, ' ');
-    }).property('fields')
+      return _lodashLodash['default'].head(possibleKeys.filter(function (fieldName) {
+        return partitionKeyNames.indexOf(fieldName) === -1;
+      }));
+    }).property('possiblePartitionKeyQuantum', 'partitionKey.@each.name')
   });
 
   exports['default'] = Table;
@@ -19297,7 +19477,7 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
               "column": 0
             },
             "end": {
-              "line": 9,
+              "line": 10,
               "column": 0
             }
           },
@@ -19324,13 +19504,19 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
           var el2 = dom.createTextNode("\n    ");
           dom.appendChild(el1, el2);
           var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("Fields may not be compared against other fields in the query.");
+          var el3 = dom.createTextNode("Your query must include all fields defined in the partition key.");
           dom.appendChild(el2, el3);
           dom.appendChild(el1, el2);
           var el2 = dom.createTextNode("\n    ");
           dom.appendChild(el1, el2);
           var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("All elements of the compound primary key must be present.");
+          var el3 = dom.createTextNode("Fields in the local key must be compared using strict equality against literal values, ranges are not allowed");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n    ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("li");
+          var el3 = dom.createTextNode("Fields may not be compared against other fields in the query.");
           dom.appendChild(el2, el3);
           dom.appendChild(el1, el2);
           var el2 = dom.createTextNode("\n    ");
@@ -19383,11 +19569,11 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
             "loc": {
               "source": null,
               "start": {
-                "line": 12,
+                "line": 13,
                 "column": 2
               },
               "end": {
-                "line": 17,
+                "line": 18,
                 "column": 2
               }
             },
@@ -19429,7 +19615,7 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3, 1]), 0, 0);
             return morphs;
           },
-          statements: [["content", "successMessage", ["loc", [null, [15, 9], [15, 27]]]]],
+          statements: [["content", "successMessage", ["loc", [null, [16, 9], [16, 27]]]]],
           locals: [],
           templates: []
         };
@@ -19441,11 +19627,11 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
           "loc": {
             "source": null,
             "start": {
-              "line": 11,
+              "line": 12,
               "column": 0
             },
             "end": {
-              "line": 18,
+              "line": 19,
               "column": 0
             }
           },
@@ -19468,7 +19654,7 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "success", "dismissible", false], 0, null, ["loc", [null, [12, 2], [17, 15]]]]],
+        statements: [["block", "bs-alert", [], ["type", "success", "dismissible", false], 0, null, ["loc", [null, [13, 2], [18, 15]]]]],
         locals: [],
         templates: [child0]
       };
@@ -19483,11 +19669,11 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 24,
+                  "line": 25,
                   "column": 8
                 },
                 "end": {
-                  "line": 27,
+                  "line": 28,
                   "column": 8
                 }
               },
@@ -19524,11 +19710,11 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
             "loc": {
               "source": null,
               "start": {
-                "line": 22,
+                "line": 23,
                 "column": 4
               },
               "end": {
-                "line": 29,
+                "line": 30,
                 "column": 4
               }
             },
@@ -19560,7 +19746,7 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 1, 1);
             return morphs;
           },
-          statements: [["block", "link-to", ["table", ["get", "model.cluster.name", ["loc", [null, [24, 27], [24, 45]]]], ["get", "model.name", ["loc", [null, [24, 46], [24, 56]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [24, 8], [27, 20]]]]],
+          statements: [["block", "link-to", ["table", ["get", "model.cluster.name", ["loc", [null, [25, 27], [25, 45]]]], ["get", "model.name", ["loc", [null, [25, 46], [25, 56]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [25, 8], [28, 20]]]]],
           locals: [],
           templates: [child0]
         };
@@ -19573,11 +19759,11 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
             "loc": {
               "source": null,
               "start": {
-                "line": 31,
+                "line": 32,
                 "column": 4
               },
               "end": {
-                "line": 34,
+                "line": 35,
                 "column": 4
               }
             },
@@ -19602,7 +19788,7 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
             morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
             return morphs;
           },
-          statements: [["inline", "form.table.query-table", [], ["table", ["subexpr", "@mut", [["get", "model", ["loc", [null, [33, 14], [33, 19]]]]], [], []]], ["loc", [null, [32, 6], [33, 21]]]]],
+          statements: [["inline", "form.table.query-table", [], ["table", ["subexpr", "@mut", [["get", "model", ["loc", [null, [34, 14], [34, 19]]]]], [], []]], ["loc", [null, [33, 6], [34, 21]]]]],
           locals: [],
           templates: []
         };
@@ -19614,11 +19800,11 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
           "loc": {
             "source": null,
             "start": {
-              "line": 21,
+              "line": 22,
               "column": 2
             },
             "end": {
-              "line": 35,
+              "line": 36,
               "column": 2
             }
           },
@@ -19646,7 +19832,7 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "dashboard-module.header", [], ["label", "Query Table"], 0, null, ["loc", [null, [22, 4], [29, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [31, 4], [34, 30]]]]],
+        statements: [["block", "dashboard-module.header", [], ["label", "Query Table"], 0, null, ["loc", [null, [23, 4], [30, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [32, 4], [35, 30]]]]],
         locals: [],
         templates: [child0, child1]
       };
@@ -19665,7 +19851,7 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
             "column": 0
           },
           "end": {
-            "line": 39,
+            "line": 40,
             "column": 0
           }
         },
@@ -19704,7 +19890,7 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
         dom.insertBoundary(fragment, 0);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [1, 0], [9, 13]]]], ["block", "if", [["get", "successMessage", ["loc", [null, [11, 6], [11, 20]]]]], [], 1, null, ["loc", [null, [11, 0], [18, 7]]]], ["block", "dashboard-module.container", [], ["class", "table-query-container"], 2, null, ["loc", [null, [21, 2], [35, 33]]]]],
+      statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [1, 0], [10, 13]]]], ["block", "if", [["get", "successMessage", ["loc", [null, [12, 6], [12, 20]]]]], [], 1, null, ["loc", [null, [12, 0], [19, 7]]]], ["block", "dashboard-module.container", [], ["class", "table-query-container"], 2, null, ["loc", [null, [22, 2], [36, 33]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
@@ -20303,7 +20489,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "ivy-tabs", [], [], 0, null, ["loc", [null, [30, 4], [43, 17]]]]],
+          statements: [["block", "ivy-tabs", [], ["on-select", ["subexpr", "action", [["subexpr", "mut", [["get", "selectedIndex", ["loc", [null, [30, 39], [30, 52]]]]], [], ["loc", [null, [30, 34], [30, 53]]]]], [], ["loc", [null, [30, 26], [30, 54]]]], "selected-index", ["subexpr", "@mut", [["get", "selectedIndex", ["loc", [null, [30, 70], [30, 83]]]]], [], []]], 0, null, ["loc", [null, [30, 4], [43, 17]]]]],
           locals: [],
           templates: [child0]
         };
@@ -20449,7 +20635,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
               "column": 0
             },
             "end": {
-              "line": 8,
+              "line": 11,
               "column": 0
             }
           },
@@ -20470,9 +20656,21 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           dom.appendChild(el2, el3);
           dom.appendChild(el1, el2);
           dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n  ");
+          var el1 = dom.createTextNode("\n\n  ");
           dom.appendChild(el0, el1);
           var el1 = dom.createElement("ul");
+          var el2 = dom.createTextNode("\n    ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("li");
+          var el3 = dom.createTextNode("Writes will assume that columns are in the same order they've been declared in the table.");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n    ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("li");
+          var el3 = dom.createTextNode("Timestamps should be in Unix epoch/UTC milliseconds.");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
           var el2 = dom.createTextNode("\n    ");
           dom.appendChild(el1, el2);
           var el2 = dom.createElement("li");
@@ -20524,11 +20722,11 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 14,
+                  "line": 17,
                   "column": 6
                 },
                 "end": {
-                  "line": 16,
+                  "line": 19,
                   "column": 6
                 }
               },
@@ -20555,7 +20753,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
               morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
               return morphs;
             },
-            statements: [["content", "error", ["loc", [null, [15, 12], [15, 21]]]]],
+            statements: [["content", "error", ["loc", [null, [18, 12], [18, 21]]]]],
             locals: ["error"],
             templates: []
           };
@@ -20567,11 +20765,11 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             "loc": {
               "source": null,
               "start": {
-                "line": 11,
+                "line": 14,
                 "column": 2
               },
               "end": {
-                "line": 18,
+                "line": 21,
                 "column": 2
               }
             },
@@ -20611,7 +20809,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3]), 1, 1);
             return morphs;
           },
-          statements: [["block", "each", [["get", "errors", ["loc", [null, [14, 14], [14, 20]]]]], [], 0, null, ["loc", [null, [14, 6], [16, 15]]]]],
+          statements: [["block", "each", [["get", "errors", ["loc", [null, [17, 14], [17, 20]]]]], [], 0, null, ["loc", [null, [17, 6], [19, 15]]]]],
           locals: [],
           templates: [child0]
         };
@@ -20623,11 +20821,11 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           "loc": {
             "source": null,
             "start": {
-              "line": 10,
+              "line": 13,
               "column": 0
             },
             "end": {
-              "line": 19,
+              "line": 22,
               "column": 0
             }
           },
@@ -20650,7 +20848,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [11, 2], [18, 15]]]]],
+        statements: [["block", "bs-alert", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [14, 2], [21, 15]]]]],
         locals: [],
         templates: [child0]
       };
@@ -20664,11 +20862,11 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             "loc": {
               "source": null,
               "start": {
-                "line": 22,
+                "line": 25,
                 "column": 2
               },
               "end": {
-                "line": 27,
+                "line": 30,
                 "column": 2
               }
             },
@@ -20710,7 +20908,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3, 1]), 0, 0);
             return morphs;
           },
-          statements: [["content", "successMessage", ["loc", [null, [25, 9], [25, 27]]]]],
+          statements: [["content", "successMessage", ["loc", [null, [28, 9], [28, 27]]]]],
           locals: [],
           templates: []
         };
@@ -20722,11 +20920,11 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           "loc": {
             "source": null,
             "start": {
-              "line": 21,
+              "line": 24,
               "column": 0
             },
             "end": {
-              "line": 28,
+              "line": 31,
               "column": 0
             }
           },
@@ -20749,7 +20947,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "success"], 0, null, ["loc", [null, [22, 2], [27, 15]]]]],
+        statements: [["block", "bs-alert", [], ["type", "success"], 0, null, ["loc", [null, [25, 2], [30, 15]]]]],
         locals: [],
         templates: [child0]
       };
@@ -20764,11 +20962,11 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 34,
+                  "line": 37,
                   "column": 8
                 },
                 "end": {
-                  "line": 37,
+                  "line": 40,
                   "column": 8
                 }
               },
@@ -20805,11 +21003,11 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             "loc": {
               "source": null,
               "start": {
-                "line": 32,
+                "line": 35,
                 "column": 4
               },
               "end": {
-                "line": 39,
+                "line": 42,
                 "column": 4
               }
             },
@@ -20841,7 +21039,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 1, 1);
             return morphs;
           },
-          statements: [["block", "link-to", ["table", ["get", "model.cluster.name", ["loc", [null, [34, 27], [34, 45]]]], ["get", "model.name", ["loc", [null, [34, 46], [34, 56]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [34, 8], [37, 20]]]]],
+          statements: [["block", "link-to", ["table", ["get", "model.cluster.name", ["loc", [null, [37, 27], [37, 45]]]], ["get", "model.name", ["loc", [null, [37, 46], [37, 56]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [37, 8], [40, 20]]]]],
           locals: [],
           templates: [child0]
         };
@@ -20854,11 +21052,11 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             "loc": {
               "source": null,
               "start": {
-                "line": 40,
+                "line": 43,
                 "column": 4
               },
               "end": {
-                "line": 45,
+                "line": 48,
                 "column": 4
               }
             },
@@ -20883,7 +21081,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
             return morphs;
           },
-          statements: [["inline", "form.table.insert-data", [], ["table", ["subexpr", "@mut", [["get", "model", ["loc", [null, [42, 14], [42, 19]]]]], [], []], "errors", ["subexpr", "mut", [["get", "errors", ["loc", [null, [43, 20], [43, 26]]]]], [], ["loc", [null, [43, 15], [43, 27]]]], "successMessage", ["subexpr", "mut", [["get", "successMessage", ["loc", [null, [44, 28], [44, 42]]]]], [], ["loc", [null, [44, 23], [44, 43]]]]], ["loc", [null, [41, 6], [44, 45]]]]],
+          statements: [["inline", "form.table.insert-data", [], ["table", ["subexpr", "@mut", [["get", "model", ["loc", [null, [45, 14], [45, 19]]]]], [], []], "errors", ["subexpr", "mut", [["get", "errors", ["loc", [null, [46, 20], [46, 26]]]]], [], ["loc", [null, [46, 15], [46, 27]]]], "successMessage", ["subexpr", "mut", [["get", "successMessage", ["loc", [null, [47, 28], [47, 42]]]]], [], ["loc", [null, [47, 23], [47, 43]]]]], ["loc", [null, [44, 6], [47, 45]]]]],
           locals: [],
           templates: []
         };
@@ -20895,11 +21093,11 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           "loc": {
             "source": null,
             "start": {
-              "line": 31,
+              "line": 34,
               "column": 2
             },
             "end": {
-              "line": 46,
+              "line": 49,
               "column": 2
             }
           },
@@ -20925,7 +21123,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "dashboard-module.header", [], ["label", "Write Data to Table"], 0, null, ["loc", [null, [32, 4], [39, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [40, 4], [45, 30]]]]],
+        statements: [["block", "dashboard-module.header", [], ["label", "Write Data to Table"], 0, null, ["loc", [null, [35, 4], [42, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [43, 4], [48, 30]]]]],
         locals: [],
         templates: [child0, child1]
       };
@@ -20944,7 +21142,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             "column": 0
           },
           "end": {
-            "line": 47,
+            "line": 50,
             "column": 6
           }
         },
@@ -20985,7 +21183,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
         dom.insertBoundary(fragment, 0);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [1, 0], [8, 13]]]], ["block", "if", [["get", "errors", ["loc", [null, [10, 6], [10, 12]]]]], [], 1, null, ["loc", [null, [10, 0], [19, 7]]]], ["block", "if", [["get", "successMessage", ["loc", [null, [21, 6], [21, 20]]]]], [], 2, null, ["loc", [null, [21, 0], [28, 7]]]], ["block", "dashboard-module.container", [], [], 3, null, ["loc", [null, [31, 2], [46, 33]]]]],
+      statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [1, 0], [11, 13]]]], ["block", "if", [["get", "errors", ["loc", [null, [13, 6], [13, 12]]]]], [], 1, null, ["loc", [null, [13, 0], [22, 7]]]], ["block", "if", [["get", "successMessage", ["loc", [null, [24, 6], [24, 20]]]]], [], 2, null, ["loc", [null, [24, 0], [31, 7]]]], ["block", "dashboard-module.container", [], [], 3, null, ["loc", [null, [34, 2], [49, 33]]]]],
       locals: [],
       templates: [child0, child1, child2, child3]
     };
@@ -21186,14 +21384,30 @@ define('ember-riak-explorer/serializers/table', ['exports', 'ember-riak-explorer
       payload.tables.forEach(function (table) {
         var ddl = table.props.ddl;
 
-        table.fields = ddl.fields;
-        table.local_key = ddl.local_key;
-        table.partition_key = ddl.partition_key;
-        table.quantum = _lodashLodash['default'].last(ddl.partition_key).replace('quantum', '');
+        // Assign table fields
+        table.fields = [];
+        Object.keys(ddl.fields).forEach(function (fieldName) {
+          table.fields.push(_lodashLodash['default'].extend({ name: fieldName }, ddl.fields[fieldName]));
+        });
 
-        // Add space after comma on quantum lists
-        table.partition_key[2] = table.partition_key[2].split(',').join(', ');
-        table.quantum = table.quantum.split(',').join(', ');
+        // Assign partition key
+        table.partition_key = [];
+        ddl.partition_key.forEach(function (pk) {
+          var isQuanta = pk.indexOf('quantum') > -1;
+
+          // Reformat quantum to have spaces after commas
+          if (isQuanta) {
+            pk = pk.split(',').join(', ');
+          }
+
+          table.partition_key.push({
+            name: pk,
+            quantum: isQuanta
+          });
+        });
+
+        // Assign local key
+        table.local_key = ddl.local_key;
 
         delete table.props.ddl;
       });
@@ -27361,100 +27575,6 @@ define("ember-riak-explorer/templates/components/dashboard-module/header", ["exp
 define("ember-riak-explorer/templates/components/form/table/create-table", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 21,
-              "column": 8
-            },
-            "end": {
-              "line": 23,
-              "column": 8
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
-        },
-        isEmpty: false,
-        arity: 1,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("          ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("option");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element6 = dom.childAt(fragment, [1]);
-          var morphs = new Array(3);
-          morphs[0] = dom.createAttrMorph(element6, 'value');
-          morphs[1] = dom.createAttrMorph(element6, 'selected');
-          morphs[2] = dom.createMorphAt(element6, 0, 0);
-          return morphs;
-        },
-        statements: [["attribute", "value", ["get", "type", ["loc", [null, [22, 26], [22, 30]]]]], ["attribute", "selected", ["subexpr", "eq", [["get", "family.type", ["loc", [null, [22, 47], [22, 58]]]], ["get", "type", ["loc", [null, [22, 59], [22, 63]]]]], [], ["loc", [null, [22, 42], [22, 65]]]]], ["content", "type", ["loc", [null, [22, 66], [22, 74]]]]],
-        locals: ["type"],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 42,
-              "column": 8
-            },
-            "end": {
-              "line": 44,
-              "column": 8
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
-        },
-        isEmpty: false,
-        arity: 1,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("          ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("option");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element5 = dom.childAt(fragment, [1]);
-          var morphs = new Array(3);
-          morphs[0] = dom.createAttrMorph(element5, 'value');
-          morphs[1] = dom.createAttrMorph(element5, 'selected');
-          morphs[2] = dom.createMorphAt(element5, 0, 0);
-          return morphs;
-        },
-        statements: [["attribute", "value", ["get", "type", ["loc", [null, [43, 26], [43, 30]]]]], ["attribute", "selected", ["subexpr", "eq", [["get", "series.type", ["loc", [null, [43, 47], [43, 58]]]], ["get", "type", ["loc", [null, [43, 59], [43, 63]]]]], [], ["loc", [null, [43, 42], [43, 65]]]]], ["content", "type", ["loc", [null, [43, 66], [43, 74]]]]],
-        locals: ["type"],
-        templates: []
-      };
-    })();
-    var child2 = (function () {
       var child0 = (function () {
         return {
           meta: {
@@ -27463,12 +27583,12 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
             "loc": {
               "source": null,
               "start": {
-                "line": 64,
-                "column": 10
+                "line": 24,
+                "column": 12
               },
               "end": {
-                "line": 66,
-                "column": 10
+                "line": 26,
+                "column": 12
               }
             },
             "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
@@ -27479,7 +27599,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
           hasRendered: false,
           buildFragment: function buildFragment(dom) {
             var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("            ");
+            var el1 = dom.createTextNode("              ");
             dom.appendChild(el0, el1);
             var el1 = dom.createElement("option");
             var el2 = dom.createComment("");
@@ -27490,14 +27610,14 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var element1 = dom.childAt(fragment, [1]);
+            var element11 = dom.childAt(fragment, [1]);
             var morphs = new Array(3);
-            morphs[0] = dom.createAttrMorph(element1, 'value');
-            morphs[1] = dom.createAttrMorph(element1, 'selected');
-            morphs[2] = dom.createMorphAt(element1, 0, 0);
+            morphs[0] = dom.createAttrMorph(element11, 'value');
+            morphs[1] = dom.createAttrMorph(element11, 'selected');
+            morphs[2] = dom.createMorphAt(element11, 0, 0);
             return morphs;
           },
-          statements: [["attribute", "value", ["get", "type", ["loc", [null, [65, 28], [65, 32]]]]], ["attribute", "selected", ["subexpr", "eq", [["get", "field.type", ["loc", [null, [65, 49], [65, 59]]]], ["get", "type", ["loc", [null, [65, 60], [65, 64]]]]], [], ["loc", [null, [65, 44], [65, 66]]]]], ["content", "type", ["loc", [null, [65, 67], [65, 75]]]]],
+          statements: [["attribute", "value", ["get", "type", ["loc", [null, [25, 30], [25, 34]]]]], ["attribute", "selected", ["subexpr", "eq", [["get", "field.type", ["loc", [null, [25, 51], [25, 61]]]], ["get", "type", ["loc", [null, [25, 62], [25, 66]]]]], [], ["loc", [null, [25, 46], [25, 68]]]]], ["content", "type", ["loc", [null, [25, 69], [25, 77]]]]],
           locals: ["type"],
           templates: []
         };
@@ -27509,12 +27629,12 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
           "loc": {
             "source": null,
             "start": {
-              "line": 50,
-              "column": 0
+              "line": 13,
+              "column": 2
             },
             "end": {
-              "line": 75,
-              "column": 0
+              "line": 34,
+              "column": 2
             }
           },
           "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
@@ -27525,36 +27645,30 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
         hasRendered: false,
         buildFragment: function buildFragment(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("  ");
+          var el1 = dom.createTextNode("    ");
           dom.appendChild(el0, el1);
           var el1 = dom.createElement("div");
           dom.setAttribute(el1, "class", "form-group table-field");
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("label");
-          var el3 = dom.createTextNode("Field (name, type)");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n\n    ");
+          var el2 = dom.createTextNode("\n      ");
           dom.appendChild(el1, el2);
           var el2 = dom.createElement("div");
           dom.setAttribute(el2, "class", "form-inline");
-          var el3 = dom.createTextNode("\n      ");
+          var el3 = dom.createTextNode("\n        ");
           dom.appendChild(el2, el3);
           var el3 = dom.createElement("div");
           dom.setAttribute(el3, "class", "form-group");
-          var el4 = dom.createTextNode("\n        ");
+          var el4 = dom.createTextNode("\n          ");
           dom.appendChild(el3, el4);
           var el4 = dom.createComment("");
           dom.appendChild(el3, el4);
-          var el4 = dom.createTextNode("\n      ");
+          var el4 = dom.createTextNode("\n        ");
           dom.appendChild(el3, el4);
           dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode("\n\n      ");
+          var el3 = dom.createTextNode("\n        ");
           dom.appendChild(el2, el3);
           var el3 = dom.createElement("div");
           dom.setAttribute(el3, "class", "form-group");
-          var el4 = dom.createTextNode("\n        ");
+          var el4 = dom.createTextNode("\n          ");
           dom.appendChild(el3, el4);
           var el4 = dom.createElement("select");
           dom.setAttribute(el4, "class", "form-control");
@@ -27562,23 +27676,23 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
           dom.appendChild(el4, el5);
           var el5 = dom.createComment("");
           dom.appendChild(el4, el5);
-          var el5 = dom.createTextNode("        ");
+          var el5 = dom.createTextNode("          ");
           dom.appendChild(el4, el5);
           dom.appendChild(el3, el4);
-          var el4 = dom.createTextNode("\n      ");
+          var el4 = dom.createTextNode("\n        ");
           dom.appendChild(el3, el4);
           dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode("\n\n      ");
+          var el3 = dom.createTextNode("\n        ");
           dom.appendChild(el2, el3);
           var el3 = dom.createElement("span");
           dom.setAttribute(el3, "class", "remove-field label label-danger");
-          var el4 = dom.createTextNode("\n        remove\n      ");
+          var el4 = dom.createTextNode("\n          remove\n        ");
           dom.appendChild(el3, el4);
           dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode("\n    ");
+          var el3 = dom.createTextNode("\n      ");
           dom.appendChild(el2, el3);
           dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n  ");
+          var el2 = dom.createTextNode("\n    ");
           dom.appendChild(el1, el2);
           dom.appendChild(el0, el1);
           var el1 = dom.createTextNode("\n");
@@ -27586,19 +27700,454 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
           return el0;
         },
         buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element2 = dom.childAt(fragment, [1, 3]);
-          var element3 = dom.childAt(element2, [3, 1]);
-          var element4 = dom.childAt(element2, [5]);
+          var element12 = dom.childAt(fragment, [1, 1]);
+          var element13 = dom.childAt(element12, [3, 1]);
+          var element14 = dom.childAt(element12, [5]);
           var morphs = new Array(4);
-          morphs[0] = dom.createMorphAt(dom.childAt(element2, [1]), 1, 1);
-          morphs[1] = dom.createAttrMorph(element3, 'onchange');
-          morphs[2] = dom.createMorphAt(element3, 1, 1);
-          morphs[3] = dom.createElementMorph(element4);
+          morphs[0] = dom.createMorphAt(dom.childAt(element12, [1]), 1, 1);
+          morphs[1] = dom.createAttrMorph(element13, 'onchange');
+          morphs[2] = dom.createMorphAt(element13, 1, 1);
+          morphs[3] = dom.createElementMorph(element14);
           return morphs;
         },
-        statements: [["inline", "input", [], ["class", "form-control", "value", ["subexpr", "mut", [["get", "field.name", ["loc", [null, [58, 21], [58, 31]]]]], [], ["loc", [null, [58, 16], [58, 32]]]], "placeholder", "name"], ["loc", [null, [56, 8], [59, 30]]]], ["attribute", "onchange", ["subexpr", "action", [["subexpr", "mut", [["get", "field.type", ["loc", [null, [63, 39], [63, 49]]]]], [], ["loc", [null, [63, 34], [63, 50]]]]], ["value", "target.value"], ["loc", [null, [63, 25], [63, 73]]]]], ["block", "each", [["get", "fieldTypes", ["loc", [null, [64, 18], [64, 28]]]]], [], 0, null, ["loc", [null, [64, 10], [66, 19]]]], ["element", "action", ["removeField", ["get", "index", ["loc", [null, [70, 75], [70, 80]]]]], [], ["loc", [null, [70, 52], [70, 82]]]]],
+        statements: [["inline", "input", [], ["class", "form-control", "value", ["subexpr", "mut", [["get", "field.name", ["loc", [null, [19, 23], [19, 33]]]]], [], ["loc", [null, [19, 18], [19, 34]]]], "placeholder", "name"], ["loc", [null, [17, 10], [20, 32]]]], ["attribute", "onchange", ["subexpr", "action", [["subexpr", "mut", [["get", "field.type", ["loc", [null, [23, 41], [23, 51]]]]], [], ["loc", [null, [23, 36], [23, 52]]]]], ["value", "target.value"], ["loc", [null, [23, 27], [23, 75]]]]], ["block", "each", [["get", "availableFieldTypes", ["loc", [null, [24, 20], [24, 39]]]]], [], 0, null, ["loc", [null, [24, 12], [26, 21]]]], ["element", "action", ["removeField", "tableField", ["get", "index", ["loc", [null, [29, 90], [29, 95]]]]], [], ["loc", [null, [29, 54], [29, 97]]]]],
         locals: ["field", "index"],
         templates: [child0]
+      };
+    })();
+    var child1 = (function () {
+      var child0 = (function () {
+        var child0 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.3.2",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 58,
+                  "column": 20
+                },
+                "end": {
+                  "line": 60,
+                  "column": 20
+                }
+              },
+              "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
+            },
+            isEmpty: false,
+            arity: 1,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("                      ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("option");
+              var el2 = dom.createComment("");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element5 = dom.childAt(fragment, [1]);
+              var morphs = new Array(3);
+              morphs[0] = dom.createAttrMorph(element5, 'value');
+              morphs[1] = dom.createAttrMorph(element5, 'selected');
+              morphs[2] = dom.createMorphAt(element5, 0, 0);
+              return morphs;
+            },
+            statements: [["attribute", "value", ["get", "option", ["loc", [null, [59, 38], [59, 44]]]]], ["attribute", "selected", ["subexpr", "eq", [["get", "option", ["loc", [null, [59, 61], [59, 67]]]], ["get", "quantum.name", ["loc", [null, [59, 68], [59, 80]]]]], [], ["loc", [null, [59, 56], [59, 82]]]]], ["content", "option", ["loc", [null, [59, 83], [59, 93]]]]],
+            locals: ["option"],
+            templates: []
+          };
+        })();
+        var child1 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.3.2",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 75,
+                  "column": 20
+                },
+                "end": {
+                  "line": 77,
+                  "column": 20
+                }
+              },
+              "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
+            },
+            isEmpty: false,
+            arity: 1,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("                      ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("option");
+              var el2 = dom.createComment("");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element4 = dom.childAt(fragment, [1]);
+              var morphs = new Array(3);
+              morphs[0] = dom.createAttrMorph(element4, 'value');
+              morphs[1] = dom.createAttrMorph(element4, 'selected');
+              morphs[2] = dom.createMorphAt(element4, 0, 0);
+              return morphs;
+            },
+            statements: [["attribute", "value", ["get", "unit", ["loc", [null, [76, 38], [76, 42]]]]], ["attribute", "selected", ["subexpr", "eq", [["get", "unit", ["loc", [null, [76, 59], [76, 63]]]], ["get", "quantum.unit", ["loc", [null, [76, 64], [76, 76]]]]], [], ["loc", [null, [76, 54], [76, 78]]]]], ["content", "unit", ["loc", [null, [76, 79], [76, 87]]]]],
+            locals: ["unit"],
+            templates: []
+          };
+        })();
+        return {
+          meta: {
+            "fragmentReason": false,
+            "revision": "Ember@2.3.2",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 50,
+                "column": 10
+              },
+              "end": {
+                "line": 84,
+                "column": 10
+              }
+            },
+            "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("\n\n            ");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createElement("div");
+            dom.setAttribute(el1, "class", "form-group quantum");
+            var el2 = dom.createTextNode("\n              ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("label");
+            var el3 = dom.createTextNode("Quantum (table field name, quantity, unit of time)");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n              ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("div");
+            dom.setAttribute(el2, "class", "form-inline");
+            var el3 = dom.createTextNode("\n                ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("div");
+            dom.setAttribute(el3, "class", "form-group field-name");
+            var el4 = dom.createTextNode("\n                  ");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createElement("select");
+            dom.setAttribute(el4, "class", "form-control");
+            var el5 = dom.createTextNode("\n");
+            dom.appendChild(el4, el5);
+            var el5 = dom.createComment("");
+            dom.appendChild(el4, el5);
+            var el5 = dom.createTextNode("                  ");
+            dom.appendChild(el4, el5);
+            dom.appendChild(el3, el4);
+            var el4 = dom.createTextNode("\n                ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n\n                ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("div");
+            dom.setAttribute(el3, "class", "form-group quantity");
+            var el4 = dom.createTextNode("\n                  ");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createComment("");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createTextNode("\n                ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n\n                ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("div");
+            dom.setAttribute(el3, "class", "form-group unit");
+            var el4 = dom.createTextNode("\n                  ");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createElement("select");
+            dom.setAttribute(el4, "class", "form-control");
+            var el5 = dom.createTextNode("\n");
+            dom.appendChild(el4, el5);
+            var el5 = dom.createComment("");
+            dom.appendChild(el4, el5);
+            var el5 = dom.createTextNode("                  ");
+            dom.appendChild(el4, el5);
+            dom.appendChild(el3, el4);
+            var el4 = dom.createTextNode("\n                ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n              ");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n            ");
+            dom.appendChild(el1, el2);
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n\n\n");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+            var element6 = dom.childAt(fragment, [1, 3]);
+            var element7 = dom.childAt(element6, [1, 1]);
+            var element8 = dom.childAt(element6, [5, 1]);
+            var morphs = new Array(5);
+            morphs[0] = dom.createAttrMorph(element7, 'onchange');
+            morphs[1] = dom.createMorphAt(element7, 1, 1);
+            morphs[2] = dom.createMorphAt(dom.childAt(element6, [3]), 1, 1);
+            morphs[3] = dom.createAttrMorph(element8, 'onchange');
+            morphs[4] = dom.createMorphAt(element8, 1, 1);
+            return morphs;
+          },
+          statements: [["attribute", "onchange", ["subexpr", "action", [["subexpr", "mut", [["get", "quantum.name", ["loc", [null, [57, 49], [57, 61]]]]], [], ["loc", [null, [57, 44], [57, 62]]]]], ["value", "target.value"], ["loc", [null, [57, 35], [57, 85]]]]], ["block", "each", [["get", "table.possiblePartitionKeyQuantum", ["loc", [null, [58, 28], [58, 61]]]]], [], 0, null, ["loc", [null, [58, 20], [60, 29]]]], ["inline", "input", [], ["class", "form-control", "type", "number", "min", "1", "placeholder", "1", "value", ["subexpr", "mut", [["get", "quantum.quantity", ["loc", [null, [70, 29], [70, 45]]]]], [], ["loc", [null, [70, 24], [70, 46]]]]], ["loc", [null, [65, 18], [70, 48]]]], ["attribute", "onchange", ["subexpr", "action", [["subexpr", "mut", [["get", "quantum.unit", ["loc", [null, [74, 49], [74, 61]]]]], [], ["loc", [null, [74, 44], [74, 62]]]]], ["value", "target.value"], ["loc", [null, [74, 35], [74, 85]]]]], ["block", "each", [["get", "availableTimeUnits", ["loc", [null, [75, 28], [75, 46]]]]], [], 1, null, ["loc", [null, [75, 20], [77, 29]]]]],
+          locals: [],
+          templates: [child0, child1]
+        };
+      })();
+      var child1 = (function () {
+        var child0 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.3.2",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 87,
+                  "column": 16
+                },
+                "end": {
+                  "line": 89,
+                  "column": 16
+                }
+              },
+              "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
+            },
+            isEmpty: false,
+            arity: 1,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("                  ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("option");
+              var el2 = dom.createComment("");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element2 = dom.childAt(fragment, [1]);
+              var morphs = new Array(3);
+              morphs[0] = dom.createAttrMorph(element2, 'value');
+              morphs[1] = dom.createAttrMorph(element2, 'selected');
+              morphs[2] = dom.createMorphAt(element2, 0, 0);
+              return morphs;
+            },
+            statements: [["attribute", "value", ["get", "option", ["loc", [null, [88, 34], [88, 40]]]]], ["attribute", "selected", ["subexpr", "eq", [["get", "option", ["loc", [null, [88, 57], [88, 63]]]], ["get", "field.name", ["loc", [null, [88, 64], [88, 74]]]]], [], ["loc", [null, [88, 52], [88, 76]]]]], ["content", "option", ["loc", [null, [88, 77], [88, 87]]]]],
+            locals: ["option"],
+            templates: []
+          };
+        })();
+        return {
+          meta: {
+            "fragmentReason": false,
+            "revision": "Ember@2.3.2",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 84,
+                "column": 10
+              },
+              "end": {
+                "line": 92,
+                "column": 10
+              }
+            },
+            "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("            ");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createElement("div");
+            dom.setAttribute(el1, "class", "form-group partition-key-field");
+            var el2 = dom.createTextNode("\n              ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("select");
+            dom.setAttribute(el2, "class", "form-control");
+            var el3 = dom.createTextNode("\n");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createComment("");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("              ");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n            ");
+            dom.appendChild(el1, el2);
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+            var element3 = dom.childAt(fragment, [1, 1]);
+            var morphs = new Array(2);
+            morphs[0] = dom.createAttrMorph(element3, 'onchange');
+            morphs[1] = dom.createMorphAt(element3, 1, 1);
+            return morphs;
+          },
+          statements: [["attribute", "onchange", ["subexpr", "action", [["subexpr", "mut", [["get", "field.name", ["loc", [null, [86, 45], [86, 55]]]]], [], ["loc", [null, [86, 40], [86, 56]]]]], ["value", "target.value"], ["loc", [null, [86, 31], [86, 79]]]]], ["block", "each", [["get", "table.possiblePartitionKeys", ["loc", [null, [87, 24], [87, 51]]]]], [], 0, null, ["loc", [null, [87, 16], [89, 25]]]]],
+          locals: [],
+          templates: [child0]
+        };
+      })();
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.3.2",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 47,
+              "column": 4
+            },
+            "end": {
+              "line": 99,
+              "column": 4
+            }
+          },
+          "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
+        },
+        isEmpty: false,
+        arity: 2,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("      ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("div");
+          dom.setAttribute(el1, "class", "form-group table-field");
+          var el2 = dom.createTextNode("\n        ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("div");
+          dom.setAttribute(el2, "class", "form-inline");
+          var el3 = dom.createTextNode("\n");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createComment("");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n          ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("span");
+          dom.setAttribute(el3, "class", "remove-field label label-danger");
+          var el4 = dom.createTextNode("\n            remove\n          ");
+          dom.appendChild(el3, el4);
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n        ");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n      ");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element9 = dom.childAt(fragment, [1, 1]);
+          var element10 = dom.childAt(element9, [3]);
+          var morphs = new Array(2);
+          morphs[0] = dom.createMorphAt(element9, 1, 1);
+          morphs[1] = dom.createElementMorph(element10);
+          return morphs;
+        },
+        statements: [["block", "if", [["get", "field.quantum", ["loc", [null, [50, 16], [50, 29]]]]], [], 0, 1, ["loc", [null, [50, 10], [92, 17]]]], ["element", "action", ["removeField", "partitionKey", ["get", "index", ["loc", [null, [94, 94], [94, 99]]]]], [], ["loc", [null, [94, 56], [94, 101]]]]],
+        locals: ["field", "index"],
+        templates: [child0, child1]
+      };
+    })();
+    var child2 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.3.2",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 101,
+              "column": 4
+            },
+            "end": {
+              "line": 108,
+              "column": 4
+            }
+          },
+          "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("      ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("div");
+          dom.setAttribute(el1, "class", "form-group add-field");
+          var el2 = dom.createTextNode("\n        ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("span");
+          var el3 = dom.createTextNode("\n          ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("span");
+          dom.setAttribute(el3, "class", "ion-plus-circled");
+          dom.setAttribute(el3, "aria-hidden", "true");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n          Add partition key field\n        ");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n      ");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element1 = dom.childAt(fragment, [1, 1]);
+          var morphs = new Array(1);
+          morphs[0] = dom.createElementMorph(element1);
+          return morphs;
+        },
+        statements: [["element", "action", ["addField", "partitionKeyField"], [], ["loc", [null, [103, 14], [103, 55]]]]],
+        locals: [],
+        templates: []
       };
     })();
     var child3 = (function () {
@@ -27609,26 +28158,39 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
           "loc": {
             "source": null,
             "start": {
-              "line": 105,
-              "column": 8
+              "line": 110,
+              "column": 4
             },
             "end": {
-              "line": 107,
-              "column": 8
+              "line": 117,
+              "column": 4
             }
           },
           "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
         },
         isEmpty: false,
-        arity: 1,
+        arity: 0,
         cachedFragment: null,
         hasRendered: false,
         buildFragment: function buildFragment(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("          ");
+          var el1 = dom.createTextNode("      ");
           dom.appendChild(el0, el1);
-          var el1 = dom.createElement("option");
-          var el2 = dom.createComment("");
+          var el1 = dom.createElement("div");
+          dom.setAttribute(el1, "class", "form-group add-field");
+          var el2 = dom.createTextNode("\n        ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("span");
+          var el3 = dom.createTextNode("\n          ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("span");
+          dom.setAttribute(el3, "class", "ion-plus-circled");
+          dom.setAttribute(el3, "aria-hidden", "true");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n          Add partition key quanta\n        ");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n      ");
           dom.appendChild(el1, el2);
           dom.appendChild(el0, el1);
           var el1 = dom.createTextNode("\n");
@@ -27636,375 +28198,13 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
           return el0;
         },
         buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(3);
-          morphs[0] = dom.createAttrMorph(element0, 'value');
-          morphs[1] = dom.createAttrMorph(element0, 'selected');
-          morphs[2] = dom.createMorphAt(element0, 0, 0);
-          return morphs;
-        },
-        statements: [["attribute", "value", ["get", "unit", ["loc", [null, [106, 26], [106, 30]]]]], ["attribute", "selected", ["subexpr", "eq", [["get", "quantum.unit", ["loc", [null, [106, 47], [106, 59]]]], ["get", "unit", ["loc", [null, [106, 60], [106, 64]]]]], [], ["loc", [null, [106, 42], [106, 66]]]]], ["content", "unit", ["loc", [null, [106, 67], [106, 75]]]]],
-        locals: ["unit"],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["multiple-nodes", "wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 117,
-            "column": 6
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "form-group table-name");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("label");
-        var el3 = dom.createTextNode("Table Name");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "form-group family");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("label");
-        var el3 = dom.createTextNode("Partition Key Field One (name, type)");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "form-inline");
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "class", "form-group");
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createComment("");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "class", "form-group");
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("select");
-        dom.setAttribute(el4, "class", "form-control");
-        var el5 = dom.createTextNode("\n");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createComment("");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("      ");
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n  ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "form-group series");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("label");
-        var el3 = dom.createTextNode("Partition Key Field Two (name, type)");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "form-inline");
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "class", "form-group");
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createComment("");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "class", "form-group");
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("select");
-        dom.setAttribute(el4, "class", "form-control");
-        var el5 = dom.createTextNode("\n");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createComment("");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("      ");
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n  ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "form-group add-field");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("span");
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("span");
-        dom.setAttribute(el3, "class", "ion-plus-circled");
-        dom.setAttribute(el3, "aria-hidden", "true");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n    Add another table field\n  ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "form-group quantum");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("label");
-        var el3 = dom.createTextNode("Quantum (table field name, quantity, unit of time)");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "form-inline");
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "class", "form-group field-name");
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createComment("");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "class", "form-group quantity");
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createComment("");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "class", "form-group unit");
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("select");
-        dom.setAttribute(el4, "class", "form-control");
-        var el5 = dom.createTextNode("\n");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createComment("");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("      ");
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n  ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "form-group create-button");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("button");
-        dom.setAttribute(el2, "class", "btn btn-primary");
-        var el3 = dom.createTextNode("\n    Create Table\n  ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element7 = dom.childAt(fragment, [2, 3]);
-        var element8 = dom.childAt(element7, [3, 1]);
-        var element9 = dom.childAt(fragment, [4, 3]);
-        var element10 = dom.childAt(element9, [3, 1]);
-        var element11 = dom.childAt(fragment, [8, 1]);
-        var element12 = dom.childAt(fragment, [10, 3]);
-        var element13 = dom.childAt(element12, [5, 1]);
-        var morphs = new Array(13);
-        morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 3, 3);
-        morphs[1] = dom.createMorphAt(dom.childAt(element7, [1]), 1, 1);
-        morphs[2] = dom.createAttrMorph(element8, 'onchange');
-        morphs[3] = dom.createMorphAt(element8, 1, 1);
-        morphs[4] = dom.createMorphAt(dom.childAt(element9, [1]), 1, 1);
-        morphs[5] = dom.createAttrMorph(element10, 'onchange');
-        morphs[6] = dom.createMorphAt(element10, 1, 1);
-        morphs[7] = dom.createMorphAt(fragment, 6, 6, contextualElement);
-        morphs[8] = dom.createElementMorph(element11);
-        morphs[9] = dom.createMorphAt(dom.childAt(element12, [1]), 1, 1);
-        morphs[10] = dom.createMorphAt(dom.childAt(element12, [3]), 1, 1);
-        morphs[11] = dom.createAttrMorph(element13, 'onchange');
-        morphs[12] = dom.createMorphAt(element13, 1, 1);
-        return morphs;
-      },
-      statements: [["inline", "input", [], ["class", "form-control", "value", ["subexpr", "mut", [["get", "name", ["loc", [null, [5, 15], [5, 19]]]]], [], ["loc", [null, [5, 10], [5, 20]]]]], ["loc", [null, [3, 2], [5, 22]]]], ["inline", "input", [], ["class", "form-control", "value", ["subexpr", "mut", [["get", "family.name", ["loc", [null, [15, 19], [15, 30]]]]], [], ["loc", [null, [15, 14], [15, 31]]]], "placeholder", "name"], ["loc", [null, [13, 6], [16, 28]]]], ["attribute", "onchange", ["subexpr", "action", [["subexpr", "mut", [["get", "family.type", ["loc", [null, [20, 37], [20, 48]]]]], [], ["loc", [null, [20, 32], [20, 49]]]]], ["value", "target.value"], ["loc", [null, [20, 23], [20, 72]]]]], ["block", "each", [["get", "fieldTypes", ["loc", [null, [21, 16], [21, 26]]]]], [], 0, null, ["loc", [null, [21, 8], [23, 17]]]], ["inline", "input", [], ["class", "form-control inline-input", "value", ["subexpr", "mut", [["get", "series.name", ["loc", [null, [36, 19], [36, 30]]]]], [], ["loc", [null, [36, 14], [36, 31]]]], "placeholder", "name"], ["loc", [null, [34, 6], [37, 28]]]], ["attribute", "onchange", ["subexpr", "action", [["subexpr", "mut", [["get", "series.type", ["loc", [null, [41, 37], [41, 48]]]]], [], ["loc", [null, [41, 32], [41, 49]]]]], ["value", "target.value"], ["loc", [null, [41, 23], [41, 72]]]]], ["block", "each", [["get", "fieldTypes", ["loc", [null, [42, 16], [42, 26]]]]], [], 1, null, ["loc", [null, [42, 8], [44, 17]]]], ["block", "each", [["get", "fields", ["loc", [null, [50, 8], [50, 14]]]]], [], 2, null, ["loc", [null, [50, 0], [75, 9]]]], ["element", "action", ["addNewField"], [], ["loc", [null, [78, 8], [78, 32]]]], ["inline", "input", [], ["class", "form-control", "placeholder", "field name", "value", ["subexpr", "mut", [["get", "quantum.fieldName", ["loc", [null, [91, 19], [91, 36]]]]], [], ["loc", [null, [91, 14], [91, 37]]]]], ["loc", [null, [88, 6], [91, 39]]]], ["inline", "input", [], ["class", "form-control", "type", "number", "min", "1", "placeholder", "1", "value", ["subexpr", "mut", [["get", "quantum.quantity", ["loc", [null, [100, 19], [100, 35]]]]], [], ["loc", [null, [100, 14], [100, 36]]]]], ["loc", [null, [95, 6], [100, 38]]]], ["attribute", "onchange", ["subexpr", "action", [["subexpr", "mut", [["get", "quantum.unit", ["loc", [null, [104, 37], [104, 49]]]]], [], ["loc", [null, [104, 32], [104, 50]]]]], ["value", "target.value"], ["loc", [null, [104, 23], [104, 73]]]]], ["block", "each", [["get", "timeUnits", ["loc", [null, [105, 16], [105, 25]]]]], [], 3, null, ["loc", [null, [105, 8], [107, 17]]]]],
-      locals: [],
-      templates: [child0, child1, child2, child3]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form/table/insert-data", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 8,
-              "column": 34
-            },
-            "end": {
-              "line": 8,
-              "column": 104
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form/table/insert-data.hbs"
-        },
-        isEmpty: false,
-        arity: 1,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createElement("span");
-          dom.setAttribute(el1, "class", "item");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element0 = dom.childAt(fragment, [1, 1]);
           var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 0, 0);
+          morphs[0] = dom.createElementMorph(element0);
           return morphs;
         },
-        statements: [["content", "key", ["loc", [null, [8, 90], [8, 97]]]]],
-        locals: ["key"],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 14,
-              "column": 34
-            },
-            "end": {
-              "line": 14,
-              "column": 121
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form/table/insert-data.hbs"
-        },
-        isEmpty: false,
-        arity: 2,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createElement("span");
-          dom.setAttribute(el1, "class", "item");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("(");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode(")");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [0]);
-          var morphs = new Array(2);
-          morphs[0] = dom.createMorphAt(element0, 0, 0);
-          morphs[1] = dom.createMorphAt(element0, 2, 2);
-          return morphs;
-        },
-        statements: [["content", "key", ["loc", [null, [14, 92], [14, 99]]]], ["content", "prop.type", ["loc", [null, [14, 100], [14, 113]]]]],
-        locals: ["key", "prop"],
+        statements: [["element", "action", ["addField", "partitionKeyQuantum"], [], ["loc", [null, [112, 14], [112, 57]]]]],
+        locals: [],
         templates: []
       };
     })();
@@ -28022,7 +28222,162 @@ define("ember-riak-explorer/templates/components/form/table/insert-data", ["expo
             "column": 0
           },
           "end": {
-            "line": 37,
+            "line": 149,
+            "column": 6
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/components/form/table/create-table.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("section");
+        dom.setAttribute(el1, "class", "form-section table-name");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "form-group");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("label");
+        var el4 = dom.createTextNode("Table Name");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("section");
+        dom.setAttribute(el1, "class", "form-section table-fields");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("label");
+        var el3 = dom.createTextNode("Fields (name, type)");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "form-group add-field");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("span");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("span");
+        dom.setAttribute(el4, "class", "ion-plus-circled");
+        dom.setAttribute(el4, "aria-hidden", "true");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      Add table field\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("section");
+        dom.setAttribute(el1, "class", "form-section partition-key");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("label");
+        var el3 = dom.createTextNode("Partition Key");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "form-group");
+        var el3 = dom.createTextNode("\n");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "form-group create-button");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("button");
+        dom.setAttribute(el2, "class", "btn btn-primary");
+        var el3 = dom.createTextNode("Create Table");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element15 = dom.childAt(fragment, [2]);
+        var element16 = dom.childAt(element15, [5, 1]);
+        var element17 = dom.childAt(fragment, [4, 3]);
+        var morphs = new Array(6);
+        morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0, 1]), 3, 3);
+        morphs[1] = dom.createMorphAt(element15, 3, 3);
+        morphs[2] = dom.createElementMorph(element16);
+        morphs[3] = dom.createMorphAt(element17, 1, 1);
+        morphs[4] = dom.createMorphAt(element17, 3, 3);
+        morphs[5] = dom.createMorphAt(element17, 5, 5);
+        return morphs;
+      },
+      statements: [["inline", "input", [], ["class", "form-control", "value", ["subexpr", "mut", [["get", "table.name", ["loc", [null, [6, 17], [6, 27]]]]], [], ["loc", [null, [6, 12], [6, 28]]]]], ["loc", [null, [4, 4], [6, 30]]]], ["block", "each", [["get", "table.fields", ["loc", [null, [13, 10], [13, 22]]]]], [], 0, null, ["loc", [null, [13, 2], [34, 11]]]], ["element", "action", ["addField", "tableField"], [], ["loc", [null, [37, 10], [37, 44]]]], ["block", "each", [["get", "table.partitionKey", ["loc", [null, [47, 12], [47, 30]]]]], [], 1, null, ["loc", [null, [47, 4], [99, 13]]]], ["block", "if", [["get", "table.suggestedPartitionKey", ["loc", [null, [101, 10], [101, 37]]]]], [], 2, null, ["loc", [null, [101, 4], [108, 11]]]], ["block", "if", [["get", "table.possiblePartitionKeyQuantum", ["loc", [null, [110, 10], [110, 43]]]]], [], 3, null, ["loc", [null, [110, 4], [117, 11]]]]],
+      locals: [],
+      templates: [child0, child1, child2, child3]
+    };
+  })());
+});
+define("ember-riak-explorer/templates/components/form/table/insert-data", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.3.2",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 22,
             "column": 10
           }
         },
@@ -28045,78 +28400,7 @@ define("ember-riak-explorer/templates/components/form/table/insert-data", ["expo
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n  ");
         dom.appendChild(el1, el2);
-        var el2 = dom.createElement("table");
-        dom.setAttribute(el2, "class", "key-value-table");
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("tbody");
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("tr");
-        var el5 = dom.createTextNode("\n      ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("td");
-        dom.setAttribute(el5, "class", "key");
-        var el6 = dom.createTextNode("Primary Key");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n      ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("td");
-        dom.setAttribute(el5, "class", "value");
-        var el6 = dom.createTextNode("\n        ");
-        dom.appendChild(el5, el6);
-        var el6 = dom.createElement("code");
-        dom.setAttribute(el6, "class", "comma-list");
-        var el7 = dom.createTextNode("[");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createComment("");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createTextNode("]");
-        dom.appendChild(el6, el7);
-        dom.appendChild(el5, el6);
-        var el6 = dom.createTextNode("\n      ");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n    ");
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("tr");
-        var el5 = dom.createTextNode("\n      ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("td");
-        dom.setAttribute(el5, "class", "key");
-        var el6 = dom.createTextNode("Table Fields");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n      ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("td");
-        dom.setAttribute(el5, "class", "value");
-        var el6 = dom.createTextNode("\n        ");
-        dom.appendChild(el5, el6);
-        var el6 = dom.createElement("code");
-        dom.setAttribute(el6, "class", "comma-list");
-        var el7 = dom.createTextNode("[");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createComment("");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createTextNode("]");
-        dom.appendChild(el6, el7);
-        dom.appendChild(el5, el6);
-        var el6 = dom.createTextNode("\n      ");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n    ");
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n  ");
-        dom.appendChild(el2, el3);
+        var el2 = dom.createComment("");
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
@@ -28174,19 +28458,17 @@ define("ember-riak-explorer/templates/components/form/table/insert-data", ["expo
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element1 = dom.childAt(fragment, [0, 3, 1]);
-        var element2 = dom.childAt(fragment, [2]);
-        var element3 = dom.childAt(element2, [5]);
-        var morphs = new Array(4);
-        morphs[0] = dom.createMorphAt(dom.childAt(element1, [1, 3, 1]), 1, 1);
-        morphs[1] = dom.createMorphAt(dom.childAt(element1, [3, 3, 1]), 1, 1);
-        morphs[2] = dom.createMorphAt(dom.childAt(element2, [3]), 3, 3);
-        morphs[3] = dom.createAttrMorph(element3, 'disabled');
+        var element0 = dom.childAt(fragment, [2]);
+        var element1 = dom.childAt(element0, [5]);
+        var morphs = new Array(3);
+        morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 3, 3);
+        morphs[1] = dom.createMorphAt(dom.childAt(element0, [3]), 3, 3);
+        morphs[2] = dom.createAttrMorph(element1, 'disabled');
         return morphs;
       },
-      statements: [["block", "each", [["get", "table.partitionKey", ["loc", [null, [8, 42], [8, 60]]]]], [], 0, null, ["loc", [null, [8, 34], [8, 113]]]], ["block", "each-in", [["get", "table.fields", ["loc", [null, [14, 45], [14, 57]]]]], [], 1, null, ["loc", [null, [14, 34], [14, 133]]]], ["inline", "textarea", [], ["value", ["subexpr", "mut", [["get", "rowsString", ["loc", [null, [29, 15], [29, 25]]]]], [], ["loc", [null, [29, 10], [29, 26]]]], "class", "form-control", "rows", "4"], ["loc", [null, [28, 4], [31, 14]]]], ["attribute", "disabled", ["get", "isDisabled", ["loc", [null, [34, 59], [34, 69]]]]]],
+      statements: [["inline", "table.ts-table-reference", [], ["table", ["subexpr", "@mut", [["get", "table", ["loc", [null, [3, 35], [3, 40]]]]], [], []]], ["loc", [null, [3, 2], [3, 42]]]], ["inline", "textarea", [], ["value", ["subexpr", "mut", [["get", "rowsString", ["loc", [null, [14, 17], [14, 27]]]]], [], ["loc", [null, [14, 12], [14, 28]]]], "class", "form-control", "rows", "4"], ["loc", [null, [13, 4], [16, 16]]]], ["attribute", "disabled", ["get", "isDisabled", ["loc", [null, [19, 59], [19, 69]]]]]],
       locals: [],
-      templates: [child0, child1]
+      templates: []
     };
   })());
 });
@@ -28200,101 +28482,11 @@ define("ember-riak-explorer/templates/components/form/table/query-table", ["expo
           "loc": {
             "source": null,
             "start": {
-              "line": 8,
-              "column": 34
-            },
-            "end": {
-              "line": 8,
-              "column": 104
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form/table/query-table.hbs"
-        },
-        isEmpty: false,
-        arity: 1,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createElement("span");
-          dom.setAttribute(el1, "class", "item");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 0, 0);
-          return morphs;
-        },
-        statements: [["content", "key", ["loc", [null, [8, 90], [8, 97]]]]],
-        locals: ["key"],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 14,
-              "column": 34
-            },
-            "end": {
-              "line": 14,
-              "column": 121
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form/table/query-table.hbs"
-        },
-        isEmpty: false,
-        arity: 2,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createElement("span");
-          dom.setAttribute(el1, "class", "item");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("(");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode(")");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element1 = dom.childAt(fragment, [0]);
-          var morphs = new Array(2);
-          morphs[0] = dom.createMorphAt(element1, 0, 0);
-          morphs[1] = dom.createMorphAt(element1, 2, 2);
-          return morphs;
-        },
-        statements: [["content", "key", ["loc", [null, [14, 92], [14, 99]]]], ["content", "prop.type", ["loc", [null, [14, 100], [14, 113]]]]],
-        locals: ["key", "prop"],
-        templates: []
-      };
-    })();
-    var child2 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 47,
+              "line": 32,
               "column": 8
             },
             "end": {
-              "line": 49,
+              "line": 34,
               "column": 8
             }
           },
@@ -28325,12 +28517,12 @@ define("ember-riak-explorer/templates/components/form/table/query-table", ["expo
           morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 1, 1);
           return morphs;
         },
-        statements: [["content", "queryResultLength", ["loc", [null, [48, 18], [48, 39]]]]],
+        statements: [["content", "queryResultLength", ["loc", [null, [33, 18], [33, 39]]]]],
         locals: [],
         templates: []
       };
     })();
-    var child3 = (function () {
+    var child1 = (function () {
       return {
         meta: {
           "fragmentReason": false,
@@ -28338,11 +28530,11 @@ define("ember-riak-explorer/templates/components/form/table/query-table", ["expo
           "loc": {
             "source": null,
             "start": {
-              "line": 52,
+              "line": 37,
               "column": 6
             },
             "end": {
-              "line": 54,
+              "line": 39,
               "column": 6
             }
           },
@@ -28371,7 +28563,7 @@ define("ember-riak-explorer/templates/components/form/table/query-table", ["expo
           morphs[0] = dom.createElementMorph(element0);
           return morphs;
         },
-        statements: [["element", "action", ["clear"], [], ["loc", [null, [53, 38], [53, 56]]]]],
+        statements: [["element", "action", ["clear"], [], ["loc", [null, [38, 38], [38, 56]]]]],
         locals: [],
         templates: []
       };
@@ -28390,7 +28582,7 @@ define("ember-riak-explorer/templates/components/form/table/query-table", ["expo
             "column": 0
           },
           "end": {
-            "line": 69,
+            "line": 54,
             "column": 0
           }
         },
@@ -28413,78 +28605,7 @@ define("ember-riak-explorer/templates/components/form/table/query-table", ["expo
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n  ");
         dom.appendChild(el1, el2);
-        var el2 = dom.createElement("table");
-        dom.setAttribute(el2, "class", "key-value-table");
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("tbody");
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("tr");
-        var el5 = dom.createTextNode("\n      ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("td");
-        dom.setAttribute(el5, "class", "key");
-        var el6 = dom.createTextNode("Primary Key");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n      ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("td");
-        dom.setAttribute(el5, "class", "value");
-        var el6 = dom.createTextNode("\n        ");
-        dom.appendChild(el5, el6);
-        var el6 = dom.createElement("code");
-        dom.setAttribute(el6, "class", "comma-list");
-        var el7 = dom.createTextNode("[");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createComment("");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createTextNode("]");
-        dom.appendChild(el6, el7);
-        dom.appendChild(el5, el6);
-        var el6 = dom.createTextNode("\n      ");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n    ");
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("tr");
-        var el5 = dom.createTextNode("\n      ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("td");
-        dom.setAttribute(el5, "class", "key");
-        var el6 = dom.createTextNode("Table Fields");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n      ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("td");
-        dom.setAttribute(el5, "class", "value");
-        var el6 = dom.createTextNode("\n        ");
-        dom.appendChild(el5, el6);
-        var el6 = dom.createElement("code");
-        dom.setAttribute(el6, "class", "comma-list");
-        var el7 = dom.createTextNode("[");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createComment("");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createTextNode("]");
-        dom.appendChild(el6, el7);
-        dom.appendChild(el5, el6);
-        var el6 = dom.createTextNode("\n      ");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n    ");
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n  ");
-        dom.appendChild(el2, el3);
+        var el2 = dom.createComment("");
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
@@ -28602,25 +28723,23 @@ define("ember-riak-explorer/templates/components/form/table/query-table", ["expo
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element2 = dom.childAt(fragment, [0, 3, 1]);
-        var element3 = dom.childAt(fragment, [2, 3]);
-        var element4 = dom.childAt(element3, [1, 1]);
-        var element5 = dom.childAt(element4, [3]);
-        var element6 = dom.childAt(element3, [3]);
-        var morphs = new Array(8);
-        morphs[0] = dom.createMorphAt(dom.childAt(element2, [1, 3, 1]), 1, 1);
-        morphs[1] = dom.createMorphAt(dom.childAt(element2, [3, 3, 1]), 1, 1);
-        morphs[2] = dom.createAttrMorph(element5, 'disabled');
-        morphs[3] = dom.createMorphAt(element4, 5, 5);
-        morphs[4] = dom.createMorphAt(dom.childAt(element4, [7, 1, 3]), 0, 0);
-        morphs[5] = dom.createMorphAt(dom.childAt(element6, [1]), 1, 1);
-        morphs[6] = dom.createMorphAt(element6, 3, 3);
-        morphs[7] = dom.createMorphAt(dom.childAt(element6, [5]), 1, 1);
+        var element1 = dom.childAt(fragment, [2, 3]);
+        var element2 = dom.childAt(element1, [1, 1]);
+        var element3 = dom.childAt(element2, [3]);
+        var element4 = dom.childAt(element1, [3]);
+        var morphs = new Array(7);
+        morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 3, 3);
+        morphs[1] = dom.createAttrMorph(element3, 'disabled');
+        morphs[2] = dom.createMorphAt(element2, 5, 5);
+        morphs[3] = dom.createMorphAt(dom.childAt(element2, [7, 1, 3]), 0, 0);
+        morphs[4] = dom.createMorphAt(dom.childAt(element4, [1]), 1, 1);
+        morphs[5] = dom.createMorphAt(element4, 3, 3);
+        morphs[6] = dom.createMorphAt(dom.childAt(element4, [5]), 1, 1);
         return morphs;
       },
-      statements: [["block", "each", [["get", "table.partitionKey", ["loc", [null, [8, 42], [8, 60]]]]], [], 0, null, ["loc", [null, [8, 34], [8, 113]]]], ["block", "each-in", [["get", "table.fields", ["loc", [null, [14, 45], [14, 57]]]]], [], 1, null, ["loc", [null, [14, 34], [14, 133]]]], ["attribute", "disabled", ["get", "isDisabled", ["loc", [null, [27, 72], [27, 82]]]]], ["inline", "textarea", [], ["value", ["subexpr", "mut", [["get", "queryString", ["loc", [null, [32, 19], [32, 30]]]]], [], ["loc", [null, [32, 14], [32, 31]]]], "class", "form-control", "rows", "4"], ["loc", [null, [31, 8], [34, 18]]]], ["content", "example", ["loc", [null, [38, 16], [38, 27]]]], ["block", "if", [["get", "queryResultLength", ["loc", [null, [47, 14], [47, 31]]]]], [], 2, null, ["loc", [null, [47, 8], [49, 15]]]], ["block", "if", [["get", "showClear", ["loc", [null, [52, 12], [52, 21]]]]], [], 3, null, ["loc", [null, [52, 6], [54, 13]]]], ["inline", "code-highlighter", [], ["lang", "js", "code", ["subexpr", "@mut", [["get", "queryResult", ["loc", [null, [59, 15], [59, 26]]]]], [], []]], ["loc", [null, [57, 8], [59, 28]]]]],
+      statements: [["inline", "table.ts-table-reference", [], ["table", ["subexpr", "@mut", [["get", "table", ["loc", [null, [3, 35], [3, 40]]]]], [], []]], ["loc", [null, [3, 2], [3, 42]]]], ["attribute", "disabled", ["get", "isDisabled", ["loc", [null, [12, 72], [12, 82]]]]], ["inline", "textarea", [], ["value", ["subexpr", "mut", [["get", "queryString", ["loc", [null, [17, 19], [17, 30]]]]], [], ["loc", [null, [17, 14], [17, 31]]]], "class", "form-control", "rows", "4"], ["loc", [null, [16, 8], [19, 18]]]], ["content", "example", ["loc", [null, [23, 16], [23, 27]]]], ["block", "if", [["get", "queryResultLength", ["loc", [null, [32, 14], [32, 31]]]]], [], 0, null, ["loc", [null, [32, 8], [34, 15]]]], ["block", "if", [["get", "showClear", ["loc", [null, [37, 12], [37, 21]]]]], [], 1, null, ["loc", [null, [37, 6], [39, 13]]]], ["inline", "code-highlighter", [], ["lang", "js", "code", ["subexpr", "@mut", [["get", "queryResult", ["loc", [null, [44, 15], [44, 26]]]]], [], []]], ["loc", [null, [42, 8], [44, 28]]]]],
       locals: [],
-      templates: [child0, child1, child2, child3]
+      templates: [child0, child1]
     };
   })());
 });
@@ -33803,7 +33922,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
             },
             "end": {
               "line": 20,
-              "column": 100
+              "column": 105
             }
           },
           "moduleName": "ember-riak-explorer/templates/components/table/table-overview.hbs"
@@ -33826,7 +33945,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
           morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 0, 0);
           return morphs;
         },
-        statements: [["content", "key", ["loc", [null, [20, 86], [20, 93]]]]],
+        statements: [["content", "key.name", ["loc", [null, [20, 86], [20, 98]]]]],
         locals: ["key"],
         templates: []
       };
@@ -33880,18 +33999,18 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
           "loc": {
             "source": null,
             "start": {
-              "line": 49,
+              "line": 44,
               "column": 6
             },
             "end": {
-              "line": 56,
+              "line": 51,
               "column": 6
             }
           },
           "moduleName": "ember-riak-explorer/templates/components/table/table-overview.hbs"
         },
         isEmpty: false,
-        arity: 2,
+        arity: 1,
         cachedFragment: null,
         hasRendered: false,
         buildFragment: function buildFragment(dom) {
@@ -33947,8 +34066,8 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
           morphs[3] = dom.createMorphAt(dom.childAt(element0, [7, 0]), 0, 0);
           return morphs;
         },
-        statements: [["content", "name", ["loc", [null, [51, 20], [51, 28]]]], ["content", "prop.type", ["loc", [null, [52, 20], [52, 33]]]], ["content", "prop.position", ["loc", [null, [53, 20], [53, 37]]]], ["content", "prop.optional", ["loc", [null, [54, 20], [54, 37]]]]],
-        locals: ["name", "prop"],
+        statements: [["content", "field.name", ["loc", [null, [46, 20], [46, 34]]]], ["content", "field.type", ["loc", [null, [47, 20], [47, 34]]]], ["content", "field.position", ["loc", [null, [48, 20], [48, 38]]]], ["content", "field.optional", ["loc", [null, [49, 20], [49, 38]]]]],
+        locals: ["field"],
         templates: []
       };
     })();
@@ -33966,7 +34085,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
             "column": 0
           },
           "end": {
-            "line": 62,
+            "line": 57,
             "column": 0
           }
         },
@@ -34085,28 +34204,6 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
         var el1 = dom.createTextNode("\n\n");
         dom.appendChild(el0, el1);
         var el1 = dom.createElement("tr");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("td");
-        dom.setAttribute(el2, "class", "key");
-        var el3 = dom.createTextNode("Quantum");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("td");
-        dom.setAttribute(el2, "class", "value");
-        var el3 = dom.createElement("code");
-        var el4 = dom.createComment("");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("tr");
         dom.setAttribute(el1, "class", "table-in-kv-table");
         var el2 = dom.createTextNode("\n  ");
         dom.appendChild(el1, el2);
@@ -34183,18 +34280,288 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(6);
+        var morphs = new Array(5);
         morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0, 3]), 0, 0);
         morphs[1] = dom.createMorphAt(dom.childAt(fragment, [2, 3]), 1, 1);
         morphs[2] = dom.createMorphAt(dom.childAt(fragment, [4, 3, 1]), 1, 1);
         morphs[3] = dom.createMorphAt(dom.childAt(fragment, [6, 3, 1]), 1, 1);
-        morphs[4] = dom.createMorphAt(dom.childAt(fragment, [8, 3, 0]), 0, 0);
-        morphs[5] = dom.createMorphAt(dom.childAt(fragment, [10, 3, 1, 3]), 1, 1);
+        morphs[4] = dom.createMorphAt(dom.childAt(fragment, [8, 3, 1, 3]), 1, 1);
         return morphs;
       },
-      statements: [["content", "table.name", ["loc", [null, [3, 20], [3, 34]]]], ["block", "if", [["get", "table.isActive", ["loc", [null, [9, 10], [9, 24]]]]], [], 0, 1, ["loc", [null, [9, 4], [13, 11]]]], ["block", "each", [["get", "table.partitionKey", ["loc", [null, [20, 38], [20, 56]]]]], [], 2, null, ["loc", [null, [20, 30], [20, 109]]]], ["block", "each", [["get", "table.localKey", ["loc", [null, [27, 38], [27, 52]]]]], [], 3, null, ["loc", [null, [27, 30], [27, 105]]]], ["content", "table.quantum", ["loc", [null, [33, 26], [33, 43]]]], ["block", "each-in", [["get", "table.fields", ["loc", [null, [49, 17], [49, 29]]]]], [], 4, null, ["loc", [null, [49, 6], [56, 18]]]]],
+      statements: [["content", "table.name", ["loc", [null, [3, 20], [3, 34]]]], ["block", "if", [["get", "table.isActive", ["loc", [null, [9, 10], [9, 24]]]]], [], 0, 1, ["loc", [null, [9, 4], [13, 11]]]], ["block", "each", [["get", "table.partitionKey", ["loc", [null, [20, 38], [20, 56]]]]], [], 2, null, ["loc", [null, [20, 30], [20, 114]]]], ["block", "each", [["get", "table.localKey", ["loc", [null, [27, 38], [27, 52]]]]], [], 3, null, ["loc", [null, [27, 30], [27, 105]]]], ["block", "each", [["get", "table.fields", ["loc", [null, [44, 14], [44, 26]]]]], [], 4, null, ["loc", [null, [44, 6], [51, 15]]]]],
       locals: [],
       templates: [child0, child1, child2, child3, child4]
+    };
+  })());
+});
+define("ember-riak-explorer/templates/components/table/ts-table-reference", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    var child0 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.3.2",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 5,
+              "column": 32
+            },
+            "end": {
+              "line": 5,
+              "column": 111
+            }
+          },
+          "moduleName": "ember-riak-explorer/templates/components/table/ts-table-reference.hbs"
+        },
+        isEmpty: false,
+        arity: 1,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createElement("span");
+          dom.setAttribute(el1, "class", "item");
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 0, 0);
+          return morphs;
+        },
+        statements: [["content", "field.name", ["loc", [null, [5, 90], [5, 104]]]]],
+        locals: ["field"],
+        templates: []
+      };
+    })();
+    var child1 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.3.2",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 11,
+              "column": 32
+            },
+            "end": {
+              "line": 11,
+              "column": 102
+            }
+          },
+          "moduleName": "ember-riak-explorer/templates/components/table/ts-table-reference.hbs"
+        },
+        isEmpty: false,
+        arity: 1,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createElement("span");
+          dom.setAttribute(el1, "class", "item");
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 0, 0);
+          return morphs;
+        },
+        statements: [["content", "field", ["loc", [null, [11, 86], [11, 95]]]]],
+        locals: ["field"],
+        templates: []
+      };
+    })();
+    var child2 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.3.2",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 17,
+              "column": 32
+            },
+            "end": {
+              "line": 17,
+              "column": 121
+            }
+          },
+          "moduleName": "ember-riak-explorer/templates/components/table/ts-table-reference.hbs"
+        },
+        isEmpty: false,
+        arity: 1,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createElement("span");
+          dom.setAttribute(el1, "class", "item");
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("(");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode(")");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element0 = dom.childAt(fragment, [0]);
+          var morphs = new Array(2);
+          morphs[0] = dom.createMorphAt(element0, 0, 0);
+          morphs[1] = dom.createMorphAt(element0, 2, 2);
+          return morphs;
+        },
+        statements: [["content", "field.name", ["loc", [null, [17, 84], [17, 98]]]], ["content", "field.type", ["loc", [null, [17, 99], [17, 113]]]]],
+        locals: ["field"],
+        templates: []
+      };
+    })();
+    return {
+      meta: {
+        "fragmentReason": false,
+        "revision": "Ember@2.3.2",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 22,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/components/table/ts-table-reference.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("tbody");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("tr");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("td");
+        dom.setAttribute(el3, "class", "key");
+        var el4 = dom.createTextNode("Primary Key");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("td");
+        dom.setAttribute(el3, "class", "value");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("code");
+        dom.setAttribute(el4, "class", "comma-list");
+        var el5 = dom.createTextNode("[");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("]");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("tr");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("td");
+        dom.setAttribute(el3, "class", "key");
+        var el4 = dom.createTextNode("Local Key");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("td");
+        dom.setAttribute(el3, "class", "value");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("code");
+        dom.setAttribute(el4, "class", "comma-list");
+        var el5 = dom.createTextNode("[");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("]");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("tr");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("td");
+        dom.setAttribute(el3, "class", "key");
+        var el4 = dom.createTextNode("Table Fields");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("td");
+        dom.setAttribute(el3, "class", "value");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("code");
+        dom.setAttribute(el4, "class", "comma-list");
+        var el5 = dom.createTextNode("[");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("]");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element1 = dom.childAt(fragment, [0]);
+        var morphs = new Array(3);
+        morphs[0] = dom.createMorphAt(dom.childAt(element1, [1, 3, 1]), 1, 1);
+        morphs[1] = dom.createMorphAt(dom.childAt(element1, [3, 3, 1]), 1, 1);
+        morphs[2] = dom.createMorphAt(dom.childAt(element1, [5, 3, 1]), 1, 1);
+        return morphs;
+      },
+      statements: [["block", "each", [["get", "table.partitionKey", ["loc", [null, [5, 40], [5, 58]]]]], [], 0, null, ["loc", [null, [5, 32], [5, 120]]]], ["block", "each", [["get", "table.localKey", ["loc", [null, [11, 40], [11, 54]]]]], [], 1, null, ["loc", [null, [11, 32], [11, 111]]]], ["block", "each", [["get", "table.fields", ["loc", [null, [17, 40], [17, 52]]]]], [], 2, null, ["loc", [null, [17, 32], [17, 130]]]]],
+      locals: [],
+      templates: [child0, child1, child2]
     };
   })());
 });
@@ -34256,7 +34623,7 @@ define("ember-riak-explorer/templates/components/table/ts-tables", ["exports"], 
               },
               "end": {
                 "line": 20,
-                "column": 102
+                "column": 111
               }
             },
             "moduleName": "ember-riak-explorer/templates/components/table/ts-tables.hbs"
@@ -34279,8 +34646,8 @@ define("ember-riak-explorer/templates/components/table/ts-tables", ["exports"], 
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 0, 0);
             return morphs;
           },
-          statements: [["content", "key", ["loc", [null, [20, 88], [20, 95]]]]],
-          locals: ["key"],
+          statements: [["content", "field.name", ["loc", [null, [20, 90], [20, 104]]]]],
+          locals: ["field"],
           templates: []
         };
       })();
@@ -34364,7 +34731,7 @@ define("ember-riak-explorer/templates/components/table/ts-tables", ["exports"], 
           morphs[2] = dom.createMorphAt(dom.childAt(element0, [5, 1]), 1, 1);
           return morphs;
         },
-        statements: [["block", "link-to", ["table", ["get", "table.cluster.name", ["loc", [null, [12, 25], [12, 43]]]], ["get", "table.name", ["loc", [null, [12, 44], [12, 54]]]]], ["class", "cluster-resource-link"], 0, null, ["loc", [null, [12, 6], [14, 18]]]], ["content", "table.nVal", ["loc", [null, [17, 12], [17, 26]]]], ["block", "each", [["get", "table.partitionKey", ["loc", [null, [20, 40], [20, 58]]]]], [], 1, null, ["loc", [null, [20, 32], [20, 111]]]]],
+        statements: [["block", "link-to", ["table", ["get", "table.cluster.name", ["loc", [null, [12, 25], [12, 43]]]], ["get", "table.name", ["loc", [null, [12, 44], [12, 54]]]]], ["class", "cluster-resource-link"], 0, null, ["loc", [null, [12, 6], [14, 18]]]], ["content", "table.nVal", ["loc", [null, [17, 12], [17, 26]]]], ["block", "each", [["get", "table.partitionKey", ["loc", [null, [20, 40], [20, 58]]]]], [], 1, null, ["loc", [null, [20, 32], [20, 120]]]]],
         locals: ["table"],
         templates: [child0, child1]
       };
@@ -36325,7 +36692,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.0.0+dc3335c5"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.2.0+3e23272f"});
 }
 
 /* jshint ignore:end */
