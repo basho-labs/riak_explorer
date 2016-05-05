@@ -395,6 +395,88 @@ define('ember-riak-explorer/app', ['exports', 'ember', 'ember-riak-explorer/reso
 
   exports['default'] = App;
 });
+define('ember-riak-explorer/components/alert-component', ['exports', 'ember'], function (exports, _ember) {
+
+  /**
+   Implements Bootstrap alerts, see http://getbootstrap.com/components/#alerts
+  
+   By default it is a user dismissible, which can be disabled. Be sure to set the `type` property for proper styling.
+  
+   ```hbs
+   {{#alert-component type="success"}}
+   <strong>Well done!</strong> You successfully read this important alert message.
+   {{/alert-component}}
+   ```
+   @class Alert
+   @namespace Components
+   @extends Ember.Component
+   */
+
+  exports['default'] = _ember['default'].Component.extend({
+    classNameBindings: ['alert'],
+
+    /**
+     * A dismissible alert will have a close button in the upper right corner, that the user can click to dismiss
+     * the alert.
+     *
+     * @property dismissible
+     * @type boolean
+     * @default true
+     * @public
+     */
+    dismissible: true,
+
+    /**
+     * This property indicates if the alert is visible. Can be set to change the visibility of the alert box.
+     *
+     * @property visible
+     * @type boolean
+     * @default true
+     * @public
+     */
+    visible: true,
+
+    alert: (function () {
+      if (this.get('visible')) {
+        return 'alert alert-' + this.get('type');
+      }
+    }).property('type', 'visible'),
+
+    onVisibleChange: (function () {
+      if (this.get('visible')) {
+        this.show();
+      } else {
+        this.hide();
+      }
+    }).property('visible'),
+
+    /**
+     * Call to make the alert visible again after it has been hidden
+     *
+     * @method show
+     * @public
+     */
+    show: function show() {
+      this.set('visible', true);
+    },
+
+    /**
+     * Call to hide the alert.
+     *
+     * @method hide
+     * @public
+     */
+    hide: function hide() {
+      this.set('visible', false);
+    },
+
+    actions: {
+      dismiss: function dismiss() {
+        this.hide();
+      }
+    }
+  });
+});
 define('ember-riak-explorer/components/app-version', ['exports', 'ember-cli-app-version/components/app-version', 'ember-riak-explorer/config/environment'], function (exports, _emberCliAppVersionComponentsAppVersion, _emberRiakExplorerConfigEnvironment) {
 
   var name = _emberRiakExplorerConfigEnvironment['default'].APP.name;
@@ -432,188 +514,6 @@ define('ember-riak-explorer/components/breadcrumb-component', ['exports', 'ember
     isClusterQuery: (function () {
       return this.get('clusterSubSection') === 'query';
     }).property('clusterSubSection')
-  });
-});
-define('ember-riak-explorer/components/bs-accordion-item', ['exports', 'ember-bootstrap/components/bs-accordion-item'], function (exports, _emberBootstrapComponentsBsAccordionItem) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsAccordionItem['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-accordion', ['exports', 'ember-bootstrap/components/bs-accordion'], function (exports, _emberBootstrapComponentsBsAccordion) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsAccordion['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-alert', ['exports', 'ember-bootstrap/components/bs-alert'], function (exports, _emberBootstrapComponentsBsAlert) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsAlert['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-button-group', ['exports', 'ember-bootstrap/components/bs-button-group'], function (exports, _emberBootstrapComponentsBsButtonGroup) {
-  exports['default'] = _emberBootstrapComponentsBsButtonGroup['default'];
-});
-define('ember-riak-explorer/components/bs-button', ['exports', 'ember-bootstrap/components/bs-button'], function (exports, _emberBootstrapComponentsBsButton) {
-  exports['default'] = _emberBootstrapComponentsBsButton['default'];
-});
-define('ember-riak-explorer/components/bs-collapse', ['exports', 'ember-bootstrap/components/bs-collapse'], function (exports, _emberBootstrapComponentsBsCollapse) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsCollapse['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-dropdown-button', ['exports', 'ember-bootstrap/components/bs-dropdown-button'], function (exports, _emberBootstrapComponentsBsDropdownButton) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsDropdownButton['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-dropdown-menu', ['exports', 'ember-bootstrap/components/bs-dropdown-menu'], function (exports, _emberBootstrapComponentsBsDropdownMenu) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsDropdownMenu['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-dropdown-toggle', ['exports', 'ember-bootstrap/components/bs-dropdown-toggle'], function (exports, _emberBootstrapComponentsBsDropdownToggle) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsDropdownToggle['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-dropdown', ['exports', 'ember-bootstrap/components/bs-dropdown'], function (exports, _emberBootstrapComponentsBsDropdown) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsDropdown['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-form-element', ['exports', 'ember-bootstrap/components/bs-form-element'], function (exports, _emberBootstrapComponentsBsFormElement) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsFormElement['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-form-group', ['exports', 'ember-bootstrap/components/bs-form-group'], function (exports, _emberBootstrapComponentsBsFormGroup) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsFormGroup['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-form', ['exports', 'ember-bootstrap/components/bs-form'], function (exports, _emberBootstrapComponentsBsForm) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsForm['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-input', ['exports', 'ember-bootstrap/components/bs-input'], function (exports, _emberBootstrapComponentsBsInput) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsInput['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-modal-backdrop', ['exports', 'ember-bootstrap/components/bs-modal-backdrop'], function (exports, _emberBootstrapComponentsBsModalBackdrop) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsModalBackdrop['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-modal-body', ['exports', 'ember-bootstrap/components/bs-modal-body'], function (exports, _emberBootstrapComponentsBsModalBody) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsModalBody['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-modal-dialog', ['exports', 'ember-bootstrap/components/bs-modal-dialog'], function (exports, _emberBootstrapComponentsBsModalDialog) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsModalDialog['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-modal-footer', ['exports', 'ember-bootstrap/components/bs-modal-footer'], function (exports, _emberBootstrapComponentsBsModalFooter) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsModalFooter['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-modal-header', ['exports', 'ember-bootstrap/components/bs-modal-header'], function (exports, _emberBootstrapComponentsBsModalHeader) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsModalHeader['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-modal', ['exports', 'ember-bootstrap/components/bs-modal'], function (exports, _emberBootstrapComponentsBsModal) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsModal['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-progress-bar', ['exports', 'ember-bootstrap/components/bs-progress-bar'], function (exports, _emberBootstrapComponentsBsProgressBar) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsProgressBar['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-progress', ['exports', 'ember-bootstrap/components/bs-progress'], function (exports, _emberBootstrapComponentsBsProgress) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsProgress['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-select', ['exports', 'ember-bootstrap/components/bs-select'], function (exports, _emberBootstrapComponentsBsSelect) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsSelect['default'];
-    }
-  });
-});
-define('ember-riak-explorer/components/bs-textarea', ['exports', 'ember-bootstrap/components/bs-textarea'], function (exports, _emberBootstrapComponentsBsTextarea) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapComponentsBsTextarea['default'];
-    }
   });
 });
 define('ember-riak-explorer/components/button/delete-object', ['exports', 'ember'], function (exports, _ember) {
@@ -1009,193 +909,6 @@ define('ember-riak-explorer/components/form/table/create-table', ['exports', 'em
     }
   });
 });
-define('ember-riak-explorer/components/form/table/insert-data', ['exports', 'ember', 'lodash/lodash', 'ember-riak-explorer/mixins/component/scroll-reset'], function (exports, _ember, _lodashLodash, _emberRiakExplorerMixinsComponentScrollReset) {
-  exports['default'] = _ember['default'].Component.extend(_emberRiakExplorerMixinsComponentScrollReset['default'], {
-    tagName: 'form',
-
-    explorer: _ember['default'].inject.service(),
-
-    table: null,
-
-    errors: [],
-
-    successMessage: '',
-
-    rowsString: '',
-
-    isDisabled: true,
-
-    canSubmit: (function () {
-      return this.set('isDisabled', _ember['default'].isBlank(this.get('rowsString')));
-    }).observes('rowsString'),
-
-    clearErrors: function clearErrors() {
-      return this.set('errors', []);
-    },
-
-    resetState: function resetState() {
-      this.clearErrors();
-
-      return this.set('rowsString', '');
-    },
-
-    prepareData: function prepareData() {
-      var data = undefined;
-
-      try {
-        data = JSON.parse(this.get('rowsString').replace(/'/g, '"'));
-      } catch (e) {}
-
-      return data;
-    },
-
-    validateData: function validateData(data) {
-      var isValid = false;
-
-      if (data && _lodashLodash['default'].isArray(data)) {
-        var arrayLength = data.length;
-        var subArrayCount = data.filter(function (item) {
-          return _lodashLodash['default'].isArray(item);
-        }).length;
-        isValid = arrayLength === subArrayCount;
-      }
-
-      if (!isValid) {
-        this.get('errors').pushObject('Submitted Data is not valid. The textfield expects an array of arrays, each sub-array representing a row to be inserted. View the example for valid input.');
-        this.scrollToTop();
-      }
-
-      return isValid;
-    },
-
-    submit: function submit() {
-      this.clearErrors();
-
-      var data = this.prepareData();
-      var isValid = this.validateData(data);
-      var self = this;
-
-      if (isValid) {
-        this.get('explorer').updateTable(this.get('table'), data).then(function onSuccess(data) {
-          var tableName = self.get('table').get('name');
-
-          self.set('successMessage', 'Your data was saved to the ' + tableName + ' table.');
-          self.scrollToTop();
-          self.resetState();
-        }, function onFail(error) {
-          self.get('errors').pushObject('The server failed to save the data to the table, check that your data is formatted correctly and try again.');
-          self.scrollToTop();
-        });
-      }
-
-      return false;
-    }
-  });
-});
-define('ember-riak-explorer/components/form/table/query-table', ['exports', 'ember', 'lodash/lodash'], function (exports, _ember, _lodashLodash) {
-  exports['default'] = _ember['default'].Component.extend({
-    tagName: 'form',
-
-    explorer: _ember['default'].inject.service(),
-
-    example: "",
-
-    loadingMessage: 'Querying...',
-
-    table: null,
-
-    queryString: '',
-
-    queryResult: '',
-
-    queryResultLength: null,
-
-    isDisabled: true,
-
-    showClear: false,
-
-    canClear: (function () {
-      var queryResult = this.get('queryResult');
-      var canClear = _ember['default'].isPresent(queryResult) && queryResult !== this.get('loadingMessage');
-
-      return this.set('showClear', canClear);
-    }).observes('queryResult'),
-
-    canSubmit: (function () {
-      return this.set('isDisabled', _ember['default'].isBlank(this.get('queryString')));
-    }).observes('queryString'),
-
-    // TODO: Come back and make the example dynamic
-    setExampleMessage: function setExampleMessage() {
-      // let table = this.get('table');
-      // let tableName = table.get('name');
-      // let example = '';
-      //
-      //
-      // if (table.get('hasQuantum')) {
-      //   let quantumName = table.get('quantumName');
-      //   example = `select * from ${tableName} where ${quantumName} > 1 and ${quantumName} < 100`;
-      // } else {
-      // }
-
-      var temporaryExample = "select weather, temperature from GeoCheckin where time > 1234560 and time < 1234569 and region = 'South Atlantic' and state = 'South Carolina'";
-
-      return this.set('example', temporaryExample);
-    },
-
-    didReceiveAttrs: function didReceiveAttrs() {
-      this.setExampleMessage();
-    },
-
-    submit: function submit() {
-      var self = this;
-
-      // Make sure the query call takes at least a second, creates a nicer UI experience
-      var enforceMinDelay = new _ember['default'].RSVP.Promise(function (resolve) {
-        window.setTimeout(resolve, 750);
-      });
-
-      // Set intermediate state
-      this.set('queryResultLength', null);
-      this.set('queryResult', this.get('loadingMessage'));
-
-      // Execute Query
-      this.get('explorer').queryTable(this.get('table'), this.get('queryString')).then(function onSuccess(data) {
-        enforceMinDelay.then(function () {
-          if (_ember['default'].isEmpty(data.query.rows)) {
-            self.set('queryResultLength', null);
-            self.set('queryResult', 'No rows found on ' + self.get('table').get('name') + ' given the statement: \n\n' + self.get('queryString'));
-          } else {
-            var stringifiedData = JSON.stringify(data.query.rows);
-            var formattedStringForEditor = undefined;
-
-            // Adds a line break after each array item
-            // Removes the array surrounding all the results
-            // Adds a space after each comma in the array for better legibility
-            formattedStringForEditor = stringifiedData.replace(/],/g, '],\n');
-            formattedStringForEditor = formattedStringForEditor.substring(1, formattedStringForEditor.length - 1);
-            formattedStringForEditor = formattedStringForEditor.replace(/,/g, ', ');
-
-            self.set('queryResultLength', data.query.rows.length);
-            self.set('queryResult', formattedStringForEditor);
-          }
-        });
-      }, function onFail(error) {
-        self.set('queryResult', error.status + ' ' + error.statusText + ' trying to execute statement: \n\n' + self.get('queryString'));
-      });
-
-      return false;
-    },
-
-    actions: {
-      clear: function clear() {
-        this.set('queryString', '');
-        this.set('queryResult', '');
-        this.set('queryResultLength', null);
-      }
-    }
-  });
-});
 define('ember-riak-explorer/components/ivy-codemirror', ['exports', 'ivy-codemirror/components/ivy-codemirror'], function (exports, _ivyCodemirrorComponentsIvyCodemirror) {
   Object.defineProperty(exports, 'default', {
     enumerable: true,
@@ -1262,23 +975,63 @@ define('ember-riak-explorer/components/link/link-object', ['exports', 'ember'], 
   });
 });
 define('ember-riak-explorer/components/loading-slider', ['exports', 'ember'], function (exports, _ember) {
-  exports['default'] = _ember['default'].Component.extend({
+  var Component = _ember['default'].Component;
+  var run = _ember['default'].run;
+  var isBlank = _ember['default'].isBlank;
+  var inject = _ember['default'].inject;
+  var on = _ember['default'].on;
+  exports['default'] = Component.extend({
     tagName: 'div',
     classNames: ['loading-slider'],
     classNameBindings: 'expanding',
 
-    initialize: _ember['default'].on('didReceiveAttrs', function () {
-      this.set('isLoading', this.getAttr('isLoading'));
-      this.set('duration', this.getAttr('duration'));
-      this.set('expanding', this.getAttr('expanding'));
-      this.set('speed', this.getAttr('speed'));
-      this.set('color', this.getAttr('color'));
+    loadingSlider: inject.service(),
+
+    init: function init() {
+      this._super.apply(this, arguments);
+      run.once(this, function () {
+        this.get('loadingSlider').on('startLoading', this, this._startLoading);
+        this.get('loadingSlider').on('endLoading', this, this._endLoading);
+        this.get('loadingSlider').on('changeAttrs', this, this._changeAttrs);
+      });
+    },
+
+    setAttrsThenManage: on('didReceiveAttrs', function () {
+      this.setProperties({
+        isLoading: this.getAttr('isLoading'),
+        duration: this.getAttr('duration'),
+        expanding: this.getAttr('expanding'),
+        speed: this.getAttr('speed'),
+        color: this.getAttr('color')
+      });
 
       this.manage();
     }),
 
+    willDestroy: function willDestroy() {
+      run.once(this, function () {
+        this.get('loadingSlider').off('startLoading', this, this._startLoading);
+        this.get('loadingSlider').off('endLoading', this, this._endLoading);
+        this.get('loadingSlider').off('changeAttrs', this, this._changeAttrs);
+      });
+    },
+
+    _startLoading: function _startLoading() {
+      this.set('isLoading', true);
+      this.manage();
+    },
+
+    _endLoading: function _endLoading() {
+      this.set('isLoading', false);
+    },
+
+    _changeAttrs: function _changeAttrs(attrs) {
+      this.setProperties(attrs);
+      this.manage();
+    },
+
     manage: function manage() {
-      if (!this.$()) {
+      if (isBlank(this.$())) {
         return;
       }
 
@@ -1324,7 +1077,7 @@ define('ember-riak-explorer/components/loading-slider', ['exports', 'ember'], fu
         }
 
         if (innerWidth > outerWidth) {
-          _ember['default'].run.later(function () {
+          run.later(function () {
             outer.empty();
             window.clearInterval(interval);
           }, 50);
@@ -1406,6 +1159,10 @@ define('ember-riak-explorer/components/loading-slider', ['exports', 'ember'], fu
       var color = this.get('color');
       if (color) {
         this.$('span').css('background-color', color);
+      }
+
+      if (this.get('runManageInitially')) {
+        this._startLoading();
       }
     }
   });
@@ -1737,6 +1494,36 @@ define('ember-riak-explorer/components/power-select', ['exports', 'ember-power-s
     }
   });
 });
+define('ember-riak-explorer/components/side-drawer', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Component.extend({
+    classNames: ['side-drawer'],
+
+    classNameBindings: ['status'],
+
+    label: null,
+
+    visible: false,
+
+    // Hack to get around inability of css to figure this out
+    setDrawerPanelClass: (function () {
+      if (this.get('visible')) {
+        this.$().parent().removeClass('drawer-closed');
+      } else {
+        this.$().parent().addClass('drawer-closed');
+      }
+    }).observes('visible'),
+
+    status: (function () {
+      return this.get('visible') ? 'open' : 'closed';
+    }).property('visible'),
+
+    actions: {
+      close: function close() {
+        return this.set('visible', false);
+      }
+    }
+  });
+});
 define('ember-riak-explorer/components/table/bucket-props-advanced', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Component.extend({
     tagName: 'table',
@@ -2047,12 +1834,6 @@ define('ember-riak-explorer/controllers/application', ['exports', 'ember'], func
     }).observes('currentPath')
   });
 });
-define('ember-riak-explorer/controllers/array', ['exports', 'ember'], function (exports, _ember) {
-  exports['default'] = _ember['default'].Controller;
-});
-define('ember-riak-explorer/controllers/object', ['exports', 'ember'], function (exports, _ember) {
-  exports['default'] = _ember['default'].Controller;
-});
 define('ember-riak-explorer/helpers/and', ['exports', 'ember', 'ember-truth-helpers/helpers/and'], function (exports, _ember, _emberTruthHelpersHelpersAnd) {
 
   var forExport = null;
@@ -2127,34 +1908,6 @@ define('ember-riak-explorer/helpers/is-array', ['exports', 'ember', 'ember-truth
 
   exports['default'] = forExport;
 });
-define('ember-riak-explorer/helpers/is-equal', ['exports', 'ember-bootstrap/helpers/is-equal'], function (exports, _emberBootstrapHelpersIsEqual) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapHelpersIsEqual['default'];
-    }
-  });
-  Object.defineProperty(exports, 'isEqual', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapHelpersIsEqual.isEqual;
-    }
-  });
-});
-define('ember-riak-explorer/helpers/is-not', ['exports', 'ember-bootstrap/helpers/is-not'], function (exports, _emberBootstrapHelpersIsNot) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapHelpersIsNot['default'];
-    }
-  });
-  Object.defineProperty(exports, 'isNot', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapHelpersIsNot.isNot;
-    }
-  });
-});
 define('ember-riak-explorer/helpers/lt', ['exports', 'ember', 'ember-truth-helpers/helpers/lt'], function (exports, _ember, _emberTruthHelpersHelpersLt) {
 
   var forExport = null;
@@ -2228,20 +1981,6 @@ define('ember-riak-explorer/helpers/or', ['exports', 'ember', 'ember-truth-helpe
 });
 define('ember-riak-explorer/helpers/pluralize', ['exports', 'ember-inflector/lib/helpers/pluralize'], function (exports, _emberInflectorLibHelpersPluralize) {
   exports['default'] = _emberInflectorLibHelpersPluralize['default'];
-});
-define('ember-riak-explorer/helpers/read-path', ['exports', 'ember-bootstrap/helpers/read-path'], function (exports, _emberBootstrapHelpersReadPath) {
-  Object.defineProperty(exports, 'default', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapHelpersReadPath['default'];
-    }
-  });
-  Object.defineProperty(exports, 'readPath', {
-    enumerable: true,
-    get: function get() {
-      return _emberBootstrapHelpersReadPath.readPath;
-    }
-  });
 });
 define('ember-riak-explorer/helpers/singularize', ['exports', 'ember-inflector/lib/helpers/singularize'], function (exports, _emberInflectorLibHelpersSingularize) {
   exports['default'] = _emberInflectorLibHelpersSingularize['default'];
@@ -2420,21 +2159,6 @@ define('ember-riak-explorer/initializers/injectStore', ['exports', 'ember'], fun
     initialize: _ember['default'].K
   };
 });
-define('ember-riak-explorer/initializers/load-bootstrap-config', ['exports', 'ember-riak-explorer/config/environment', 'ember-bootstrap/config'], function (exports, _emberRiakExplorerConfigEnvironment, _emberBootstrapConfig) {
-  exports.initialize = initialize;
-
-  function initialize() /* container, application */{
-    _emberBootstrapConfig['default'].load(_emberRiakExplorerConfigEnvironment['default']['ember-bootstrap'] || {});
-  }
-
-  exports['default'] = {
-    name: 'load-bootstrap-config',
-    initialize: initialize
-  };
-});
-define('ember-riak-explorer/initializers/modals-container', ['exports', 'ember-bootstrap/initializers/modals-container'], function (exports, _emberBootstrapInitializersModalsContainer) {
-  exports['default'] = _emberBootstrapInitializersModalsContainer['default'];
-});
 define('ember-riak-explorer/initializers/store', ['exports', 'ember'], function (exports, _ember) {
 
   /*
@@ -2522,19 +2246,28 @@ define('ember-riak-explorer/mixins/controller/scroll-reset', ['exports', 'ember'
   });
 });
 define('ember-riak-explorer/mixins/loading-slider', ['exports', 'ember'], function (exports, _ember) {
-  exports['default'] = _ember['default'].Mixin.create({
+  var Mixin = _ember['default'].Mixin;
+  var inject = _ember['default'].inject;
+  var isPresent = _ember['default'].isPresent;
+  exports['default'] = Mixin.create({
+    loadingSlider: inject.service(),
+
     actions: {
       loading: function loading() {
-        var controller = this.controllerFor('application');
-        controller.set('loading', true);
-        if (this.router) {
+        var loadingSliderService = this.get('loadingSlider');
+        loadingSliderService.startLoading();
+        if (isPresent(this.router)) {
           this.router.one('didTransition', function () {
-            controller.set('loading', false);
+            loadingSliderService.endLoading();
           });
         }
+        if (this.get('bubbleLoadingSlider')) {
+          return true;
+        }
       },
+
       finished: function finished() {
-        this.controllerFor('application').set('loading', false);
+        this.get('loadingSlider').endLoading();
       }
     }
   });
@@ -3567,7 +3300,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -3610,7 +3343,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -3669,7 +3402,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -3700,7 +3433,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "warning"], 0, null, ["loc", [null, [2, 2], [9, 15]]]]],
+        statements: [["block", "alert-component", [], ["type", "warning"], 0, null, ["loc", [null, [2, 2], [9, 22]]]]],
         locals: [],
         templates: [child0]
       };
@@ -3711,7 +3444,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -3763,7 +3496,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -3815,7 +3548,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -3851,7 +3584,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -3886,7 +3619,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -3933,7 +3666,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -3975,7 +3708,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -4016,7 +3749,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -4065,7 +3798,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -4104,7 +3837,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -4152,7 +3885,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -4204,7 +3937,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -4252,7 +3985,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -4296,7 +4029,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -4355,7 +4088,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -4410,7 +4143,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
                   return {
                     meta: {
                       "fragmentReason": false,
-                      "revision": "Ember@2.3.2",
+                      "revision": "Ember@2.5.1",
                       "loc": {
                         "source": null,
                         "start": {
@@ -4451,7 +4184,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -4498,7 +4231,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -4551,7 +4284,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -4586,7 +4319,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -4683,7 +4416,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -4730,7 +4463,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -4770,7 +4503,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -4811,7 +4544,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -4850,7 +4583,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -4895,7 +4628,7 @@ define("ember-riak-explorer/pods/bucket/template", ["exports"], function (export
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -5120,7 +4853,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -5163,7 +4896,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -5222,7 +4955,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -5253,7 +4986,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "danger"], 0, null, ["loc", [null, [2, 2], [9, 15]]]]],
+        statements: [["block", "alert-component", [], ["type", "danger"], 0, null, ["loc", [null, [2, 2], [9, 22]]]]],
         locals: [],
         templates: [child0]
       };
@@ -5263,7 +4996,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -5323,7 +5056,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -5370,7 +5103,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -5459,7 +5192,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -5590,7 +5323,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -5635,7 +5368,7 @@ define("ember-riak-explorer/pods/bucket-type/create/template", ["exports"], func
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -5885,7 +5618,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -5928,7 +5661,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -5987,7 +5720,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -6018,7 +5751,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "danger"], 0, null, ["loc", [null, [2, 2], [9, 15]]]]],
+        statements: [["block", "alert-component", [], ["type", "danger"], 0, null, ["loc", [null, [2, 2], [9, 22]]]]],
         locals: [],
         templates: [child0]
       };
@@ -6029,7 +5762,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -6070,7 +5803,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -6120,7 +5853,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -6178,7 +5911,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -6236,7 +5969,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -6308,7 +6041,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -6382,7 +6115,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -6527,7 +6260,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -6572,7 +6305,7 @@ define("ember-riak-explorer/pods/bucket-type/edit/template", ["exports"], functi
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -6705,7 +6438,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -6748,7 +6481,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -6807,7 +6540,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -6838,7 +6571,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "warning"], 0, null, ["loc", [null, [2, 2], [9, 15]]]]],
+        statements: [["block", "alert-component", [], ["type", "warning"], 0, null, ["loc", [null, [2, 2], [9, 22]]]]],
         locals: [],
         templates: [child0]
       };
@@ -6849,7 +6582,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -6890,7 +6623,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -6942,7 +6675,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -6978,7 +6711,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -7013,7 +6746,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -7060,7 +6793,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -7102,7 +6835,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -7143,7 +6876,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -7192,7 +6925,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -7231,7 +6964,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -7277,7 +7010,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -7329,7 +7062,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -7377,7 +7110,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -7421,7 +7154,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -7478,7 +7211,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -7530,7 +7263,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -7573,7 +7306,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -7626,7 +7359,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -7661,7 +7394,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -7758,7 +7491,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -7805,7 +7538,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -7845,7 +7578,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -7886,7 +7619,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -7925,7 +7658,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -7970,7 +7703,7 @@ define("ember-riak-explorer/pods/bucket-type/template", ["exports"], function (e
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -8043,7 +7776,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -8079,7 +7812,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -8114,7 +7847,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -8251,7 +7984,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -8300,7 +8033,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -8341,7 +8074,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -8391,7 +8124,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -8433,7 +8166,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -8474,7 +8207,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -8513,7 +8246,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -8555,7 +8288,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -8597,7 +8330,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -8638,7 +8371,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -8690,7 +8423,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8726,7 +8459,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8761,7 +8494,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -8809,7 +8542,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8851,7 +8584,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8892,7 +8625,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -8933,7 +8666,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -8975,7 +8708,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -9016,7 +8749,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -9055,7 +8788,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -9104,7 +8837,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -9143,7 +8876,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -9187,7 +8920,7 @@ define("ember-riak-explorer/pods/cluster/data/template", ["exports"], function (
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -9567,7 +9300,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -9634,7 +9367,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -9665,7 +9398,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "warning"], 0, null, ["loc", [null, [2, 2], [6, 15]]]]],
+        statements: [["block", "alert-component", [], ["type", "warning"], 0, null, ["loc", [null, [2, 2], [6, 22]]]]],
         locals: [],
         templates: [child0]
       };
@@ -9678,7 +9411,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -9720,7 +9453,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -9773,7 +9506,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -9840,7 +9573,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -9885,7 +9618,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -9924,7 +9657,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -9969,7 +9702,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -10016,7 +9749,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -10057,7 +9790,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -10104,7 +9837,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -10143,7 +9876,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -10190,7 +9923,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -10239,7 +9972,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -10280,7 +10013,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -10319,7 +10052,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -10367,7 +10100,7 @@ define("ember-riak-explorer/pods/cluster/ops/template", ["exports"], function (e
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -10441,7 +10174,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -10482,7 +10215,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -10532,7 +10265,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -10574,7 +10307,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -10615,7 +10348,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -10654,7 +10387,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -10696,7 +10429,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -10738,7 +10471,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -10779,7 +10512,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -10829,7 +10562,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -10871,7 +10604,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -10912,7 +10645,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -10951,7 +10684,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -10995,7 +10728,7 @@ define("ember-riak-explorer/pods/cluster/query/template", ["exports"], function 
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -11112,7 +10845,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -11155,7 +10888,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -11198,7 +10931,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -11229,7 +10962,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
               dom.insertBoundary(fragment, null);
               return morphs;
             },
-            statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [9, 6], [11, 19]]]]],
+            statements: [["block", "alert-component", [], ["type", "info"], 0, null, ["loc", [null, [9, 6], [11, 26]]]]],
             locals: [],
             templates: [child0]
           };
@@ -11237,7 +10970,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -11279,7 +11012,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -11327,7 +11060,7 @@ define("ember-riak-explorer/pods/config-file/template", ["exports"], function (e
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -11385,7 +11118,7 @@ define("ember-riak-explorer/pods/error/service-not-found/template", ["exports"],
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -11442,7 +11175,7 @@ define("ember-riak-explorer/pods/error/service-not-found/template", ["exports"],
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -11490,7 +11223,7 @@ define("ember-riak-explorer/pods/error/service-not-found/template", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -11534,7 +11267,7 @@ define("ember-riak-explorer/pods/error/template", ["exports"], function (exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -11592,7 +11325,7 @@ define("ember-riak-explorer/pods/error/template", ["exports"], function (exports
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -11640,7 +11373,7 @@ define("ember-riak-explorer/pods/error/template", ["exports"], function (exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -11699,7 +11432,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -11776,7 +11509,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -11823,7 +11556,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -11886,7 +11619,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -11933,7 +11666,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -12028,7 +11761,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -12076,7 +11809,7 @@ define("ember-riak-explorer/pods/help/template", ["exports"], function (exports)
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -12151,7 +11884,7 @@ define("ember-riak-explorer/pods/index/template", ["exports"], function (exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -12207,7 +11940,7 @@ define("ember-riak-explorer/pods/index/template", ["exports"], function (exports
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -12255,7 +11988,7 @@ define("ember-riak-explorer/pods/index/template", ["exports"], function (exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -12398,7 +12131,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -12456,7 +12189,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -12504,7 +12237,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -12582,7 +12315,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -12625,7 +12358,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -12668,7 +12401,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -12699,7 +12432,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
               dom.insertBoundary(fragment, null);
               return morphs;
             },
-            statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [26, 6], [28, 19]]]]],
+            statements: [["block", "alert-component", [], ["type", "info"], 0, null, ["loc", [null, [26, 6], [28, 26]]]]],
             locals: [],
             templates: [child0]
           };
@@ -12707,7 +12440,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -12749,7 +12482,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -12794,7 +12527,7 @@ define("ember-riak-explorer/pods/log-file/template", ["exports"], function (expo
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -13012,7 +12745,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -13047,7 +12780,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13089,7 +12822,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13125,7 +12858,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13161,7 +12894,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13197,7 +12930,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13232,7 +12965,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -13295,7 +13028,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -13356,7 +13089,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13410,7 +13143,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -13452,7 +13185,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -13497,7 +13230,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13558,7 +13291,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -13629,7 +13362,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -13692,7 +13425,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                     return {
                       meta: {
                         "fragmentReason": false,
-                        "revision": "Ember@2.3.2",
+                        "revision": "Ember@2.5.1",
                         "loc": {
                           "source": null,
                           "start": {
@@ -13733,7 +13466,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                   return {
                     meta: {
                       "fragmentReason": false,
-                      "revision": "Ember@2.3.2",
+                      "revision": "Ember@2.5.1",
                       "loc": {
                         "source": null,
                         "start": {
@@ -13772,7 +13505,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -13814,7 +13547,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                     return {
                       meta: {
                         "fragmentReason": false,
-                        "revision": "Ember@2.3.2",
+                        "revision": "Ember@2.5.1",
                         "loc": {
                           "source": null,
                           "start": {
@@ -13889,7 +13622,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                   return {
                     meta: {
                       "fragmentReason": false,
-                      "revision": "Ember@2.3.2",
+                      "revision": "Ember@2.5.1",
                       "loc": {
                         "source": null,
                         "start": {
@@ -13943,7 +13676,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -13982,7 +13715,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -14026,7 +13759,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -14068,7 +13801,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -14115,7 +13848,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -14164,7 +13897,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -14199,7 +13932,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -14241,7 +13974,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
                 return {
                   meta: {
                     "fragmentReason": false,
-                    "revision": "Ember@2.3.2",
+                    "revision": "Ember@2.5.1",
                     "loc": {
                       "source": null,
                       "start": {
@@ -14288,7 +14021,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -14337,7 +14070,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -14372,7 +14105,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -14411,7 +14144,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -14475,7 +14208,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -14517,7 +14250,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -14559,7 +14292,7 @@ define("ember-riak-explorer/pods/node/template", ["exports"], function (exports)
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -14625,7 +14358,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -14684,7 +14417,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -14725,7 +14458,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -14859,7 +14592,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -14900,7 +14633,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -14942,7 +14675,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -14987,7 +14720,7 @@ define("ember-riak-explorer/pods/riak-object/counter/template", ["exports"], fun
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -15064,7 +14797,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -15105,7 +14838,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -15172,7 +14905,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -15236,7 +14969,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -15299,7 +15032,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -15473,7 +15206,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -15518,7 +15251,7 @@ define("ember-riak-explorer/pods/riak-object/edit/template", ["exports"], functi
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -15565,7 +15298,7 @@ define("ember-riak-explorer/pods/riak-object/map/template", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -15625,7 +15358,7 @@ define("ember-riak-explorer/pods/riak-object/map/template", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -15669,7 +15402,7 @@ define("ember-riak-explorer/pods/riak-object/map/template", ["exports"], functio
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -15714,7 +15447,7 @@ define("ember-riak-explorer/pods/riak-object/map/template", ["exports"], functio
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -15968,7 +15701,7 @@ define("ember-riak-explorer/pods/riak-object/set/template", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -16045,7 +15778,7 @@ define("ember-riak-explorer/pods/riak-object/set/template", ["exports"], functio
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -16111,7 +15844,7 @@ define("ember-riak-explorer/pods/riak-object/set/template", ["exports"], functio
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -16246,7 +15979,7 @@ define("ember-riak-explorer/pods/riak-object/set/template", ["exports"], functio
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -16291,7 +16024,7 @@ define("ember-riak-explorer/pods/riak-object/set/template", ["exports"], functio
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -16336,7 +16069,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -16377,7 +16110,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -16459,7 +16192,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -16503,7 +16236,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -16545,7 +16278,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -16606,7 +16339,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -16696,7 +16429,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -16743,7 +16476,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -16779,7 +16512,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -16815,7 +16548,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -16850,7 +16583,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -16902,7 +16635,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -16944,7 +16677,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -16986,7 +16719,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -17027,7 +16760,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -17081,7 +16814,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -17120,7 +16853,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -17168,7 +16901,7 @@ define("ember-riak-explorer/pods/riak-object/template", ["exports"], function (e
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -17295,7 +17028,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -17338,7 +17071,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -17385,7 +17118,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -17434,7 +17167,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -17469,7 +17202,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -17616,7 +17349,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -17664,7 +17397,7 @@ define("ember-riak-explorer/pods/search-index/template", ["exports"], function (
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -17767,7 +17500,7 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -17808,7 +17541,7 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -17873,7 +17606,7 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -17955,7 +17688,7 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -18002,7 +17735,7 @@ define("ember-riak-explorer/pods/search-schema/create/template", ["exports"], fu
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -18095,7 +17828,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -18136,7 +17869,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -18208,7 +17941,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -18262,7 +17995,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -18304,7 +18037,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -18349,7 +18082,7 @@ define("ember-riak-explorer/pods/search-schema/edit/template", ["exports"], func
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -18450,7 +18183,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -18491,7 +18224,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -18564,7 +18297,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -18605,7 +18338,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -18647,7 +18380,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -18692,7 +18425,7 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -18731,11 +18464,40 @@ define("ember-riak-explorer/pods/search-schema/template", ["exports"], function 
 });
 define('ember-riak-explorer/pods/table/create/controller', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({
-    errors: [],
+    errors: null,
 
     exampleTemplate: 'CREATE TABLE GeoCheckin\n(\n  region       varchar   not null,\n  state        varchar   not null,\n  time         timestamp not null,\n  weather      varchar   not null,\n  temperature  double,\n  PRIMARY KEY (\n    (region, state, quantum(time, 15, \'m\')),\n    region, state, time\n  )\n)',
 
-    statement: ''
+    statement: '',
+
+    showSpinner: false,
+
+    helpVisibile: false,
+
+    isDisabled: true,
+
+    canSubmit: (function () {
+      return this.set('isDisabled', _ember['default'].isBlank(this.get('statement')));
+    }).observes('statement'),
+
+    resetState: function resetState() {
+      this.set('errors', null);
+      this.set('statement', '');
+    },
+
+    actions: {
+      removeHelp: function removeHelp() {
+        this.set('helpVisibile', false);
+      },
+
+      showHelp: function showHelp() {
+        this.set('helpVisibile', true);
+      },
+
+      insertTemplate: function insertTemplate() {
+        this.set('statement', this.get('exampleTemplate'));
+      }
+    }
   });
 });
 define('ember-riak-explorer/pods/table/create/route', ['exports', 'ember', 'ember-riak-explorer/mixins/routes/alerts', 'ember-riak-explorer/mixins/routes/loading-slider', 'ember-riak-explorer/mixins/routes/scroll-reset', 'ember-riak-explorer/mixins/routes/wrapper-state', 'lodash/lodash'], function (exports, _ember, _emberRiakExplorerMixinsRoutesAlerts, _emberRiakExplorerMixinsRoutesLoadingSlider, _emberRiakExplorerMixinsRoutesScrollReset, _emberRiakExplorerMixinsRoutesWrapperState, _lodashLodash) {
@@ -18768,8 +18530,7 @@ define('ember-riak-explorer/pods/table/create/route', ['exports', 'ember', 'embe
     setupController: function setupController(controller, model) {
       this._super(controller, model);
 
-      controller.set('errors', []);
-      controller.set('statement', controller.get('exampleTemplate'));
+      controller.resetState();
     },
 
     actions: {
@@ -18786,11 +18547,13 @@ define('ember-riak-explorer/pods/table/create/route', ['exports', 'ember', 'embe
         // this.transitionTo('table', cluster.get('name'), tableName);
       },
 
-      createTableManually: function createTableManually() {
+      createTableManually: function createTableManually(table, statement) {
         var self = this;
         var controller = this.controller;
-        var clusterName = this.currentModel.get('cluster').get('name');
-        var statement = controller.get('statement');
+        var clusterName = table.get('cluster').get('name');
+
+        controller.set('errors', null);
+        controller.set('showSpinner', true);
 
         var formatted = _lodashLodash['default'].trim(statement.replace(/\s\s+/g, ' ') // reduces multiple whitespaces into one
         .replace(/(\r\n|\n|\r)/gm, ' ') // removes any leftover newlines
@@ -18805,10 +18568,13 @@ define('ember-riak-explorer/pods/table/create/route', ['exports', 'ember', 'embe
         };
 
         this.explorer.createBucketType(clusterName, data).then(function onSuccess() {
-          self.transitionTo('table', clusterName, tableName);
+          self.transitionTo('table', clusterName, tableName).then(function () {
+            controller.set('showSpinner', false);
+          });
         }, function onFail(error) {
           self.scrollToTop();
-          controller.get('errors').pushObject('Sorry, something went wrong. Table was not created');
+          controller.set('showSpinner', false);
+          controller.set('errors', 'Sorry, something went wrong. Your table was not created');
         });
       },
 
@@ -18854,118 +18620,144 @@ define('ember-riak-explorer/pods/table/create/route', ['exports', 'ember', 'embe
 define("ember-riak-explorer/pods/table/create/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "missing-wrapper",
-            "problems": ["multiple-nodes"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 8,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/pods/table/create/template.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("  ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("h4");
-          var el2 = dom.createElement("span");
-          dom.setAttribute(el2, "class", "label label-info");
-          var el3 = dom.createTextNode("Notes on Table Creation");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n  ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("ul");
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("If field names need to contain spaces they can be double quoted.");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("Quantum field name must be an existing field in the table definition of type ");
-          dom.appendChild(el2, el3);
-          var el3 = dom.createElement("strong");
-          var el4 = dom.createTextNode("timestamp");
-          dom.appendChild(el3, el4);
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("For more information on planning and creating a time series table, visit the ");
-          dom.appendChild(el2, el3);
-          var el3 = dom.createElement("a");
-          dom.setAttribute(el3, "href", "http://docs.basho.com/riak/ts/1.2.0/using/planning/");
-          dom.setAttribute(el3, "target", "_blank");
-          var el4 = dom.createTextNode("Basho Docs");
-          dom.appendChild(el3, el4);
-          dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode(".");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n  ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes() {
-          return [];
-        },
-        statements: [],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
       var child0 = (function () {
         var child0 = (function () {
+          var child0 = (function () {
+            return {
+              meta: {
+                "fragmentReason": false,
+                "revision": "Ember@2.5.1",
+                "loc": {
+                  "source": null,
+                  "start": {
+                    "line": 6,
+                    "column": 8
+                  },
+                  "end": {
+                    "line": 8,
+                    "column": 8
+                  }
+                },
+                "moduleName": "ember-riak-explorer/pods/table/create/template.hbs"
+              },
+              isEmpty: false,
+              arity: 1,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createTextNode("          ");
+                dom.appendChild(el0, el1);
+                var el1 = dom.createElement("li");
+                var el2 = dom.createComment("");
+                dom.appendChild(el1, el2);
+                dom.appendChild(el0, el1);
+                var el1 = dom.createTextNode("\n");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                var morphs = new Array(1);
+                morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
+                return morphs;
+              },
+              statements: [["content", "error", ["loc", [null, [7, 14], [7, 23]]]]],
+              locals: ["error"],
+              templates: []
+            };
+          })();
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 14,
-                  "column": 6
+                  "line": 3,
+                  "column": 4
                 },
                 "end": {
-                  "line": 16,
-                  "column": 6
+                  "line": 10,
+                  "column": 4
                 }
               },
               "moduleName": "ember-riak-explorer/pods/table/create/template.hbs"
             },
             isEmpty: false,
-            arity: 1,
+            arity: 0,
             cachedFragment: null,
             hasRendered: false,
             buildFragment: function buildFragment(dom) {
               var el0 = dom.createDocumentFragment();
-              var el1 = dom.createTextNode("        ");
+              var el1 = dom.createTextNode("      ");
               dom.appendChild(el0, el1);
-              var el1 = dom.createElement("li");
+              var el1 = dom.createElement("h4");
+              var el2 = dom.createElement("span");
+              dom.setAttribute(el2, "class", "label label-danger");
+              var el3 = dom.createTextNode("Errors");
+              dom.appendChild(el2, el3);
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n      ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("ul");
+              var el2 = dom.createTextNode("\n");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createComment("");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createTextNode("      ");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3]), 1, 1);
+              return morphs;
+            },
+            statements: [["block", "each", [["get", "errors", ["loc", [null, [6, 16], [6, 22]]]]], [], 0, null, ["loc", [null, [6, 8], [8, 17]]]]],
+            locals: [],
+            templates: [child0]
+          };
+        })();
+        var child1 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 10,
+                  "column": 4
+                },
+                "end": {
+                  "line": 13,
+                  "column": 4
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/create/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("      ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("h4");
+              var el2 = dom.createElement("span");
+              dom.setAttribute(el2, "class", "label label-danger");
+              var el3 = dom.createTextNode("Error");
+              dom.appendChild(el2, el3);
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n      ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("p");
               var el2 = dom.createComment("");
               dom.appendChild(el1, el2);
               dom.appendChild(el0, el1);
@@ -18975,26 +18767,26 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
             },
             buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
               var morphs = new Array(1);
-              morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
+              morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3]), 0, 0);
               return morphs;
             },
-            statements: [["content", "error", ["loc", [null, [15, 12], [15, 21]]]]],
-            locals: ["error"],
+            statements: [["content", "errors", ["loc", [null, [12, 9], [12, 19]]]]],
+            locals: [],
             templates: []
           };
         })();
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 11,
+                "line": 2,
                 "column": 2
               },
               "end": {
-                "line": 18,
+                "line": 14,
                 "column": 2
               }
             },
@@ -19006,51 +18798,37 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
           hasRendered: false,
           buildFragment: function buildFragment(dom) {
             var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("    ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("ul");
-            var el2 = dom.createTextNode("\n      ");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createElement("h4");
-            var el3 = dom.createElement("span");
-            dom.setAttribute(el3, "class", "label label-danger");
-            var el4 = dom.createTextNode("Errors");
-            dom.appendChild(el3, el4);
-            dom.appendChild(el2, el3);
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("\n");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createComment("");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("    ");
-            dom.appendChild(el1, el2);
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
+            var el1 = dom.createComment("");
             dom.appendChild(el0, el1);
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
             var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 3, 3);
+            morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+            dom.insertBoundary(fragment, 0);
+            dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "each", [["get", "errors", ["loc", [null, [14, 14], [14, 20]]]]], [], 0, null, ["loc", [null, [14, 6], [16, 15]]]]],
+          statements: [["block", "if", [["subexpr", "is-array", [["get", "errors", ["loc", [null, [3, 20], [3, 26]]]]], [], ["loc", [null, [3, 10], [3, 27]]]]], [], 0, 1, ["loc", [null, [3, 4], [13, 11]]]]],
           locals: [],
-          templates: [child0]
+          templates: [child0, child1]
         };
       })();
       return {
         meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "fragmentReason": {
+            "name": "missing-wrapper",
+            "problems": ["wrong-type"]
+          },
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 10,
+              "line": 1,
               "column": 0
             },
             "end": {
-              "line": 19,
+              "line": 15,
               "column": 0
             }
           },
@@ -19073,26 +18851,26 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [11, 2], [18, 15]]]]],
+        statements: [["block", "alert-component", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [2, 2], [14, 22]]]]],
         locals: [],
         templates: [child0]
       };
     })();
-    var child2 = (function () {
+    var child1 = (function () {
       var child0 = (function () {
         var child0 = (function () {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 25,
+                  "line": 21,
                   "column": 8
                 },
                 "end": {
-                  "line": 28,
+                  "line": 24,
                   "column": 8
                 }
               },
@@ -19125,15 +18903,15 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 23,
+                "line": 19,
                 "column": 4
               },
               "end": {
-                "line": 30,
+                "line": 26,
                 "column": 4
               }
             },
@@ -19165,24 +18943,249 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 1, 1);
             return morphs;
           },
-          statements: [["block", "link-to", ["cluster.data", ["get", "model.cluster.name", ["loc", [null, [25, 34], [25, 52]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [25, 8], [28, 20]]]]],
+          statements: [["block", "link-to", ["cluster.data", ["get", "model.cluster.name", ["loc", [null, [21, 34], [21, 52]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [21, 8], [24, 20]]]]],
           locals: [],
           templates: [child0]
         };
       })();
       var child1 = (function () {
+        var child0 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 28,
+                  "column": 6
+                },
+                "end": {
+                  "line": 30,
+                  "column": 6
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/create/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("        ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createComment("");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+              return morphs;
+            },
+            statements: [["inline", "loading-spinner", [], ["statusMessage", ["subexpr", "@mut", [["get", "model.statusMessage", ["loc", [null, [29, 40], [29, 59]]]]], [], []]], ["loc", [null, [29, 8], [29, 61]]]]],
+            locals: [],
+            templates: []
+          };
+        })();
+        var child1 = (function () {
+          var child0 = (function () {
+            return {
+              meta: {
+                "fragmentReason": false,
+                "revision": "Ember@2.5.1",
+                "loc": {
+                  "source": null,
+                  "start": {
+                    "line": 36,
+                    "column": 12
+                  },
+                  "end": {
+                    "line": 38,
+                    "column": 12
+                  }
+                },
+                "moduleName": "ember-riak-explorer/pods/table/create/template.hbs"
+              },
+              isEmpty: false,
+              arity: 0,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createTextNode("              ");
+                dom.appendChild(el0, el1);
+                var el1 = dom.createElement("span");
+                dom.setAttribute(el1, "class", "btn btn-xs btn-info");
+                var el2 = dom.createTextNode("Hide Schema Guidelines");
+                dom.appendChild(el1, el2);
+                dom.appendChild(el0, el1);
+                var el1 = dom.createTextNode("\n");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                var element1 = dom.childAt(fragment, [1]);
+                var morphs = new Array(1);
+                morphs[0] = dom.createElementMorph(element1);
+                return morphs;
+              },
+              statements: [["element", "action", ["removeHelp"], [], ["loc", [null, [37, 48], [37, 71]]]]],
+              locals: [],
+              templates: []
+            };
+          })();
+          var child1 = (function () {
+            return {
+              meta: {
+                "fragmentReason": false,
+                "revision": "Ember@2.5.1",
+                "loc": {
+                  "source": null,
+                  "start": {
+                    "line": 38,
+                    "column": 12
+                  },
+                  "end": {
+                    "line": 40,
+                    "column": 12
+                  }
+                },
+                "moduleName": "ember-riak-explorer/pods/table/create/template.hbs"
+              },
+              isEmpty: false,
+              arity: 0,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createTextNode("              ");
+                dom.appendChild(el0, el1);
+                var el1 = dom.createElement("span");
+                dom.setAttribute(el1, "class", "btn btn-xs btn-info");
+                var el2 = dom.createTextNode("Schema Guidelines");
+                dom.appendChild(el1, el2);
+                dom.appendChild(el0, el1);
+                var el1 = dom.createTextNode("\n");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                var element0 = dom.childAt(fragment, [1]);
+                var morphs = new Array(1);
+                morphs[0] = dom.createElementMorph(element0);
+                return morphs;
+              },
+              statements: [["element", "action", ["showHelp"], [], ["loc", [null, [39, 48], [39, 69]]]]],
+              locals: [],
+              templates: []
+            };
+          })();
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 30,
+                  "column": 6
+                },
+                "end": {
+                  "line": 65,
+                  "column": 6
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/create/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("        ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("div");
+              dom.setAttribute(el1, "class", "manually-create");
+              var el2 = dom.createTextNode("\n          ");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createElement("label");
+              var el3 = dom.createTextNode("\n            Use the editor below to define your table\n            ");
+              dom.appendChild(el2, el3);
+              var el3 = dom.createElement("span");
+              dom.setAttribute(el3, "class", "btn btn-xs btn-info");
+              var el4 = dom.createTextNode("Insert Sample Template");
+              dom.appendChild(el3, el4);
+              dom.appendChild(el2, el3);
+              var el3 = dom.createTextNode("\n\n");
+              dom.appendChild(el2, el3);
+              var el3 = dom.createComment("");
+              dom.appendChild(el2, el3);
+              var el3 = dom.createTextNode("          ");
+              dom.appendChild(el2, el3);
+              dom.appendChild(el1, el2);
+              var el2 = dom.createTextNode("\n\n          ");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createComment("");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createTextNode("\n\n\n          ");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createElement("div");
+              dom.setAttribute(el2, "class", "submit-button-container");
+              var el3 = dom.createTextNode("\n            ");
+              dom.appendChild(el2, el3);
+              var el3 = dom.createElement("button");
+              dom.setAttribute(el3, "type", "submit");
+              dom.setAttribute(el3, "class", "btn btn-primary");
+              var el4 = dom.createTextNode("\n              Create Table\n            ");
+              dom.appendChild(el3, el4);
+              dom.appendChild(el2, el3);
+              var el3 = dom.createTextNode("\n          ");
+              dom.appendChild(el2, el3);
+              dom.appendChild(el1, el2);
+              var el2 = dom.createTextNode("\n\n");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createTextNode("        ");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element2 = dom.childAt(fragment, [1]);
+              var element3 = dom.childAt(element2, [1]);
+              var element4 = dom.childAt(element3, [1]);
+              var element5 = dom.childAt(element2, [5, 1]);
+              var morphs = new Array(5);
+              morphs[0] = dom.createElementMorph(element4);
+              morphs[1] = dom.createMorphAt(element3, 3, 3);
+              morphs[2] = dom.createMorphAt(element2, 3, 3);
+              morphs[3] = dom.createAttrMorph(element5, 'disabled');
+              morphs[4] = dom.createElementMorph(element5);
+              return morphs;
+            },
+            statements: [["element", "action", ["insertTemplate"], [], ["loc", [null, [34, 46], [34, 73]]]], ["block", "if", [["get", "helpVisibile", ["loc", [null, [36, 18], [36, 30]]]]], [], 0, 1, ["loc", [null, [36, 12], [40, 19]]]], ["inline", "ivy-codemirror", [], ["mode", "sql", "theme", "material", "lineWrapping", true, "autofocus", true, "value", ["subexpr", "mut", [["get", "statement", ["loc", [null, [48, 23], [48, 32]]]]], [], ["loc", [null, [48, 18], [48, 33]]]]], ["loc", [null, [43, 10], [48, 35]]]], ["attribute", "disabled", ["get", "isDisabled", ["loc", [null, [52, 69], [52, 79]]]]], ["element", "action", ["createTableManually", ["get", "model", ["loc", [null, [52, 113], [52, 118]]]], ["get", "statement", ["loc", [null, [52, 119], [52, 128]]]]], [], ["loc", [null, [52, 82], [52, 130]]]]],
+            locals: [],
+            templates: [child0, child1]
+          };
+        })();
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 31,
+                "line": 27,
                 "column": 4
               },
               "end": {
-                "line": 57,
+                "line": 66,
                 "column": 4
               }
             },
@@ -19194,75 +19197,34 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
           hasRendered: false,
           buildFragment: function buildFragment(dom) {
             var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("\n      ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("div");
-            dom.setAttribute(el1, "class", "manually-create");
-            var el2 = dom.createTextNode("\n        ");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createElement("label");
-            var el3 = dom.createTextNode("Schema Editor");
-            dom.appendChild(el2, el3);
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("\n        ");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createElement("div");
-            dom.setAttribute(el2, "class", "help-block");
-            var el3 = dom.createTextNode("\n          Use the editor below to define your table. A sample template has been inserted to get you started.\n        ");
-            dom.appendChild(el2, el3);
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("\n        ");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createComment("");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("\n\n        ");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createElement("div");
-            dom.setAttribute(el2, "class", "form-group create-button");
-            var el3 = dom.createTextNode("\n          ");
-            dom.appendChild(el2, el3);
-            var el3 = dom.createElement("button");
-            dom.setAttribute(el3, "class", "btn btn-primary");
-            var el4 = dom.createTextNode("Create Table");
-            dom.appendChild(el3, el4);
-            dom.appendChild(el2, el3);
-            var el3 = dom.createTextNode("\n        ");
-            dom.appendChild(el2, el3);
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("\n      ");
-            dom.appendChild(el1, el2);
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n\n\n");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
+            var el1 = dom.createComment("");
             dom.appendChild(el0, el1);
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var element0 = dom.childAt(fragment, [1]);
-            var element1 = dom.childAt(element0, [7, 1]);
-            var morphs = new Array(2);
-            morphs[0] = dom.createMorphAt(element0, 5, 5);
-            morphs[1] = dom.createElementMorph(element1);
+            var morphs = new Array(1);
+            morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+            dom.insertBoundary(fragment, 0);
+            dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["inline", "ivy-codemirror", [], ["mode", "sql", "theme", "material", "autofocus", true, "value", ["subexpr", "@mut", [["get", "statement", ["loc", [null, [42, 16], [42, 25]]]]], [], []]], ["loc", [null, [38, 8], [42, 27]]]], ["element", "action", ["createTableManually"], [], ["loc", [null, [45, 42], [45, 74]]]]],
+          statements: [["block", "if", [["get", "showSpinner", ["loc", [null, [28, 12], [28, 23]]]]], [], 0, 1, ["loc", [null, [28, 6], [65, 13]]]]],
           locals: [],
-          templates: []
+          templates: [child0, child1]
         };
       })();
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 22,
+              "line": 18,
               "column": 2
             },
             "end": {
-              "line": 58,
+              "line": 67,
               "column": 2
             }
           },
@@ -19288,9 +19250,91 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "dashboard-module.header", [], ["label", "New Table"], 0, null, ["loc", [null, [23, 4], [30, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [31, 4], [57, 30]]]]],
+        statements: [["block", "dashboard-module.header", [], ["label", "Table Schema Editor"], 0, null, ["loc", [null, [19, 4], [26, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [27, 4], [66, 30]]]]],
         locals: [],
         templates: [child0, child1]
+      };
+    })();
+    var child2 = (function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            "fragmentReason": false,
+            "revision": "Ember@2.5.1",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 71,
+                "column": 2
+              },
+              "end": {
+                "line": 75,
+                "column": 2
+              }
+            },
+            "moduleName": "ember-riak-explorer/pods/table/create/template.hbs"
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("    ");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createComment("");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+            var morphs = new Array(1);
+            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+            return morphs;
+          },
+          statements: [["inline", "render", ["partials.schema-anatomy"], [], ["loc", [null, [74, 4], [74, 40]]]]],
+          locals: [],
+          templates: []
+        };
+      })();
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.5.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 70,
+              "column": 0
+            },
+            "end": {
+              "line": 76,
+              "column": 0
+            }
+          },
+          "moduleName": "ember-riak-explorer/pods/table/create/template.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          dom.insertBoundary(fragment, null);
+          return morphs;
+        },
+        statements: [["block", "side-drawer", [], ["label", "Schema Guidelines", "visible", ["subexpr", "@mut", [["get", "helpVisibile", ["loc", [null, [73, 10], [73, 22]]]]], [], []]], 0, null, ["loc", [null, [71, 2], [75, 18]]]]],
+        locals: [],
+        templates: [child0]
       };
     })();
     return {
@@ -19299,7 +19343,7 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -19307,7 +19351,7 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
             "column": 0
           },
           "end": {
-            "line": 60,
+            "line": 77,
             "column": 0
           }
         },
@@ -19323,31 +19367,29 @@ define("ember-riak-explorer/pods/table/create/template", ["exports"], function (
         dom.appendChild(el0, el1);
         var el1 = dom.createTextNode("\n");
         dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
         var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "table-create-container");
-        dom.setAttribute(el1, "xmlns", "http://www.w3.org/1999/html");
+        dom.setAttribute(el1, "class", "ts-table-container table-create-container");
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         var el2 = dom.createComment("");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createComment("");
         dom.appendChild(el0, el1);
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var morphs = new Array(3);
         morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 2, 2, contextualElement);
-        morphs[2] = dom.createMorphAt(dom.childAt(fragment, [4]), 1, 1);
+        morphs[1] = dom.createMorphAt(dom.childAt(fragment, [2]), 1, 1);
+        morphs[2] = dom.createMorphAt(fragment, 4, 4, contextualElement);
         dom.insertBoundary(fragment, 0);
+        dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [1, 0], [8, 13]]]], ["block", "if", [["get", "errors", ["loc", [null, [10, 6], [10, 12]]]]], [], 1, null, ["loc", [null, [10, 0], [19, 7]]]], ["block", "dashboard-module.container", [], ["class", "medium-width"], 2, null, ["loc", [null, [22, 2], [58, 33]]]]],
+      statements: [["block", "if", [["get", "errors", ["loc", [null, [1, 6], [1, 12]]]]], [], 0, null, ["loc", [null, [1, 0], [15, 7]]]], ["block", "dashboard-module.container", [], ["class", "medium-width"], 1, null, ["loc", [null, [18, 2], [67, 33]]]], ["block", "ember-wormhole", [], ["to", "side-drawer-container"], 2, null, ["loc", [null, [70, 0], [76, 19]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
@@ -19434,6 +19476,75 @@ define('ember-riak-explorer/pods/table/model', ['exports', 'ember', 'ember-data'
 
   exports['default'] = Table;
 });
+define('ember-riak-explorer/pods/table/query/controller', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Controller.extend({
+    example: "",
+
+    query: '',
+
+    result: '',
+
+    resultLength: null,
+
+    helpVisibile: false,
+
+    isDisabled: true,
+
+    isLoading: false,
+
+    showClear: false,
+
+    canClear: (function () {
+      var result = this.get('result');
+      var canClear = _ember['default'].isPresent(result) && result !== this.get('loadingMessage');
+
+      this.set('showClear', canClear);
+    }).observes('result'),
+
+    canSubmit: (function () {
+      return this.set('isDisabled', _ember['default'].isBlank(this.get('query')));
+    }).observes('query'),
+
+    setLoadingState: (function () {
+      if (this.get('isLoading')) {
+        this.set('resultLength', null);
+        this.set('result', 'Querying...');
+      }
+    }).observes('isLoading'),
+
+    resetResult: function resetResult() {
+      this.set('result', '');
+      this.set('resultLength', null);
+    },
+
+    resetQuery: function resetQuery() {
+      this.set('query', '');
+    },
+
+    resetState: function resetState() {
+      this.resetQuery();
+      this.resetResult();
+    },
+
+    actions: {
+      clear: function clear() {
+        this.resetState();
+      },
+
+      insertExample: function insertExample() {
+        this.set('query', this.get('example'));
+      },
+
+      removeHelp: function removeHelp() {
+        this.set('helpVisibile', false);
+      },
+
+      showHelp: function showHelp() {
+        this.set('helpVisibile', true);
+      }
+    }
+  });
+});
 define('ember-riak-explorer/pods/table/query/route', ['exports', 'ember', 'ember-riak-explorer/mixins/routes/loading-slider', 'ember-riak-explorer/mixins/routes/scroll-reset', 'ember-riak-explorer/mixins/routes/wrapper-state'], function (exports, _ember, _emberRiakExplorerMixinsRoutesLoadingSlider, _emberRiakExplorerMixinsRoutesScrollReset, _emberRiakExplorerMixinsRoutesWrapperState) {
   exports['default'] = _ember['default'].Route.extend(_emberRiakExplorerMixinsRoutesLoadingSlider['default'], _emberRiakExplorerMixinsRoutesScrollReset['default'], _emberRiakExplorerMixinsRoutesWrapperState['default'], {
     model: function model(params) {
@@ -19455,225 +19566,91 @@ define('ember-riak-explorer/pods/table/query/route', ['exports', 'ember', 'ember
     setupController: function setupController(controller, model) {
       this._super(controller, model);
 
-      controller.set('errors', []);
-      controller.set('successMessage', '');
+      this.setExampleMessageIfPossible();
+      controller.resetState();
+    },
+
+    setExampleMessageIfPossible: function setExampleMessageIfPossible() {
+      var _this = this;
+
+      var table = this.currentModel;
+
+      if (table.get('hasQuantum')) {
+        (function () {
+          var controller = _this.controller;
+          var tableName = table.get('name');
+          var partitionKey = table.get('partitionKey');
+          var quantumName = table.get('quantumFieldName');
+          var sampleNames = ["Lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "Aliquam", "sit", "amet", "tincidunt", "felis", "Curabitur", "at", "gravida", "est", "Quisque", "vehicula", "mi", "sed", "libero", "hendrerit", "vel", "mollis", "lorem", "euismod", "Donec", "fringilla", "iaculis", "sem", "vitae", "tincidunt", "lacus", "consectetur", "vitae", "Aliquam", "felis", "magna", "pellentesque", "vitae", "felis"];
+          var example = '';
+
+          // Set Query Base
+          example = 'select * from ' + tableName + ' where ' + quantumName + ' > 1 and ' + quantumName + ' < 9999';
+
+          // Add a comparison for each partition key field that isn't the quantum field
+          partitionKey.filter(function (field) {
+            return !field.quantum;
+          }).mapBy('name').forEach(function (fieldName, index) {
+            example += ' and ' + fieldName + ' = \'' + sampleNames[index] + '\'';
+          });
+
+          controller.set('example', example);
+        })();
+      }
+    },
+
+    actions: {
+      runQuery: function runQuery(table, query) {
+        var controller = this.controller;
+
+        // Set intermediate state
+        controller.set('isLoading', true);
+
+        // Execute Query
+        this.explorer.queryTable(table, query).then(function onSuccess(data) {
+          if (_ember['default'].isEmpty(data.query.rows)) {
+            controller.set('resultLength', null);
+            controller.set('result', 'No rows found on ' + table.get('name') + ' given the statement: \n\n' + query);
+          } else {
+            var stringifiedData = JSON.stringify(data.query.rows);
+            var formattedStringForEditor = undefined;
+
+            // Adds a line break after each array item
+            // Removes the array surrounding all the results
+            // Adds a space after each comma in the array for better legibility
+            formattedStringForEditor = stringifiedData.replace(/],/g, '],\n');
+            formattedStringForEditor = formattedStringForEditor.substring(1, formattedStringForEditor.length - 1);
+            formattedStringForEditor = formattedStringForEditor.replace(/,/g, ', ');
+
+            controller.set('resultLength', data.query.rows.length);
+            controller.set('result', formattedStringForEditor);
+          }
+        }, function onFail(error) {
+          controller.set('result', error.status + ' ' + error.statusText + ' trying to execute statement: \n\n' + query);
+        });
+
+        return false;
+      }
     }
   });
 });
 define("ember-riak-explorer/pods/table/query/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "missing-wrapper",
-            "problems": ["multiple-nodes"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 10,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/pods/table/query/template.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("  ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("h4");
-          var el2 = dom.createElement("span");
-          dom.setAttribute(el2, "class", "label label-info");
-          var el3 = dom.createTextNode("Notes on Querying");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n  ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("ul");
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("Your query must include all fields defined in the partition key.");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("Fields in the local key must be compared using strict equality against literal values, ranges are not allowed");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("Fields may not be compared against other fields in the query.");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("When using ");
-          dom.appendChild(el2, el3);
-          var el3 = dom.createElement("code");
-          var el4 = dom.createTextNode("or");
-          dom.appendChild(el3, el4);
-          dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode(", you must surround the expression with parentheses or your query will return an error.");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("For more information on querying a table, visit the ");
-          dom.appendChild(el2, el3);
-          var el3 = dom.createElement("a");
-          dom.setAttribute(el3, "href", "http://docs.basho.com/riak/ts/1.2.0/using/querying/");
-          dom.setAttribute(el3, "target", "_blank");
-          var el4 = dom.createTextNode("Basho Docs");
-          dom.appendChild(el3, el4);
-          dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode(".");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n  ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes() {
-          return [];
-        },
-        statements: [],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      var child0 = (function () {
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 13,
-                "column": 2
-              },
-              "end": {
-                "line": 18,
-                "column": 2
-              }
-            },
-            "moduleName": "ember-riak-explorer/pods/table/query/template.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("    ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("h4");
-            var el2 = dom.createElement("span");
-            dom.setAttribute(el2, "class", "label label-success");
-            var el3 = dom.createTextNode("SUCCESS");
-            dom.appendChild(el2, el3);
-            dom.appendChild(el1, el2);
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n    ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("ul");
-            var el2 = dom.createTextNode("\n      ");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createElement("p");
-            var el3 = dom.createComment("");
-            dom.appendChild(el2, el3);
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("\n    ");
-            dom.appendChild(el1, el2);
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3, 1]), 0, 0);
-            return morphs;
-          },
-          statements: [["content", "successMessage", ["loc", [null, [16, 9], [16, 27]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 12,
-              "column": 0
-            },
-            "end": {
-              "line": 19,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/pods/table/query/template.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-          dom.insertBoundary(fragment, 0);
-          dom.insertBoundary(fragment, null);
-          return morphs;
-        },
-        statements: [["block", "bs-alert", [], ["type", "success", "dismissible", false], 0, null, ["loc", [null, [13, 2], [18, 15]]]]],
-        locals: [],
-        templates: [child0]
-      };
-    })();
-    var child2 = (function () {
       var child0 = (function () {
         var child0 = (function () {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 25,
+                  "line": 5,
                   "column": 8
                 },
                 "end": {
-                  "line": 28,
+                  "line": 8,
                   "column": 8
                 }
               },
@@ -19706,15 +19683,15 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 23,
+                "line": 3,
                 "column": 4
               },
               "end": {
-                "line": 30,
+                "line": 10,
                 "column": 4
               }
             },
@@ -19746,24 +19723,256 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 1, 1);
             return morphs;
           },
-          statements: [["block", "link-to", ["table", ["get", "model.cluster.name", ["loc", [null, [25, 27], [25, 45]]]], ["get", "model.name", ["loc", [null, [25, 46], [25, 56]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [25, 8], [28, 20]]]]],
+          statements: [["block", "link-to", ["table", ["get", "model.cluster.name", ["loc", [null, [5, 27], [5, 45]]]], ["get", "model.name", ["loc", [null, [5, 46], [5, 56]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [5, 8], [8, 20]]]]],
           locals: [],
           templates: [child0]
         };
       })();
       var child1 = (function () {
+        var child0 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 22,
+                  "column": 10
+                },
+                "end": {
+                  "line": 24,
+                  "column": 10
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/query/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("            ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("span");
+              dom.setAttribute(el1, "class", "btn btn-xs btn-info");
+              var el2 = dom.createTextNode("Insert Example Query");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element3 = dom.childAt(fragment, [1]);
+              var morphs = new Array(1);
+              morphs[0] = dom.createElementMorph(element3);
+              return morphs;
+            },
+            statements: [["element", "action", ["insertExample"], [], ["loc", [null, [23, 46], [23, 72]]]]],
+            locals: [],
+            templates: []
+          };
+        })();
+        var child1 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 25,
+                  "column": 10
+                },
+                "end": {
+                  "line": 27,
+                  "column": 10
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/query/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("            ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("span");
+              dom.setAttribute(el1, "class", "btn btn-xs btn-info");
+              var el2 = dom.createTextNode("Hide Query Guidelines");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element2 = dom.childAt(fragment, [1]);
+              var morphs = new Array(1);
+              morphs[0] = dom.createElementMorph(element2);
+              return morphs;
+            },
+            statements: [["element", "action", ["removeHelp"], [], ["loc", [null, [26, 46], [26, 69]]]]],
+            locals: [],
+            templates: []
+          };
+        })();
+        var child2 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 27,
+                  "column": 10
+                },
+                "end": {
+                  "line": 29,
+                  "column": 10
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/query/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("            ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("span");
+              dom.setAttribute(el1, "class", "btn btn-xs btn-info");
+              var el2 = dom.createTextNode("Show Query Guidelines");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element1 = dom.childAt(fragment, [1]);
+              var morphs = new Array(1);
+              morphs[0] = dom.createElementMorph(element1);
+              return morphs;
+            },
+            statements: [["element", "action", ["showHelp"], [], ["loc", [null, [28, 46], [28, 67]]]]],
+            locals: [],
+            templates: []
+          };
+        })();
+        var child3 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 54,
+                  "column": 14
+                },
+                "end": {
+                  "line": 56,
+                  "column": 14
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/query/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("                ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("small");
+              var el2 = dom.createTextNode("(");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createComment("");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createTextNode(" rows)");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 1, 1);
+              return morphs;
+            },
+            statements: [["content", "resultLength", ["loc", [null, [55, 24], [55, 40]]]]],
+            locals: [],
+            templates: []
+          };
+        })();
+        var child4 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 58,
+                  "column": 14
+                },
+                "end": {
+                  "line": 60,
+                  "column": 14
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/query/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("                ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("span");
+              dom.setAttribute(el1, "class", "clear-statement");
+              var el2 = dom.createTextNode("clear");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element0 = dom.childAt(fragment, [1]);
+              var morphs = new Array(1);
+              morphs[0] = dom.createElementMorph(element0);
+              return morphs;
+            },
+            statements: [["element", "action", ["clear"], [], ["loc", [null, [59, 46], [59, 64]]]]],
+            locals: [],
+            templates: []
+          };
+        })();
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 32,
+                "line": 12,
                 "column": 4
               },
               "end": {
-                "line": 35,
+                "line": 73,
                 "column": 4
               }
             },
@@ -19775,36 +19984,150 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
           hasRendered: false,
           buildFragment: function buildFragment(dom) {
             var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("      ");
+            var el1 = dom.createTextNode("\n      ");
             dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
+            var el1 = dom.createElement("section");
+            var el2 = dom.createTextNode("\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("div");
+            dom.setAttribute(el2, "class", "section-title");
+            var el3 = dom.createComment("");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createComment("");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n      ");
+            dom.appendChild(el1, el2);
             dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
+            var el1 = dom.createTextNode("\n\n      ");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createElement("section");
+            var el2 = dom.createTextNode("\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("label");
+            var el3 = dom.createTextNode("\n          Use the editor on the left to query against the table\n");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createComment("");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createComment("");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("        ");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("div");
+            dom.setAttribute(el2, "class", "split-panel");
+            var el3 = dom.createTextNode("\n          ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("div");
+            dom.setAttribute(el3, "class", "left-panel");
+            var el4 = dom.createTextNode("\n            ");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createElement("div");
+            dom.setAttribute(el4, "class", "help-block");
+            var el5 = dom.createTextNode("Query");
+            dom.appendChild(el4, el5);
+            dom.appendChild(el3, el4);
+            var el4 = dom.createTextNode("\n\n            ");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createComment("");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createTextNode("\n\n            ");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createElement("div");
+            dom.setAttribute(el4, "class", "submit-button-container");
+            var el5 = dom.createTextNode("\n              ");
+            dom.appendChild(el4, el5);
+            var el5 = dom.createElement("button");
+            dom.setAttribute(el5, "type", "submit");
+            dom.setAttribute(el5, "class", "btn btn-primary");
+            var el6 = dom.createTextNode("\n                Run Query\n              ");
+            dom.appendChild(el5, el6);
+            dom.appendChild(el4, el5);
+            var el5 = dom.createTextNode("\n            ");
+            dom.appendChild(el4, el5);
+            dom.appendChild(el3, el4);
+            var el4 = dom.createTextNode("\n          ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n\n          ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("div");
+            dom.setAttribute(el3, "class", "right-panel");
+            var el4 = dom.createTextNode("\n            ");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createElement("div");
+            dom.setAttribute(el4, "class", "help-block");
+            var el5 = dom.createTextNode("\n              Result\n");
+            dom.appendChild(el4, el5);
+            var el5 = dom.createComment("");
+            dom.appendChild(el4, el5);
+            var el5 = dom.createTextNode("\n");
+            dom.appendChild(el4, el5);
+            var el5 = dom.createComment("");
+            dom.appendChild(el4, el5);
+            var el5 = dom.createTextNode("            ");
+            dom.appendChild(el4, el5);
+            dom.appendChild(el3, el4);
+            var el4 = dom.createTextNode("\n\n            ");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createComment("");
+            dom.appendChild(el3, el4);
+            var el4 = dom.createTextNode("\n          ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n        ");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n      ");
+            dom.appendChild(el1, el2);
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n\n");
             dom.appendChild(el0, el1);
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+            var element4 = dom.childAt(fragment, [1]);
+            var element5 = dom.childAt(fragment, [3]);
+            var element6 = dom.childAt(element5, [1]);
+            var element7 = dom.childAt(element5, [3]);
+            var element8 = dom.childAt(element7, [1]);
+            var element9 = dom.childAt(element8, [5, 1]);
+            var element10 = dom.childAt(element7, [3]);
+            var element11 = dom.childAt(element10, [1]);
+            var morphs = new Array(10);
+            morphs[0] = dom.createMorphAt(dom.childAt(element4, [1]), 0, 0);
+            morphs[1] = dom.createMorphAt(element4, 3, 3);
+            morphs[2] = dom.createMorphAt(element6, 1, 1);
+            morphs[3] = dom.createMorphAt(element6, 2, 2);
+            morphs[4] = dom.createMorphAt(element8, 3, 3);
+            morphs[5] = dom.createAttrMorph(element9, 'disabled');
+            morphs[6] = dom.createElementMorph(element9);
+            morphs[7] = dom.createMorphAt(element11, 1, 1);
+            morphs[8] = dom.createMorphAt(element11, 3, 3);
+            morphs[9] = dom.createMorphAt(element10, 3, 3);
             return morphs;
           },
-          statements: [["inline", "form.table.query-table", [], ["table", ["subexpr", "@mut", [["get", "model", ["loc", [null, [34, 14], [34, 19]]]]], [], []]], ["loc", [null, [33, 6], [34, 21]]]]],
+          statements: [["content", "model.name", ["loc", [null, [15, 35], [15, 49]]]], ["inline", "table.ts-table-reference", [], ["table", ["subexpr", "@mut", [["get", "model", ["loc", [null, [16, 41], [16, 46]]]]], [], []]], ["loc", [null, [16, 8], [16, 48]]]], ["block", "if", [["get", "example", ["loc", [null, [22, 16], [22, 23]]]]], [], 0, null, ["loc", [null, [22, 10], [24, 17]]]], ["block", "if", [["get", "helpVisibile", ["loc", [null, [25, 16], [25, 28]]]]], [], 1, 2, ["loc", [null, [25, 10], [29, 17]]]], ["inline", "ivy-codemirror", [], ["mode", "javascript", "theme", "material", "lineWrapping", true, "autofocus", true, "tabindex", 1, "value", ["subexpr", "mut", [["get", "query", ["loc", [null, [42, 25], [42, 30]]]]], [], ["loc", [null, [42, 20], [42, 31]]]]], ["loc", [null, [36, 12], [42, 33]]]], ["attribute", "disabled", ["get", "isDisabled", ["loc", [null, [45, 71], [45, 81]]]]], ["element", "action", ["runQuery", ["get", "model", ["loc", [null, [45, 104], [45, 109]]]], ["get", "query", ["loc", [null, [45, 110], [45, 115]]]]], [], ["loc", [null, [45, 84], [45, 117]]]], ["block", "if", [["get", "resultLength", ["loc", [null, [54, 20], [54, 32]]]]], [], 3, null, ["loc", [null, [54, 14], [56, 21]]]], ["block", "if", [["get", "showClear", ["loc", [null, [58, 20], [58, 29]]]]], [], 4, null, ["loc", [null, [58, 14], [60, 21]]]], ["inline", "ivy-codemirror", [], ["mode", "javascript", "theme", "material", "readOnly", "nocursor", "lineWrapping", true, "value", ["subexpr", "@mut", [["get", "result", ["loc", [null, [68, 20], [68, 26]]]]], [], []]], ["loc", [null, [63, 12], [68, 28]]]]],
           locals: [],
-          templates: []
+          templates: [child0, child1, child2, child3, child4]
         };
       })();
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 22,
+              "line": 2,
               "column": 2
             },
             "end": {
-              "line": 36,
+              "line": 74,
               "column": 2
             }
           },
@@ -19832,18 +20155,100 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "dashboard-module.header", [], ["label", "Query Table"], 0, null, ["loc", [null, [23, 4], [30, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [32, 4], [35, 30]]]]],
+        statements: [["block", "dashboard-module.header", [], ["label", "Query Table"], 0, null, ["loc", [null, [3, 4], [10, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [12, 4], [73, 30]]]]],
         locals: [],
         templates: [child0, child1]
+      };
+    })();
+    var child1 = (function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            "fragmentReason": false,
+            "revision": "Ember@2.5.1",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 78,
+                "column": 2
+              },
+              "end": {
+                "line": 82,
+                "column": 2
+              }
+            },
+            "moduleName": "ember-riak-explorer/pods/table/query/template.hbs"
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("    ");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createComment("");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+            var morphs = new Array(1);
+            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+            return morphs;
+          },
+          statements: [["inline", "render", ["partials.ts-query-guidelines"], [], ["loc", [null, [81, 4], [81, 45]]]]],
+          locals: [],
+          templates: []
+        };
+      })();
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.5.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 77,
+              "column": 0
+            },
+            "end": {
+              "line": 83,
+              "column": 0
+            }
+          },
+          "moduleName": "ember-riak-explorer/pods/table/query/template.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          dom.insertBoundary(fragment, null);
+          return morphs;
+        },
+        statements: [["block", "side-drawer", [], ["label", "Query Guidelines", "visible", ["subexpr", "@mut", [["get", "helpVisibile", ["loc", [null, [80, 10], [80, 22]]]]], [], []]], 0, null, ["loc", [null, [78, 2], [82, 18]]]]],
+        locals: [],
+        templates: [child0]
       };
     })();
     return {
       meta: {
         "fragmentReason": {
           "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
+          "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -19851,7 +20256,7 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
             "column": 0
           },
           "end": {
-            "line": 40,
+            "line": 85,
             "column": 0
           }
         },
@@ -19863,36 +20268,30 @@ define("ember-riak-explorer/pods/table/query/template", ["exports"], function (e
       hasRendered: false,
       buildFragment: function buildFragment(dom) {
         var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
         var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "bucket-types-container");
+        dom.setAttribute(el1, "class", "ts-table-container table-query-container");
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         var el2 = dom.createComment("");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n\n");
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
         dom.appendChild(el0, el1);
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(3);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        var morphs = new Array(2);
+        morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 1, 1);
         morphs[1] = dom.createMorphAt(fragment, 2, 2, contextualElement);
-        morphs[2] = dom.createMorphAt(dom.childAt(fragment, [4]), 1, 1);
-        dom.insertBoundary(fragment, 0);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [1, 0], [10, 13]]]], ["block", "if", [["get", "successMessage", ["loc", [null, [12, 6], [12, 20]]]]], [], 1, null, ["loc", [null, [12, 0], [19, 7]]]], ["block", "dashboard-module.container", [], ["class", "table-query-container"], 2, null, ["loc", [null, [22, 2], [36, 33]]]]],
+      statements: [["block", "dashboard-module.container", [], [], 0, null, ["loc", [null, [2, 2], [74, 33]]]], ["block", "ember-wormhole", [], ["to", "side-drawer-container"], 1, null, ["loc", [null, [77, 0], [83, 19]]]]],
       locals: [],
-      templates: [child0, child1, child2]
+      templates: [child0, child1]
     };
   })());
 });
@@ -19923,7 +20322,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -19966,7 +20365,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -20025,7 +20424,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -20056,7 +20455,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "warning", "dismissible", false], 0, null, ["loc", [null, [2, 2], [9, 15]]]]],
+        statements: [["block", "alert-component", [], ["type", "warning", "dismissible", false], 0, null, ["loc", [null, [2, 2], [9, 22]]]]],
         locals: [],
         templates: [child0]
       };
@@ -20067,7 +20466,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -20109,7 +20508,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -20150,7 +20549,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -20208,7 +20607,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -20244,7 +20643,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.3.2",
+                  "revision": "Ember@2.5.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -20279,7 +20678,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -20326,7 +20725,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -20368,7 +20767,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.3.2",
+                "revision": "Ember@2.5.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -20409,7 +20808,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -20458,7 +20857,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -20497,7 +20896,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -20542,7 +20941,7 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -20586,12 +20985,56 @@ define("ember-riak-explorer/pods/table/template", ["exports"], function (exports
 });
 define('ember-riak-explorer/pods/table/write/controller', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({
-    errors: [],
+    errors: '',
 
-    successMessage: ''
+    example: '["foo", "bar", 10], ["foo", "bar", 11], ["foo", "bar", 12]',
+
+    writeData: '',
+
+    helpVisibile: false,
+
+    isDisabled: true,
+
+    successMessage: '',
+
+    canSubmit: (function () {
+      return this.set('isDisabled', _ember['default'].isBlank(this.get('writeData')));
+    }).observes('writeData'),
+
+    clearErrors: function clearErrors() {
+      this.set('errors', '');
+    },
+
+    clearSuccessMessage: function clearSuccessMessage() {
+      this.set('successMessage', '');
+    },
+
+    clearWriteData: function clearWriteData() {
+      this.set('writeData', '');
+    },
+
+    resetState: function resetState() {
+      this.clearErrors();
+      this.clearSuccessMessage();
+      this.clearWriteData();
+    },
+
+    actions: {
+      removeHelp: function removeHelp() {
+        this.set('helpVisibile', false);
+      },
+
+      showHelp: function showHelp() {
+        this.set('helpVisibile', true);
+      },
+
+      insertExample: function insertExample() {
+        this.set('writeData', this.get('example'));
+      }
+    }
   });
 });
-define('ember-riak-explorer/pods/table/write/route', ['exports', 'ember', 'ember-riak-explorer/mixins/routes/loading-slider', 'ember-riak-explorer/mixins/routes/scroll-reset', 'ember-riak-explorer/mixins/routes/wrapper-state'], function (exports, _ember, _emberRiakExplorerMixinsRoutesLoadingSlider, _emberRiakExplorerMixinsRoutesScrollReset, _emberRiakExplorerMixinsRoutesWrapperState) {
+define('ember-riak-explorer/pods/table/write/route', ['exports', 'ember', 'ember-riak-explorer/mixins/routes/loading-slider', 'ember-riak-explorer/mixins/routes/scroll-reset', 'ember-riak-explorer/mixins/routes/wrapper-state', 'lodash/lodash'], function (exports, _ember, _emberRiakExplorerMixinsRoutesLoadingSlider, _emberRiakExplorerMixinsRoutesScrollReset, _emberRiakExplorerMixinsRoutesWrapperState, _lodashLodash) {
   exports['default'] = _ember['default'].Route.extend(_emberRiakExplorerMixinsRoutesLoadingSlider['default'], _emberRiakExplorerMixinsRoutesScrollReset['default'], _emberRiakExplorerMixinsRoutesWrapperState['default'], {
     model: function model(params) {
       return this.explorer.getTable(params.clusterName, params.tableName);
@@ -20613,134 +21056,208 @@ define('ember-riak-explorer/pods/table/write/route', ['exports', 'ember', 'ember
     setupController: function setupController(controller, model) {
       this._super(controller, model);
 
-      controller.set('errors', []);
-      controller.set('successMessage', '');
+      controller.resetState();
+    },
+
+    prepareData: function prepareData(stringData) {
+      var data = undefined;
+      var transformed = '[' + stringData.replace(/'/g, '"') + ']'; // Wraps the comma separated strings in an array, and replaces any single quotes with double
+
+      try {
+        data = JSON.parse(transformed);
+      } catch (e) {}
+
+      return data;
+    },
+
+    validateData: function validateData(data) {
+      var isValid = false;
+
+      if (data && _lodashLodash['default'].isArray(data)) {
+        var arrayLength = data.length;
+        var subArrayCount = data.filter(function (item) {
+          return _lodashLodash['default'].isArray(item);
+        }).length;
+        isValid = arrayLength === subArrayCount;
+      }
+
+      if (!isValid) {
+        this.controller.set('errors', 'Submitted Data is not valid. The textfield expects an array of arrays, each sub-array representing a row to be inserted. View the example for valid input.');
+        this.scrollToTop();
+      }
+
+      return isValid;
+    },
+
+    actions: {
+      writeDataToTable: function writeDataToTable(table, data) {
+        this.controller.clearErrors();
+        this.controller.clearSuccessMessage();
+
+        var sanitizedData = this.prepareData(data);
+        var isValid = this.validateData(sanitizedData);
+        var self = this;
+
+        if (isValid) {
+          this.get('explorer').updateTable(table, sanitizedData).then(function onSuccess(data) {
+            var tableName = table.get('name');
+
+            self.controller.clearErrors();
+            self.controller.clearWriteData();
+            self.controller.set('successMessage', 'Your data was saved to the ' + tableName + ' table.');
+            self.scrollToTop();
+          }, function onFail(error) {
+            self.controller.set('errors', 'The server failed to save the data to the table, check that your data is formatted correctly and try again.');
+            self.scrollToTop();
+          });
+        }
+
+        return false;
+      }
     }
   });
 });
 define("ember-riak-explorer/pods/table/write/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "missing-wrapper",
-            "problems": ["multiple-nodes"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 11,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/pods/table/write/template.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("  ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("h4");
-          var el2 = dom.createElement("span");
-          dom.setAttribute(el2, "class", "label label-info");
-          var el3 = dom.createTextNode("Notes on Writing Data");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n\n  ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("ul");
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("Writes will assume that columns are in the same order they've been declared in the table.");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("Timestamps should be in Unix epoch/UTC milliseconds.");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("The textfield expects an array of arrays, each sub-array representing a row to be inserted.");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("All rows will be validated server side before writing occurs. If any of the rows fails validation then none of the rows will be written.");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createElement("li");
-          var el3 = dom.createTextNode("For more information on writing data to a table, visit the ");
-          dom.appendChild(el2, el3);
-          var el3 = dom.createElement("a");
-          dom.setAttribute(el3, "href", "http://docs.basho.com/riak/ts/1.2.0/using/writingdata/");
-          dom.setAttribute(el3, "target", "_blank");
-          var el4 = dom.createTextNode("Basho Docs");
-          dom.appendChild(el3, el4);
-          dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode(".");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n  ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes() {
-          return [];
-        },
-        statements: [],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
       var child0 = (function () {
         var child0 = (function () {
+          var child0 = (function () {
+            return {
+              meta: {
+                "fragmentReason": false,
+                "revision": "Ember@2.5.1",
+                "loc": {
+                  "source": null,
+                  "start": {
+                    "line": 6,
+                    "column": 8
+                  },
+                  "end": {
+                    "line": 8,
+                    "column": 8
+                  }
+                },
+                "moduleName": "ember-riak-explorer/pods/table/write/template.hbs"
+              },
+              isEmpty: false,
+              arity: 1,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createTextNode("          ");
+                dom.appendChild(el0, el1);
+                var el1 = dom.createElement("li");
+                var el2 = dom.createComment("");
+                dom.appendChild(el1, el2);
+                dom.appendChild(el0, el1);
+                var el1 = dom.createTextNode("\n");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                var morphs = new Array(1);
+                morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
+                return morphs;
+              },
+              statements: [["content", "error", ["loc", [null, [7, 14], [7, 23]]]]],
+              locals: ["error"],
+              templates: []
+            };
+          })();
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 17,
-                  "column": 6
+                  "line": 3,
+                  "column": 4
                 },
                 "end": {
-                  "line": 19,
-                  "column": 6
+                  "line": 10,
+                  "column": 4
                 }
               },
               "moduleName": "ember-riak-explorer/pods/table/write/template.hbs"
             },
             isEmpty: false,
-            arity: 1,
+            arity: 0,
             cachedFragment: null,
             hasRendered: false,
             buildFragment: function buildFragment(dom) {
               var el0 = dom.createDocumentFragment();
-              var el1 = dom.createTextNode("        ");
+              var el1 = dom.createTextNode("      ");
               dom.appendChild(el0, el1);
-              var el1 = dom.createElement("li");
+              var el1 = dom.createElement("h4");
+              var el2 = dom.createElement("span");
+              dom.setAttribute(el2, "class", "label label-danger");
+              var el3 = dom.createTextNode("Errors");
+              dom.appendChild(el2, el3);
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n      ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("ul");
+              var el2 = dom.createTextNode("\n");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createComment("");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createTextNode("      ");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3]), 1, 1);
+              return morphs;
+            },
+            statements: [["block", "each", [["get", "errors", ["loc", [null, [6, 16], [6, 22]]]]], [], 0, null, ["loc", [null, [6, 8], [8, 17]]]]],
+            locals: [],
+            templates: [child0]
+          };
+        })();
+        var child1 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 10,
+                  "column": 4
+                },
+                "end": {
+                  "line": 13,
+                  "column": 4
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/write/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("      ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("h4");
+              var el2 = dom.createElement("span");
+              dom.setAttribute(el2, "class", "label label-danger");
+              var el3 = dom.createTextNode("Error");
+              dom.appendChild(el2, el3);
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n      ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("p");
               var el2 = dom.createComment("");
               dom.appendChild(el1, el2);
               dom.appendChild(el0, el1);
@@ -20750,26 +21267,26 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             },
             buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
               var morphs = new Array(1);
-              morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
+              morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3]), 0, 0);
               return morphs;
             },
-            statements: [["content", "error", ["loc", [null, [18, 12], [18, 21]]]]],
-            locals: ["error"],
+            statements: [["content", "errors", ["loc", [null, [12, 9], [12, 19]]]]],
+            locals: [],
             templates: []
           };
         })();
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 14,
+                "line": 2,
                 "column": 2
               },
               "end": {
-                "line": 21,
+                "line": 14,
                 "column": 2
               }
             },
@@ -20781,51 +21298,37 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           hasRendered: false,
           buildFragment: function buildFragment(dom) {
             var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("    ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("h4");
-            var el2 = dom.createElement("span");
-            dom.setAttribute(el2, "class", "label label-danger");
-            var el3 = dom.createTextNode("ERRORS");
-            dom.appendChild(el2, el3);
-            dom.appendChild(el1, el2);
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n    ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("ul");
-            var el2 = dom.createTextNode("\n");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createComment("");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("    ");
-            dom.appendChild(el1, el2);
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
+            var el1 = dom.createComment("");
             dom.appendChild(el0, el1);
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
             var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3]), 1, 1);
+            morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+            dom.insertBoundary(fragment, 0);
+            dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "each", [["get", "errors", ["loc", [null, [17, 14], [17, 20]]]]], [], 0, null, ["loc", [null, [17, 6], [19, 15]]]]],
+          statements: [["block", "if", [["subexpr", "is-array", [["get", "errors", ["loc", [null, [3, 20], [3, 26]]]]], [], ["loc", [null, [3, 10], [3, 27]]]]], [], 0, 1, ["loc", [null, [3, 4], [13, 11]]]]],
           locals: [],
-          templates: [child0]
+          templates: [child0, child1]
         };
       })();
       return {
         meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "fragmentReason": {
+            "name": "missing-wrapper",
+            "problems": ["wrong-type"]
+          },
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 13,
+              "line": 1,
               "column": 0
             },
             "end": {
-              "line": 22,
+              "line": 15,
               "column": 0
             }
           },
@@ -20848,25 +21351,25 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [14, 2], [21, 15]]]]],
+        statements: [["block", "alert-component", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [2, 2], [14, 22]]]]],
         locals: [],
         templates: [child0]
       };
     })();
-    var child2 = (function () {
+    var child1 = (function () {
       var child0 = (function () {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 25,
+                "line": 17,
                 "column": 2
               },
               "end": {
-                "line": 30,
+                "line": 20,
                 "column": 2
               }
             },
@@ -20889,14 +21392,8 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             dom.appendChild(el0, el1);
             var el1 = dom.createTextNode("\n    ");
             dom.appendChild(el0, el1);
-            var el1 = dom.createElement("ul");
-            var el2 = dom.createTextNode("\n      ");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createElement("p");
-            var el3 = dom.createComment("");
-            dom.appendChild(el2, el3);
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("\n    ");
+            var el1 = dom.createElement("p");
+            var el2 = dom.createComment("");
             dom.appendChild(el1, el2);
             dom.appendChild(el0, el1);
             var el1 = dom.createTextNode("\n");
@@ -20905,10 +21402,10 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
             var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3, 1]), 0, 0);
+            morphs[0] = dom.createMorphAt(dom.childAt(fragment, [3]), 0, 0);
             return morphs;
           },
-          statements: [["content", "successMessage", ["loc", [null, [28, 9], [28, 27]]]]],
+          statements: [["content", "successMessage", ["loc", [null, [19, 7], [19, 25]]]]],
           locals: [],
           templates: []
         };
@@ -20916,15 +21413,15 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 24,
+              "line": 16,
               "column": 0
             },
             "end": {
-              "line": 31,
+              "line": 21,
               "column": 0
             }
           },
@@ -20947,26 +21444,26 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "bs-alert", [], ["type", "success"], 0, null, ["loc", [null, [25, 2], [30, 15]]]]],
+        statements: [["block", "alert-component", [], ["type", "success"], 0, null, ["loc", [null, [17, 2], [20, 22]]]]],
         locals: [],
         templates: [child0]
       };
     })();
-    var child3 = (function () {
+    var child2 = (function () {
       var child0 = (function () {
         var child0 = (function () {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 37,
+                  "line": 27,
                   "column": 8
                 },
                 "end": {
-                  "line": 40,
+                  "line": 30,
                   "column": 8
                 }
               },
@@ -20999,15 +21496,15 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 35,
+                "line": 25,
                 "column": 4
               },
               "end": {
-                "line": 42,
+                "line": 32,
                 "column": 4
               }
             },
@@ -21039,24 +21536,116 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 1, 1);
             return morphs;
           },
-          statements: [["block", "link-to", ["table", ["get", "model.cluster.name", ["loc", [null, [37, 27], [37, 45]]]], ["get", "model.name", ["loc", [null, [37, 46], [37, 56]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [37, 8], [40, 20]]]]],
+          statements: [["block", "link-to", ["table", ["get", "model.cluster.name", ["loc", [null, [27, 27], [27, 45]]]], ["get", "model.name", ["loc", [null, [27, 46], [27, 56]]]]], ["class", "cancel action-button"], 0, null, ["loc", [null, [27, 8], [30, 20]]]]],
           locals: [],
           templates: [child0]
         };
       })();
       var child1 = (function () {
+        var child0 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 44,
+                  "column": 10
+                },
+                "end": {
+                  "line": 46,
+                  "column": 10
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/write/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("            ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("span");
+              dom.setAttribute(el1, "class", "btn btn-xs btn-info");
+              var el2 = dom.createTextNode("Hide Write Guidelines");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element1 = dom.childAt(fragment, [1]);
+              var morphs = new Array(1);
+              morphs[0] = dom.createElementMorph(element1);
+              return morphs;
+            },
+            statements: [["element", "action", ["removeHelp"], [], ["loc", [null, [45, 46], [45, 69]]]]],
+            locals: [],
+            templates: []
+          };
+        })();
+        var child1 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.5.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 46,
+                  "column": 10
+                },
+                "end": {
+                  "line": 48,
+                  "column": 10
+                }
+              },
+              "moduleName": "ember-riak-explorer/pods/table/write/template.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("            ");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("span");
+              dom.setAttribute(el1, "class", "btn btn-xs btn-info");
+              var el2 = dom.createTextNode("Show Write Guidelines");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element0 = dom.childAt(fragment, [1]);
+              var morphs = new Array(1);
+              morphs[0] = dom.createElementMorph(element0);
+              return morphs;
+            },
+            statements: [["element", "action", ["showHelp"], [], ["loc", [null, [47, 46], [47, 67]]]]],
+            locals: [],
+            templates: []
+          };
+        })();
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 43,
+                "line": 33,
                 "column": 4
               },
               "end": {
-                "line": 48,
+                "line": 63,
                 "column": 4
               }
             },
@@ -21068,36 +21657,104 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           hasRendered: false,
           buildFragment: function buildFragment(dom) {
             var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("      ");
+            var el1 = dom.createTextNode("\n      ");
             dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
+            var el1 = dom.createElement("section");
+            dom.setAttribute(el1, "class", "table-ref");
+            var el2 = dom.createTextNode("\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("div");
+            dom.setAttribute(el2, "class", "section-title");
+            var el3 = dom.createComment("");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createComment("");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n      ");
+            dom.appendChild(el1, el2);
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n\n      ");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createElement("section");
+            dom.setAttribute(el1, "class", "table-editor");
+            var el2 = dom.createTextNode("\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("label");
+            var el3 = dom.createTextNode("\n          Use the editor below to write rows to your table\n          ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("span");
+            dom.setAttribute(el3, "class", "btn btn-xs btn-info");
+            var el4 = dom.createTextNode("Insert Example");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createComment("");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("        ");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createComment("");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n\n        ");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("div");
+            dom.setAttribute(el2, "class", "submit-button-container");
+            var el3 = dom.createTextNode("\n          ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("button");
+            dom.setAttribute(el3, "type", "submit");
+            dom.setAttribute(el3, "class", "btn btn-primary");
+            var el4 = dom.createTextNode("\n            Insert Rows\n          ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n        ");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n      ");
+            dom.appendChild(el1, el2);
             dom.appendChild(el0, el1);
             var el1 = dom.createTextNode("\n");
             dom.appendChild(el0, el1);
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+            var element2 = dom.childAt(fragment, [1]);
+            var element3 = dom.childAt(fragment, [3]);
+            var element4 = dom.childAt(element3, [1]);
+            var element5 = dom.childAt(element4, [1]);
+            var element6 = dom.childAt(element3, [5, 1]);
+            var morphs = new Array(7);
+            morphs[0] = dom.createMorphAt(dom.childAt(element2, [1]), 0, 0);
+            morphs[1] = dom.createMorphAt(element2, 3, 3);
+            morphs[2] = dom.createElementMorph(element5);
+            morphs[3] = dom.createMorphAt(element4, 3, 3);
+            morphs[4] = dom.createMorphAt(element3, 3, 3);
+            morphs[5] = dom.createAttrMorph(element6, 'disabled');
+            morphs[6] = dom.createElementMorph(element6);
             return morphs;
           },
-          statements: [["inline", "form.table.insert-data", [], ["table", ["subexpr", "@mut", [["get", "model", ["loc", [null, [45, 14], [45, 19]]]]], [], []], "errors", ["subexpr", "mut", [["get", "errors", ["loc", [null, [46, 20], [46, 26]]]]], [], ["loc", [null, [46, 15], [46, 27]]]], "successMessage", ["subexpr", "mut", [["get", "successMessage", ["loc", [null, [47, 28], [47, 42]]]]], [], ["loc", [null, [47, 23], [47, 43]]]]], ["loc", [null, [44, 6], [47, 45]]]]],
+          statements: [["content", "model.name", ["loc", [null, [36, 35], [36, 49]]]], ["inline", "table.ts-table-reference", [], ["table", ["subexpr", "@mut", [["get", "model", ["loc", [null, [37, 41], [37, 46]]]]], [], []]], ["loc", [null, [37, 8], [37, 48]]]], ["element", "action", ["insertExample"], [], ["loc", [null, [43, 44], [43, 70]]]], ["block", "if", [["get", "helpVisibile", ["loc", [null, [44, 16], [44, 28]]]]], [], 0, 1, ["loc", [null, [44, 10], [48, 17]]]], ["inline", "ivy-codemirror", [], ["mode", "javascript", "theme", "material", "lineWrapping", true, "value", ["subexpr", "mut", [["get", "writeData", ["loc", [null, [55, 21], [55, 30]]]]], [], ["loc", [null, [55, 16], [55, 31]]]]], ["loc", [null, [51, 8], [55, 33]]]], ["attribute", "disabled", ["get", "isDisabled", ["loc", [null, [58, 67], [58, 77]]]]], ["element", "action", ["writeDataToTable", ["get", "model", ["loc", [null, [58, 108], [58, 113]]]], ["get", "writeData", ["loc", [null, [58, 114], [58, 123]]]]], [], ["loc", [null, [58, 80], [58, 125]]]]],
           locals: [],
-          templates: []
+          templates: [child0, child1]
         };
       })();
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 34,
+              "line": 24,
               "column": 2
             },
             "end": {
-              "line": 49,
+              "line": 64,
               "column": 2
             }
           },
@@ -21123,9 +21780,91 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "dashboard-module.header", [], ["label", "Write Data to Table"], 0, null, ["loc", [null, [35, 4], [42, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [43, 4], [48, 30]]]]],
+        statements: [["block", "dashboard-module.header", [], ["label", "Table Write Editor"], 0, null, ["loc", [null, [25, 4], [32, 32]]]], ["block", "dashboard-module.body", [], [], 1, null, ["loc", [null, [33, 4], [63, 30]]]]],
         locals: [],
         templates: [child0, child1]
+      };
+    })();
+    var child3 = (function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            "fragmentReason": false,
+            "revision": "Ember@2.5.1",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 68,
+                "column": 2
+              },
+              "end": {
+                "line": 72,
+                "column": 2
+              }
+            },
+            "moduleName": "ember-riak-explorer/pods/table/write/template.hbs"
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("    ");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createComment("");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+            var morphs = new Array(1);
+            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+            return morphs;
+          },
+          statements: [["inline", "render", ["partials.ts-table-write-guidelines"], [], ["loc", [null, [71, 4], [71, 51]]]]],
+          locals: [],
+          templates: []
+        };
+      })();
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.5.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 67,
+              "column": 0
+            },
+            "end": {
+              "line": 73,
+              "column": 0
+            }
+          },
+          "moduleName": "ember-riak-explorer/pods/table/write/template.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          dom.insertBoundary(fragment, null);
+          return morphs;
+        },
+        statements: [["block", "side-drawer", [], ["label", "Write Guidelines", "visible", ["subexpr", "@mut", [["get", "helpVisibile", ["loc", [null, [70, 12], [70, 24]]]]], [], []]], 0, null, ["loc", [null, [68, 2], [72, 18]]]]],
+        locals: [],
+        templates: [child0]
       };
     })();
     return {
@@ -21134,7 +21873,7 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -21142,8 +21881,8 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
             "column": 0
           },
           "end": {
-            "line": 50,
-            "column": 6
+            "line": 73,
+            "column": 19
           }
         },
         "moduleName": "ember-riak-explorer/pods/table/write/template.hbs"
@@ -21156,34 +21895,34 @@ define("ember-riak-explorer/pods/table/write/template", ["exports"], function (e
         var el0 = dom.createDocumentFragment();
         var el1 = dom.createComment("");
         dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
         var el1 = dom.createComment("");
         dom.appendChild(el0, el1);
         var el1 = dom.createTextNode("\n");
         dom.appendChild(el0, el1);
         var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "ts-table-container table-write-container");
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         var el2 = dom.createComment("");
         dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createComment("");
         dom.appendChild(el0, el1);
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var morphs = new Array(4);
         morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 2, 2, contextualElement);
-        morphs[2] = dom.createMorphAt(fragment, 4, 4, contextualElement);
-        morphs[3] = dom.createMorphAt(dom.childAt(fragment, [6]), 1, 1);
+        morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+        morphs[2] = dom.createMorphAt(dom.childAt(fragment, [3]), 1, 1);
+        morphs[3] = dom.createMorphAt(fragment, 5, 5, contextualElement);
         dom.insertBoundary(fragment, 0);
+        dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "info"], 0, null, ["loc", [null, [1, 0], [11, 13]]]], ["block", "if", [["get", "errors", ["loc", [null, [13, 6], [13, 12]]]]], [], 1, null, ["loc", [null, [13, 0], [22, 7]]]], ["block", "if", [["get", "successMessage", ["loc", [null, [24, 6], [24, 20]]]]], [], 2, null, ["loc", [null, [24, 0], [31, 7]]]], ["block", "dashboard-module.container", [], [], 3, null, ["loc", [null, [34, 2], [49, 33]]]]],
+      statements: [["block", "if", [["get", "errors", ["loc", [null, [1, 6], [1, 12]]]]], [], 0, null, ["loc", [null, [1, 0], [15, 7]]]], ["block", "if", [["get", "successMessage", ["loc", [null, [16, 6], [16, 20]]]]], [], 1, null, ["loc", [null, [16, 0], [21, 7]]]], ["block", "dashboard-module.container", [], ["class", "medium-width"], 2, null, ["loc", [null, [24, 2], [64, 33]]]], ["block", "ember-wormhole", [], ["to", "side-drawer-container"], 3, null, ["loc", [null, [67, 0], [73, 19]]]]],
       locals: [],
       templates: [child0, child1, child2, child3]
     };
@@ -22585,6 +23324,23 @@ define('ember-riak-explorer/services/explorer', ['exports', 'ember', 'ember-riak
     }
   });
 });
+define('ember-riak-explorer/services/loading-slider', ['exports', 'ember'], function (exports, _ember) {
+  var Service = _ember['default'].Service;
+  var Evented = _ember['default'].Evented;
+  exports['default'] = Service.extend(Evented, {
+    startLoading: function startLoading() {
+      this.trigger('startLoading');
+    },
+
+    endLoading: function endLoading() {
+      this.trigger('endLoading');
+    },
+
+    changeAttrs: function changeAttrs(attrs) {
+      this.trigger('changeAttrs', attrs);
+    }
+  });
+});
 define("ember-riak-explorer/templates/alerts/empty", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     return {
@@ -22593,7 +23349,7 @@ define("ember-riak-explorer/templates/alerts/empty", ["exports"], function (expo
           "name": "missing-wrapper",
           "problems": ["empty-body"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -22633,7 +23389,7 @@ define("ember-riak-explorer/templates/alerts/error-invalid-xml", ["exports"], fu
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -22680,7 +23436,7 @@ define("ember-riak-explorer/templates/alerts/error-invalid-xml", ["exports"], fu
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -22689,7 +23445,7 @@ define("ember-riak-explorer/templates/alerts/error-invalid-xml", ["exports"], fu
           },
           "end": {
             "line": 4,
-            "column": 13
+            "column": 20
           }
         },
         "moduleName": "ember-riak-explorer/templates/alerts/error-invalid-xml.hbs"
@@ -22711,7 +23467,7 @@ define("ember-riak-explorer/templates/alerts/error-invalid-xml", ["exports"], fu
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [1, 0], [4, 13]]]]],
+      statements: [["block", "alert-component", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [1, 0], [4, 20]]]]],
       locals: [],
       templates: [child0]
     };
@@ -22726,7 +23482,7 @@ define("ember-riak-explorer/templates/alerts/error-request-was-not-processed", [
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -22781,7 +23537,7 @@ define("ember-riak-explorer/templates/alerts/error-request-was-not-processed", [
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -22790,7 +23546,7 @@ define("ember-riak-explorer/templates/alerts/error-request-was-not-processed", [
           },
           "end": {
             "line": 5,
-            "column": 13
+            "column": 20
           }
         },
         "moduleName": "ember-riak-explorer/templates/alerts/error-request-was-not-processed.hbs"
@@ -22812,7 +23568,7 @@ define("ember-riak-explorer/templates/alerts/error-request-was-not-processed", [
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "danger"], 0, null, ["loc", [null, [1, 0], [5, 13]]]]],
+      statements: [["block", "alert-component", [], ["type", "danger"], 0, null, ["loc", [null, [1, 0], [5, 20]]]]],
       locals: [],
       templates: [child0]
     };
@@ -22827,7 +23583,7 @@ define("ember-riak-explorer/templates/alerts/error-schema-not-saved", ["exports"
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -22874,7 +23630,7 @@ define("ember-riak-explorer/templates/alerts/error-schema-not-saved", ["exports"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -22906,7 +23662,7 @@ define("ember-riak-explorer/templates/alerts/error-schema-not-saved", ["exports"
         dom.insertBoundary(fragment, 0);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [1, 0], [4, 13]]]]],
+      statements: [["block", "alert-component", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [1, 0], [4, 20]]]]],
       locals: [],
       templates: [child0]
     };
@@ -22921,7 +23677,7 @@ define("ember-riak-explorer/templates/alerts/error-set-items-unique", ["exports"
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -22974,7 +23730,7 @@ define("ember-riak-explorer/templates/alerts/error-set-items-unique", ["exports"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -22983,7 +23739,7 @@ define("ember-riak-explorer/templates/alerts/error-set-items-unique", ["exports"
           },
           "end": {
             "line": 4,
-            "column": 13
+            "column": 20
           }
         },
         "moduleName": "ember-riak-explorer/templates/alerts/error-set-items-unique.hbs"
@@ -23005,7 +23761,7 @@ define("ember-riak-explorer/templates/alerts/error-set-items-unique", ["exports"
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "danger"], 0, null, ["loc", [null, [1, 0], [4, 13]]]]],
+      statements: [["block", "alert-component", [], ["type", "danger"], 0, null, ["loc", [null, [1, 0], [4, 20]]]]],
       locals: [],
       templates: [child0]
     };
@@ -23020,7 +23776,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-name", ["expor
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -23067,7 +23823,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-name", ["expor
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -23076,7 +23832,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-name", ["expor
           },
           "end": {
             "line": 4,
-            "column": 13
+            "column": 20
           }
         },
         "moduleName": "ember-riak-explorer/templates/alerts/error-solr-must-have-name.hbs"
@@ -23098,7 +23854,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-name", ["expor
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [1, 0], [4, 13]]]]],
+      statements: [["block", "alert-component", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [1, 0], [4, 20]]]]],
       locals: [],
       templates: [child0]
     };
@@ -23113,7 +23869,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-version", ["ex
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -23160,7 +23916,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-version", ["ex
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -23169,7 +23925,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-version", ["ex
           },
           "end": {
             "line": 4,
-            "column": 13
+            "column": 20
           }
         },
         "moduleName": "ember-riak-explorer/templates/alerts/error-solr-must-have-version.hbs"
@@ -23191,7 +23947,7 @@ define("ember-riak-explorer/templates/alerts/error-solr-must-have-version", ["ex
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [1, 0], [4, 13]]]]],
+      statements: [["block", "alert-component", [], ["type", "danger", "dismissible", false], 0, null, ["loc", [null, [1, 0], [4, 20]]]]],
       locals: [],
       templates: [child0]
     };
@@ -23206,7 +23962,7 @@ define("ember-riak-explorer/templates/alerts/feedback-welcome", ["exports"], fun
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -23264,7 +24020,7 @@ define("ember-riak-explorer/templates/alerts/feedback-welcome", ["exports"], fun
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -23296,7 +24052,7 @@ define("ember-riak-explorer/templates/alerts/feedback-welcome", ["exports"], fun
         dom.insertBoundary(fragment, 0);
         return morphs;
       },
-      statements: [["block", "bs-alert", [], ["type", "info", "dismissible", false], 0, null, ["loc", [null, [1, 0], [7, 13]]]]],
+      statements: [["block", "alert-component", [], ["type", "info", "dismissible", false], 0, null, ["loc", [null, [1, 0], [7, 20]]]]],
       locals: [],
       templates: [child0]
     };
@@ -23308,7 +24064,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -23357,7 +24113,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -23401,7 +24157,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -23445,7 +24201,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -23488,7 +24244,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -23530,7 +24286,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -23572,7 +24328,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -23613,7 +24369,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -23718,7 +24474,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -23775,7 +24531,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -23783,7 +24539,7 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
             "column": 0
           },
           "end": {
-            "line": 72,
+            "line": 73,
             "column": 6
           }
         },
@@ -23850,6 +24606,11 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
         var el4 = dom.createTextNode("\n    ");
         dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "id", "side-drawer-container");
+        dom.appendChild(el2, el3);
         var el3 = dom.createTextNode("\n  ");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
@@ -23881,6 +24642,152 @@ define("ember-riak-explorer/templates/application", ["exports"], function (expor
     };
   })());
 });
+define("ember-riak-explorer/templates/components/alert-component", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    var child0 = (function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            "fragmentReason": false,
+            "revision": "Ember@2.5.1",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 2,
+                "column": 2
+              },
+              "end": {
+                "line": 4,
+                "column": 2
+              }
+            },
+            "moduleName": "ember-riak-explorer/templates/components/alert-component.hbs"
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("    ");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createElement("button");
+            dom.setAttribute(el1, "type", "button");
+            dom.setAttribute(el1, "class", "close");
+            dom.setAttribute(el1, "aria-label", "Close");
+            var el2 = dom.createElement("span");
+            dom.setAttribute(el2, "aria-hidden", "true");
+            var el3 = dom.createTextNode("×");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+            var element0 = dom.childAt(fragment, [1]);
+            var morphs = new Array(1);
+            morphs[0] = dom.createElementMorph(element0);
+            return morphs;
+          },
+          statements: [["element", "action", ["dismiss"], [], ["loc", [null, [3, 59], [3, 79]]]]],
+          locals: [],
+          templates: []
+        };
+      })();
+      return {
+        meta: {
+          "fragmentReason": {
+            "name": "missing-wrapper",
+            "problems": ["wrong-type", "multiple-nodes"]
+          },
+          "revision": "Ember@2.5.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 6,
+              "column": 0
+            }
+          },
+          "moduleName": "ember-riak-explorer/templates/components/alert-component.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("  ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(2);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          morphs[1] = dom.createMorphAt(fragment, 2, 2, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          return morphs;
+        },
+        statements: [["block", "if", [["get", "dismissible", ["loc", [null, [2, 8], [2, 19]]]]], [], 0, null, ["loc", [null, [2, 2], [4, 9]]]], ["content", "yield", ["loc", [null, [5, 2], [5, 11]]]]],
+        locals: [],
+        templates: [child0]
+      };
+    })();
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type"]
+        },
+        "revision": "Ember@2.5.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 8,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/components/alert-component.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        return morphs;
+      },
+      statements: [["block", "if", [["get", "visible", ["loc", [null, [1, 6], [1, 13]]]]], [], 0, null, ["loc", [null, [1, 0], [6, 7]]]]],
+      locals: [],
+      templates: [child0]
+    };
+  })());
+});
 define("ember-riak-explorer/templates/components/breadcrumb-component", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
@@ -23888,7 +24795,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -23933,7 +24840,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -23981,7 +24888,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -24028,7 +24935,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24085,7 +24992,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24133,7 +25040,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24175,7 +25082,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24217,7 +25124,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24259,7 +25166,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24300,7 +25207,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -24369,7 +25276,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24413,7 +25320,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24461,7 +25368,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24505,7 +25412,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24548,7 +25455,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -24604,7 +25511,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24648,7 +25555,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24692,7 +25599,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24736,7 +25643,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24778,7 +25685,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -24825,7 +25732,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -24886,7 +25793,7 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -24939,1990 +25846,6 @@ define("ember-riak-explorer/templates/components/breadcrumb-component", ["export
     };
   })());
 });
-define("ember-riak-explorer/templates/components/bs-accordion-item", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 8,
-              "column": 0
-            },
-            "end": {
-              "line": 12,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-accordion-item.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          dom.setAttribute(el1, "class", "panel-body");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 1, 1);
-          return morphs;
-        },
-        statements: [["content", "yield", ["loc", [null, [10, 8], [10, 17]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["multiple-nodes", "wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 12,
-            "column": 16
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-accordion-item.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "role", "tab");
-        var el2 = dom.createTextNode("\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("h4");
-        dom.setAttribute(el2, "class", "panel-title");
-        var el3 = dom.createTextNode("\n        ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("a");
-        dom.setAttribute(el3, "href", "#");
-        var el4 = dom.createTextNode("\n            ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createComment("");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n        ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element0 = dom.childAt(fragment, [0]);
-        var morphs = new Array(4);
-        morphs[0] = dom.createAttrMorph(element0, 'class');
-        morphs[1] = dom.createElementMorph(element0);
-        morphs[2] = dom.createMorphAt(dom.childAt(element0, [1, 1]), 1, 1);
-        morphs[3] = dom.createMorphAt(fragment, 2, 2, contextualElement);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["attribute", "class", ["concat", ["panel-heading ", ["subexpr", "if", [["get", "collapsed", ["loc", [null, [1, 68], [1, 77]]]], "collapsed"], [], ["loc", [null, [1, 63], [1, 91]]]]]]], ["element", "action", ["toggleActive"], [], ["loc", [null, [1, 16], [1, 41]]]], ["content", "title", ["loc", [null, [4, 12], [4, 21]]]], ["block", "bs-collapse", [], ["collapsed", ["subexpr", "@mut", [["get", "collapsed", ["loc", [null, [8, 25], [8, 34]]]]], [], []], "class", "panel-collapse"], 0, null, ["loc", [null, [8, 0], [12, 16]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-alert", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      var child0 = (function () {
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 2,
-                "column": 0
-              },
-              "end": {
-                "line": 4,
-                "column": 0
-              }
-            },
-            "moduleName": "ember-riak-explorer/templates/components/bs-alert.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("    ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("button");
-            dom.setAttribute(el1, "type", "button");
-            dom.setAttribute(el1, "class", "close");
-            dom.setAttribute(el1, "aria-label", "Close");
-            var el2 = dom.createElement("span");
-            dom.setAttribute(el2, "aria-hidden", "true");
-            var el3 = dom.createTextNode("×");
-            dom.appendChild(el2, el3);
-            dom.appendChild(el1, el2);
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var element0 = dom.childAt(fragment, [1]);
-            var morphs = new Array(1);
-            morphs[0] = dom.createElementMorph(element0);
-            return morphs;
-          },
-          statements: [["element", "action", ["dismiss"], [], ["loc", [null, [3, 59], [3, 79]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "missing-wrapper",
-            "problems": ["wrong-type", "multiple-nodes"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 6,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-alert.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(2);
-          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-          morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-          dom.insertBoundary(fragment, 0);
-          return morphs;
-        },
-        statements: [["block", "if", [["get", "dismissible", ["loc", [null, [2, 6], [2, 17]]]]], [], 0, null, ["loc", [null, [2, 0], [4, 7]]]], ["content", "yield", ["loc", [null, [5, 0], [5, 9]]]]],
-        locals: [],
-        templates: [child0]
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 7,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-alert.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "unless", [["get", "dismissed", ["loc", [null, [1, 10], [1, 19]]]]], [], 0, null, ["loc", [null, [1, 0], [6, 11]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-button", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "triple-curlies"
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 1,
-              "column": 37
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-button.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createElement("i");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode(" ");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [0]);
-          var morphs = new Array(1);
-          morphs[0] = dom.createAttrMorph(element0, 'class');
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", [["get", "icon", ["loc", [null, [1, 24], [1, 28]]]]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 1,
-            "column": 61
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-button.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(3);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-        morphs[2] = dom.createMorphAt(fragment, 2, 2, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "icon", ["loc", [null, [1, 6], [1, 10]]]]], [], 0, null, ["loc", [null, [1, 0], [1, 44]]]], ["content", "text", ["loc", [null, [1, 44], [1, 52]]]], ["content", "yield", ["loc", [null, [1, 52], [1, 61]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-form-group", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 2,
-              "column": 0
-            },
-            "end": {
-              "line": 4,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-form-group.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("span");
-          dom.setAttribute(el1, "aria-hidden", "true");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(1);
-          morphs[0] = dom.createAttrMorph(element0, 'class');
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", ["form-control-feedback ", ["get", "iconName", ["loc", [null, [3, 41], [3, 49]]]]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 4,
-            "column": 7
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-form-group.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(2);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 2, 2, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]], ["block", "if", [["get", "hasFeedback", ["loc", [null, [2, 6], [2, 17]]]]], [], 0, null, ["loc", [null, [2, 0], [4, 7]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-form", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 1,
-            "column": 9
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-form.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
-      locals: [],
-      templates: []
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-modal-dialog", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 3,
-              "column": 8
-            },
-            "end": {
-              "line": 5,
-              "column": 8
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-modal-dialog.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("            ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-          return morphs;
-        },
-        statements: [["inline", "bs-modal-header", [], ["title", ["subexpr", "@mut", [["get", "title", ["loc", [null, [4, 36], [4, 41]]]]], [], []], "closeButton", ["subexpr", "@mut", [["get", "closeButton", ["loc", [null, [4, 54], [4, 65]]]]], [], []]], ["loc", [null, [4, 12], [4, 67]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      var child0 = (function () {
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 7,
-                "column": 12
-              },
-              "end": {
-                "line": 9,
-                "column": 12
-              }
-            },
-            "moduleName": "ember-riak-explorer/templates/components/bs-modal-dialog.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("                ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-            return morphs;
-          },
-          statements: [["content", "yield", ["loc", [null, [8, 16], [8, 25]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 6,
-              "column": 8
-            },
-            "end": {
-              "line": 10,
-              "column": 8
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-modal-dialog.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-          dom.insertBoundary(fragment, 0);
-          dom.insertBoundary(fragment, null);
-          return morphs;
-        },
-        statements: [["block", "bs-modal-body", [], [], 0, null, ["loc", [null, [7, 12], [9, 30]]]]],
-        locals: [],
-        templates: [child0]
-      };
-    })();
-    var child2 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 10,
-              "column": 8
-            },
-            "end": {
-              "line": 12,
-              "column": 8
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-modal-dialog.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("            ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-          return morphs;
-        },
-        statements: [["content", "yield", ["loc", [null, [11, 12], [11, 21]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child3 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 14,
-              "column": 8
-            },
-            "end": {
-              "line": 16,
-              "column": 8
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-modal-dialog.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("            ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-          return morphs;
-        },
-        statements: [["content", "bs-modal-footer", ["loc", [null, [15, 12], [15, 31]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "triple-curlies"
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 18,
-            "column": 6
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-modal-dialog.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("div");
-        var el2 = dom.createTextNode("\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "modal-content");
-        var el3 = dom.createTextNode("\n");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createComment("");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createComment("");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createComment("");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("    ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element0 = dom.childAt(fragment, [0]);
-        var element1 = dom.childAt(element0, [1]);
-        var morphs = new Array(4);
-        morphs[0] = dom.createAttrMorph(element0, 'class');
-        morphs[1] = dom.createMorphAt(element1, 1, 1);
-        morphs[2] = dom.createMorphAt(element1, 2, 2);
-        morphs[3] = dom.createMorphAt(element1, 4, 4);
-        return morphs;
-      },
-      statements: [["attribute", "class", ["concat", ["modal-dialog ", ["get", "sizeClass", ["loc", [null, [1, 27], [1, 36]]]]]]], ["block", "if", [["get", "header", ["loc", [null, [3, 14], [3, 20]]]]], [], 0, null, ["loc", [null, [3, 8], [5, 15]]]], ["block", "if", [["get", "body", ["loc", [null, [6, 14], [6, 18]]]]], [], 1, 2, ["loc", [null, [6, 8], [12, 15]]]], ["block", "if", [["get", "footer", ["loc", [null, [14, 14], [14, 20]]]]], [], 3, null, ["loc", [null, [14, 8], [16, 15]]]]],
-      locals: [],
-      templates: [child0, child1, child2, child3]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-modal-footer", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "missing-wrapper",
-            "problems": ["wrong-type"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 3,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-modal-footer.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-          return morphs;
-        },
-        statements: [["inline", "yield", [["get", "this", ["loc", [null, [2, 12], [2, 16]]]]], [], ["loc", [null, [2, 4], [2, 18]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      var child0 = (function () {
-        var child0 = (function () {
-          return {
-            meta: {
-              "fragmentReason": false,
-              "revision": "Ember@2.3.2",
-              "loc": {
-                "source": null,
-                "start": {
-                  "line": 5,
-                  "column": 8
-                },
-                "end": {
-                  "line": 5,
-                  "column": 66
-                }
-              },
-              "moduleName": "ember-riak-explorer/templates/components/bs-modal-footer.hbs"
-            },
-            isEmpty: false,
-            arity: 0,
-            cachedFragment: null,
-            hasRendered: false,
-            buildFragment: function buildFragment(dom) {
-              var el0 = dom.createDocumentFragment();
-              var el1 = dom.createComment("");
-              dom.appendChild(el0, el1);
-              return el0;
-            },
-            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-              var morphs = new Array(1);
-              morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-              dom.insertBoundary(fragment, 0);
-              dom.insertBoundary(fragment, null);
-              return morphs;
-            },
-            statements: [["content", "closeTitle", ["loc", [null, [5, 52], [5, 66]]]]],
-            locals: [],
-            templates: []
-          };
-        })();
-        var child1 = (function () {
-          return {
-            meta: {
-              "fragmentReason": false,
-              "revision": "Ember@2.3.2",
-              "loc": {
-                "source": null,
-                "start": {
-                  "line": 6,
-                  "column": 8
-                },
-                "end": {
-                  "line": 6,
-                  "column": 96
-                }
-              },
-              "moduleName": "ember-riak-explorer/templates/components/bs-modal-footer.hbs"
-            },
-            isEmpty: false,
-            arity: 0,
-            cachedFragment: null,
-            hasRendered: false,
-            buildFragment: function buildFragment(dom) {
-              var el0 = dom.createDocumentFragment();
-              var el1 = dom.createComment("");
-              dom.appendChild(el0, el1);
-              return el0;
-            },
-            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-              var morphs = new Array(1);
-              morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-              dom.insertBoundary(fragment, 0);
-              dom.insertBoundary(fragment, null);
-              return morphs;
-            },
-            statements: [["content", "submitTitle", ["loc", [null, [6, 81], [6, 96]]]]],
-            locals: [],
-            templates: []
-          };
-        })();
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 4,
-                "column": 4
-              },
-              "end": {
-                "line": 7,
-                "column": 4
-              }
-            },
-            "moduleName": "ember-riak-explorer/templates/components/bs-modal-footer.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("        ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n        ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(2);
-            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-            morphs[1] = dom.createMorphAt(fragment, 3, 3, contextualElement);
-            return morphs;
-          },
-          statements: [["block", "bs-button", [], ["type", "default", "action", "close"], 0, null, ["loc", [null, [5, 8], [5, 80]]]], ["block", "bs-button", [], ["type", "primary", "buttonType", "submit", "disabled", ["subexpr", "@mut", [["get", "submitDisabled", ["loc", [null, [6, 65], [6, 79]]]]], [], []]], 1, null, ["loc", [null, [6, 8], [6, 110]]]]],
-          locals: [],
-          templates: [child0, child1]
-        };
-      })();
-      var child1 = (function () {
-        var child0 = (function () {
-          return {
-            meta: {
-              "fragmentReason": false,
-              "revision": "Ember@2.3.2",
-              "loc": {
-                "source": null,
-                "start": {
-                  "line": 8,
-                  "column": 8
-                },
-                "end": {
-                  "line": 8,
-                  "column": 66
-                }
-              },
-              "moduleName": "ember-riak-explorer/templates/components/bs-modal-footer.hbs"
-            },
-            isEmpty: false,
-            arity: 0,
-            cachedFragment: null,
-            hasRendered: false,
-            buildFragment: function buildFragment(dom) {
-              var el0 = dom.createDocumentFragment();
-              var el1 = dom.createComment("");
-              dom.appendChild(el0, el1);
-              return el0;
-            },
-            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-              var morphs = new Array(1);
-              morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-              dom.insertBoundary(fragment, 0);
-              dom.insertBoundary(fragment, null);
-              return morphs;
-            },
-            statements: [["content", "closeTitle", ["loc", [null, [8, 52], [8, 66]]]]],
-            locals: [],
-            templates: []
-          };
-        })();
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 7,
-                "column": 4
-              },
-              "end": {
-                "line": 9,
-                "column": 4
-              }
-            },
-            "moduleName": "ember-riak-explorer/templates/components/bs-modal-footer.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("        ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-            return morphs;
-          },
-          statements: [["block", "bs-button", [], ["type", "primary", "action", "close"], 0, null, ["loc", [null, [8, 8], [8, 80]]]]],
-          locals: [],
-          templates: [child0]
-        };
-      })();
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 3,
-              "column": 0
-            },
-            "end": {
-              "line": 10,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-modal-footer.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-          dom.insertBoundary(fragment, 0);
-          dom.insertBoundary(fragment, null);
-          return morphs;
-        },
-        statements: [["block", "if", [["get", "hasSubmitButton", ["loc", [null, [4, 10], [4, 25]]]]], [], 0, 1, ["loc", [null, [4, 4], [9, 11]]]]],
-        locals: [],
-        templates: [child0, child1]
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 10,
-            "column": 7
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-modal-footer.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasBlock", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, 1, ["loc", [null, [1, 0], [10, 7]]]]],
-      locals: [],
-      templates: [child0, child1]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-modal-header", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "modifiers",
-            "modifiers": ["action"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 3,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-modal-header.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("button");
-          dom.setAttribute(el1, "type", "button");
-          dom.setAttribute(el1, "class", "close");
-          dom.setAttribute(el1, "aria-label", "Close");
-          var el2 = dom.createElement("span");
-          dom.setAttribute(el2, "aria-hidden", "true");
-          var el3 = dom.createTextNode("×");
-          dom.appendChild(el2, el3);
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(1);
-          morphs[0] = dom.createElementMorph(element0);
-          return morphs;
-        },
-        statements: [["element", "action", ["close"], [], ["loc", [null, [2, 59], [2, 77]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 4,
-              "column": 0
-            },
-            "end": {
-              "line": 6,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-modal-header.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-          return morphs;
-        },
-        statements: [["inline", "yield", [["get", "this", ["loc", [null, [5, 12], [5, 16]]]]], [], ["loc", [null, [5, 4], [5, 18]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child2 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 6,
-              "column": 0
-            },
-            "end": {
-              "line": 8,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-modal-header.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("h4");
-          dom.setAttribute(el1, "class", "modal-title");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
-          return morphs;
-        },
-        statements: [["content", "title", ["loc", [null, [7, 28], [7, 37]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 9,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-modal-header.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(2);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "closeButton", ["loc", [null, [1, 6], [1, 17]]]]], [], 0, null, ["loc", [null, [1, 0], [3, 7]]]], ["block", "if", [["get", "hasBlock", ["loc", [null, [4, 6], [4, 14]]]]], [], 1, 2, ["loc", [null, [4, 0], [8, 7]]]]],
-      locals: [],
-      templates: [child0, child1, child2]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-modal", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      var child0 = (function () {
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 3,
-                "column": 0
-              },
-              "end": {
-                "line": 5,
-                "column": 0
-              }
-            },
-            "moduleName": "ember-riak-explorer/templates/components/bs-modal.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("  ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-            return morphs;
-          },
-          statements: [["content", "yield", ["loc", [null, [4, 2], [4, 11]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      var child1 = (function () {
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 7,
-                "column": 0
-              },
-              "end": {
-                "line": 9,
-                "column": 0
-              }
-            },
-            "moduleName": "ember-riak-explorer/templates/components/bs-modal.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("  ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("div");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var element0 = dom.childAt(fragment, [1]);
-            var morphs = new Array(2);
-            morphs[0] = dom.createAttrMorph(element0, 'class');
-            morphs[1] = dom.createAttrMorph(element0, 'id');
-            return morphs;
-          },
-          statements: [["attribute", "class", ["concat", ["modal-backdrop ", ["subexpr", "if", [["get", "fade", ["loc", [null, [8, 34], [8, 38]]]], "fade"], [], ["loc", [null, [8, 29], [8, 47]]]], " ", ["subexpr", "if", [["get", "in", ["loc", [null, [8, 53], [8, 55]]]], "in"], [], ["loc", [null, [8, 48], [8, 62]]]]]]], ["attribute", "id", ["concat", [["get", "backdropId", ["loc", [null, [8, 70], [8, 80]]]]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "missing-wrapper",
-            "problems": ["wrong-type", "multiple-nodes"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 11,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-modal.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(2);
-          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-          morphs[1] = dom.createMorphAt(fragment, 3, 3, contextualElement);
-          return morphs;
-        },
-        statements: [["block", "bs-modal-dialog", [], ["close", ["subexpr", "action", ["close"], [], ["loc", [null, [3, 25], [3, 41]]]], "fade", ["subexpr", "@mut", [["get", "fade", ["loc", [null, [3, 47], [3, 51]]]]], [], []], "in", ["subexpr", "@mut", [["get", "in", ["loc", [null, [3, 55], [3, 57]]]]], [], []], "id", ["subexpr", "@mut", [["get", "modalId", ["loc", [null, [3, 61], [3, 68]]]]], [], []], "title", ["subexpr", "@mut", [["get", "title", ["loc", [null, [3, 75], [3, 80]]]]], [], []], "closeButton", ["subexpr", "@mut", [["get", "closeButton", ["loc", [null, [3, 93], [3, 104]]]]], [], []], "keyboard", ["subexpr", "@mut", [["get", "keyboard", ["loc", [null, [3, 114], [3, 122]]]]], [], []], "header", ["subexpr", "@mut", [["get", "header", ["loc", [null, [3, 130], [3, 136]]]]], [], []], "body", ["subexpr", "@mut", [["get", "body", ["loc", [null, [3, 142], [3, 146]]]]], [], []], "footer", ["subexpr", "@mut", [["get", "footer", ["loc", [null, [3, 154], [3, 160]]]]], [], []], "size", ["subexpr", "@mut", [["get", "size", ["loc", [null, [3, 166], [3, 170]]]]], [], []], "backdropClose", ["subexpr", "@mut", [["get", "backdropClose", ["loc", [null, [3, 185], [3, 198]]]]], [], []]], 0, null, ["loc", [null, [3, 0], [5, 20]]]], ["block", "if", [["get", "showBackdrop", ["loc", [null, [7, 6], [7, 18]]]]], [], 1, null, ["loc", [null, [7, 0], [9, 7]]]]],
-        locals: [],
-        templates: [child0, child1]
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 11,
-            "column": 19
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-modal.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "ember-wormhole", [], ["to", "ember-bootstrap-modal-container"], 0, null, ["loc", [null, [1, 0], [11, 19]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-progress-bar", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      var child0 = (function () {
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 3,
-                "column": 4
-              },
-              "end": {
-                "line": 5,
-                "column": 4
-              }
-            },
-            "moduleName": "ember-riak-explorer/templates/components/bs-progress-bar.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("        ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-            return morphs;
-          },
-          statements: [["inline", "yield", [["get", "percentRounded", ["loc", [null, [4, 16], [4, 30]]]]], [], ["loc", [null, [4, 8], [4, 32]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      var child1 = (function () {
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 5,
-                "column": 4
-              },
-              "end": {
-                "line": 7,
-                "column": 4
-              }
-            },
-            "moduleName": "ember-riak-explorer/templates/components/bs-progress-bar.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("        ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("%\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-            return morphs;
-          },
-          statements: [["content", "percentRounded", ["loc", [null, [6, 8], [6, 26]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 2,
-              "column": 0
-            },
-            "end": {
-              "line": 8,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-progress-bar.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-          dom.insertBoundary(fragment, 0);
-          dom.insertBoundary(fragment, null);
-          return morphs;
-        },
-        statements: [["block", "if", [["get", "hasBlock", ["loc", [null, [3, 10], [3, 18]]]]], [], 0, 1, ["loc", [null, [3, 4], [7, 11]]]]],
-        locals: [],
-        templates: [child0, child1]
-      };
-    })();
-    var child1 = (function () {
-      var child0 = (function () {
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 9,
-                "column": 4
-              },
-              "end": {
-                "line": 11,
-                "column": 4
-              }
-            },
-            "moduleName": "ember-riak-explorer/templates/components/bs-progress-bar.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("        ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("span");
-            dom.setAttribute(el1, "class", "sr-only");
-            var el2 = dom.createComment("");
-            dom.appendChild(el1, el2);
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
-            return morphs;
-          },
-          statements: [["inline", "yield", [["get", "percentRounded", ["loc", [null, [10, 38], [10, 52]]]]], [], ["loc", [null, [10, 30], [10, 54]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      var child1 = (function () {
-        return {
-          meta: {
-            "fragmentReason": false,
-            "revision": "Ember@2.3.2",
-            "loc": {
-              "source": null,
-              "start": {
-                "line": 11,
-                "column": 4
-              },
-              "end": {
-                "line": 13,
-                "column": 4
-              }
-            },
-            "moduleName": "ember-riak-explorer/templates/components/bs-progress-bar.hbs"
-          },
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("        ");
-            dom.appendChild(el0, el1);
-            var el1 = dom.createElement("span");
-            dom.setAttribute(el1, "class", "sr-only");
-            var el2 = dom.createComment("");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("%");
-            dom.appendChild(el1, el2);
-            dom.appendChild(el0, el1);
-            var el1 = dom.createTextNode("\n");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
-            return morphs;
-          },
-          statements: [["content", "percentRounded", ["loc", [null, [12, 30], [12, 48]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 8,
-              "column": 0
-            },
-            "end": {
-              "line": 15,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-progress-bar.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-          dom.insertBoundary(fragment, 0);
-          return morphs;
-        },
-        statements: [["block", "if", [["get", "hasBlock", ["loc", [null, [9, 10], [9, 18]]]]], [], 0, 1, ["loc", [null, [9, 4], [13, 11]]]]],
-        locals: [],
-        templates: [child0, child1]
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 16,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-progress-bar.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "showLabel", ["loc", [null, [2, 6], [2, 15]]]]], [], 0, 1, ["loc", [null, [2, 0], [15, 7]]]]],
-      locals: [],
-      templates: [child0, child1]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-progress", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 2,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-progress.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        return morphs;
-      },
-      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
-      locals: [],
-      templates: []
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/bs-select", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "triple-curlies"
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 5,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-select.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("option");
-          dom.setAttribute(el1, "disabled", "");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element1 = dom.childAt(fragment, [1]);
-          var morphs = new Array(2);
-          morphs[0] = dom.createAttrMorph(element1, 'selected');
-          morphs[1] = dom.createMorphAt(element1, 1, 1);
-          return morphs;
-        },
-        statements: [["attribute", "selected", ["subexpr", "is-not", [["get", "value", ["loc", [null, [2, 39], [2, 44]]]]], [], ["loc", [null, [2, 30], [2, 46]]]]], ["content", "prompt", ["loc", [null, [3, 8], [3, 18]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 7,
-              "column": 0
-            },
-            "end": {
-              "line": 12,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/bs-select.hbs"
-        },
-        isEmpty: false,
-        arity: 1,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("option");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(3);
-          morphs[0] = dom.createAttrMorph(element0, 'value');
-          morphs[1] = dom.createAttrMorph(element0, 'selected');
-          morphs[2] = dom.createMorphAt(element0, 1, 1);
-          return morphs;
-        },
-        statements: [["attribute", "value", ["concat", [["subexpr", "read-path", [["get", "item", ["loc", [null, [8, 31], [8, 35]]]], ["get", "optionValuePath", ["loc", [null, [8, 36], [8, 51]]]]], [], ["loc", [null, [8, 19], [8, 53]]]]]]], ["attribute", "selected", ["subexpr", "is-equal", [["get", "item", ["loc", [null, [9, 32], [9, 36]]]], ["get", "value", ["loc", [null, [9, 37], [9, 42]]]]], [], ["loc", [null, [9, 21], [9, 44]]]]], ["inline", "read-path", [["get", "item", ["loc", [null, [10, 20], [10, 24]]]], ["get", "optionLabelPath", ["loc", [null, [10, 25], [10, 40]]]]], [], ["loc", [null, [10, 8], [10, 42]]]]],
-        locals: ["item"],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 12,
-            "column": 9
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/bs-select.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(2);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 2, 2, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "prompt", ["loc", [null, [1, 6], [1, 12]]]]], [], 0, null, ["loc", [null, [1, 0], [5, 7]]]], ["block", "each", [["get", "content", ["loc", [null, [7, 8], [7, 15]]]]], ["key", "@identity"], 1, null, ["loc", [null, [7, 0], [12, 9]]]]],
-      locals: [],
-      templates: [child0, child1]
-    };
-  })());
-});
 define("ember-riak-explorer/templates/components/button/delete-object", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     return {
@@ -26931,7 +25854,7 @@ define("ember-riak-explorer/templates/components/button/delete-object", ["export
           "name": "modifiers",
           "modifiers": ["action"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -26988,7 +25911,7 @@ define("ember-riak-explorer/templates/components/button/edit-object", ["exports"
             "name": "missing-wrapper",
             "problems": ["multiple-nodes", "wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -27032,7 +25955,7 @@ define("ember-riak-explorer/templates/components/button/edit-object", ["exports"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -27077,7 +26000,7 @@ define("ember-riak-explorer/templates/components/button/object-view-raw", ["expo
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -27132,7 +26055,7 @@ define("ember-riak-explorer/templates/components/button/refresh-buckets", ["expo
           "name": "modifiers",
           "modifiers": ["action"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -27188,7 +26111,7 @@ define("ember-riak-explorer/templates/components/button/refresh-keys", ["exports
           "name": "modifiers",
           "modifiers": ["action"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -27244,7 +26167,7 @@ define("ember-riak-explorer/templates/components/button/set-element-remove", ["e
           "name": "modifiers",
           "modifiers": ["action"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -27300,7 +26223,7 @@ define("ember-riak-explorer/templates/components/cluster-status-indicator", ["ex
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -27346,7 +26269,7 @@ define("ember-riak-explorer/templates/components/code-highlighter", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -27391,7 +26314,7 @@ define("ember-riak-explorer/templates/components/dashboard-module/body", ["expor
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -27437,7 +26360,7 @@ define("ember-riak-explorer/templates/components/dashboard-module/container", ["
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -27483,7 +26406,7 @@ define("ember-riak-explorer/templates/components/dashboard-module/header", ["exp
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -27505,7 +26428,7 @@ define("ember-riak-explorer/templates/components/dashboard-module/header", ["exp
           var el0 = dom.createDocumentFragment();
           var el1 = dom.createTextNode("  ");
           dom.appendChild(el0, el1);
-          var el1 = dom.createElement("span");
+          var el1 = dom.createElement("div");
           dom.setAttribute(el1, "class", "module-label");
           var el2 = dom.createComment("");
           dom.appendChild(el1, el2);
@@ -27519,7 +26442,7 @@ define("ember-riak-explorer/templates/components/dashboard-module/header", ["exp
           morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
           return morphs;
         },
-        statements: [["content", "label", ["loc", [null, [2, 29], [2, 38]]]]],
+        statements: [["content", "label", ["loc", [null, [2, 28], [2, 37]]]]],
         locals: [],
         templates: []
       };
@@ -27530,7 +26453,7 @@ define("ember-riak-explorer/templates/components/dashboard-module/header", ["exp
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -27579,7 +26502,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -27625,7 +26548,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -27721,7 +26644,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -27768,7 +26691,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -27814,7 +26737,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -27927,7 +26850,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -27973,7 +26896,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -28030,7 +26953,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -28096,7 +27019,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -28154,7 +27077,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -28214,7 +27137,7 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -28361,2116 +27284,6 @@ define("ember-riak-explorer/templates/components/form/table/create-table", ["exp
     };
   })());
 });
-define("ember-riak-explorer/templates/components/form/table/insert-data", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 22,
-            "column": 10
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form/table/insert-data.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("section");
-        dom.setAttribute(el1, "class", "table-ref");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "section-title");
-        var el3 = dom.createTextNode("Table Reference");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("section");
-        dom.setAttribute(el1, "class", "table-write");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "section-title");
-        var el3 = dom.createTextNode("Table Editor");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "form-group");
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "class", "help-block");
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("small");
-        var el5 = dom.createTextNode("Example: ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("code");
-        var el6 = dom.createTextNode("[[\"somefamily\", \"someseries\", \"somefield\", \"anotherfield\"]]");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createComment("");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n  ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("button");
-        dom.setAttribute(el2, "type", "submit");
-        dom.setAttribute(el2, "class", "btn btn-primary");
-        var el3 = dom.createTextNode("\n    Insert Rows\n  ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element0 = dom.childAt(fragment, [2]);
-        var element1 = dom.childAt(element0, [5]);
-        var morphs = new Array(3);
-        morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 3, 3);
-        morphs[1] = dom.createMorphAt(dom.childAt(element0, [3]), 3, 3);
-        morphs[2] = dom.createAttrMorph(element1, 'disabled');
-        return morphs;
-      },
-      statements: [["inline", "table.ts-table-reference", [], ["table", ["subexpr", "@mut", [["get", "table", ["loc", [null, [3, 35], [3, 40]]]]], [], []]], ["loc", [null, [3, 2], [3, 42]]]], ["inline", "textarea", [], ["value", ["subexpr", "mut", [["get", "rowsString", ["loc", [null, [14, 17], [14, 27]]]]], [], ["loc", [null, [14, 12], [14, 28]]]], "class", "form-control", "rows", "4"], ["loc", [null, [13, 4], [16, 16]]]], ["attribute", "disabled", ["get", "isDisabled", ["loc", [null, [19, 59], [19, 69]]]]]],
-      locals: [],
-      templates: []
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form/table/query-table", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 32,
-              "column": 8
-            },
-            "end": {
-              "line": 34,
-              "column": 8
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form/table/query-table.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("          ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("small");
-          var el2 = dom.createTextNode("(");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode(" rows)");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 1, 1);
-          return morphs;
-        },
-        statements: [["content", "queryResultLength", ["loc", [null, [33, 18], [33, 39]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 37,
-              "column": 6
-            },
-            "end": {
-              "line": 39,
-              "column": 6
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form/table/query-table.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("        ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("span");
-          dom.setAttribute(el1, "class", "clear-statement");
-          var el2 = dom.createTextNode("clear");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(1);
-          morphs[0] = dom.createElementMorph(element0);
-          return morphs;
-        },
-        statements: [["element", "action", ["clear"], [], ["loc", [null, [38, 38], [38, 56]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 54,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form/table/query-table.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("section");
-        dom.setAttribute(el1, "class", "table-ref");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "section-title");
-        var el3 = dom.createTextNode("Table Reference");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("section");
-        dom.setAttribute(el1, "class", "query-module");
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "section-title");
-        var el3 = dom.createTextNode("Query Editor");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "split-panel");
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "class", "left-panel");
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("div");
-        dom.setAttribute(el4, "class", "form-group");
-        var el5 = dom.createTextNode("\n        ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("label");
-        var el6 = dom.createTextNode("Statement");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n        ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("button");
-        dom.setAttribute(el5, "type", "submit");
-        dom.setAttribute(el5, "class", "btn btn-xs btn-primary");
-        var el6 = dom.createTextNode("\n          Run Query\n        ");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n\n        ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createComment("");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n        ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("span");
-        dom.setAttribute(el5, "class", "help-block");
-        var el6 = dom.createTextNode("\n        ");
-        dom.appendChild(el5, el6);
-        var el6 = dom.createElement("small");
-        var el7 = dom.createTextNode("\n          example statement:");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("br");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createTextNode("\n          ");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("code");
-        var el8 = dom.createComment("");
-        dom.appendChild(el7, el8);
-        dom.appendChild(el6, el7);
-        var el7 = dom.createTextNode("\n        ");
-        dom.appendChild(el6, el7);
-        dom.appendChild(el5, el6);
-        var el6 = dom.createTextNode("\n      ");
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n      ");
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n\n    ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "class", "right-panel");
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("label");
-        var el5 = dom.createTextNode("\n        Result\n");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createComment("");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("      ");
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n\n");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createComment("");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n      ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createElement("section");
-        dom.setAttribute(el4, "class", "query-result-container");
-        var el5 = dom.createTextNode("\n        ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createComment("");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n      ");
-        dom.appendChild(el4, el5);
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n    ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n  ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n\n\n\n\n");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element1 = dom.childAt(fragment, [2, 3]);
-        var element2 = dom.childAt(element1, [1, 1]);
-        var element3 = dom.childAt(element2, [3]);
-        var element4 = dom.childAt(element1, [3]);
-        var morphs = new Array(7);
-        morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 3, 3);
-        morphs[1] = dom.createAttrMorph(element3, 'disabled');
-        morphs[2] = dom.createMorphAt(element2, 5, 5);
-        morphs[3] = dom.createMorphAt(dom.childAt(element2, [7, 1, 3]), 0, 0);
-        morphs[4] = dom.createMorphAt(dom.childAt(element4, [1]), 1, 1);
-        morphs[5] = dom.createMorphAt(element4, 3, 3);
-        morphs[6] = dom.createMorphAt(dom.childAt(element4, [5]), 1, 1);
-        return morphs;
-      },
-      statements: [["inline", "table.ts-table-reference", [], ["table", ["subexpr", "@mut", [["get", "table", ["loc", [null, [3, 35], [3, 40]]]]], [], []]], ["loc", [null, [3, 2], [3, 42]]]], ["attribute", "disabled", ["get", "isDisabled", ["loc", [null, [12, 72], [12, 82]]]]], ["inline", "textarea", [], ["value", ["subexpr", "mut", [["get", "queryString", ["loc", [null, [17, 19], [17, 30]]]]], [], ["loc", [null, [17, 14], [17, 31]]]], "class", "form-control", "rows", "4"], ["loc", [null, [16, 8], [19, 18]]]], ["content", "example", ["loc", [null, [23, 16], [23, 27]]]], ["block", "if", [["get", "queryResultLength", ["loc", [null, [32, 14], [32, 31]]]]], [], 0, null, ["loc", [null, [32, 8], [34, 15]]]], ["block", "if", [["get", "showClear", ["loc", [null, [37, 12], [37, 21]]]]], [], 1, null, ["loc", [null, [37, 6], [39, 13]]]], ["inline", "code-highlighter", [], ["lang", "js", "code", ["subexpr", "@mut", [["get", "queryResult", ["loc", [null, [44, 15], [44, 26]]]]], [], []]], ["loc", [null, [42, 8], [44, 28]]]]],
-      locals: [],
-      templates: [child0, child1]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/errors", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "triple-curlies"
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 3,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/errors.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("span");
-          dom.setAttribute(el1, "class", "help-block");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
-          return morphs;
-        },
-        statements: [["content", "errors.firstObject", ["loc", [null, [2, 29], [2, 51]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 3,
-            "column": 7
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/errors.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "showErrors", ["loc", [null, [1, 6], [1, 16]]]]], [], 0, null, ["loc", [null, [1, 0], [3, 7]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/feedback-icon", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "triple-curlies"
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 3,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/feedback-icon.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("span");
-          dom.setAttribute(el1, "aria-hidden", "true");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(1);
-          morphs[0] = dom.createAttrMorph(element0, 'class');
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", ["form-control-feedback ", ["get", "iconName", ["loc", [null, [2, 41], [2, 49]]]]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 3,
-            "column": 7
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/feedback-icon.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasFeedback", ["loc", [null, [1, 6], [1, 17]]]]], [], 0, null, ["loc", [null, [1, 0], [3, 7]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/horizontal/checkbox", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "triple-curlies"
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 8,
-            "column": 6
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/checkbox.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("div");
-        var el2 = dom.createTextNode("\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("div");
-        dom.setAttribute(el2, "class", "checkbox");
-        var el3 = dom.createTextNode("\n        ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("label");
-        var el4 = dom.createTextNode("\n            ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createComment("");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode(" ");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createComment("");
-        dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n        ");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element0 = dom.childAt(fragment, [0]);
-        var element1 = dom.childAt(element0, [1, 1]);
-        var morphs = new Array(4);
-        morphs[0] = dom.createAttrMorph(element0, 'class');
-        morphs[1] = dom.createMorphAt(element1, 1, 1);
-        morphs[2] = dom.createMorphAt(element1, 3, 3);
-        morphs[3] = dom.createMorphAt(element0, 3, 3);
-        return morphs;
-      },
-      statements: [["attribute", "class", ["concat", [["get", "horizontalInputGridClass", ["loc", [null, [1, 14], [1, 38]]]], " ", ["get", "horizontalInputOffsetGridClass", ["loc", [null, [1, 43], [1, 73]]]]]]], ["inline", "input", [], ["name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 25], [4, 29]]]]], [], []], "type", "checkbox", "checked", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 54], [4, 59]]]]], [], []]], ["loc", [null, [4, 12], [4, 61]]]], ["content", "label", ["loc", [null, [4, 62], [4, 71]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [7, 4], [7, 48]]]]],
-      locals: [],
-      templates: []
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/horizontal/default", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "missing-wrapper",
-            "problems": ["multiple-nodes"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 8,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/default.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("label");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element1 = dom.childAt(fragment, [1]);
-          var element2 = dom.childAt(fragment, [3]);
-          var morphs = new Array(7);
-          morphs[0] = dom.createAttrMorph(element1, 'class');
-          morphs[1] = dom.createAttrMorph(element1, 'for');
-          morphs[2] = dom.createMorphAt(element1, 0, 0);
-          morphs[3] = dom.createAttrMorph(element2, 'class');
-          morphs[4] = dom.createMorphAt(element2, 1, 1);
-          morphs[5] = dom.createMorphAt(element2, 3, 3);
-          morphs[6] = dom.createMorphAt(element2, 5, 5);
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", ["control-label ", ["get", "horizontalLabelGridClass", ["loc", [null, [2, 34], [2, 58]]]]]]], ["attribute", "for", ["concat", [["subexpr", "concat", [["get", "elementId", ["loc", [null, [2, 76], [2, 85]]]], "-", ["get", "name", ["loc", [null, [2, 90], [2, 94]]]]], [], ["loc", [null, [2, 67], [2, 96]]]]]]], ["content", "label", ["loc", [null, [2, 98], [2, 107]]]], ["attribute", "class", ["concat", [["get", "horizontalInputGridClass", ["loc", [null, [3, 18], [3, 42]]]]]]], ["inline", "bs-input", [], ["id", ["subexpr", "concat", [["get", "elementId", ["loc", [null, [4, 30], [4, 39]]]], "-", ["get", "name", ["loc", [null, [4, 44], [4, 48]]]]], [], ["loc", [null, [4, 22], [4, 49]]]], "name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 55], [4, 59]]]]], [], []], "type", ["subexpr", "@mut", [["get", "controlType", ["loc", [null, [4, 65], [4, 76]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 83], [4, 88]]]]], [], []], "placeholder", ["subexpr", "@mut", [["get", "placeholder", ["loc", [null, [4, 101], [4, 112]]]]], [], []]], ["loc", [null, [4, 8], [4, 114]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [5, 8], [5, 59]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [6, 8], [6, 52]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 8,
-              "column": 0
-            },
-            "end": {
-              "line": 14,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/default.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(4);
-          morphs[0] = dom.createAttrMorph(element0, 'class');
-          morphs[1] = dom.createMorphAt(element0, 1, 1);
-          morphs[2] = dom.createMorphAt(element0, 3, 3);
-          morphs[3] = dom.createMorphAt(element0, 5, 5);
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", [["get", "horizontalInputGridClass", ["loc", [null, [9, 18], [9, 42]]]], " ", ["get", "horizontalInputOffsetGridClass", ["loc", [null, [9, 47], [9, 77]]]]]]], ["inline", "bs-input", [], ["name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [10, 24], [10, 28]]]]], [], []], "type", ["subexpr", "@mut", [["get", "controlType", ["loc", [null, [10, 34], [10, 45]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [10, 52], [10, 57]]]]], [], []], "placeholder", ["subexpr", "@mut", [["get", "placeholder", ["loc", [null, [10, 70], [10, 81]]]]], [], []]], ["loc", [null, [10, 8], [10, 83]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [11, 8], [11, 59]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [12, 8], [12, 52]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 15,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/default.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasLabel", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, 1, ["loc", [null, [1, 0], [14, 7]]]]],
-      locals: [],
-      templates: [child0, child1]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/horizontal/select", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "missing-wrapper",
-            "problems": ["multiple-nodes"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 8,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/select.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("label");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element1 = dom.childAt(fragment, [1]);
-          var element2 = dom.childAt(fragment, [3]);
-          var morphs = new Array(7);
-          morphs[0] = dom.createAttrMorph(element1, 'class');
-          morphs[1] = dom.createAttrMorph(element1, 'for');
-          morphs[2] = dom.createMorphAt(element1, 0, 0);
-          morphs[3] = dom.createAttrMorph(element2, 'class');
-          morphs[4] = dom.createMorphAt(element2, 1, 1);
-          morphs[5] = dom.createMorphAt(element2, 3, 3);
-          morphs[6] = dom.createMorphAt(element2, 5, 5);
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", ["control-label ", ["get", "horizontalLabelGridClass", ["loc", [null, [2, 34], [2, 58]]]]]]], ["attribute", "for", ["concat", [["subexpr", "concat", [["get", "elementId", ["loc", [null, [2, 76], [2, 85]]]], "-", ["get", "name", ["loc", [null, [2, 90], [2, 94]]]]], [], ["loc", [null, [2, 67], [2, 96]]]]]]], ["content", "label", ["loc", [null, [2, 98], [2, 107]]]], ["attribute", "class", ["concat", [["get", "horizontalInputGridClass", ["loc", [null, [3, 18], [3, 42]]]]]]], ["inline", "bs-select", [], ["id", ["subexpr", "concat", [["get", "elementId", ["loc", [null, [4, 31], [4, 40]]]], "-", ["get", "name", ["loc", [null, [4, 45], [4, 49]]]]], [], ["loc", [null, [4, 23], [4, 50]]]], "name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 56], [4, 60]]]]], [], []], "content", ["subexpr", "@mut", [["get", "choices", ["loc", [null, [4, 69], [4, 76]]]]], [], []], "optionValuePath", ["subexpr", "@mut", [["get", "choiceValueProperty", ["loc", [null, [4, 93], [4, 112]]]]], [], []], "optionLabelPath", ["subexpr", "@mut", [["get", "choiceLabelProperty", ["loc", [null, [4, 129], [4, 148]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 155], [4, 160]]]]], [], []]], ["loc", [null, [4, 8], [4, 162]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [5, 8], [5, 59]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [6, 8], [6, 52]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 8,
-              "column": 0
-            },
-            "end": {
-              "line": 14,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/select.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(4);
-          morphs[0] = dom.createAttrMorph(element0, 'class');
-          morphs[1] = dom.createMorphAt(element0, 1, 1);
-          morphs[2] = dom.createMorphAt(element0, 3, 3);
-          morphs[3] = dom.createMorphAt(element0, 5, 5);
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", [["get", "horizontalInputGridClass", ["loc", [null, [9, 18], [9, 42]]]], " ", ["get", "horizontalInputOffsetGridClass", ["loc", [null, [9, 47], [9, 77]]]]]]], ["inline", "bs-select", [], ["name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [10, 25], [10, 29]]]]], [], []], "content", ["subexpr", "@mut", [["get", "choices", ["loc", [null, [10, 38], [10, 45]]]]], [], []], "optionValuePath", ["subexpr", "@mut", [["get", "choiceValueProperty", ["loc", [null, [10, 62], [10, 81]]]]], [], []], "optionLabelPath", ["subexpr", "@mut", [["get", "choiceLabelProperty", ["loc", [null, [10, 98], [10, 117]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [10, 124], [10, 129]]]]], [], []]], ["loc", [null, [10, 8], [10, 131]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [11, 8], [11, 59]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [12, 8], [12, 52]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 15,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/select.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasLabel", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, 1, ["loc", [null, [1, 0], [14, 7]]]]],
-      locals: [],
-      templates: [child0, child1]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/horizontal/select2", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "missing-wrapper",
-            "problems": ["multiple-nodes"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 8,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/select2.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("label");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element1 = dom.childAt(fragment, [1]);
-          var element2 = dom.childAt(fragment, [3]);
-          var morphs = new Array(7);
-          morphs[0] = dom.createAttrMorph(element1, 'class');
-          morphs[1] = dom.createAttrMorph(element1, 'for');
-          morphs[2] = dom.createMorphAt(element1, 0, 0);
-          morphs[3] = dom.createAttrMorph(element2, 'class');
-          morphs[4] = dom.createMorphAt(element2, 1, 1);
-          morphs[5] = dom.createMorphAt(element2, 3, 3);
-          morphs[6] = dom.createMorphAt(element2, 5, 5);
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", ["control-label ", ["get", "horizontalLabelGridClass", ["loc", [null, [2, 34], [2, 58]]]]]]], ["attribute", "for", ["concat", [["subexpr", "concat", [["get", "elementId", ["loc", [null, [2, 76], [2, 85]]]], "-", ["get", "name", ["loc", [null, [2, 90], [2, 94]]]]], [], ["loc", [null, [2, 67], [2, 96]]]]]]], ["content", "label", ["loc", [null, [2, 98], [2, 107]]]], ["attribute", "class", ["concat", [["get", "horizontalInputGridClass", ["loc", [null, [3, 18], [3, 42]]]]]]], ["inline", "select-2", [], ["id", ["subexpr", "concat", [["get", "elementId", ["loc", [null, [4, 30], [4, 39]]]], "-", ["get", "name", ["loc", [null, [4, 44], [4, 48]]]]], [], ["loc", [null, [4, 22], [4, 49]]]], "name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 55], [4, 59]]]]], [], []], "content", ["subexpr", "@mut", [["get", "choices", ["loc", [null, [4, 68], [4, 75]]]]], [], []], "optionValuePath", ["subexpr", "@mut", [["get", "choiceValueProperty", ["loc", [null, [4, 92], [4, 111]]]]], [], []], "optionLabelPath", ["subexpr", "@mut", [["get", "choiceLabelProperty", ["loc", [null, [4, 128], [4, 147]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 154], [4, 159]]]]], [], []], "searchEnabled", false], ["loc", [null, [4, 8], [4, 181]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [5, 8], [5, 59]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [6, 8], [6, 52]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 8,
-              "column": 0
-            },
-            "end": {
-              "line": 14,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/select2.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(4);
-          morphs[0] = dom.createAttrMorph(element0, 'class');
-          morphs[1] = dom.createMorphAt(element0, 1, 1);
-          morphs[2] = dom.createMorphAt(element0, 3, 3);
-          morphs[3] = dom.createMorphAt(element0, 5, 5);
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", [["get", "horizontalInputGridClass", ["loc", [null, [9, 18], [9, 42]]]], " ", ["get", "horizontalInputOffsetGridClass", ["loc", [null, [9, 47], [9, 77]]]]]]], ["inline", "select-2", [], ["name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [10, 24], [10, 28]]]]], [], []], "content", ["subexpr", "@mut", [["get", "choices", ["loc", [null, [10, 37], [10, 44]]]]], [], []], "optionValuePath", ["subexpr", "@mut", [["get", "choiceValueProperty", ["loc", [null, [10, 61], [10, 80]]]]], [], []], "optionLabelPath", ["subexpr", "@mut", [["get", "choiceLabelProperty", ["loc", [null, [10, 97], [10, 116]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [10, 123], [10, 128]]]]], [], []], "searchEnabled", false], ["loc", [null, [10, 8], [10, 150]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [11, 8], [11, 59]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [12, 8], [12, 52]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 15,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/select2.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasLabel", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, 1, ["loc", [null, [1, 0], [14, 7]]]]],
-      locals: [],
-      templates: [child0, child1]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/horizontal/textarea", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "missing-wrapper",
-            "problems": ["multiple-nodes"]
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 8,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/textarea.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("label");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element1 = dom.childAt(fragment, [1]);
-          var element2 = dom.childAt(fragment, [3]);
-          var morphs = new Array(7);
-          morphs[0] = dom.createAttrMorph(element1, 'class');
-          morphs[1] = dom.createAttrMorph(element1, 'for');
-          morphs[2] = dom.createMorphAt(element1, 0, 0);
-          morphs[3] = dom.createAttrMorph(element2, 'class');
-          morphs[4] = dom.createMorphAt(element2, 1, 1);
-          morphs[5] = dom.createMorphAt(element2, 3, 3);
-          morphs[6] = dom.createMorphAt(element2, 5, 5);
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", ["control-label ", ["get", "horizontalLabelGridClass", ["loc", [null, [2, 34], [2, 58]]]]]]], ["attribute", "for", ["concat", [["subexpr", "concat", [["get", "elementId", ["loc", [null, [2, 76], [2, 85]]]], "-", ["get", "name", ["loc", [null, [2, 90], [2, 94]]]]], [], ["loc", [null, [2, 67], [2, 96]]]]]]], ["content", "label", ["loc", [null, [2, 98], [2, 107]]]], ["attribute", "class", ["concat", [["get", "horizontalInputGridClass", ["loc", [null, [3, 18], [3, 42]]]]]]], ["inline", "bs-textarea", [], ["id", ["subexpr", "concat", [["get", "elementId", ["loc", [null, [4, 33], [4, 42]]]], "-", ["get", "name", ["loc", [null, [4, 47], [4, 51]]]]], [], ["loc", [null, [4, 25], [4, 52]]]], "name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 58], [4, 62]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 69], [4, 74]]]]], [], []], "placeholder", ["subexpr", "@mut", [["get", "placeholder", ["loc", [null, [4, 87], [4, 98]]]]], [], []], "cols", ["subexpr", "@mut", [["get", "cols", ["loc", [null, [4, 104], [4, 108]]]]], [], []], "rows", ["subexpr", "@mut", [["get", "rows", ["loc", [null, [4, 114], [4, 118]]]]], [], []]], ["loc", [null, [4, 8], [4, 120]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [5, 8], [5, 59]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [6, 8], [6, 52]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 8,
-              "column": 0
-            },
-            "end": {
-              "line": 14,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/textarea.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("div");
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n        ");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          var el2 = dom.createTextNode("\n    ");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(4);
-          morphs[0] = dom.createAttrMorph(element0, 'class');
-          morphs[1] = dom.createMorphAt(element0, 1, 1);
-          morphs[2] = dom.createMorphAt(element0, 3, 3);
-          morphs[3] = dom.createMorphAt(element0, 5, 5);
-          return morphs;
-        },
-        statements: [["attribute", "class", ["concat", [["get", "horizontalInputGridClass", ["loc", [null, [9, 18], [9, 42]]]], " ", ["get", "horizontalInputOffsetGridClass", ["loc", [null, [9, 47], [9, 77]]]]]]], ["inline", "bs-textarea", [], ["name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [10, 27], [10, 31]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [10, 38], [10, 43]]]]], [], []], "placeholder", ["subexpr", "@mut", [["get", "placeholder", ["loc", [null, [10, 56], [10, 67]]]]], [], []], "cols", ["subexpr", "@mut", [["get", "cols", ["loc", [null, [10, 73], [10, 77]]]]], [], []], "rows", ["subexpr", "@mut", [["get", "rows", ["loc", [null, [10, 83], [10, 87]]]]], [], []]], ["loc", [null, [10, 8], [10, 89]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [11, 8], [11, 59]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [12, 8], [12, 52]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 15,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/horizontal/textarea.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasLabel", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, 1, ["loc", [null, [1, 0], [14, 7]]]]],
-      locals: [],
-      templates: [child0, child1]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/inline/checkbox", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "triple-curlies"
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 5,
-            "column": 6
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/inline/checkbox.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "checkbox");
-        var el2 = dom.createTextNode("\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("label");
-        var el3 = dom.createTextNode("\n        ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createComment("");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode(" ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createComment("");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element0 = dom.childAt(fragment, [0, 1]);
-        var morphs = new Array(2);
-        morphs[0] = dom.createMorphAt(element0, 1, 1);
-        morphs[1] = dom.createMorphAt(element0, 3, 3);
-        return morphs;
-      },
-      statements: [["inline", "input", [], ["name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [3, 21], [3, 25]]]]], [], []], "type", "checkbox", "checked", ["subexpr", "@mut", [["get", "value", ["loc", [null, [3, 50], [3, 55]]]]], [], []]], ["loc", [null, [3, 8], [3, 57]]]], ["content", "label", ["loc", [null, [3, 58], [3, 67]]]]],
-      locals: [],
-      templates: []
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/inline/default", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "triple-curlies"
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 3,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/inline/default.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("label");
-          dom.setAttribute(el1, "class", "control-label");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(2);
-          morphs[0] = dom.createAttrMorph(element0, 'for');
-          morphs[1] = dom.createMorphAt(element0, 0, 0);
-          return morphs;
-        },
-        statements: [["attribute", "for", ["concat", [["subexpr", "concat", [["get", "elementId", ["loc", [null, [2, 47], [2, 56]]]], "-", ["get", "name", ["loc", [null, [2, 61], [2, 65]]]]], [], ["loc", [null, [2, 38], [2, 67]]]]]]], ["content", "label", ["loc", [null, [2, 69], [2, 78]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 6,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/inline/default.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(3);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-        morphs[2] = dom.createMorphAt(fragment, 3, 3, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasLabel", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, null, ["loc", [null, [1, 0], [3, 7]]]], ["inline", "bs-input", [], ["id", ["subexpr", "concat", [["get", "elementId", ["loc", [null, [4, 22], [4, 31]]]], "-", ["get", "name", ["loc", [null, [4, 36], [4, 40]]]]], [], ["loc", [null, [4, 14], [4, 41]]]], "name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 47], [4, 51]]]]], [], []], "type", ["subexpr", "@mut", [["get", "controlType", ["loc", [null, [4, 57], [4, 68]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 75], [4, 80]]]]], [], []], "placeholder", ["subexpr", "@mut", [["get", "placeholder", ["loc", [null, [4, 93], [4, 104]]]]], [], []]], ["loc", [null, [4, 0], [4, 106]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [5, 0], [5, 51]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/inline/select", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "triple-curlies"
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 3,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/inline/select.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("label");
-          dom.setAttribute(el1, "class", "control-label");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(2);
-          morphs[0] = dom.createAttrMorph(element0, 'for');
-          morphs[1] = dom.createMorphAt(element0, 0, 0);
-          return morphs;
-        },
-        statements: [["attribute", "for", ["concat", [["subexpr", "concat", [["get", "elementId", ["loc", [null, [2, 47], [2, 56]]]], "-", ["get", "name", ["loc", [null, [2, 61], [2, 65]]]]], [], ["loc", [null, [2, 38], [2, 67]]]]]]], ["content", "label", ["loc", [null, [2, 69], [2, 78]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 6,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/inline/select.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(3);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-        morphs[2] = dom.createMorphAt(fragment, 3, 3, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasLabel", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, null, ["loc", [null, [1, 0], [3, 7]]]], ["inline", "bs-select", [], ["id", ["subexpr", "concat", [["get", "elementId", ["loc", [null, [4, 23], [4, 32]]]], "-", ["get", "name", ["loc", [null, [4, 37], [4, 41]]]]], [], ["loc", [null, [4, 15], [4, 42]]]], "name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 48], [4, 52]]]]], [], []], "content", ["subexpr", "@mut", [["get", "choices", ["loc", [null, [4, 61], [4, 68]]]]], [], []], "optionValuePath", ["subexpr", "@mut", [["get", "choiceValueProperty", ["loc", [null, [4, 85], [4, 104]]]]], [], []], "optionLabelPath", ["subexpr", "@mut", [["get", "choiceLabelProperty", ["loc", [null, [4, 121], [4, 140]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 147], [4, 152]]]]], [], []]], ["loc", [null, [4, 0], [4, 154]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [5, 0], [5, 51]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/inline/textarea", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "triple-curlies"
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 3,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/inline/textarea.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("label");
-          dom.setAttribute(el1, "class", "control-label");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(2);
-          morphs[0] = dom.createAttrMorph(element0, 'for');
-          morphs[1] = dom.createMorphAt(element0, 0, 0);
-          return morphs;
-        },
-        statements: [["attribute", "for", ["concat", [["subexpr", "concat", [["get", "elementId", ["loc", [null, [2, 47], [2, 56]]]], "-", ["get", "name", ["loc", [null, [2, 61], [2, 65]]]]], [], ["loc", [null, [2, 38], [2, 67]]]]]]], ["content", "label", ["loc", [null, [2, 69], [2, 78]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 6,
-            "column": 44
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/inline/textarea.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(4);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-        morphs[2] = dom.createMorphAt(fragment, 3, 3, contextualElement);
-        morphs[3] = dom.createMorphAt(fragment, 5, 5, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasLabel", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, null, ["loc", [null, [1, 0], [3, 7]]]], ["inline", "bs-textarea", [], ["id", ["subexpr", "concat", [["get", "elementId", ["loc", [null, [4, 25], [4, 34]]]], "-", ["get", "name", ["loc", [null, [4, 39], [4, 43]]]]], [], ["loc", [null, [4, 17], [4, 44]]]], "name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 50], [4, 54]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 61], [4, 66]]]]], [], []], "placeholder", ["subexpr", "@mut", [["get", "placeholder", ["loc", [null, [4, 79], [4, 90]]]]], [], []], "cols", ["subexpr", "@mut", [["get", "cols", ["loc", [null, [4, 96], [4, 100]]]]], [], []], "rows", ["subexpr", "@mut", [["get", "rows", ["loc", [null, [4, 106], [4, 110]]]]], [], []]], ["loc", [null, [4, 0], [4, 112]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [5, 0], [5, 51]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [6, 0], [6, 44]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/vertical/checkbox", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["multiple-nodes", "wrong-type"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 6,
-            "column": 44
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/vertical/checkbox.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "checkbox");
-        var el2 = dom.createTextNode("\n    ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("label");
-        var el3 = dom.createTextNode("\n        ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createComment("");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode(" ");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createComment("");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n    ");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var element0 = dom.childAt(fragment, [0, 1]);
-        var morphs = new Array(3);
-        morphs[0] = dom.createMorphAt(element0, 1, 1);
-        morphs[1] = dom.createMorphAt(element0, 3, 3);
-        morphs[2] = dom.createMorphAt(fragment, 2, 2, contextualElement);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["inline", "input", [], ["name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [3, 21], [3, 25]]]]], [], []], "type", "checkbox", "checked", ["subexpr", "@mut", [["get", "value", ["loc", [null, [3, 50], [3, 55]]]]], [], []]], ["loc", [null, [3, 8], [3, 57]]]], ["content", "label", ["loc", [null, [3, 58], [3, 67]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [6, 0], [6, 44]]]]],
-      locals: [],
-      templates: []
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/vertical/default", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "triple-curlies"
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 3,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/vertical/default.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("label");
-          dom.setAttribute(el1, "class", "control-label");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(2);
-          morphs[0] = dom.createAttrMorph(element0, 'for');
-          morphs[1] = dom.createMorphAt(element0, 0, 0);
-          return morphs;
-        },
-        statements: [["attribute", "for", ["concat", [["subexpr", "concat", [["get", "elementId", ["loc", [null, [2, 47], [2, 56]]]], "-", ["get", "name", ["loc", [null, [2, 61], [2, 65]]]]], [], ["loc", [null, [2, 38], [2, 67]]]]]]], ["content", "label", ["loc", [null, [2, 69], [2, 78]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 6,
-            "column": 44
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/vertical/default.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(4);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-        morphs[2] = dom.createMorphAt(fragment, 3, 3, contextualElement);
-        morphs[3] = dom.createMorphAt(fragment, 5, 5, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasLabel", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, null, ["loc", [null, [1, 0], [3, 7]]]], ["inline", "bs-input", [], ["id", ["subexpr", "concat", [["get", "elementId", ["loc", [null, [4, 22], [4, 31]]]], "-", ["get", "name", ["loc", [null, [4, 36], [4, 40]]]]], [], ["loc", [null, [4, 14], [4, 41]]]], "name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 47], [4, 51]]]]], [], []], "type", ["subexpr", "@mut", [["get", "controlType", ["loc", [null, [4, 57], [4, 68]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 75], [4, 80]]]]], [], []], "placeholder", ["subexpr", "@mut", [["get", "placeholder", ["loc", [null, [4, 93], [4, 104]]]]], [], []]], ["loc", [null, [4, 0], [4, 106]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [5, 0], [5, 51]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [6, 0], [6, 44]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/vertical/select", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "triple-curlies"
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 3,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/vertical/select.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("label");
-          dom.setAttribute(el1, "class", "control-label");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(2);
-          morphs[0] = dom.createAttrMorph(element0, 'for');
-          morphs[1] = dom.createMorphAt(element0, 0, 0);
-          return morphs;
-        },
-        statements: [["attribute", "for", ["concat", [["subexpr", "concat", [["get", "elementId", ["loc", [null, [2, 47], [2, 56]]]], "-", ["get", "name", ["loc", [null, [2, 61], [2, 65]]]]], [], ["loc", [null, [2, 38], [2, 67]]]]]]], ["content", "label", ["loc", [null, [2, 69], [2, 78]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 6,
-            "column": 0
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/vertical/select.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(3);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-        morphs[2] = dom.createMorphAt(fragment, 3, 3, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasLabel", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, null, ["loc", [null, [1, 0], [3, 7]]]], ["inline", "bs-select", [], ["id", ["subexpr", "concat", [["get", "elementId", ["loc", [null, [4, 23], [4, 32]]]], "-", ["get", "name", ["loc", [null, [4, 37], [4, 41]]]]], [], ["loc", [null, [4, 15], [4, 42]]]], "name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 48], [4, 52]]]]], [], []], "content", ["subexpr", "@mut", [["get", "choices", ["loc", [null, [4, 61], [4, 68]]]]], [], []], "optionValuePath", ["subexpr", "@mut", [["get", "choiceValueProperty", ["loc", [null, [4, 85], [4, 104]]]]], [], []], "optionLabelPath", ["subexpr", "@mut", [["get", "choiceLabelProperty", ["loc", [null, [4, 121], [4, 140]]]]], [], []], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 147], [4, 152]]]]], [], []]], ["loc", [null, [4, 0], [4, 154]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [5, 0], [5, 51]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
-define("ember-riak-explorer/templates/components/form-element/vertical/textarea", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template((function () {
-    var child0 = (function () {
-      return {
-        meta: {
-          "fragmentReason": {
-            "name": "triple-curlies"
-          },
-          "revision": "Ember@2.3.2",
-          "loc": {
-            "source": null,
-            "start": {
-              "line": 1,
-              "column": 0
-            },
-            "end": {
-              "line": 3,
-              "column": 0
-            }
-          },
-          "moduleName": "ember-riak-explorer/templates/components/form-element/vertical/textarea.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("label");
-          dom.setAttribute(el1, "class", "control-label");
-          var el2 = dom.createComment("");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(2);
-          morphs[0] = dom.createAttrMorph(element0, 'for');
-          morphs[1] = dom.createMorphAt(element0, 0, 0);
-          return morphs;
-        },
-        statements: [["attribute", "for", ["concat", [["subexpr", "concat", [["get", "elementId", ["loc", [null, [2, 47], [2, 56]]]], "-", ["get", "name", ["loc", [null, [2, 61], [2, 65]]]]], [], ["loc", [null, [2, 38], [2, 67]]]]]]], ["content", "label", ["loc", [null, [2, 69], [2, 78]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    return {
-      meta: {
-        "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["wrong-type", "multiple-nodes"]
-        },
-        "revision": "Ember@2.3.2",
-        "loc": {
-          "source": null,
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 6,
-            "column": 44
-          }
-        },
-        "moduleName": "ember-riak-explorer/templates/components/form-element/vertical/textarea.hbs"
-      },
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(4);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
-        morphs[2] = dom.createMorphAt(fragment, 3, 3, contextualElement);
-        morphs[3] = dom.createMorphAt(fragment, 5, 5, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "if", [["get", "hasLabel", ["loc", [null, [1, 6], [1, 14]]]]], [], 0, null, ["loc", [null, [1, 0], [3, 7]]]], ["inline", "bs-textarea", [], ["id", ["subexpr", "concat", [["get", "elementId", ["loc", [null, [4, 25], [4, 34]]]], "-", ["get", "name", ["loc", [null, [4, 39], [4, 43]]]]], [], ["loc", [null, [4, 17], [4, 44]]]], "value", ["subexpr", "@mut", [["get", "value", ["loc", [null, [4, 51], [4, 56]]]]], [], []], "name", ["subexpr", "@mut", [["get", "name", ["loc", [null, [4, 62], [4, 66]]]]], [], []], "placeholder", ["subexpr", "@mut", [["get", "placeholder", ["loc", [null, [4, 79], [4, 90]]]]], [], []], "cols", ["subexpr", "@mut", [["get", "cols", ["loc", [null, [4, 96], [4, 100]]]]], [], []], "rows", ["subexpr", "@mut", [["get", "rows", ["loc", [null, [4, 106], [4, 110]]]]], [], []]], ["loc", [null, [4, 0], [4, 112]]]], ["inline", "partial", ["components/form-element/feedback-icon"], [], ["loc", [null, [5, 0], [5, 51]]]], ["inline", "partial", ["components/form-element/errors"], [], ["loc", [null, [6, 0], [6, 44]]]]],
-      locals: [],
-      templates: [child0]
-    };
-  })());
-});
 define("ember-riak-explorer/templates/components/link/bucket-type", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
@@ -30480,7 +27293,7 @@ define("ember-riak-explorer/templates/components/link/bucket-type", ["exports"],
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -30524,7 +27337,7 @@ define("ember-riak-explorer/templates/components/link/bucket-type", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -30570,7 +27383,7 @@ define("ember-riak-explorer/templates/components/link/link-bucket", ["exports"],
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -30614,7 +27427,7 @@ define("ember-riak-explorer/templates/components/link/link-bucket", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -30658,7 +27471,7 @@ define("ember-riak-explorer/templates/components/link/link-cluster", ["exports"]
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -30696,7 +27509,7 @@ define("ember-riak-explorer/templates/components/link/link-cluster", ["exports"]
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -30756,7 +27569,7 @@ define("ember-riak-explorer/templates/components/link/link-cluster", ["exports"]
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -30802,7 +27615,7 @@ define("ember-riak-explorer/templates/components/link/link-index", ["exports"], 
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -30846,7 +27659,7 @@ define("ember-riak-explorer/templates/components/link/link-index", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -30889,7 +27702,7 @@ define("ember-riak-explorer/templates/components/link/link-object", ["exports"],
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -30934,7 +27747,7 @@ define("ember-riak-explorer/templates/components/link/link-object", ["exports"],
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -30975,7 +27788,7 @@ define("ember-riak-explorer/templates/components/link/link-object", ["exports"],
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -31017,7 +27830,7 @@ define("ember-riak-explorer/templates/components/link/link-object", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -31060,7 +27873,7 @@ define("ember-riak-explorer/templates/components/loading-spinner", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -31110,7 +27923,7 @@ define("ember-riak-explorer/templates/components/loading-spinner", ["exports"], 
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -31228,7 +28041,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -31271,7 +28084,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -31313,7 +28126,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.3.2",
+              "revision": "Ember@2.5.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -31356,7 +28169,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -31398,7 +28211,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -31440,7 +28253,7 @@ define("ember-riak-explorer/templates/components/map-object/contents", ["exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -31483,7 +28296,7 @@ define("ember-riak-explorer/templates/components/map-object/map", ["exports"], f
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -31532,7 +28345,7 @@ define("ember-riak-explorer/templates/components/map-object/map", ["exports"], f
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -31582,7 +28395,7 @@ define("ember-riak-explorer/templates/components/map-object/map", ["exports"], f
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -31675,7 +28488,7 @@ define("ember-riak-explorer/templates/components/map-object/maps", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -31719,7 +28532,7 @@ define("ember-riak-explorer/templates/components/map-object/maps", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -31783,7 +28596,7 @@ define("ember-riak-explorer/templates/components/map-object/section", ["exports"
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -31836,7 +28649,7 @@ define("ember-riak-explorer/templates/components/map-object/section", ["exports"
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -31888,7 +28701,7 @@ define("ember-riak-explorer/templates/components/map-object/section", ["exports"
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -31964,7 +28777,7 @@ define("ember-riak-explorer/templates/components/map-object/section", ["exports"
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -32057,7 +28870,7 @@ define("ember-riak-explorer/templates/components/map-object/section", ["exports"
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -32139,7 +28952,7 @@ define("ember-riak-explorer/templates/components/map-object/sets", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -32192,7 +29005,7 @@ define("ember-riak-explorer/templates/components/map-object/sets", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -32268,7 +29081,7 @@ define("ember-riak-explorer/templates/components/map-object/sets", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -32346,7 +29159,7 @@ define("ember-riak-explorer/templates/components/pagination-component", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -32392,7 +29205,7 @@ define("ember-riak-explorer/templates/components/pagination-component", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -32464,7 +29277,7 @@ define("ember-riak-explorer/templates/components/pagination-component", ["export
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -32512,6 +29325,86 @@ define("ember-riak-explorer/templates/components/pagination-component", ["export
     };
   })());
 });
+define("ember-riak-explorer/templates/components/side-drawer", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.5.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 11,
+            "column": 6
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/components/side-drawer.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "drawer-header");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "drawer-label");
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "close-container");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("span");
+        dom.setAttribute(el3, "class", "ion-close-round");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "drawer-body");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element0 = dom.childAt(fragment, [0]);
+        var element1 = dom.childAt(element0, [3]);
+        var morphs = new Array(3);
+        morphs[0] = dom.createMorphAt(dom.childAt(element0, [1]), 0, 0);
+        morphs[1] = dom.createElementMorph(element1);
+        morphs[2] = dom.createMorphAt(dom.childAt(fragment, [2]), 1, 1);
+        return morphs;
+      },
+      statements: [["content", "label", ["loc", [null, [2, 28], [2, 37]]]], ["element", "action", ["close"], [], ["loc", [null, [4, 32], [4, 50]]]], ["content", "yield", ["loc", [null, [10, 2], [10, 11]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
 define("ember-riak-explorer/templates/components/table/bucket-props-advanced", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
@@ -32519,7 +29412,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-advanced", [
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -32561,7 +29454,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-advanced", [
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -32602,7 +29495,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-advanced", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -32684,7 +29577,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-advanced", [
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -32727,7 +29620,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -32770,7 +29663,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -32813,7 +29706,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -32897,7 +29790,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -32938,7 +29831,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -32978,7 +29871,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -33016,7 +29909,7 @@ define("ember-riak-explorer/templates/components/table/bucket-props-overview", [
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -33201,7 +30094,7 @@ define("ember-riak-explorer/templates/components/table/bucket-types", ["exports"
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -33295,7 +30188,7 @@ define("ember-riak-explorer/templates/components/table/bucket-types", ["exports"
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -33382,7 +30275,7 @@ define("ember-riak-explorer/templates/components/table/object-headers", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -33443,7 +30336,7 @@ define("ember-riak-explorer/templates/components/table/object-headers", ["export
     return {
       meta: {
         "fragmentReason": false,
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -33489,7 +30382,7 @@ define("ember-riak-explorer/templates/components/table/object-version", ["export
     return {
       meta: {
         "fragmentReason": false,
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -33600,7 +30493,7 @@ define("ember-riak-explorer/templates/components/table/search-indexes", ["export
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -33641,7 +30534,7 @@ define("ember-riak-explorer/templates/components/table/search-indexes", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -33712,7 +30605,7 @@ define("ember-riak-explorer/templates/components/table/search-indexes", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -33750,7 +30643,7 @@ define("ember-riak-explorer/templates/components/table/search-indexes", ["export
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -33827,7 +30720,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -33870,7 +30763,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -33913,7 +30806,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -33954,7 +30847,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -33995,7 +30888,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -34077,7 +30970,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -34300,7 +31193,7 @@ define("ember-riak-explorer/templates/components/table/ts-table-reference", ["ex
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -34341,7 +31234,7 @@ define("ember-riak-explorer/templates/components/table/ts-table-reference", ["ex
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -34382,7 +31275,7 @@ define("ember-riak-explorer/templates/components/table/ts-table-reference", ["ex
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -34430,7 +31323,7 @@ define("ember-riak-explorer/templates/components/table/ts-table-reference", ["ex
     return {
       meta: {
         "fragmentReason": false,
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -34572,7 +31465,7 @@ define("ember-riak-explorer/templates/components/table/ts-tables", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -34614,7 +31507,7 @@ define("ember-riak-explorer/templates/components/table/ts-tables", ["exports"], 
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.3.2",
+            "revision": "Ember@2.5.1",
             "loc": {
               "source": null,
               "start": {
@@ -34654,7 +31547,7 @@ define("ember-riak-explorer/templates/components/table/ts-tables", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -34742,7 +31635,7 @@ define("ember-riak-explorer/templates/components/table/ts-tables", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -34824,7 +31717,7 @@ define("ember-riak-explorer/templates/components/tooltip/bucket-props", ["export
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -34870,7 +31763,7 @@ define("ember-riak-explorer/templates/components/tooltip/node-config", ["exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -34916,7 +31809,7 @@ define("ember-riak-explorer/templates/components/tooltip/node-stats", ["exports"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -34960,7 +31853,7 @@ define("ember-riak-explorer/templates/components/view-label", ["exports"], funct
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -35000,7 +31893,7 @@ define("ember-riak-explorer/templates/components/view-label", ["exports"], funct
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -35043,7 +31936,7 @@ define("ember-riak-explorer/templates/components/view-label", ["exports"], funct
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -35091,7 +31984,7 @@ define("ember-riak-explorer/templates/components/wrapper-panel", ["exports"], fu
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -35142,13 +32035,649 @@ define("ember-riak-explorer/templates/components/wrapper-panel", ["exports"], fu
     };
   })());
 });
+define("ember-riak-explorer/templates/partials/schema-anatomy", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.5.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 185,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/partials/schema-anatomy.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "alert alert-info");
+        var el2 = dom.createTextNode("The information below is pulled from \"Planning Your Riak TS Table\" in the ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "href", "http://docs.basho.com/riak/ts/1.2.0/using/planning/");
+        dom.setAttribute(el2, "target", "_blank");
+        var el3 = dom.createTextNode("Basho Docs");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("This page provides a basic overview of what you'll need and some guidelines/limitations. For a deeper dive into planning and designing Riak TS tables, check out ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "target", "_blank");
+        dom.setAttribute(el2, "href", "http://docs.basho.com/riakts/1.2.0/learn-about/advancedplanning/");
+        var el3 = dom.createTextNode("Advanced Planning");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(".");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Riak TS tables are closely tied to SQL tables. If you are unfamiliar with SQL or would like to know more about how Riak TS integrates SQL, check out ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "target", "_blank");
+        dom.setAttribute(el2, "href", "http://docs.basho.com/riakts/1.2.0/learn-about/sqlriakts/");
+        var el3 = dom.createTextNode("SQL for Riak TS");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(".");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h2");
+        var el2 = dom.createTextNode("Anatomy of a Schema");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("In order to create a working Riak TS table, you'll need to plan your table out. Once created, your table cannot be changed. Here is an example Riak TS ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("CREATE TABLE");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" statement (broken across many lines for clarity):");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("CREATE TABLE GeoCheckin\n(\n   region       varchar   not null,\n   state        varchar   not null,\n   time         timestamp not null,\n   weather      varchar   not null,\n   temperature  double,\n   PRIMARY KEY (\n     (region, state, quantum(time, 15, 'm')),\n     region, state, time\n   )\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Fields");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Fields, also called columns, refer to the items preceding the ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("PRIMARY KEY");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(". Field names (");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("region");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(", ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("state");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(", etc) must be ASCII strings, in addition to having the correct case. If field names need to contain spaces or punctuation they can be double quoted.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Field names define the structure of the data, taking the format:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("name type [not null],");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Fields specified as part of the primary key must be defined as ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("not null");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(".");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The field definitions for the keys can be specified in any order in the ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("CREATE TABLE");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" statement. For instance both are correct:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createElement("strong");
+        var el3 = dom.createTextNode("A.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("CREATE TABLE GeoCheckin\n(\n   region       varchar   not null,\n   state        varchar   not null,\n   time         timestamp not null,\n   weather      varchar not null,\n   temperature  double,\n   PRIMARY KEY (\n     (region, state, quantum(time, 15, 'm')),\n     region, state, time\n   )\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createElement("strong");
+        var el3 = dom.createTextNode("B.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("CREATE TABLE GeoCheckin\n(\n   time         timestamp not null,\n   state        varchar   not null,\n   weather      varchar not null,\n   region       varchar   not null,\n   temperature  double,\n   PRIMARY KEY (\n     (quantum(time, 15, 'm'), state, region),\n     time, state, region\n   )\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The types associated with fields are limited. Valid types are:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("varchar");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" - Any string content is valid, including Unicode. Can only be compared using strict equality, and will not be typecast (e.g., to an integer) for comparison purposes. Use single quotes to delimit varchar strings.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("boolean");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" - ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("true");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" or ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("false");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" (any case)");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("timestamp");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" - Timestamps are integer values expressing ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("a");
+        dom.setAttribute(el3, "target", "_blank");
+        dom.setAttribute(el3, "href", "https://en.wikipedia.org/wiki/Unix_time");
+        var el4 = dom.createTextNode("UNIX epoch time in UTC");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" in ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("strong");
+        var el4 = dom.createTextNode("milliseconds");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(". Zero is not a valid timestamp.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("sint64");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" - Signed 64-bit integer");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("double");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" - This type does not comply with its IEEE specification: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("NaN");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" (not a number) and ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("INF");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" (infinity) cannot be used.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h3");
+        var el2 = dom.createTextNode("Primary Key");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("PRIMARY KEY");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" describes both the partition and local keys. The partition key is a prefix of the local key, consisting of one or more fields. The local key must begin with the same fields as the partition key, but may have more fields.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("CREATE TABLE GeoCheckin\n(\n   time         timestamp not null,\n   state        varchar   not null,\n   weather      varchar not null,\n   region       varchar   not null,\n   temperature  double,\n   PRIMARY KEY (\n     (quantum(time, 15, 'm'), state, region),\n     time, state, region\n   )\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The field definitions for the ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("PRIMARY KEY");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" can be specified in any order in the ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("CREATE TABLE");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" statement. For instance both are correct:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createElement("strong");
+        var el3 = dom.createTextNode("A.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("CREATE TABLE GeoCheckin\n(\n   region       varchar   not null,\n   state        varchar   not null,\n   time         timestamp not null,\n   weather      varchar not null,\n   temperature  double,\n   PRIMARY KEY (\n     (region, state, quantum(time, 15, 'm')),\n     region, state, time\n   )\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createElement("strong");
+        var el3 = dom.createTextNode("B.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("CREATE TABLE GeoCheckin\n(\n   region       varchar   not null,\n   state        varchar   not null,\n   time         timestamp not null,\n   weather      varchar not null,\n   temperature  double,\n   PRIMARY KEY (\n     (state, region, quantum(time, 15, 'm')),\n     state, region, time\n   )\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Partition Key");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The partition key is the first key, and is defined as the named fields in parentheses. The partition key must have ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("strong");
+        var el3 = dom.createTextNode("at least one");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" field");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("You can use a quantum to colocate data on one of the partition key's timestamp fields:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("PRIMARY KEY  (\n  (region, state, quantum(time, 1, 's')),\n  ...\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The timestamp field can occur at any point in the partition key. For example, this is snippet is also valid:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("PRIMARY KEY (\n  (quantum(time, 1, 's'), region, state),\n  ...\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The quantum function takes 3 parameters:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("the name of a field in the table definition of type ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("timestamp");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("a quantity");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("a unit of time:\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("ul");
+        var el4 = dom.createElement("li");
+        var el5 = dom.createTextNode("'d'  - days");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("li");
+        var el5 = dom.createTextNode("'h' - hours");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("li");
+        var el5 = dom.createTextNode("'m' - minutes");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("li");
+        var el5 = dom.createTextNode("'s' - seconds");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("There may only be one quantum in the partition key.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The partition key can optionally quantize a timestamp field, sending all records for that quanta to the same vnodes:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Local Key");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The local key comes after the partition key. It ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("strong");
+        var el3 = dom.createTextNode("must first contain the same fields in the same order");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" as the partition key. This ensures that the same fields determining your data's partition also dictate the sorting of the data within that partition.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The local key may also contain additional fields so long as they come after the fields present in the partition key.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("PRIMARY KEY (\n  (region, state, quantum(time, 15, 'm')),\n  region, state, time, latitude, longitude\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h2");
+        var el2 = dom.createTextNode("Schema Discovery");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("After creating a table, its schema can be discovered with the ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("DESCRIBE");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" statement, which will return, for each column, the following items:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createElement("em");
+        var el4 = dom.createTextNode("Column");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(", field name;");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createElement("em");
+        var el4 = dom.createTextNode("Type");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(", field type;");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createElement("em");
+        var el4 = dom.createTextNode("Is Null");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(", ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("em");
+        var el4 = dom.createTextNode("true");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" is the field is optional, ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("em");
+        var el4 = dom.createTextNode("false");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" otherwise;");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createElement("em");
+        var el4 = dom.createTextNode("Primary Key");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(", position of this field in the primary key, or blank if it does not appear in the key;");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createElement("em");
+        var el4 = dom.createTextNode("Local Key");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(", position of this field in the local key, or blank if it does not appear in the key.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("DESCRIBE GeoCheckin");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h2");
+        var el2 = dom.createTextNode("More information");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Still unsure how best to structure your Riak TS table? Check out our ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "target", "_blank");
+        dom.setAttribute(el2, "href", "http://docs.basho.com/riakts/1.2.0/learn-about/bestpractices/");
+        var el3 = dom.createTextNode("best practice recommendations");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(".");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Confused about columns, primary key, etc? Check out ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "target", "_blank");
+        dom.setAttribute(el2, "href", "http://docs.basho.com/riakts/1.2.0/learn-about/advancedplanning/");
+        var el3 = dom.createTextNode("Advanced Planning");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" for full definitions.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes() {
+        return [];
+      },
+      statements: [],
+      locals: [],
+      templates: []
+    };
+  })());
+});
 define("ember-riak-explorer/templates/partials/topbar", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -35189,7 +32718,7 @@ define("ember-riak-explorer/templates/partials/topbar", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.3.2",
+          "revision": "Ember@2.5.1",
           "loc": {
             "source": null,
             "start": {
@@ -35232,7 +32761,7 @@ define("ember-riak-explorer/templates/partials/topbar", ["exports"], function (e
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.3.2",
+        "revision": "Ember@2.5.1",
         "loc": {
           "source": null,
           "start": {
@@ -35293,6 +32822,1049 @@ define("ember-riak-explorer/templates/partials/topbar", ["exports"], function (e
       statements: [["block", "link-to", ["application"], ["class", "logo"], 0, null, ["loc", [null, [2, 2], [4, 14]]]], ["block", "link-to", ["help"], [], 1, null, ["loc", [null, [8, 6], [11, 18]]]]],
       locals: [],
       templates: [child0, child1]
+    };
+  })());
+});
+define("ember-riak-explorer/templates/partials/ts-query-guidelines", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.5.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 217,
+            "column": 205
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/partials/ts-query-guidelines.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "alert alert-info");
+        var el2 = dom.createTextNode("\n  For more information on querying, check out our ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "target", "_blank");
+        dom.setAttribute(el2, "href", "https://github.com/basho/private_basho_docs/blob/riakts/1.3.0/source/languages/en/riakts/using/querying.md");
+        dom.setAttribute(el2, "target", "_blank");
+        var el3 = dom.createTextNode("docs");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(".\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h3");
+        var el2 = dom.createTextNode("Basic Querying");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("When querying your data via fields, there are three categories of fields, each with a different set of rules for valid queries.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("CREATE TABLE GeoCheckin\n(\n  region       varchar   not null,\n  state        varchar   not null,\n  time         timestamp not null,\n  weather      varchar not null,\n  temperature  double,\n  PRIMARY KEY (\n    (region, state, quantum(time, 15, 'm')), /* <-- PARTITION KEY */\n    region, state, time /* <-- LOCAL KEY */\n  )\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Partition Key");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("All queries must cover the partition key.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("If the parition key has a quantum, then the query must use greater than and less than (>, >=, <, <=).");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("If the partition key does not have a quantum, the query must have an equals filter (=).  In other words, if there is no quantum, the partition key must be specified exactly in the query.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The timestamp in the partition key is an integer (in milliseconds) that must be compared either as a fully-enclosed range or as an exact match.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Valid: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("time > 1449864277000 and time < 1449864290000");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Invalid: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("time > 1449864277000");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Invalid: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("time > 1449864277000 or time < 1449864290000");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Local Key");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Fields that are in the local key but not in the partition key are not required for the query.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("PRIMARY KEY  ((region, state, quantum(time, 1, 's')), ...)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Here 'c' is in the local key only so does not have to be in the query.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Fields in the local key must be compared using strict equality against literal values. No ranges are permitted, ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("!=");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" must not be used, and ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("or");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" will not work.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Valid: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("country_code = 'uk'");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Invalid: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("(country_code = 'uk' or country_code = 'de')");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Invalid: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("country_code != 'se'");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Invalid: ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("temperature < 85.0");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Columns");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("These fields may be queried with unbounded ranges, ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("!=");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(", and ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("or");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" comparisons.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("General Guidelines");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Before you begin querying, there are some guidelines to keep in mind.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Fields may not be compared against other fields in the query.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("When using ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("code");
+        var el4 = dom.createTextNode("or");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(", you must surround the expression with parentheses or your query will return an error.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Basic queries return the full range of values between two given times for the provided partition key values. To demonstrate, we'll use the same example table:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("CREATE TABLE GeoCheckin\n(\n  region       varchar   not null,\n  state        varchar   not null,\n  time         timestamp not null,\n  weather      varchar not null,\n  temperature  double,\n  PRIMARY KEY (\n    (region, state, quantum(time, 15, 'm')),\n   region, state, time\n  )\n)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Your query must include all components of the partition key. If any part of the partition key is missing, you will get an error.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h3");
+        var el2 = dom.createTextNode("Advanced Querying By Field");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Select Query");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("You can select particular fields from the data to query:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("select weather, temperature from GeoCheckin where time > 1234560 and time < 1234569 and region = 'South Atlantic' and state = 'South Carolina'");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Extended Query");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("You can extend the query beyond the primary key and use secondary columns to filter results. In this example, we are extending our query to filter based on the ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("temperature");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" column:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("select weather, temperature from GeoCheckin where time > 1234560 and time < 1234569 and region = 'South Atlantic' and state = 'South Carolina' and temperature > 27.0");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("You can also use ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("or");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" when querying against column values, such as ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("temperature");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" in our example. Note that the parentheses are required:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("select weather, temperature from GeoCheckin where time > 1234560 and time < 1234569 and region = 'South Atlantic' and state = 'South Carolina' and (temperature > 27.0 or temperature < 0.0)");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("You cannot use ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("or");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" between two complete clauses, since keys cannot be specified twice.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("SQL Injection");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("When querying with user-supplied data, it is essential that you protect against SQL injection. Please verify the user-supplied data before constructing queries.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("SQL Support");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("A small subset of SQL is supported. All columns are of the format:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("Field    Operator   Constant");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The following operators are supported for each data type:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("table");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("thead");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("tr");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("=");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("!=");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("<");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("<=");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode(">=");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("tbody");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("tr");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("varchar");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("tr");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("boolean");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("tr");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("sint64");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("tr");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("double");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("tr");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("timestamp");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("td");
+        var el5 = dom.createElement("code");
+        var el6 = dom.createTextNode("x");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Limitations");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Column to column comparisons are not currently supported.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Secondary indexing (2i) will not work with Riak TS.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Riak search will not work with Riak TS.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Queries are limited by the number of quanta they can span when specifying the time limits.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Quanta query range");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("A query covering more than a certain number of quanta (5 by default) will generate too many sub-queries and the query system will refuse to run it. Assuming a default quanta of 15 minutes, the maximum query time range is 75 minutes.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("In the below example we set a quanta of 15s:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("CREATE TABLE GeoCheckin\n  (geohash varchar not null,\n   location varchar not null,\n   user varchar not null,\n   time timestamp not null,\n   weather varchar not null,\n   temperature varchar,\n   PRIMARY KEY((location, user, quantum(time, 15, 's')),\n                location, user, time))");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The maximum time range we can query is 60s, anything beyond will fail.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("See the Data Modeling section in ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "target", "_blank");
+        dom.setAttribute(el2, "href", "https://docs.basho.com/riakts/1.2.0/learn-about/advancedplanning");
+        var el3 = dom.createTextNode("Advanced Planning");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" for more information.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Leap seconds and quantum boundaries");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Periodically ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "target", "_blank");
+        dom.setAttribute(el2, "href", "https://en.wikipedia.org/wiki/Leap_second");
+        var el3 = dom.createTextNode("leap seconds");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" are announced. These are inserted at the end of one day (in UTC).");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("UNIX treats them as one double-length second. For example, at the end of 1998 a second was added:");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("pre");
+        var el2 = dom.createTextNode("Date         Time of day   UNIX time\n1998-12-31   23:59:58      915148798\n1998-12-31   23:59:59      915148799\n1998-12-31   23:59:60      915148800     <== Artificial leap second\n1999-01-01   00:00:00      915148800");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Effectively, there is no way in the UNIX time scheme to differentiate an event that occurred during the extra second at the end of 1998 to something that occurred the first second of 1999.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("Similarly, Riak TS would treat ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("915148800");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" as the start of a new time quantum, and any data points which a client added for that second would be considered to be in the first time quantum in 1999.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("The data is not lost, but a query against 1998 time quanta will not produce those data points despite the fact that some of the events flagged as ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("915148800");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" technically occurred in 1998.");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes() {
+        return [];
+      },
+      statements: [],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("ember-riak-explorer/templates/partials/ts-table-write-guidelines", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.5.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 38,
+            "column": 0
+          }
+        },
+        "moduleName": "ember-riak-explorer/templates/partials/ts-table-write-guidelines.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "alert alert-info");
+        var el2 = dom.createTextNode("\n  For more information on writing data to tables, check out our ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "href", "https://github.com/basho/private_basho_docs/blob/riakts/1.3.0/source/languages/en/riakts/using/writingdata.md");
+        dom.setAttribute(el2, "target", "_blank");
+        var el3 = dom.createTextNode("docs");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(".\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Table Write Editor");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Each row you wish to insert should be represented as an array of field values, separated by a comma");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Row field values must be in the same order as defined in the table. Refer to the table fields in the above table\n    reference for order.\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("General Guidelines");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Batches should not be too large. In our testing, 100 rows per write is a sweet spot, but you should expect\n    different results depending on your hardware and schema.\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Writes will assume that columns are in the same order they've been declared in the table.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("Timestamps should be in Unix epoch/UTC milliseconds.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Tuning batches");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("\n  Batches of data from a single write are packaged for delivery to each destination server as a performance\n  optimization. For Enterprise customers using MDC, those batches are sent to the remote cluster via realtime sync.\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("\n  It is possible to specify an approximate largest-batch size for tuning purposes. By default, batches have a soft cap\n  size of 1MB of data, which we've found to be a reasonable size to avoid network congestion.\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("p");
+        var el2 = dom.createTextNode("\n  If you want to adjust that value, the configuration parameter ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("timeseries_max_batch_size");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" under ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("code");
+        var el3 = dom.createTextNode("riak_kv");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  in ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "href", "https://github.com/basho/private_basho_docs/blob/riakts/1.3.0/riak/kv/2.1.3/configuring/reference/#Adanvanced-Configuration");
+        dom.setAttribute(el2, "target", "_blank");
+        var el3 = dom.createTextNode("advanced.config");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" can be defined. The value is in bytes.\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes() {
+        return [];
+      },
+      statements: [],
+      locals: [],
+      templates: []
     };
   })());
 });
@@ -35359,7 +33931,7 @@ define('ember-riak-explorer/utils/render-tooltip', ['exports', 'ember-tooltips/u
   });
 });
 define("ember-riak-explorer/utils/riak-help/bucket_props", ["exports"], function (exports) {
-  var BucketPropsHelp = {
+  exports["default"] = {
     "active": {
       "default": true,
       "description": "Has this bucket type been activated?",
@@ -35572,11 +34144,9 @@ define("ember-riak-explorer/utils/riak-help/bucket_props", ["exports"], function
       "name": "Young VClock Pruning"
     }
   };
-
-  exports["default"] = BucketPropsHelp;
 });
 define("ember-riak-explorer/utils/riak-help/riak_config", ["exports"], function (exports) {
-  var RiakConfigHelp = {
+  exports["default"] = {
     "anti_entropy": {
       "default": "active",
       "description": "How Riak will repair out-of-sync keys. Some features require\nthis to be set to 'active', including search.\n* active: out-of-sync keys will be repaired in the background\n* passive: out-of-sync keys are only repaired on read\n* active-debug: like active, but outputs verbose debugging\ninformation",
@@ -36656,10 +35226,8 @@ define("ember-riak-explorer/utils/riak-help/riak_config", ["exports"], function 
       "valid": "a time duration with units, e.g. '10s' for 10 seconds"
     }
   };
-
-  exports["default"] = RiakConfigHelp;
 });
-define("ember-riak-explorer/utils/riak-help/riak_status",["exports"],function(exports){var RiakStatusHelp={"asn1_version":{"category":"versions","concern":"config","description":"","example":"2.0.3","json_schema_type":"string","metric_type":"nominal","name":"asn1_version","period":"current","scope":"config","units":"n/a"},"basho_stats_version":{"category":"versions","concern":"config","description":"[Basho Stats](http://github.com/basho/basho_stats)","example":"1.0.3","json_schema_type":"string","metric_type":"nominal","name":"basho_stats_version","period":"current","scope":"config","units":"n/a"},"bitcask_version":{"category":"versions","concern":"config","description":"[Bitcask](http://github.com/basho/bitcask)","example":"1.7.2","json_schema_type":"string","metric_type":"nominal","name":"bitcask_version","period":"current","scope":"config","units":"n/a"},"clique_version":{"category":"versions","concern":"config","description":"","example":"0.3.2-0-ge332c8f","json_schema_type":"string","metric_type":"nominal","name":"clique_version","period":"current","scope":"config","units":"n/a"},"cluster_info_version":{"category":"versions","concern":"config","description":"[Cluster Information](http://github.com/basho/cluster_info)","example":"2.0.3-0-g76c73fc","json_schema_type":"string","metric_type":"nominal","name":"cluster_info_version","period":"current","scope":"config","units":"n/a"},"compiler_version":{"category":"versions","concern":"config","description":"[Erlang Compiler](http://erlang.org/doc/apps/compiler/)","example":"4.9.3","json_schema_type":"string","metric_type":"nominal","name":"compiler_version","period":"current","scope":"config","units":"n/a"},"connected_nodes":{"category":"cluster state","concern":"core","description":"A list of the nodes that this node is aware of at this time","example":"[]","json_schema_type":"array","metric_type":"nominal","name":"connected_nodes","period":"current","scope":"cluster","units":"n/a"},"consistent_get_objsize_100":{"category":"object size","concern":"strong_consistency","description":"100th-percentile object size for strongly consistent GETs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"consistent_get_objsize_95":{"category":"object size","concern":"strong_consistency","description":"95th-percentile object size for strongly consistent GETs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"consistent_get_objsize_99":{"category":"object size","concern":"strong_consistency","description":"99th-percentile object size for strongly consistent GETs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"consistent_get_objsize_mean":{"category":"object size","concern":"strong_consistency","description":"Mean object size for strongly consistent GETs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"consistent_get_objsize_median":{"category":"object size","concern":"strong_consistency","description":"Median object size for strongly consistent GETs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"consistent_get_time_100":{"category":"latency","concern":"strong_consistency","description":"100th-percentile time between reception of client GETs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_time_100","period":"1 minute","scope":"node","units":"microseconds"},"consistent_get_time_95":{"category":"latency","concern":"strong_consistency","description":"95th-percentile time between reception of client GETs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_time_95","period":"1 minute","scope":"node","units":"microseconds"},"consistent_get_time_99":{"category":"latency","concern":"strong_consistency","description":"99th-percentile time between reception of client GETs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_time_99","period":"1 minute","scope":"node","units":"microseconds"},"consistent_get_time_mean":{"category":"latency","concern":"strong_consistency","description":"Mean time between reception of client GETs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"consistent_get_time_median":{"category":"latency","concern":"strong_consistency","description":"Median time between reception of client GETs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_time_median","period":"1 minute","scope":"node","units":"microseconds"},"consistent_gets":{"category":"throughput - read","concern":"strong_consistency","description":"Consistent reads on this node","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_gets","period":"1 minute","scope":"node","units":"operations"},"consistent_gets_total":{"category":"throughput - read","concern":"strong_consistency","description":"Total number of strongly consistent GETs coordinated by this node","example":"0","json_schema_type":"number","metric_type":"summary","name":"consistent_gets_total","period":"since start","scope":"node","units":"operations"},"consistent_put_objsize_100":{"category":"object size","concern":"strong_consistency","description":"100th-percentile object size for strongly consistent PUTs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"consistent_put_objsize_95":{"category":"object size","concern":"strong_consistency","description":"95th-percentile object size for strongly consistent PUTs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"consistent_put_objsize_99":{"category":"object size","concern":"strong_consistency","description":"99th-percentile object size for strongly consistent PUTs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"consistent_put_objsize_mean":{"category":"object size","concern":"strong_consistency","description":"Mean object size for strongly consistent PUTs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"consistent_put_objsize_median":{"category":"object size","concern":"strong_consistency","description":"Median object size for strongly consistent PUTs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"consistent_put_time_100":{"category":"latency","concern":"strong_consistency","description":"100th-percentile time between reception of client PUTs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_time_100","period":"1 minute","scope":"node","units":"microseconds"},"consistent_put_time_95":{"category":"latency","concern":"strong_consistency","description":"95th-percentile time between reception of client PUTs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_time_95","period":"1 minute","scope":"node","units":"microseconds"},"consistent_put_time_99":{"category":"latency","concern":"strong_consistency","description":"99th-percentile time between reception of client PUTs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_time_99","period":"1 minute","scope":"node","units":"microseconds"},"consistent_put_time_mean":{"category":"latency","concern":"strong_consistency","description":"Mean time between reception of client PUTs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"consistent_put_time_median":{"category":"latency","concern":"strong_consistency","description":"Median time between reception of client PUTs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_time_median","period":"1 minute","scope":"node","units":"microseconds"},"consistent_puts":{"category":"throughput - write","concern":"strong_consistency","description":"Consistent writes on this node","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_puts","period":"1 minute","scope":"node","units":"operations"},"consistent_puts_total":{"category":"throughput - write","concern":"strong_consistency","description":"Total number of strongly consistent PUTs coordinated by this node","example":"0","json_schema_type":"number","metric_type":"summary","name":"consistent_puts_total","period":"since start","scope":"node","units":"operations"},"converge_delay_last":{"category":"latency","concern":"core","description":"Last observed histogram value in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"converge_delay_last","period":"?","scope":"node","units":"milliseconds"},"converge_delay_max":{"category":"latency","concern":"core","description":"Maximum time in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"converge_delay_max","period":"?","scope":"node","units":"milliseconds"},"converge_delay_mean":{"category":"latency","concern":"core","description":"Mean time in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"converge_delay_mean","period":"?","scope":"node","units":"milliseconds"},"converge_delay_min":{"category":"latency","concern":"core","description":"Minimum time in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"converge_delay_min","period":"?","scope":"node","units":"milliseconds"},"coord_redirs_total":{"category":"load","concern":"core","description":"Total number of requests this node has redirected to other nodes for coordination","example":"0","json_schema_type":"number","metric_type":"summary","name":"coord_redirs_total","period":"since start","scope":"node","units":"redirects"},"counter_actor_counts_100":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"counter_actor_counts_100","period":"1 minute","scope":"node","units":"?"},"counter_actor_counts_95":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"counter_actor_counts_95","period":"1 minute","scope":"node","units":"?"},"counter_actor_counts_99":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"counter_actor_counts_99","period":"1 minute","scope":"node","units":"?"},"counter_actor_counts_mean":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"counter_actor_counts_mean","period":"1 minute","scope":"node","units":"?"},"counter_actor_counts_median":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"counter_actor_counts_median","period":"1 minute","scope":"node","units":"?"},"cpu_avg1":{"category":"load","concern":"resources","description":"The average number of active processes for the last 1 minute (equivalent to top(1) command's load average when divided by 256())","example":"1198","json_schema_type":"number","metric_type":"interval","name":"cpu_avg1","period":"1 minute","scope":"erlang vm","units":"processes"},"cpu_avg15":{"category":"load","concern":"resources","description":"The average number of active processes for the last 15 minutes (equivalent to top(1) command's load average when divided by 256())","example":"1083","json_schema_type":"number","metric_type":"interval","name":"cpu_avg15","period":"15 minutes","scope":"erlang vm","units":"processes"},"cpu_avg5":{"category":"load","concern":"resources","description":"The average number of active processes for the last 5 minutes (equivalent to top(1) command's load average when divided by 256())","example":"1190","json_schema_type":"number","metric_type":"interval","name":"cpu_avg5","period":"5 minutes","scope":"erlang vm","units":"processes"},"cpu_nprocs":{"category":"load","concern":"resources","description":"Number of operating system processes","example":"375","json_schema_type":"number","metric_type":"interval","name":"cpu_nprocs","period":"current","scope":"erlang vm","units":"processes"},"crypto_version":{"category":"versions","concern":"config","description":"[Erlang crypto](http://erlang.org/doc/apps/crypto/)","example":"3.1","json_schema_type":"string","metric_type":"nominal","name":"crypto_version","period":"current","scope":"config","units":"n/a"},"disk":{"category":"usage","concern":"resources","description":"Information about the disk, taken from Erlang's disksup module.  Reported as [{\"ID\",KBytes_Used,Percent_Util}].","example":"[{\"/\", 487401624, 96}]","json_schema_type":"array","metric_type":"nominal","name":"disk","period":"current","scope":"node","units":"n/a"},"dropped_vnode_requests_total":{"category":"load","concern":"core","description":"Total number of requests dropped by local vnodes since the node was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"dropped_vnode_requests_total","period":"since start","scope":"node","units":"requests"},"eleveldb_version":{"category":"versions","concern":"config","description":"","example":"2.1.10-0-g0537ca9","json_schema_type":"string","metric_type":"nominal","name":"eleveldb_version","period":"current","scope":"config","units":"n/a"},"erlang_js_version":{"category":"versions","concern":"config","description":"[Erlang JS](http://github.com/basho/erlang_js)","example":"1.3.0-0-g07467d8","json_schema_type":"string","metric_type":"nominal","name":"erlang_js_version","period":"current","scope":"config","units":"n/a"},"erlydtl_version":{"category":"versions","concern":"config","description":"[ErlyDTL](http://github.com/erlydtl/erlydtl)","example":"0.7.0","json_schema_type":"string","metric_type":"nominal","name":"erlydtl_version","period":"current","scope":"config","units":"n/a"},"executing_mappers":{"category":"load","concern":"core","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"executing_mappers","period":"current","scope":"node","units":"mappers"},"exometer_core_version":{"category":"versions","concern":"config","description":"","example":"1.0.0-basho2-0-gb47a5d6","json_schema_type":"string","metric_type":"nominal","name":"exometer_core_version","period":"current","scope":"config","units":"n/a"},"goldrush_version":{"category":"versions","concern":"config","description":"[Goldrush](http://github.com/DeadZen/goldrush)","example":"0.1.7","json_schema_type":"string","metric_type":"nominal","name":"goldrush_version","period":"current","scope":"config","units":"n/a"},"gossip_received":{"category":"load","concern":"core","description":"Number of gossip messages received in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"gossip_received","period":"1 minute","scope":"node","units":"messages"},"handoff_timeouts":{"category":"load","concern":"core","description":"Total number of handoff timeouts encountered by this node since it was started","example":"0","json_schema_type":"number","metric_type":"interval","name":"handoff_timeouts","period":"since start","scope":"node","units":"timeouts"},"ibrowse_version":{"category":"versions","concern":"config","description":"","example":"4.0.2","json_schema_type":"string","metric_type":"nominal","name":"ibrowse_version","period":"current","scope":"config","units":"n/a"},"ignored_gossip_total":{"category":"load","concern":"core","description":"Total number of ignored gossip messages since node was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"ignored_gossip_total","period":"since start","scope":"node","units":"messages"},"index_fsm_active":{"category":"load","concern":"secondary_index","description":"Number of active Secondary Index FSMs","example":"0","json_schema_type":"number","metric_type":"interval","name":"index_fsm_active","period":"current","scope":"node","units":"finite state machines"},"index_fsm_create":{"category":"load","concern":"secondary_index","description":"Number of Secondary Index query FSMs created in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"index_fsm_create","period":"1 minute","scope":"node","units":"finite state machines"},"index_fsm_create_error":{"category":"errors","concern":"secondary_index","description":"Number of Secondary Index query FSM creation errors in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"index_fsm_create_error","period":"1 minute","scope":"node","units":"errors"},"inets_version":{"category":"versions","concern":"config","description":"[inets](http://erlang.org/doc/apps/inets/)","example":"5.9.6","json_schema_type":"string","metric_type":"nominal","name":"inets_version","period":"current","scope":"config","units":"n/a"},"kernel_version":{"category":"versions","concern":"config","description":"[Kernel](http://erlang.org/doc/apps/kernel/)","example":"2.16.3","json_schema_type":"string","metric_type":"nominal","name":"kernel_version","period":"current","scope":"config","units":"n/a"},"lager_version":{"category":"versions","concern":"config","description":"[Lager](http://github.com/DeadZen/lager)","example":"2.1.1","json_schema_type":"string","metric_type":"nominal","name":"lager_version","period":"current","scope":"config","units":"n/a"},"late_put_fsm_coordinator_ack":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"late_put_fsm_coordinator_ack","period":"?","scope":"node","units":"?"},"leveldb_read_block_error":{"category":"errors","concern":"kv","description":"The number of LevelDB read block errors.  Will read as undefined if LevelDB is not being used.","example":"undefined","json_schema_type":"number","metric_type":"interval","name":"leveldb_read_block_error","period":"since start","scope":"node","units":"errors"},"list_fsm_active":{"category":"load","concern":"kv","description":"Number of active Keylisting FSMs","example":"0","json_schema_type":"number","metric_type":"interval","name":"list_fsm_active","period":"current","scope":"node","units":"finite state machines"},"list_fsm_create":{"category":"load","concern":"kv","description":"Number of Keylisting FSMs created in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"list_fsm_create","period":"1 minute","scope":"node","units":"finite state machines"},"list_fsm_create_error":{"category":"errors","concern":"kv","description":"Number of Keylisting FSM creation errors in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"list_fsm_create_error","period":"1 minute","scope":"node","units":"errors"},"list_fsm_create_error_total":{"category":"errors","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"list_fsm_create_error_total","period":"since start","scope":"node","units":"errors"},"list_fsm_create_total":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"list_fsm_create_total","period":"since start","scope":"node","units":"finite state machines"},"map_actor_counts_100":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"map_actor_counts_100","period":"1 minute","scope":"node","units":"?"},"map_actor_counts_95":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"map_actor_counts_95","period":"1 minute","scope":"node","units":"?"},"map_actor_counts_99":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"map_actor_counts_99","period":"1 minute","scope":"node","units":"?"},"map_actor_counts_mean":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"map_actor_counts_mean","period":"1 minute","scope":"node","units":"?"},"map_actor_counts_median":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"map_actor_counts_median","period":"1 minute","scope":"node","units":"?"},"mem_allocated":{"category":"load","concern":"resources","description":"Total memory allocated for this node","example":"7147700224","json_schema_type":"number","metric_type":"summary","name":"mem_allocated","period":"current","scope":"erlang vm","units":"bytes"},"mem_total":{"category":"load","concern":"resources","description":"Total available system memory","example":"7278239744","json_schema_type":"number","metric_type":"summary","name":"mem_total","period":"current","scope":"erlang vm","units":"bytes"},"memory_atom":{"category":"load","concern":"resources","description":"Total amount of memory currently allocated for atom storage","example":"654217","json_schema_type":"number","metric_type":"summary","name":"memory_atom","period":"current","scope":"erlang vm","units":"bytes"},"memory_atom_used":{"category":"load","concern":"resources","description":"Total amount of memory currently used for atom storage","example":"626645","json_schema_type":"number","metric_type":"summary","name":"memory_atom_used","period":"current","scope":"erlang vm","units":"bytes"},"memory_binary":{"category":"load","concern":"resources","description":"Total amount of memory used for binaries","example":"678248","json_schema_type":"number","metric_type":"summary","name":"memory_binary","period":"current","scope":"erlang vm","units":"bytes"},"memory_code":{"category":"load","concern":"resources","description":"Total amount of memory allocated for Erlang code","example":"14133818","json_schema_type":"number","metric_type":"summary","name":"memory_code","period":"current","scope":"erlang vm","units":"bytes"},"memory_ets":{"category":"load","concern":"resources","description":"Total memory allocated for Erlang Term Storage","example":"7834360","json_schema_type":"number","metric_type":"summary","name":"memory_ets","period":"current","scope":"erlang vm","units":"bytes"},"memory_processes":{"category":"load","concern":"resources","description":"Total amount of memory allocated for Erlang processes (in bytes)","example":"45176432","json_schema_type":"number","metric_type":"summary","name":"memory_processes","period":"current","scope":"erlang vm","units":"bytes"},"memory_processes_used":{"category":"load","concern":"resources","description":"Total amount of memory used by Erlang processes (in bytes)","example":"45174592","json_schema_type":"number","metric_type":"summary","name":"memory_processes_used","period":"current","scope":"erlang vm","units":"bytes"},"memory_system":{"category":"load","concern":"resources","description":"Total allocated memory that is not directly related to an Erlang process","example":"41938336","json_schema_type":"number","metric_type":"summary","name":"memory_system","period":"current","scope":"erlang vm","units":"bytes"},"memory_total":{"category":"load","concern":"resources","description":"Total allocated memory (sum of processes and system)","example":"87114768","json_schema_type":"number","metric_type":"summary","name":"memory_total","period":"current","scope":"erlang vm","units":"bytes"},"merge_index_version":{"category":"versions","concern":"config","description":"[Merge Index](http://github.com/basho/merge_index)","example":"2.0.1-0-g0c8f77c","json_schema_type":"string","metric_type":"nominal","name":"merge_index_version","period":"current","scope":"config","units":"n/a"},"mochiweb_version":{"category":"versions","concern":"config","description":"[MochiWeb](http://github.com/basho/mochiweb)","example":"2.9.0","json_schema_type":"string","metric_type":"nominal","name":"mochiweb_version","period":"current","scope":"config","units":"n/a"},"node_get_fsm_active":{"category":"load","concern":"kv","description":"Number of active GET FSMs","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_active","period":"current","scope":"node","units":"finite state machines"},"node_get_fsm_active_60s":{"category":"load","concern":"kv","description":"Number of GET FSMs active in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_active_60s","period":"1 minute","scope":"node","units":"finite state machines"},"node_get_fsm_counter_objsize_100":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_counter_objsize_95":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_counter_objsize_99":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_counter_objsize_mean":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_counter_objsize_median":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_counter_siblings_100":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_siblings_100","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_counter_siblings_95":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_siblings_95","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_counter_siblings_99":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_siblings_99","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_counter_siblings_mean":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_siblings_mean","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_counter_siblings_median":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_siblings_median","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_counter_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_counter_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_counter_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_counter_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_counter_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_errors":{"category":"errors","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_errors","period":"1 minute","scope":"node","units":"errors"},"node_get_fsm_errors_total":{"category":"errors","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_get_fsm_errors_total","period":"since start","scope":"node","units":"errors"},"node_get_fsm_in_rate":{"category":"load","concern":"kv","description":"Average number of GET FSMs enqueued by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_in_rate","period":"current","scope":"node","units":"finite state machines"},"node_get_fsm_map_objsize_100":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_map_objsize_95":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_map_objsize_99":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_map_objsize_mean":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_map_objsize_median":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_map_siblings_100":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_siblings_100","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_map_siblings_95":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_siblings_95","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_map_siblings_99":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_siblings_99","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_map_siblings_mean":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_siblings_mean","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_map_siblings_median":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_siblings_median","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_map_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_map_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_map_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_map_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_map_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_objsize_100":{"category":"object size","concern":"kv","description":"100th percentile object size encountered by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_objsize_95":{"category":"object size","concern":"kv","description":"95th percentile object size encountered by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_objsize_99":{"category":"object size","concern":"kv","description":"99th percentile object size encountered by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_objsize_mean":{"category":"object size","concern":"kv","description":"Mean object size encountered by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_objsize_median":{"category":"object size","concern":"kv","description":"Median object size encountered by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_out_rate":{"category":"load","concern":"kv","description":"Average number of GET FSMs dequeued by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_out_rate","period":"current","scope":"node","units":"finite state machines"},"node_get_fsm_rejected":{"category":"load","concern":"kv","description":"Number of GET FSMs actively being rejected by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_rejected","period":"current","scope":"node","units":"rejections"},"node_get_fsm_rejected_60s":{"category":"load","concern":"kv","description":"Number of GET FSMs rejected by Sidejob's overload protection in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_rejected_60s","period":"1 minute","scope":"node","units":"rejections"},"node_get_fsm_rejected_total":{"category":"load","concern":"kv","description":"Total number of GET FSMs rejected by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_get_fsm_rejected_total","period":"since start","scope":"node","units":"rejections"},"node_get_fsm_set_objsize_100":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_set_objsize_95":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_set_objsize_99":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_set_objsize_mean":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_set_objsize_median":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_set_siblings_100":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_siblings_100","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_set_siblings_95":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_siblings_95","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_set_siblings_99":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_siblings_99","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_set_siblings_mean":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_siblings_mean","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_set_siblings_median":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_siblings_median","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_set_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_set_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_set_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_set_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_set_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_siblings_100":{"category":"siblings","concern":"kv","description":"100th percentile of siblings encountered during all GET operations by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_siblings_100","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_siblings_95":{"category":"siblings","concern":"kv","description":"95th percentile of siblings encountered during all GET operations by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_siblings_95","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_siblings_99":{"category":"siblings","concern":"kv","description":"99th percentile of siblings encountered during all GET operations by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_siblings_99","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_siblings_mean":{"category":"siblings","concern":"kv","description":"Mean number of siblings encountered during all GET operations by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_siblings_mean","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_siblings_median":{"category":"siblings","concern":"kv","description":"Median number of siblings encountered during all GET operations by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_siblings_median","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_time_100":{"category":"latency","concern":"kv","description":"100th percentile time between reception of client GET request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_time_95":{"category":"latency","concern":"kv","description":"95th percentile time between reception of client GET request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_time_99":{"category":"latency","concern":"kv","description":"99th percentile time between reception of client GET request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_time_mean":{"category":"latency","concern":"kv","description":"Mean time between reception of client GET request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_time_median":{"category":"latency","concern":"kv","description":"Median time between reception of client GET request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_gets":{"category":"throughput - read","concern":"kv","description":"Reads coordinated by this node","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_gets","period":"1 minute","scope":"node","units":"operations"},"node_gets_counter":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_gets_counter","period":"1 minute","scope":"node","units":"operations"},"node_gets_counter_total":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_gets_counter_total","period":"since start","scope":"node","units":"operations"},"node_gets_map":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_gets_map","period":"1 minute","scope":"node","units":"operations"},"node_gets_map_total":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_gets_map_total","period":"since start","scope":"node","units":"operations"},"node_gets_set":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_gets_set","period":"1 minute","scope":"node","units":"operations"},"node_gets_set_total":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_gets_set_total","period":"since start","scope":"node","units":"operations"},"node_gets_total":{"category":"throughput - read","concern":"kv","description":"Total number of GETs coordinated by this node, including GETs to non-local vnodes","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_gets_total","period":"since start","scope":"node","units":"operations"},"node_put_fsm_active":{"category":"load","concern":"kv","description":"Number of active PUT FSMs","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_put_fsm_active","period":"current","scope":"node","units":"finite state machines"},"node_put_fsm_active_60s":{"category":"load","concern":"kv","description":"Number of PUT FSMs active in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_active_60s","period":"1 minute","scope":"node","units":"finite state machines"},"node_put_fsm_counter_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_counter_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_counter_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_counter_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_counter_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_counter_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_counter_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_counter_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_counter_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_counter_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_in_rate":{"category":"load","concern":"kv","description":"Average number of PUT FSMs enqueued by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_in_rate","period":"since start","scope":"node","units":"finite state machines"},"node_put_fsm_map_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_map_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_map_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_map_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_map_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_map_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_map_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_map_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_map_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_map_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_out_rate":{"category":"load","concern":"kv","description":"Average number of PUT FSMs dequeued by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_out_rate","period":"since start","scope":"node","units":"finite state machines"},"node_put_fsm_rejected":{"category":"load","concern":"kv","description":"Number of PUT FSMs actively being rejected by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_put_fsm_rejected","period":"current","scope":"node","units":"rejections"},"node_put_fsm_rejected_60s":{"category":"load","concern":"kv","description":"Number of PUT FSMs rejected by Sidejob's overload protection in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_rejected_60s","period":"1 minute","scope":"node","units":"rejections"},"node_put_fsm_rejected_total":{"category":"load","concern":"kv","description":"Total number of PUT FSMs rejected by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_put_fsm_rejected_total","period":"since start","scope":"node","units":"rejections"},"node_put_fsm_set_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_set_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_set_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_set_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_set_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_set_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_set_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_set_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_set_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_set_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_time_100":{"category":"latency","concern":"kv","description":"100th percentile time between reception of client PUT request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_time_95":{"category":"latency","concern":"kv","description":"95th percentile time between reception of client PUT request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_time_99":{"category":"latency","concern":"kv","description":"99th percentile time between reception of client PUT request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_time_mean":{"category":"latency","concern":"kv","description":"Mean time between reception of client PUT request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_time_median":{"category":"latency","concern":"kv","description":"Median time between reception of client PUT request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_puts":{"category":"throughput - write","concern":"kv","description":"Writes coordinated by this node","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_puts","period":"1 minute","scope":"node","units":"operations"},"node_puts_counter":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_puts_counter","period":"1 minute","scope":"node","units":"operations"},"node_puts_counter_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_puts_counter_total","period":"since start","scope":"node","units":"operations"},"node_puts_map":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_puts_map","period":"1 minute","scope":"node","units":"operations"},"node_puts_map_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_puts_map_total","period":"since start","scope":"node","units":"operations"},"node_puts_set":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_puts_set","period":"1 minute","scope":"node","units":"operations"},"node_puts_set_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_puts_set_total","period":"since start","scope":"node","units":"operations"},"node_puts_total":{"category":"throughput - write","concern":"kv","description":"Total number of PUTs coordinated by this node, including PUTs to non-local vnodes","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_puts_total","period":"since start","scope":"node","units":"operations"},"nodename":{"category":"config","concern":"config","description":"The name this node uses to identify itself","example":"'riak@127.0.0.1'","json_schema_type":"string","metric_type":"nominal","name":"nodename","period":"since start","scope":"node","units":"n/a"},"object_counter_merge":{"category":"load","concern":"crdt","description":"Number of Update Counter operations performed during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge","period":"1 minute","scope":"node","units":"operations"},"object_counter_merge_time_100":{"category":"latency","concern":"crdt","description":"100th-percentile latency for an Update Counter operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge_time_100","period":"1 minute","scope":"node","units":"microseconds"},"object_counter_merge_time_95":{"category":"latency","concern":"crdt","description":"95th-percentile latency for an Update Counter operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge_time_95","period":"1 minute","scope":"node","units":"microseconds"},"object_counter_merge_time_99":{"category":"latency","concern":"crdt","description":"99th-percentile latency for an Update Counter operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge_time_99","period":"1 minute","scope":"node","units":"microseconds"},"object_counter_merge_time_mean":{"category":"latency","concern":"crdt","description":"Mean latency for an Update Counter operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"object_counter_merge_time_median":{"category":"latency","concern":"crdt","description":"Median latency for an Update Counter operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge_time_median","period":"1 minute","scope":"node","units":"microseconds"},"object_counter_merge_total":{"category":"load","concern":"crdt","description":"Total number of Update Counter operations performed since node start","example":"0","json_schema_type":"number","metric_type":"summary","name":"object_counter_merge_total","period":"since start","scope":"node","units":"operations"},"object_map_merge":{"category":"load","concern":"crdt","description":"Number of Update Map operations performed during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge","period":"1 minute","scope":"node","units":"operations"},"object_map_merge_time_100":{"category":"latency","concern":"crdt","description":"100th-percentile latency for an Update Map operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge_time_100","period":"1 minute","scope":"node","units":"microseconds"},"object_map_merge_time_95":{"category":"latency","concern":"crdt","description":"95th-percentile latency for an Update Map operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge_time_95","period":"1 minute","scope":"node","units":"microseconds"},"object_map_merge_time_99":{"category":"latency","concern":"crdt","description":"99th-percentile latency for an Update Map operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge_time_99","period":"1 minute","scope":"node","units":"microseconds"},"object_map_merge_time_mean":{"category":"latency","concern":"crdt","description":"Mean latency for an Update Map operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"object_map_merge_time_median":{"category":"latency","concern":"crdt","description":"Median latency for an Update Map operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge_time_median","period":"1 minute","scope":"node","units":"microseconds"},"object_map_merge_total":{"category":"load","concern":"crdt","description":"Total number of Update Map operations since node start","example":"0","json_schema_type":"number","metric_type":"summary","name":"object_map_merge_total","period":"since start","scope":"node","units":"operations"},"object_merge":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge","period":"1 minute","scope":"node","units":"operations"},"object_merge_time_100":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge_time_100","period":"1 minute","scope":"node","units":"microseconds"},"object_merge_time_95":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge_time_95","period":"1 minute","scope":"node","units":"microseconds"},"object_merge_time_99":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge_time_99","period":"1 minute","scope":"node","units":"microseconds"},"object_merge_time_mean":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"object_merge_time_median":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge_time_median","period":"1 minute","scope":"node","units":"microseconds"},"object_merge_total":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"object_merge_total","period":"since start","scope":"node","units":"operations"},"object_set_merge":{"category":"load","concern":"crdt","description":"Number of Update Set operations perfomed during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge","period":"1 minute","scope":"node","units":"operations"},"object_set_merge_time_100":{"category":"latency","concern":"crdt","description":"100th-percentile latency for an Update Set operations during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge_time_100","period":"1 minute","scope":"node","units":"microseconds"},"object_set_merge_time_95":{"category":"latency","concern":"crdt","description":"95th-percentile latency for an Update Set operations during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge_time_95","period":"1 minute","scope":"node","units":"microseconds"},"object_set_merge_time_99":{"category":"latency","concern":"crdt","description":"99th-percentile latency for an Update Set operations during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge_time_99","period":"1 minute","scope":"node","units":"microseconds"},"object_set_merge_time_mean":{"category":"latency","concern":"crdt","description":"Mean latency for an Update Set operations during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"object_set_merge_time_median":{"category":"latency","concern":"crdt","description":"Median latency for an Update Set operations during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge_time_median","period":"1 minute","scope":"node","units":"microseconds"},"object_set_merge_total":{"category":"load","concern":"crdt","description":"Total number of Update Set operations since node start","example":"0","json_schema_type":"number","metric_type":"summary","name":"object_set_merge_total","period":"since start","scope":"node","units":"operations"},"os_mon_version":{"category":"versions","concern":"config","description":"[Erlang Operating System Monitor](http://erlang.org/doc/apps/os_mon/)","example":"2.2.13","json_schema_type":"string","metric_type":"nominal","name":"os_mon_version","period":"current","scope":"config","units":"n/a"},"pbc_active":{"category":"load","concern":"core","description":"Number of active Protocol Buffers connections","example":"0","json_schema_type":"number","metric_type":"summary","name":"pbc_active","period":"current","scope":"node","units":"connections"},"pbc_connects":{"category":"load","concern":"core","description":"Number of Protocol Buffers connections made in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"pbc_connects","period":"1 minute","scope":"node","units":"connections"},"pbc_connects_total":{"category":"load","concern":"core","description":"Total number of Protocol Buffers connections made","example":"0","json_schema_type":"number","metric_type":"summary","name":"pbc_connects_total","period":"since start","scope":"node","units":"connections"},"pbkdf2_version":{"category":"versions","concern":"config","description":"","example":"2.0.0-0-g7076584","json_schema_type":"string","metric_type":"nominal","name":"pbkdf2_version","period":"current","scope":"config","units":"n/a"},"pipeline_active":{"category":"load","concern":"map/reduce","description":"The number of Map/Reduce pipelines active in the last 60 seconds","example":"0","json_schema_type":"number","metric_type":"interval","name":"pipeline_active","period":"1 minute","scope":"node","units":"pipelines"},"pipeline_create_count":{"category":"load","concern":"map/reduce","description":"The total number of Map/Reduce pipelines created since the node was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"pipeline_create_count","period":"since start","scope":"node","units":"pipelines"},"pipeline_create_error_count":{"category":"errors","concern":"map/reduce","description":"The total number of Map/Reduce pipeline creation errors since the node was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"pipeline_create_error_count","period":"since start","scope":"node","units":"errors"},"pipeline_create_error_one":{"category":"errors","concern":"map/reduce","description":"The number of Map/Reduce pipeline creation errors in the last 60 seconds","example":"0","json_schema_type":"number","metric_type":"interval","name":"pipeline_create_error_one","period":"1 minute","scope":"node","units":"errors"},"pipeline_create_one":{"category":"load","concern":"map/reduce","description":"The number of Map/Reduce pipelines created in the last 60 seconds","example":"0","json_schema_type":"number","metric_type":"interval","name":"pipeline_create_one","period":"1 minute","scope":"node","units":"pipelines"},"poolboy_version":{"category":"versions","concern":"config","description":"","example":"0.8.1p3-0-g8bb45fb","json_schema_type":"string","metric_type":"nominal","name":"poolboy_version","period":"current","scope":"config","units":"n/a"},"postcommit_fail":{"category":"errors","concern":"kv","description":"Total number of post-commit hook failures","example":"0","json_schema_type":"number","metric_type":"interval","name":"postcommit_fail","period":"since start","scope":"node","units":"failures"},"precommit_fail":{"category":"errors","concern":"kv","description":"Total number of pre-commit hook failures","example":"0","json_schema_type":"number","metric_type":"interval","name":"precommit_fail","period":"since start","scope":"node","units":"failures"},"protobuffs_version":{"category":"versions","concern":"config","description":"","example":"0.8.1p5-0-gf88fc3c","json_schema_type":"string","metric_type":"nominal","name":"protobuffs_version","period":"current","scope":"config","units":"n/a"},"public_key_version":{"category":"versions","concern":"config","description":"[Erlang Public Key](http://erlang.org/doc/apps/public_key/)","example":"0.2","json_schema_type":"string","metric_type":"nominal","name":"public_key_version","period":"current","scope":"config","units":"n/a"},"read_repairs":{"category":"load","concern":"kv","description":"Number of read repair operations this node has coordinated in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"read_repairs","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_counter":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"read_repairs_counter","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_counter_total":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"read_repairs_counter_total","period":"since start","scope":"node","units":"repairs"},"read_repairs_fallback_notfound_count":{"category":"load","concern":"kv","description":"Total number of read repair operations performed on fallback vnodes due to missing replicas","example":"undefined","json_schema_type":"number","metric_type":"summary","name":"read_repairs_fallback_notfound_count","period":"since start","scope":"node","units":"repairs"},"read_repairs_fallback_notfound_one":{"category":"load","concern":"kv","description":"Number of read repair operations performed on fallback vnodes in the last minute due to missing replicas","example":"undefined","json_schema_type":"number","metric_type":"interval","name":"read_repairs_fallback_notfound_one","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_fallback_outofdate_count":{"category":"load","concern":"kv","description":"Total number of read repair operations performed on fallback vnodes due to stale replicas","example":"undefined","json_schema_type":"number","metric_type":"summary","name":"read_repairs_fallback_outofdate_count","period":"since start","scope":"node","units":"repairs"},"read_repairs_fallback_outofdate_one":{"category":"load","concern":"kv","description":"Number of read repair operations performed on fallback vnodes in the last minute due to stale replicas","example":"undefined","json_schema_type":"number","metric_type":"interval","name":"read_repairs_fallback_outofdate_one","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_map":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"read_repairs_map","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_map_total":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"read_repairs_map_total","period":"since start","scope":"node","units":"repairs"},"read_repairs_primary_notfound_count":{"category":"load","concern":"kv","description":"Total number of read repair operations performed on primary vnodes due to missing replicas","example":"undefined","json_schema_type":"number","metric_type":"summary","name":"read_repairs_primary_notfound_count","period":"since start","scope":"node","units":"repairs"},"read_repairs_primary_notfound_one":{"category":"load","concern":"kv","description":"Number of read repair operations performed on primary vnodes in the last minute due to missing replicas","example":"undefined","json_schema_type":"number","metric_type":"interval","name":"read_repairs_primary_notfound_one","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_primary_outofdate_count":{"category":"load","concern":"kv","description":"Total number of read repair operations performed on primary vnodes due to stale replicas","example":"undefined","json_schema_type":"number","metric_type":"summary","name":"read_repairs_primary_outofdate_count","period":"since start","scope":"node","units":"repairs"},"read_repairs_primary_outofdate_one":{"category":"load","concern":"kv","description":"Number of read repair operations performed on primary vnodes in the last minute due to stale replicas","example":"undefined","json_schema_type":"number","metric_type":"interval","name":"read_repairs_primary_outofdate_one","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_set":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"read_repairs_set","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_set_total":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"read_repairs_set_total","period":"since start","scope":"node","units":"repairs"},"read_repairs_total":{"category":"load","concern":"kv","description":"Total number of Read Repairs this node has coordinated","example":"0","json_schema_type":"number","metric_type":"summary","name":"read_repairs_total","period":"since start","scope":"node","units":"repairs"},"rebalance_delay_last":{"category":"ring activity","concern":"kv","description":"Last observed histogram value in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"rebalance_delay_last","period":"?","scope":"node","units":"milliseconds"},"rebalance_delay_max":{"category":"ring activity","concern":"kv","description":"Maximum time in milliseconds taken to calculate partition rebalance during a cluster membership change","example":"0","json_schema_type":"number","metric_type":"interval","name":"rebalance_delay_max","period":"?","scope":"node","units":"milliseconds"},"rebalance_delay_mean":{"category":"ring activity","concern":"kv","description":"Mean time in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"rebalance_delay_mean","period":"?","scope":"node","units":"milliseconds"},"rebalance_delay_min":{"category":"ring activity","concern":"kv","description":"Minimum time in milliseconds taken to calculate partition rebalance during a cluster membership change","example":"0","json_schema_type":"number","metric_type":"interval","name":"rebalance_delay_min","period":"?","scope":"node","units":"milliseconds"},"rejected_handoffs":{"category":"load","concern":"kv","description":"Total number of ownership handoff operations rejected by the node since it was started","example":"0","json_schema_type":"number","metric_type":"interval","name":"rejected_handoffs","period":"since start","scope":"node","units":"rejections"},"riak_api_version":{"category":"versions","concern":"config","description":"[Riak API](http://github.com/basho/riak_api)","example":"2.1.2-0-gd8d510f","json_schema_type":"string","metric_type":"nominal","name":"riak_api_version","period":"current","scope":"config","units":"n/a"},"riak_auth_mods_version":{"category":"versions","concern":"config","description":"","example":"2.1.0-0-g31b8b30","json_schema_type":"string","metric_type":"nominal","name":"riak_auth_mods_version","period":"current","scope":"config","units":"n/a"},"riak_control_version":{"category":"versions","concern":"config","description":"[Riak Control](http://github.com/basho/riak_control)","example":"2.1.2-0-gab3f924","json_schema_type":"string","metric_type":"nominal","name":"riak_control_version","period":"current","scope":"config","units":"n/a"},"riak_core_stat_ts":{"category":"meta","concern":"core","description":"The last time (in Epoch time) Riak Core stats were generated","example":"","json_schema_type":"string","metric_type":"summary","name":"riak_core_stat_ts","period":"current","scope":"node","units":"n/a"},"riak_core_version":{"category":"versions","concern":"config","description":"[Riak Core](http://github.com/basho/riak_core)","example":"2.1.5-0-gb02ab53","json_schema_type":"string","metric_type":"nominal","name":"riak_core_version","period":"current","scope":"config","units":"n/a"},"riak_dt_version":{"category":"versions","concern":"config","description":"","example":"2.1.1-0-ga2986bc","json_schema_type":"string","metric_type":"nominal","name":"riak_dt_version","period":"current","scope":"config","units":"n/a"},"riak_kv_stat_ts":{"category":"meta","concern":"core","description":"The last time Riak KV stats were generated.","example":"","json_schema_type":"string","metric_type":"summary","name":"riak_kv_stat_ts","period":"current","scope":"node","units":"n/a"},"riak_kv_version":{"category":"versions","concern":"config","description":"[Riak KV](http://github.com/basho/riak_kv)","example":"2.1.2-0-gf969bba","json_schema_type":"string","metric_type":"nominal","name":"riak_kv_version","period":"current","scope":"config","units":"n/a"},"riak_kv_vnodeq_max":{"category":"load","concern":"kv","description":"Max queue size of all local Riak KV virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_kv_vnodeq_max","period":"1 minute","scope":"vnode","units":"queue size"},"riak_kv_vnodeq_mean":{"category":"load","concern":"kv","description":"Mean queue size of all local Riak KV virtual nodes in the last minute","example":"0.0","json_schema_type":"number","metric_type":"interval","name":"riak_kv_vnodeq_mean","period":"1 minute","scope":"vnode","units":"queue size"},"riak_kv_vnodeq_median":{"category":"load","concern":"kv","description":"Median queue size of all local Riak KV virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_kv_vnodeq_median","period":"1 minute","scope":"vnode","units":"queue size"},"riak_kv_vnodeq_min":{"category":"load","concern":"kv","description":"Minimum queue size of all local Riak KV virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_kv_vnodeq_min","period":"1 minute","scope":"vnode","units":"queue size"},"riak_kv_vnodeq_total":{"category":"load","concern":"kv","description":"Total queue size of all local Riak KV virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"summary","name":"riak_kv_vnodeq_total","period":"since start","scope":"vnode","units":"queue size"},"riak_kv_vnodes_running":{"category":"load","concern":"kv","description":"Number of local Riak KV virtual nodes running","example":"64","json_schema_type":"number","metric_type":"interval","name":"riak_kv_vnodes_running","period":"current","scope":"vnode","units":"queue size"},"riak_pb_version":{"category":"versions","concern":"config","description":"","example":"2.1.0.2-0-g620bc70","json_schema_type":"string","metric_type":"nominal","name":"riak_pb_version","period":"current","scope":"config","units":"n/a"},"riak_pipe_stat_ts":{"category":"meta","concern":"core","description":"The last time Riak Pipe stats were generated.","example":"","json_schema_type":"string","metric_type":"summary","name":"riak_pipe_stat_ts","period":"current","scope":"node","units":"n/a"},"riak_pipe_version":{"category":"versions","concern":"config","description":"[Riak Pipe](http://github.com/basho/riak_pipe)","example":"2.1.1-0-gb1ac2cf","json_schema_type":"string","metric_type":"nominal","name":"riak_pipe_version","period":"current","scope":"config","units":"n/a"},"riak_pipe_vnodeq_max":{"category":"load","concern":"core","description":"Max queue size of local Riak Pipe virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_pipe_vnodeq_max","period":"1 minute","scope":"vnode","units":"queue size"},"riak_pipe_vnodeq_mean":{"category":"load","concern":"core","description":"Mean queue size of local Riak Pipe virtual nodes in the last minute","example":"0.0","json_schema_type":"number","metric_type":"interval","name":"riak_pipe_vnodeq_mean","period":"1 minute","scope":"vnode","units":"queue size"},"riak_pipe_vnodeq_median":{"category":"load","concern":"core","description":"Median queue size of local Riak Pipe virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_pipe_vnodeq_median","period":"1 minute","scope":"vnode","units":"queue size"},"riak_pipe_vnodeq_min":{"category":"load","concern":"core","description":"Minimum queue size of local Riak Pipe virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_pipe_vnodeq_min","period":"1 minute","scope":"vnode","units":"queue size"},"riak_pipe_vnodeq_total":{"category":"load","concern":"core","description":"Total queue size of all local Riak Pipe virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"summary","name":"riak_pipe_vnodeq_total","period":"since start","scope":"vnode","units":"queue size"},"riak_pipe_vnodes_running":{"category":"load","concern":"core","description":"Number of local Riak Pipe virtual nodes running","example":"64","json_schema_type":"number","metric_type":"summary","name":"riak_pipe_vnodes_running","period":"current","scope":"vnode","units":"vnodes"},"riak_search_version":{"category":"versions","concern":"config","description":"[Riak Search](http://github.com/basho/riak_search)","example":"2.1.1-0-gffe2113","json_schema_type":"string","metric_type":"nominal","name":"riak_search_version","period":"current","scope":"config","units":"n/a"},"riak_search_vnodeq_max":{"category":"load","concern":"search","description":"Maximum number of unprocessed messages all virtual node (vnode) message queues in the Riak Search subsystem have received on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_search_vnodeq_max","period":"1 minute","scope":"vnode","units":"messages"},"riak_search_vnodeq_mean":{"category":"load","concern":"search","description":"Mean number of unprocessed messages all vnode message queues in the Riak Search subsystem have received on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_search_vnodeq_mean","period":"1 minute","scope":"vnode","units":"messages"},"riak_search_vnodeq_median":{"category":"load","concern":"search","description":"Median number of unprocessed messages all vnode message queues in the Riak Search subsystem have received on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_search_vnodeq_median","period":"1 minute","scope":"vnode","units":"messages"},"riak_search_vnodeq_min":{"category":"load","concern":"search","description":"Minimum number of unprocessed messages all vnode message queues in the Riak Search subsystem have received on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_search_vnodeq_min","period":"1 minute","scope":"vnode","units":"messages"},"riak_search_vnodeq_total":{"category":"load","concern":"search","description":"Total number of unprocessed messages all vnode message queues in the Riak Search subsystem have received on this node since it was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"riak_search_vnodeq_total","period":"since start","scope":"vnode","units":"messages"},"riak_search_vnodes_running":{"category":"load","concern":"search","description":"Total number of vnodes currently running in the Riak Search subsystem","example":"0","json_schema_type":"number","metric_type":"summary","name":"riak_search_vnodes_running","period":"current","scope":"vnode","units":"vnodes"},"riak_sysmon_version":{"category":"versions","concern":"config","description":"[Riak System Monitor](http://github.com/basho/riak_sysmon)","example":"2.0.0","json_schema_type":"string","metric_type":"nominal","name":"riak_sysmon_version","period":"current","scope":"config","units":"n/a"},"ring_creation_size":{"category":"cluster state","concern":"core","description":"Ring size this cluster was created with","example":"64","json_schema_type":"number","metric_type":"nominal","name":"ring_creation_size","period":"since start","scope":"cluster","units":"n/a"},"ring_members":{"category":"cluster state","concern":"core","description":"List of nodes that are members of the ring","example":"['riak@127.0.0.1']","json_schema_type":"array","metric_type":"nominal","name":"ring_members","period":"current","scope":"cluster","units":"n/a"},"ring_num_partitions":{"category":"cluster state","concern":"core","description":"The number of partitions in the ring","example":"64","json_schema_type":"number","metric_type":"nominal","name":"ring_num_partitions","period":"current","scope":"cluster","units":"n/a"},"ring_ownership":{"category":"cluster state","concern":"core","description":"List of all nodes in the ring and their associated partition ownership","example":"[{'riak@127.0.0.1', 64}]","json_schema_type":"array","metric_type":"nominal","name":"ring_ownership","period":"current","scope":"cluster","units":"n/a"},"rings_reconciled":{"category":"ring activity","concern":"core","description":"Number of ring reconciliation operations in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"rings_reconciled","period":"1 minute","scope":"node","units":"operations"},"rings_reconciled_total":{"category":"ring activity","concern":"core","description":"Total number of ring reconciliation operations since node was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"rings_reconciled_total","period":"since start","scope":"node","units":"operations"},"runtime_tools_version":{"category":"versions","concern":"config","description":"[Erlang Runtime Tools](http://erlang.org/doc/apps/runtime_tools/)","example":"1.8.12","json_schema_type":"string","metric_type":"nominal","name":"runtime_tools_version","period":"current","scope":"config","units":"n/a"},"sasl_version":{"category":"versions","concern":"config","description":"[SASL](http://erlang.org/doc/apps/sasl/)","example":"2.3.3","json_schema_type":"string","metric_type":"nominal","name":"sasl_version","period":"current","scope":"config","units":"n/a"},"search_index_fail_count":{"category":"errors","concern":"search","description":"Total number of 'Failed to index document' errors encountered by Search since node start","example":"0","json_schema_type":"number","metric_type":"summary","name":"search_index_fail_count","period":"since start","scope":"node","units":"failures"},"search_index_fail_one":{"category":"errors","concern":"search","description":"Number of 'Failed to index document' errors encountered by Search during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_fail_one","period":"1 minute","scope":"node","units":"failures"},"search_index_latency_95":{"category":"latency","concern":"search","description":"95th-percentile Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_95","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_99":{"category":"latency","concern":"search","description":"99th-percentile Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_99","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_999":{"category":"latency","concern":"search","description":"999th-percentile Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_999","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_max":{"category":"latency","concern":"search","description":"Max Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_max","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_mean":{"category":"latency","concern":"search","description":"Mean Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_mean","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_median":{"category":"latency","concern":"search","description":"Median Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_median","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_min":{"category":"latency","concern":"search","description":"Min Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_min","period":"1 minute","scope":"node","units":"microseconds"},"search_index_throughput_count":{"category":"throughput - search","concern":"search","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"search_index_throughput_count","period":"since start","scope":"node","units":"operations"},"search_index_throughput_one":{"category":"throughput - search","concern":"search","description":"Number of documents indexed by Search during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_throughput_one","period":"1 minute","scope":"node","units":"operations"},"search_query_fail_count":{"category":"errors","concern":"search","description":"Total number of failed Search queries since node start","example":"0","json_schema_type":"number","metric_type":"summary","name":"search_query_fail_count","period":"since start","scope":"node","units":"failures"},"search_query_fail_one":{"category":"errors","concern":"search","description":"Number of failed Search queries during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_fail_one","period":"1 minute","scope":"node","units":"failures"},"search_query_latency_95":{"category":"latency","concern":"search","description":"95th-percentile Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_95","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_99":{"category":"latency","concern":"search","description":"99th-percentile Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_99","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_999":{"category":"latency","concern":"search","description":"999th-percentile Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_999","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_max":{"category":"latency","concern":"search","description":"Max Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_max","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_mean":{"category":"latency","concern":"search","description":"Mean Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_mean","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_median":{"category":"latency","concern":"search","description":"Median Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_median","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_min":{"category":"latency","concern":"search","description":"Min Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_min","period":"1 minute","scope":"node","units":"microseconds"},"search_query_throughput_count":{"category":"throughput - search","concern":"search","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"search_query_throughput_count","period":"since start","scope":"node","units":"operations"},"search_query_throughput_one":{"category":"throughput - search","concern":"search","description":"Search queries on the node","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_throughput_one","period":"1 minute","scope":"node","units":"operations"},"set_actor_counts_100":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"set_actor_counts_100","period":"1 minute","scope":"node","units":"counts"},"set_actor_counts_95":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"set_actor_counts_95","period":"1 minute","scope":"node","units":"counts"},"set_actor_counts_99":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"set_actor_counts_99","period":"1 minute","scope":"node","units":"counts"},"set_actor_counts_mean":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"set_actor_counts_mean","period":"1 minute","scope":"node","units":"counts"},"set_actor_counts_median":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"set_actor_counts_median","period":"1 minute","scope":"node","units":"counts"},"sidejob_version":{"category":"versions","concern":"config","description":"[Sidejob](http://github.com/basho/sidejob)","example":"2.0.0-0-gc5aabba","json_schema_type":"string","metric_type":"nominal","name":"sidejob_version","period":"current","scope":"config","units":"n/a"},"skipped_read_repairs":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"skipped_read_repairs","period":"1 minute","scope":"node","units":"repairs"},"skipped_read_repairs_total":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"skipped_read_repairs_total","period":"since start","scope":"node","units":"repairs"},"ssl_version":{"category":"versions","concern":"config","description":"[Erlang Secure Sockets Layer (SSL)](http://erlang.org/doc/apps/ssl/)","example":"5.3.1","json_schema_type":"string","metric_type":"nominal","name":"ssl_version","period":"current","scope":"config","units":"n/a"},"stdlib_version":{"category":"versions","concern":"config","description":"[Standard Library](http://erlang.org/doc/apps/stdlib/)","example":"1.19.3","json_schema_type":"string","metric_type":"nominal","name":"stdlib_version","period":"current","scope":"config","units":"n/a"},"storage_backend":{"category":"config","concern":"config","description":"The storage backend currently in use.","example":"riak_kv_bitcask_backend","json_schema_type":"string","metric_type":"nominal","name":"storage_backend","period":"since start","scope":"config","units":"n/a"},"syntax_tools_version":{"category":"versions","concern":"config","description":"[Erlang Syntax Tools](http://www.erlang.org/doc/apps/syntax_tools/)","example":"1.6.11","json_schema_type":"string","metric_type":"nominal","name":"syntax_tools_version","period":"current","scope":"config","units":"n/a"},"sys_driver_version":{"category":"versions","concern":"config","description":"String representing the Erlang driver version in use by the runtime system","example":"2.2","json_schema_type":"string","metric_type":"nominal","name":"sys_driver_version","period":"current","scope":"config","units":"n/a"},"sys_global_heaps_size":{"category":"config","concern":"config","description":"Current size of the shared global heap","example":"deprecated","json_schema_type":"string","metric_type":"nominal","name":"sys_global_heaps_size","period":"current","scope":"config","units":"n/a"},"sys_heap_type":{"category":"config","concern":"config","description":"String representing the heap type in use (one of private, shared, hybrid)","example":"private","json_schema_type":"string","metric_type":"nominal","name":"sys_heap_type","period":"current","scope":"config","units":"n/a"},"sys_logical_processors":{"category":"config","concern":"config","description":"Number of logical processors available on the system","example":"8","json_schema_type":"number","metric_type":"nominal","name":"sys_logical_processors","period":"current","scope":"config","units":"n/a"},"sys_monitor_count":{"category":"config","concern":"config","description":"","example":"504","json_schema_type":"number","metric_type":"nominal","name":"sys_monitor_count","period":"current","scope":"config","units":"n/a"},"sys_otp_release":{"category":"config","concern":"config","description":"Erlang OTP release version in use on the node","example":"R16B02_basho8","json_schema_type":"string","metric_type":"nominal","name":"sys_otp_release","period":"since start","scope":"config","units":"n/a"},"sys_port_count":{"category":"config","concern":"config","description":"","example":"98","json_schema_type":"number","metric_type":"nominal","name":"sys_port_count","period":"current","scope":"config","units":"n/a"},"sys_process_count":{"category":"load","concern":"resources","description":"Number of processes currently running in the Erlang VM","example":"1666","json_schema_type":"number","metric_type":"nominal","name":"sys_process_count","period":"current","scope":"config","units":"processes"},"sys_smp_support":{"category":"config","concern":"config","description":"Boolean value representing whether symmetric multi-processing (SMP) is available","example":"true","json_schema_type":"boolean","metric_type":"nominal","name":"sys_smp_support","period":"since start","scope":"config","units":"n/a"},"sys_system_architecture":{"category":"config","concern":"config","description":"The node operating system and hardware architecture","example":"x86_64-apple-darwin12.4.0","json_schema_type":"string","metric_type":"nominal","name":"sys_system_architecture","period":"since start","scope":"config","units":"n/a"},"sys_system_version":{"category":"config","concern":"config","description":"Detailed Erlang version information","example":"Erlang R16B02_basho8 (erts-5.10.3) [source] [64-bit] [smp:8:8] [async-threads:64] [kernel-poll:true] [frame-pointer] [dtrace]","json_schema_type":"string","metric_type":"nominal","name":"sys_system_version","period":"since start","scope":"config","units":"n/a"},"sys_thread_pool_size":{"category":"config","concern":"config","description":"Number of threads in the asynchronous thread pool","example":"64","json_schema_type":"number","metric_type":"nominal","name":"sys_thread_pool_size","period":"current","scope":"config","units":"threads"},"sys_threads_enabled":{"category":"config","concern":"config","description":"Boolean value representing whether threads are enabled","example":"true","json_schema_type":"boolean","metric_type":"nominal","name":"sys_threads_enabled","period":"current","scope":"config","units":"n/a"},"sys_wordsize":{"category":"config","concern":"config","description":"Size of Erlang term words in bytes as an integer, for examples, on 32-bit architectures 4 is returned and on 64-bit architectures 8 is returned","example":"8","json_schema_type":"number","metric_type":"nominal","name":"sys_wordsize","period":"since start","scope":"config","units":"bytes"},"vnode_counter_update":{"category":"config","concern":"crdt","description":"Counter Data Type update operations coordinated by local vnodes","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update","period":"1 minute","scope":"vnode","units":"operations"},"vnode_counter_update_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update_time_100","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_counter_update_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update_time_95","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_counter_update_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update_time_99","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_counter_update_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update_time_mean","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_counter_update_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update_time_median","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_counter_update_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_counter_update_total","period":"since start","scope":"vnode","units":"operations"},"vnode_get_fsm_time_100":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_get_fsm_time_100","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_get_fsm_time_95":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_get_fsm_time_95","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_get_fsm_time_99":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_get_fsm_time_99","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_get_fsm_time_mean":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_get_fsm_time_mean","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_get_fsm_time_median":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_get_fsm_time_median","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_gets":{"category":"throughput - read","concern":"kv","description":"Number of GET operations coordinated by local vnodes on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_gets","period":"1 minute","scope":"vnode","units":"operations"},"vnode_gets_total":{"category":"throughput - read","concern":"kv","description":"Total number of GETs coordinated by local vnodes","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_gets_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_deletes":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of local replicas participating in secondary index deletes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_deletes","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_deletes_postings":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of individual secondary index values deleted in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_deletes_postings","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_deletes_postings_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of individual secondary index values deleted","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_deletes_postings_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_deletes_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of local replicas participating in secondary index deletes","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_deletes_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_reads":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of local replicas participating in secondary index reads","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_reads","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_reads_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of local replicas participating in secondary index reads","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_reads_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_refreshes":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of secondary indexes refreshed on this node during secondary index anti-entropy in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_refreshes","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_refreshes_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of indexes refreshed during secondary index anti-entropy","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_refreshes_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_writes":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of local replicas participating in secondary index writes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_writes","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_writes_postings":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of individual secondary index values written in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_writes_postings","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_writes_postings_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of individual secondary index values written","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_writes_postings_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_writes_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of local replicas participating in secondary index writes","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_writes_total","period":"since start","scope":"vnode","units":"operations"},"vnode_map_update":{"category":"throughput - write","concern":"crdt","description":"Map Data Type update operations coordinated by local vnodes","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update","period":"1 minute","scope":"vnode","units":"operations"},"vnode_map_update_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update_time_100","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_map_update_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update_time_95","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_map_update_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update_time_99","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_map_update_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update_time_mean","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_map_update_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update_time_median","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_map_update_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_map_update_total","period":"since start","scope":"vnode","units":"operations"},"vnode_put_fsm_time_100":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_put_fsm_time_100","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_put_fsm_time_95":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_put_fsm_time_95","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_put_fsm_time_99":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_put_fsm_time_99","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_put_fsm_time_mean":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_put_fsm_time_mean","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_put_fsm_time_median":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_put_fsm_time_median","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_puts":{"category":"throughput - write","concern":"kv","description":"Number of PUT operations coordinated by local vnodes on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_puts","period":"1 minute","scope":"vnode","units":"operations"},"vnode_puts_total":{"category":"throughput - write","concern":"kv","description":"Total number of PUTS coordinated by local vnodes","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_puts_total","period":"since start","scope":"vnode","units":"operations"},"vnode_set_update":{"category":"throughput - write","concern":"crdt","description":"Set Data Type update operations coordinated by local vnodes","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update","period":"1 minute","scope":"vnode","units":"operations"},"vnode_set_update_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update_time_100","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_set_update_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update_time_95","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_set_update_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update_time_99","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_set_update_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update_time_mean","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_set_update_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update_time_median","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_set_update_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_set_update_total","period":"since start","scope":"vnode","units":"operations"},"webmachine_version":{"category":"versions","concern":"config","description":"[Webmachine](http://github.com/basho/webmachine)","example":"1.10.8-0-g7677c24","json_schema_type":"string","metric_type":"nominal","name":"webmachine_version","period":"current","scope":"config","units":"n/a"},"write_once_merge":{"category":"load","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_merge","period":"1 minute","scope":"node","units":"operations"},"write_once_put_objsize_100":{"category":"object size","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"write_once_put_objsize_95":{"category":"object size","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"write_once_put_objsize_99":{"category":"object size","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"write_once_put_objsize_mean":{"category":"object size","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"write_once_put_objsize_median":{"category":"object size","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"write_once_put_time_100":{"category":"latency","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_time_100","period":"1 minute","scope":"node","units":"microseconds"},"write_once_put_time_95":{"category":"latency","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_time_95","period":"1 minute","scope":"node","units":"microseconds"},"write_once_put_time_99":{"category":"latency","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_time_99","period":"1 minute","scope":"node","units":"microseconds"},"write_once_put_time_mean":{"category":"latency","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"write_once_put_time_median":{"category":"latency","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_time_median","period":"1 minute","scope":"node","units":"microseconds"},"write_once_puts":{"category":"throughput - write","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_puts","period":"1 minute","scope":"node","units":"operations"},"write_once_puts_total":{"category":"throughput - write","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"write_once_puts_total","period":"since start","scope":"node","units":"operations"},"xmerl_version":{"category":"versions","concern":"config","description":"","example":"1.3.4","json_schema_type":"string","metric_type":"nominal","name":"xmerl_version","period":"current","scope":"config","units":"n/a"},"yokozuna_version":{"category":"versions","concern":"config","description":"","example":"2.1.2-0-g3520d11","json_schema_type":"string","metric_type":"nominal","name":"yokozuna_version","period":"current","scope":"config","units":"n/a"}};exports["default"] = RiakStatusHelp;});
+define("ember-riak-explorer/utils/riak-help/riak_status",["exports"],function(exports){exports["default"] = {"asn1_version":{"category":"versions","concern":"config","description":"","example":"2.0.3","json_schema_type":"string","metric_type":"nominal","name":"asn1_version","period":"current","scope":"config","units":"n/a"},"basho_stats_version":{"category":"versions","concern":"config","description":"[Basho Stats](http://github.com/basho/basho_stats)","example":"1.0.3","json_schema_type":"string","metric_type":"nominal","name":"basho_stats_version","period":"current","scope":"config","units":"n/a"},"bitcask_version":{"category":"versions","concern":"config","description":"[Bitcask](http://github.com/basho/bitcask)","example":"1.7.2","json_schema_type":"string","metric_type":"nominal","name":"bitcask_version","period":"current","scope":"config","units":"n/a"},"clique_version":{"category":"versions","concern":"config","description":"","example":"0.3.2-0-ge332c8f","json_schema_type":"string","metric_type":"nominal","name":"clique_version","period":"current","scope":"config","units":"n/a"},"cluster_info_version":{"category":"versions","concern":"config","description":"[Cluster Information](http://github.com/basho/cluster_info)","example":"2.0.3-0-g76c73fc","json_schema_type":"string","metric_type":"nominal","name":"cluster_info_version","period":"current","scope":"config","units":"n/a"},"compiler_version":{"category":"versions","concern":"config","description":"[Erlang Compiler](http://erlang.org/doc/apps/compiler/)","example":"4.9.3","json_schema_type":"string","metric_type":"nominal","name":"compiler_version","period":"current","scope":"config","units":"n/a"},"connected_nodes":{"category":"cluster state","concern":"core","description":"A list of the nodes that this node is aware of at this time","example":"[]","json_schema_type":"array","metric_type":"nominal","name":"connected_nodes","period":"current","scope":"cluster","units":"n/a"},"consistent_get_objsize_100":{"category":"object size","concern":"strong_consistency","description":"100th-percentile object size for strongly consistent GETs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"consistent_get_objsize_95":{"category":"object size","concern":"strong_consistency","description":"95th-percentile object size for strongly consistent GETs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"consistent_get_objsize_99":{"category":"object size","concern":"strong_consistency","description":"99th-percentile object size for strongly consistent GETs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"consistent_get_objsize_mean":{"category":"object size","concern":"strong_consistency","description":"Mean object size for strongly consistent GETs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"consistent_get_objsize_median":{"category":"object size","concern":"strong_consistency","description":"Median object size for strongly consistent GETs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"consistent_get_time_100":{"category":"latency","concern":"strong_consistency","description":"100th-percentile time between reception of client GETs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_time_100","period":"1 minute","scope":"node","units":"microseconds"},"consistent_get_time_95":{"category":"latency","concern":"strong_consistency","description":"95th-percentile time between reception of client GETs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_time_95","period":"1 minute","scope":"node","units":"microseconds"},"consistent_get_time_99":{"category":"latency","concern":"strong_consistency","description":"99th-percentile time between reception of client GETs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_time_99","period":"1 minute","scope":"node","units":"microseconds"},"consistent_get_time_mean":{"category":"latency","concern":"strong_consistency","description":"Mean time between reception of client GETs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"consistent_get_time_median":{"category":"latency","concern":"strong_consistency","description":"Median time between reception of client GETs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_get_time_median","period":"1 minute","scope":"node","units":"microseconds"},"consistent_gets":{"category":"throughput - read","concern":"strong_consistency","description":"Consistent reads on this node","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_gets","period":"1 minute","scope":"node","units":"operations"},"consistent_gets_total":{"category":"throughput - read","concern":"strong_consistency","description":"Total number of strongly consistent GETs coordinated by this node","example":"0","json_schema_type":"number","metric_type":"summary","name":"consistent_gets_total","period":"since start","scope":"node","units":"operations"},"consistent_put_objsize_100":{"category":"object size","concern":"strong_consistency","description":"100th-percentile object size for strongly consistent PUTs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"consistent_put_objsize_95":{"category":"object size","concern":"strong_consistency","description":"95th-percentile object size for strongly consistent PUTs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"consistent_put_objsize_99":{"category":"object size","concern":"strong_consistency","description":"99th-percentile object size for strongly consistent PUTs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"consistent_put_objsize_mean":{"category":"object size","concern":"strong_consistency","description":"Mean object size for strongly consistent PUTs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"consistent_put_objsize_median":{"category":"object size","concern":"strong_consistency","description":"Median object size for strongly consistent PUTs on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"consistent_put_time_100":{"category":"latency","concern":"strong_consistency","description":"100th-percentile time between reception of client PUTs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_time_100","period":"1 minute","scope":"node","units":"microseconds"},"consistent_put_time_95":{"category":"latency","concern":"strong_consistency","description":"95th-percentile time between reception of client PUTs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_time_95","period":"1 minute","scope":"node","units":"microseconds"},"consistent_put_time_99":{"category":"latency","concern":"strong_consistency","description":"99th-percentile time between reception of client PUTs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_time_99","period":"1 minute","scope":"node","units":"microseconds"},"consistent_put_time_mean":{"category":"latency","concern":"strong_consistency","description":"Mean time between reception of client PUTs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"consistent_put_time_median":{"category":"latency","concern":"strong_consistency","description":"Median time between reception of client PUTs to strongly consistent keys and subsequent response","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_put_time_median","period":"1 minute","scope":"node","units":"microseconds"},"consistent_puts":{"category":"throughput - write","concern":"strong_consistency","description":"Consistent writes on this node","example":"0","json_schema_type":"number","metric_type":"interval","name":"consistent_puts","period":"1 minute","scope":"node","units":"operations"},"consistent_puts_total":{"category":"throughput - write","concern":"strong_consistency","description":"Total number of strongly consistent PUTs coordinated by this node","example":"0","json_schema_type":"number","metric_type":"summary","name":"consistent_puts_total","period":"since start","scope":"node","units":"operations"},"converge_delay_last":{"category":"latency","concern":"core","description":"Last observed histogram value in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"converge_delay_last","period":"?","scope":"node","units":"milliseconds"},"converge_delay_max":{"category":"latency","concern":"core","description":"Maximum time in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"converge_delay_max","period":"?","scope":"node","units":"milliseconds"},"converge_delay_mean":{"category":"latency","concern":"core","description":"Mean time in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"converge_delay_mean","period":"?","scope":"node","units":"milliseconds"},"converge_delay_min":{"category":"latency","concern":"core","description":"Minimum time in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"converge_delay_min","period":"?","scope":"node","units":"milliseconds"},"coord_redirs_total":{"category":"load","concern":"core","description":"Total number of requests this node has redirected to other nodes for coordination","example":"0","json_schema_type":"number","metric_type":"summary","name":"coord_redirs_total","period":"since start","scope":"node","units":"redirects"},"counter_actor_counts_100":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"counter_actor_counts_100","period":"1 minute","scope":"node","units":"?"},"counter_actor_counts_95":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"counter_actor_counts_95","period":"1 minute","scope":"node","units":"?"},"counter_actor_counts_99":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"counter_actor_counts_99","period":"1 minute","scope":"node","units":"?"},"counter_actor_counts_mean":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"counter_actor_counts_mean","period":"1 minute","scope":"node","units":"?"},"counter_actor_counts_median":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"counter_actor_counts_median","period":"1 minute","scope":"node","units":"?"},"cpu_avg1":{"category":"load","concern":"resources","description":"The average number of active processes for the last 1 minute (equivalent to top(1) command's load average when divided by 256())","example":"1198","json_schema_type":"number","metric_type":"interval","name":"cpu_avg1","period":"1 minute","scope":"erlang vm","units":"processes"},"cpu_avg15":{"category":"load","concern":"resources","description":"The average number of active processes for the last 15 minutes (equivalent to top(1) command's load average when divided by 256())","example":"1083","json_schema_type":"number","metric_type":"interval","name":"cpu_avg15","period":"15 minutes","scope":"erlang vm","units":"processes"},"cpu_avg5":{"category":"load","concern":"resources","description":"The average number of active processes for the last 5 minutes (equivalent to top(1) command's load average when divided by 256())","example":"1190","json_schema_type":"number","metric_type":"interval","name":"cpu_avg5","period":"5 minutes","scope":"erlang vm","units":"processes"},"cpu_nprocs":{"category":"load","concern":"resources","description":"Number of operating system processes","example":"375","json_schema_type":"number","metric_type":"interval","name":"cpu_nprocs","period":"current","scope":"erlang vm","units":"processes"},"crypto_version":{"category":"versions","concern":"config","description":"[Erlang crypto](http://erlang.org/doc/apps/crypto/)","example":"3.1","json_schema_type":"string","metric_type":"nominal","name":"crypto_version","period":"current","scope":"config","units":"n/a"},"disk":{"category":"usage","concern":"resources","description":"Information about the disk, taken from Erlang's disksup module.  Reported as [{\"ID\",KBytes_Used,Percent_Util}].","example":"[{\"/\", 487401624, 96}]","json_schema_type":"array","metric_type":"nominal","name":"disk","period":"current","scope":"node","units":"n/a"},"dropped_vnode_requests_total":{"category":"load","concern":"core","description":"Total number of requests dropped by local vnodes since the node was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"dropped_vnode_requests_total","period":"since start","scope":"node","units":"requests"},"eleveldb_version":{"category":"versions","concern":"config","description":"","example":"2.1.10-0-g0537ca9","json_schema_type":"string","metric_type":"nominal","name":"eleveldb_version","period":"current","scope":"config","units":"n/a"},"erlang_js_version":{"category":"versions","concern":"config","description":"[Erlang JS](http://github.com/basho/erlang_js)","example":"1.3.0-0-g07467d8","json_schema_type":"string","metric_type":"nominal","name":"erlang_js_version","period":"current","scope":"config","units":"n/a"},"erlydtl_version":{"category":"versions","concern":"config","description":"[ErlyDTL](http://github.com/erlydtl/erlydtl)","example":"0.7.0","json_schema_type":"string","metric_type":"nominal","name":"erlydtl_version","period":"current","scope":"config","units":"n/a"},"executing_mappers":{"category":"load","concern":"core","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"executing_mappers","period":"current","scope":"node","units":"mappers"},"exometer_core_version":{"category":"versions","concern":"config","description":"","example":"1.0.0-basho2-0-gb47a5d6","json_schema_type":"string","metric_type":"nominal","name":"exometer_core_version","period":"current","scope":"config","units":"n/a"},"goldrush_version":{"category":"versions","concern":"config","description":"[Goldrush](http://github.com/DeadZen/goldrush)","example":"0.1.7","json_schema_type":"string","metric_type":"nominal","name":"goldrush_version","period":"current","scope":"config","units":"n/a"},"gossip_received":{"category":"load","concern":"core","description":"Number of gossip messages received in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"gossip_received","period":"1 minute","scope":"node","units":"messages"},"handoff_timeouts":{"category":"load","concern":"core","description":"Total number of handoff timeouts encountered by this node since it was started","example":"0","json_schema_type":"number","metric_type":"interval","name":"handoff_timeouts","period":"since start","scope":"node","units":"timeouts"},"ibrowse_version":{"category":"versions","concern":"config","description":"","example":"4.0.2","json_schema_type":"string","metric_type":"nominal","name":"ibrowse_version","period":"current","scope":"config","units":"n/a"},"ignored_gossip_total":{"category":"load","concern":"core","description":"Total number of ignored gossip messages since node was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"ignored_gossip_total","period":"since start","scope":"node","units":"messages"},"index_fsm_active":{"category":"load","concern":"secondary_index","description":"Number of active Secondary Index FSMs","example":"0","json_schema_type":"number","metric_type":"interval","name":"index_fsm_active","period":"current","scope":"node","units":"finite state machines"},"index_fsm_create":{"category":"load","concern":"secondary_index","description":"Number of Secondary Index query FSMs created in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"index_fsm_create","period":"1 minute","scope":"node","units":"finite state machines"},"index_fsm_create_error":{"category":"errors","concern":"secondary_index","description":"Number of Secondary Index query FSM creation errors in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"index_fsm_create_error","period":"1 minute","scope":"node","units":"errors"},"inets_version":{"category":"versions","concern":"config","description":"[inets](http://erlang.org/doc/apps/inets/)","example":"5.9.6","json_schema_type":"string","metric_type":"nominal","name":"inets_version","period":"current","scope":"config","units":"n/a"},"kernel_version":{"category":"versions","concern":"config","description":"[Kernel](http://erlang.org/doc/apps/kernel/)","example":"2.16.3","json_schema_type":"string","metric_type":"nominal","name":"kernel_version","period":"current","scope":"config","units":"n/a"},"lager_version":{"category":"versions","concern":"config","description":"[Lager](http://github.com/DeadZen/lager)","example":"2.1.1","json_schema_type":"string","metric_type":"nominal","name":"lager_version","period":"current","scope":"config","units":"n/a"},"late_put_fsm_coordinator_ack":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"late_put_fsm_coordinator_ack","period":"?","scope":"node","units":"?"},"leveldb_read_block_error":{"category":"errors","concern":"kv","description":"The number of LevelDB read block errors.  Will read as undefined if LevelDB is not being used.","example":"undefined","json_schema_type":"number","metric_type":"interval","name":"leveldb_read_block_error","period":"since start","scope":"node","units":"errors"},"list_fsm_active":{"category":"load","concern":"kv","description":"Number of active Keylisting FSMs","example":"0","json_schema_type":"number","metric_type":"interval","name":"list_fsm_active","period":"current","scope":"node","units":"finite state machines"},"list_fsm_create":{"category":"load","concern":"kv","description":"Number of Keylisting FSMs created in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"list_fsm_create","period":"1 minute","scope":"node","units":"finite state machines"},"list_fsm_create_error":{"category":"errors","concern":"kv","description":"Number of Keylisting FSM creation errors in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"list_fsm_create_error","period":"1 minute","scope":"node","units":"errors"},"list_fsm_create_error_total":{"category":"errors","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"list_fsm_create_error_total","period":"since start","scope":"node","units":"errors"},"list_fsm_create_total":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"list_fsm_create_total","period":"since start","scope":"node","units":"finite state machines"},"map_actor_counts_100":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"map_actor_counts_100","period":"1 minute","scope":"node","units":"?"},"map_actor_counts_95":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"map_actor_counts_95","period":"1 minute","scope":"node","units":"?"},"map_actor_counts_99":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"map_actor_counts_99","period":"1 minute","scope":"node","units":"?"},"map_actor_counts_mean":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"map_actor_counts_mean","period":"1 minute","scope":"node","units":"?"},"map_actor_counts_median":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"map_actor_counts_median","period":"1 minute","scope":"node","units":"?"},"mem_allocated":{"category":"load","concern":"resources","description":"Total memory allocated for this node","example":"7147700224","json_schema_type":"number","metric_type":"summary","name":"mem_allocated","period":"current","scope":"erlang vm","units":"bytes"},"mem_total":{"category":"load","concern":"resources","description":"Total available system memory","example":"7278239744","json_schema_type":"number","metric_type":"summary","name":"mem_total","period":"current","scope":"erlang vm","units":"bytes"},"memory_atom":{"category":"load","concern":"resources","description":"Total amount of memory currently allocated for atom storage","example":"654217","json_schema_type":"number","metric_type":"summary","name":"memory_atom","period":"current","scope":"erlang vm","units":"bytes"},"memory_atom_used":{"category":"load","concern":"resources","description":"Total amount of memory currently used for atom storage","example":"626645","json_schema_type":"number","metric_type":"summary","name":"memory_atom_used","period":"current","scope":"erlang vm","units":"bytes"},"memory_binary":{"category":"load","concern":"resources","description":"Total amount of memory used for binaries","example":"678248","json_schema_type":"number","metric_type":"summary","name":"memory_binary","period":"current","scope":"erlang vm","units":"bytes"},"memory_code":{"category":"load","concern":"resources","description":"Total amount of memory allocated for Erlang code","example":"14133818","json_schema_type":"number","metric_type":"summary","name":"memory_code","period":"current","scope":"erlang vm","units":"bytes"},"memory_ets":{"category":"load","concern":"resources","description":"Total memory allocated for Erlang Term Storage","example":"7834360","json_schema_type":"number","metric_type":"summary","name":"memory_ets","period":"current","scope":"erlang vm","units":"bytes"},"memory_processes":{"category":"load","concern":"resources","description":"Total amount of memory allocated for Erlang processes (in bytes)","example":"45176432","json_schema_type":"number","metric_type":"summary","name":"memory_processes","period":"current","scope":"erlang vm","units":"bytes"},"memory_processes_used":{"category":"load","concern":"resources","description":"Total amount of memory used by Erlang processes (in bytes)","example":"45174592","json_schema_type":"number","metric_type":"summary","name":"memory_processes_used","period":"current","scope":"erlang vm","units":"bytes"},"memory_system":{"category":"load","concern":"resources","description":"Total allocated memory that is not directly related to an Erlang process","example":"41938336","json_schema_type":"number","metric_type":"summary","name":"memory_system","period":"current","scope":"erlang vm","units":"bytes"},"memory_total":{"category":"load","concern":"resources","description":"Total allocated memory (sum of processes and system)","example":"87114768","json_schema_type":"number","metric_type":"summary","name":"memory_total","period":"current","scope":"erlang vm","units":"bytes"},"merge_index_version":{"category":"versions","concern":"config","description":"[Merge Index](http://github.com/basho/merge_index)","example":"2.0.1-0-g0c8f77c","json_schema_type":"string","metric_type":"nominal","name":"merge_index_version","period":"current","scope":"config","units":"n/a"},"mochiweb_version":{"category":"versions","concern":"config","description":"[MochiWeb](http://github.com/basho/mochiweb)","example":"2.9.0","json_schema_type":"string","metric_type":"nominal","name":"mochiweb_version","period":"current","scope":"config","units":"n/a"},"node_get_fsm_active":{"category":"load","concern":"kv","description":"Number of active GET FSMs","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_active","period":"current","scope":"node","units":"finite state machines"},"node_get_fsm_active_60s":{"category":"load","concern":"kv","description":"Number of GET FSMs active in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_active_60s","period":"1 minute","scope":"node","units":"finite state machines"},"node_get_fsm_counter_objsize_100":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_counter_objsize_95":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_counter_objsize_99":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_counter_objsize_mean":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_counter_objsize_median":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_counter_siblings_100":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_siblings_100","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_counter_siblings_95":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_siblings_95","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_counter_siblings_99":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_siblings_99","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_counter_siblings_mean":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_siblings_mean","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_counter_siblings_median":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_siblings_median","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_counter_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_counter_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_counter_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_counter_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_counter_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_counter_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_errors":{"category":"errors","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_errors","period":"1 minute","scope":"node","units":"errors"},"node_get_fsm_errors_total":{"category":"errors","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_get_fsm_errors_total","period":"since start","scope":"node","units":"errors"},"node_get_fsm_in_rate":{"category":"load","concern":"kv","description":"Average number of GET FSMs enqueued by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_in_rate","period":"current","scope":"node","units":"finite state machines"},"node_get_fsm_map_objsize_100":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_map_objsize_95":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_map_objsize_99":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_map_objsize_mean":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_map_objsize_median":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_map_siblings_100":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_siblings_100","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_map_siblings_95":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_siblings_95","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_map_siblings_99":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_siblings_99","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_map_siblings_mean":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_siblings_mean","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_map_siblings_median":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_siblings_median","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_map_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_map_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_map_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_map_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_map_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_map_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_objsize_100":{"category":"object size","concern":"kv","description":"100th percentile object size encountered by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_objsize_95":{"category":"object size","concern":"kv","description":"95th percentile object size encountered by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_objsize_99":{"category":"object size","concern":"kv","description":"99th percentile object size encountered by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_objsize_mean":{"category":"object size","concern":"kv","description":"Mean object size encountered by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_objsize_median":{"category":"object size","concern":"kv","description":"Median object size encountered by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_out_rate":{"category":"load","concern":"kv","description":"Average number of GET FSMs dequeued by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_out_rate","period":"current","scope":"node","units":"finite state machines"},"node_get_fsm_rejected":{"category":"load","concern":"kv","description":"Number of GET FSMs actively being rejected by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_rejected","period":"current","scope":"node","units":"rejections"},"node_get_fsm_rejected_60s":{"category":"load","concern":"kv","description":"Number of GET FSMs rejected by Sidejob's overload protection in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_rejected_60s","period":"1 minute","scope":"node","units":"rejections"},"node_get_fsm_rejected_total":{"category":"load","concern":"kv","description":"Total number of GET FSMs rejected by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_get_fsm_rejected_total","period":"since start","scope":"node","units":"rejections"},"node_get_fsm_set_objsize_100":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_set_objsize_95":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_set_objsize_99":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_set_objsize_mean":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_set_objsize_median":{"category":"object size","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"node_get_fsm_set_siblings_100":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_siblings_100","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_set_siblings_95":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_siblings_95","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_set_siblings_99":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_siblings_99","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_set_siblings_mean":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_siblings_mean","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_set_siblings_median":{"category":"siblings","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_siblings_median","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_set_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_set_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_set_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_set_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_set_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_set_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_siblings_100":{"category":"siblings","concern":"kv","description":"100th percentile of siblings encountered during all GET operations by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_siblings_100","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_siblings_95":{"category":"siblings","concern":"kv","description":"95th percentile of siblings encountered during all GET operations by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_siblings_95","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_siblings_99":{"category":"siblings","concern":"kv","description":"99th percentile of siblings encountered during all GET operations by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_siblings_99","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_siblings_mean":{"category":"siblings","concern":"kv","description":"Mean number of siblings encountered during all GET operations by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_siblings_mean","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_siblings_median":{"category":"siblings","concern":"kv","description":"Median number of siblings encountered during all GET operations by this node within the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_siblings_median","period":"1 minute","scope":"node","units":"siblings"},"node_get_fsm_time_100":{"category":"latency","concern":"kv","description":"100th percentile time between reception of client GET request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_time_95":{"category":"latency","concern":"kv","description":"95th percentile time between reception of client GET request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_time_99":{"category":"latency","concern":"kv","description":"99th percentile time between reception of client GET request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_time_mean":{"category":"latency","concern":"kv","description":"Mean time between reception of client GET request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_get_fsm_time_median":{"category":"latency","concern":"kv","description":"Median time between reception of client GET request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_get_fsm_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_gets":{"category":"throughput - read","concern":"kv","description":"Reads coordinated by this node","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_gets","period":"1 minute","scope":"node","units":"operations"},"node_gets_counter":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_gets_counter","period":"1 minute","scope":"node","units":"operations"},"node_gets_counter_total":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_gets_counter_total","period":"since start","scope":"node","units":"operations"},"node_gets_map":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_gets_map","period":"1 minute","scope":"node","units":"operations"},"node_gets_map_total":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_gets_map_total","period":"since start","scope":"node","units":"operations"},"node_gets_set":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_gets_set","period":"1 minute","scope":"node","units":"operations"},"node_gets_set_total":{"category":"throughput - read","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_gets_set_total","period":"since start","scope":"node","units":"operations"},"node_gets_total":{"category":"throughput - read","concern":"kv","description":"Total number of GETs coordinated by this node, including GETs to non-local vnodes","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_gets_total","period":"since start","scope":"node","units":"operations"},"node_put_fsm_active":{"category":"load","concern":"kv","description":"Number of active PUT FSMs","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_put_fsm_active","period":"current","scope":"node","units":"finite state machines"},"node_put_fsm_active_60s":{"category":"load","concern":"kv","description":"Number of PUT FSMs active in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_active_60s","period":"1 minute","scope":"node","units":"finite state machines"},"node_put_fsm_counter_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_counter_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_counter_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_counter_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_counter_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_counter_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_counter_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_counter_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_counter_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_counter_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_in_rate":{"category":"load","concern":"kv","description":"Average number of PUT FSMs enqueued by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_in_rate","period":"since start","scope":"node","units":"finite state machines"},"node_put_fsm_map_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_map_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_map_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_map_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_map_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_map_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_map_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_map_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_map_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_map_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_out_rate":{"category":"load","concern":"kv","description":"Average number of PUT FSMs dequeued by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_out_rate","period":"since start","scope":"node","units":"finite state machines"},"node_put_fsm_rejected":{"category":"load","concern":"kv","description":"Number of PUT FSMs actively being rejected by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_put_fsm_rejected","period":"current","scope":"node","units":"rejections"},"node_put_fsm_rejected_60s":{"category":"load","concern":"kv","description":"Number of PUT FSMs rejected by Sidejob's overload protection in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_rejected_60s","period":"1 minute","scope":"node","units":"rejections"},"node_put_fsm_rejected_total":{"category":"load","concern":"kv","description":"Total number of PUT FSMs rejected by Sidejob's overload protection","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_put_fsm_rejected_total","period":"since start","scope":"node","units":"rejections"},"node_put_fsm_set_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_set_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_set_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_set_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_set_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_set_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_set_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_set_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_set_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_set_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_time_100":{"category":"latency","concern":"kv","description":"100th percentile time between reception of client PUT request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_time_100","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_time_95":{"category":"latency","concern":"kv","description":"95th percentile time between reception of client PUT request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_time_95","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_time_99":{"category":"latency","concern":"kv","description":"99th percentile time between reception of client PUT request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_time_99","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_time_mean":{"category":"latency","concern":"kv","description":"Mean time between reception of client PUT request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"node_put_fsm_time_median":{"category":"latency","concern":"kv","description":"Median time between reception of client PUT request and subsequent response to client","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_put_fsm_time_median","period":"1 minute","scope":"node","units":"microseconds"},"node_puts":{"category":"throughput - write","concern":"kv","description":"Writes coordinated by this node","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_puts","period":"1 minute","scope":"node","units":"operations"},"node_puts_counter":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_puts_counter","period":"1 minute","scope":"node","units":"operations"},"node_puts_counter_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_puts_counter_total","period":"since start","scope":"node","units":"operations"},"node_puts_map":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_puts_map","period":"1 minute","scope":"node","units":"operations"},"node_puts_map_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_puts_map_total","period":"since start","scope":"node","units":"operations"},"node_puts_set":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"node_puts_set","period":"1 minute","scope":"node","units":"operations"},"node_puts_set_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_puts_set_total","period":"since start","scope":"node","units":"operations"},"node_puts_total":{"category":"throughput - write","concern":"kv","description":"Total number of PUTs coordinated by this node, including PUTs to non-local vnodes","example":"0","json_schema_type":"number","metric_type":"summary","name":"node_puts_total","period":"since start","scope":"node","units":"operations"},"nodename":{"category":"config","concern":"config","description":"The name this node uses to identify itself","example":"'riak@127.0.0.1'","json_schema_type":"string","metric_type":"nominal","name":"nodename","period":"since start","scope":"node","units":"n/a"},"object_counter_merge":{"category":"load","concern":"crdt","description":"Number of Update Counter operations performed during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge","period":"1 minute","scope":"node","units":"operations"},"object_counter_merge_time_100":{"category":"latency","concern":"crdt","description":"100th-percentile latency for an Update Counter operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge_time_100","period":"1 minute","scope":"node","units":"microseconds"},"object_counter_merge_time_95":{"category":"latency","concern":"crdt","description":"95th-percentile latency for an Update Counter operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge_time_95","period":"1 minute","scope":"node","units":"microseconds"},"object_counter_merge_time_99":{"category":"latency","concern":"crdt","description":"99th-percentile latency for an Update Counter operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge_time_99","period":"1 minute","scope":"node","units":"microseconds"},"object_counter_merge_time_mean":{"category":"latency","concern":"crdt","description":"Mean latency for an Update Counter operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"object_counter_merge_time_median":{"category":"latency","concern":"crdt","description":"Median latency for an Update Counter operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_counter_merge_time_median","period":"1 minute","scope":"node","units":"microseconds"},"object_counter_merge_total":{"category":"load","concern":"crdt","description":"Total number of Update Counter operations performed since node start","example":"0","json_schema_type":"number","metric_type":"summary","name":"object_counter_merge_total","period":"since start","scope":"node","units":"operations"},"object_map_merge":{"category":"load","concern":"crdt","description":"Number of Update Map operations performed during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge","period":"1 minute","scope":"node","units":"operations"},"object_map_merge_time_100":{"category":"latency","concern":"crdt","description":"100th-percentile latency for an Update Map operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge_time_100","period":"1 minute","scope":"node","units":"microseconds"},"object_map_merge_time_95":{"category":"latency","concern":"crdt","description":"95th-percentile latency for an Update Map operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge_time_95","period":"1 minute","scope":"node","units":"microseconds"},"object_map_merge_time_99":{"category":"latency","concern":"crdt","description":"99th-percentile latency for an Update Map operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge_time_99","period":"1 minute","scope":"node","units":"microseconds"},"object_map_merge_time_mean":{"category":"latency","concern":"crdt","description":"Mean latency for an Update Map operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"object_map_merge_time_median":{"category":"latency","concern":"crdt","description":"Median latency for an Update Map operation during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_map_merge_time_median","period":"1 minute","scope":"node","units":"microseconds"},"object_map_merge_total":{"category":"load","concern":"crdt","description":"Total number of Update Map operations since node start","example":"0","json_schema_type":"number","metric_type":"summary","name":"object_map_merge_total","period":"since start","scope":"node","units":"operations"},"object_merge":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge","period":"1 minute","scope":"node","units":"operations"},"object_merge_time_100":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge_time_100","period":"1 minute","scope":"node","units":"microseconds"},"object_merge_time_95":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge_time_95","period":"1 minute","scope":"node","units":"microseconds"},"object_merge_time_99":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge_time_99","period":"1 minute","scope":"node","units":"microseconds"},"object_merge_time_mean":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"object_merge_time_median":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_merge_time_median","period":"1 minute","scope":"node","units":"microseconds"},"object_merge_total":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"object_merge_total","period":"since start","scope":"node","units":"operations"},"object_set_merge":{"category":"load","concern":"crdt","description":"Number of Update Set operations perfomed during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge","period":"1 minute","scope":"node","units":"operations"},"object_set_merge_time_100":{"category":"latency","concern":"crdt","description":"100th-percentile latency for an Update Set operations during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge_time_100","period":"1 minute","scope":"node","units":"microseconds"},"object_set_merge_time_95":{"category":"latency","concern":"crdt","description":"95th-percentile latency for an Update Set operations during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge_time_95","period":"1 minute","scope":"node","units":"microseconds"},"object_set_merge_time_99":{"category":"latency","concern":"crdt","description":"99th-percentile latency for an Update Set operations during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge_time_99","period":"1 minute","scope":"node","units":"microseconds"},"object_set_merge_time_mean":{"category":"latency","concern":"crdt","description":"Mean latency for an Update Set operations during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"object_set_merge_time_median":{"category":"latency","concern":"crdt","description":"Median latency for an Update Set operations during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"object_set_merge_time_median","period":"1 minute","scope":"node","units":"microseconds"},"object_set_merge_total":{"category":"load","concern":"crdt","description":"Total number of Update Set operations since node start","example":"0","json_schema_type":"number","metric_type":"summary","name":"object_set_merge_total","period":"since start","scope":"node","units":"operations"},"os_mon_version":{"category":"versions","concern":"config","description":"[Erlang Operating System Monitor](http://erlang.org/doc/apps/os_mon/)","example":"2.2.13","json_schema_type":"string","metric_type":"nominal","name":"os_mon_version","period":"current","scope":"config","units":"n/a"},"pbc_active":{"category":"load","concern":"core","description":"Number of active Protocol Buffers connections","example":"0","json_schema_type":"number","metric_type":"summary","name":"pbc_active","period":"current","scope":"node","units":"connections"},"pbc_connects":{"category":"load","concern":"core","description":"Number of Protocol Buffers connections made in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"pbc_connects","period":"1 minute","scope":"node","units":"connections"},"pbc_connects_total":{"category":"load","concern":"core","description":"Total number of Protocol Buffers connections made","example":"0","json_schema_type":"number","metric_type":"summary","name":"pbc_connects_total","period":"since start","scope":"node","units":"connections"},"pbkdf2_version":{"category":"versions","concern":"config","description":"","example":"2.0.0-0-g7076584","json_schema_type":"string","metric_type":"nominal","name":"pbkdf2_version","period":"current","scope":"config","units":"n/a"},"pipeline_active":{"category":"load","concern":"map/reduce","description":"The number of Map/Reduce pipelines active in the last 60 seconds","example":"0","json_schema_type":"number","metric_type":"interval","name":"pipeline_active","period":"1 minute","scope":"node","units":"pipelines"},"pipeline_create_count":{"category":"load","concern":"map/reduce","description":"The total number of Map/Reduce pipelines created since the node was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"pipeline_create_count","period":"since start","scope":"node","units":"pipelines"},"pipeline_create_error_count":{"category":"errors","concern":"map/reduce","description":"The total number of Map/Reduce pipeline creation errors since the node was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"pipeline_create_error_count","period":"since start","scope":"node","units":"errors"},"pipeline_create_error_one":{"category":"errors","concern":"map/reduce","description":"The number of Map/Reduce pipeline creation errors in the last 60 seconds","example":"0","json_schema_type":"number","metric_type":"interval","name":"pipeline_create_error_one","period":"1 minute","scope":"node","units":"errors"},"pipeline_create_one":{"category":"load","concern":"map/reduce","description":"The number of Map/Reduce pipelines created in the last 60 seconds","example":"0","json_schema_type":"number","metric_type":"interval","name":"pipeline_create_one","period":"1 minute","scope":"node","units":"pipelines"},"poolboy_version":{"category":"versions","concern":"config","description":"","example":"0.8.1p3-0-g8bb45fb","json_schema_type":"string","metric_type":"nominal","name":"poolboy_version","period":"current","scope":"config","units":"n/a"},"postcommit_fail":{"category":"errors","concern":"kv","description":"Total number of post-commit hook failures","example":"0","json_schema_type":"number","metric_type":"interval","name":"postcommit_fail","period":"since start","scope":"node","units":"failures"},"precommit_fail":{"category":"errors","concern":"kv","description":"Total number of pre-commit hook failures","example":"0","json_schema_type":"number","metric_type":"interval","name":"precommit_fail","period":"since start","scope":"node","units":"failures"},"protobuffs_version":{"category":"versions","concern":"config","description":"","example":"0.8.1p5-0-gf88fc3c","json_schema_type":"string","metric_type":"nominal","name":"protobuffs_version","period":"current","scope":"config","units":"n/a"},"public_key_version":{"category":"versions","concern":"config","description":"[Erlang Public Key](http://erlang.org/doc/apps/public_key/)","example":"0.2","json_schema_type":"string","metric_type":"nominal","name":"public_key_version","period":"current","scope":"config","units":"n/a"},"read_repairs":{"category":"load","concern":"kv","description":"Number of read repair operations this node has coordinated in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"read_repairs","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_counter":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"read_repairs_counter","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_counter_total":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"read_repairs_counter_total","period":"since start","scope":"node","units":"repairs"},"read_repairs_fallback_notfound_count":{"category":"load","concern":"kv","description":"Total number of read repair operations performed on fallback vnodes due to missing replicas","example":"undefined","json_schema_type":"number","metric_type":"summary","name":"read_repairs_fallback_notfound_count","period":"since start","scope":"node","units":"repairs"},"read_repairs_fallback_notfound_one":{"category":"load","concern":"kv","description":"Number of read repair operations performed on fallback vnodes in the last minute due to missing replicas","example":"undefined","json_schema_type":"number","metric_type":"interval","name":"read_repairs_fallback_notfound_one","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_fallback_outofdate_count":{"category":"load","concern":"kv","description":"Total number of read repair operations performed on fallback vnodes due to stale replicas","example":"undefined","json_schema_type":"number","metric_type":"summary","name":"read_repairs_fallback_outofdate_count","period":"since start","scope":"node","units":"repairs"},"read_repairs_fallback_outofdate_one":{"category":"load","concern":"kv","description":"Number of read repair operations performed on fallback vnodes in the last minute due to stale replicas","example":"undefined","json_schema_type":"number","metric_type":"interval","name":"read_repairs_fallback_outofdate_one","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_map":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"read_repairs_map","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_map_total":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"read_repairs_map_total","period":"since start","scope":"node","units":"repairs"},"read_repairs_primary_notfound_count":{"category":"load","concern":"kv","description":"Total number of read repair operations performed on primary vnodes due to missing replicas","example":"undefined","json_schema_type":"number","metric_type":"summary","name":"read_repairs_primary_notfound_count","period":"since start","scope":"node","units":"repairs"},"read_repairs_primary_notfound_one":{"category":"load","concern":"kv","description":"Number of read repair operations performed on primary vnodes in the last minute due to missing replicas","example":"undefined","json_schema_type":"number","metric_type":"interval","name":"read_repairs_primary_notfound_one","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_primary_outofdate_count":{"category":"load","concern":"kv","description":"Total number of read repair operations performed on primary vnodes due to stale replicas","example":"undefined","json_schema_type":"number","metric_type":"summary","name":"read_repairs_primary_outofdate_count","period":"since start","scope":"node","units":"repairs"},"read_repairs_primary_outofdate_one":{"category":"load","concern":"kv","description":"Number of read repair operations performed on primary vnodes in the last minute due to stale replicas","example":"undefined","json_schema_type":"number","metric_type":"interval","name":"read_repairs_primary_outofdate_one","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_set":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"read_repairs_set","period":"1 minute","scope":"node","units":"repairs"},"read_repairs_set_total":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"read_repairs_set_total","period":"since start","scope":"node","units":"repairs"},"read_repairs_total":{"category":"load","concern":"kv","description":"Total number of Read Repairs this node has coordinated","example":"0","json_schema_type":"number","metric_type":"summary","name":"read_repairs_total","period":"since start","scope":"node","units":"repairs"},"rebalance_delay_last":{"category":"ring activity","concern":"kv","description":"Last observed histogram value in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"rebalance_delay_last","period":"?","scope":"node","units":"milliseconds"},"rebalance_delay_max":{"category":"ring activity","concern":"kv","description":"Maximum time in milliseconds taken to calculate partition rebalance during a cluster membership change","example":"0","json_schema_type":"number","metric_type":"interval","name":"rebalance_delay_max","period":"?","scope":"node","units":"milliseconds"},"rebalance_delay_mean":{"category":"ring activity","concern":"kv","description":"Mean time in milliseconds describing time taken for the ring to converge after ring changes","example":"0","json_schema_type":"number","metric_type":"interval","name":"rebalance_delay_mean","period":"?","scope":"node","units":"milliseconds"},"rebalance_delay_min":{"category":"ring activity","concern":"kv","description":"Minimum time in milliseconds taken to calculate partition rebalance during a cluster membership change","example":"0","json_schema_type":"number","metric_type":"interval","name":"rebalance_delay_min","period":"?","scope":"node","units":"milliseconds"},"rejected_handoffs":{"category":"load","concern":"kv","description":"Total number of ownership handoff operations rejected by the node since it was started","example":"0","json_schema_type":"number","metric_type":"interval","name":"rejected_handoffs","period":"since start","scope":"node","units":"rejections"},"riak_api_version":{"category":"versions","concern":"config","description":"[Riak API](http://github.com/basho/riak_api)","example":"2.1.2-0-gd8d510f","json_schema_type":"string","metric_type":"nominal","name":"riak_api_version","period":"current","scope":"config","units":"n/a"},"riak_auth_mods_version":{"category":"versions","concern":"config","description":"","example":"2.1.0-0-g31b8b30","json_schema_type":"string","metric_type":"nominal","name":"riak_auth_mods_version","period":"current","scope":"config","units":"n/a"},"riak_control_version":{"category":"versions","concern":"config","description":"[Riak Control](http://github.com/basho/riak_control)","example":"2.1.2-0-gab3f924","json_schema_type":"string","metric_type":"nominal","name":"riak_control_version","period":"current","scope":"config","units":"n/a"},"riak_core_stat_ts":{"category":"meta","concern":"core","description":"The last time (in Epoch time) Riak Core stats were generated","example":"","json_schema_type":"string","metric_type":"summary","name":"riak_core_stat_ts","period":"current","scope":"node","units":"n/a"},"riak_core_version":{"category":"versions","concern":"config","description":"[Riak Core](http://github.com/basho/riak_core)","example":"2.1.5-0-gb02ab53","json_schema_type":"string","metric_type":"nominal","name":"riak_core_version","period":"current","scope":"config","units":"n/a"},"riak_dt_version":{"category":"versions","concern":"config","description":"","example":"2.1.1-0-ga2986bc","json_schema_type":"string","metric_type":"nominal","name":"riak_dt_version","period":"current","scope":"config","units":"n/a"},"riak_kv_stat_ts":{"category":"meta","concern":"core","description":"The last time Riak KV stats were generated.","example":"","json_schema_type":"string","metric_type":"summary","name":"riak_kv_stat_ts","period":"current","scope":"node","units":"n/a"},"riak_kv_version":{"category":"versions","concern":"config","description":"[Riak KV](http://github.com/basho/riak_kv)","example":"2.1.2-0-gf969bba","json_schema_type":"string","metric_type":"nominal","name":"riak_kv_version","period":"current","scope":"config","units":"n/a"},"riak_kv_vnodeq_max":{"category":"load","concern":"kv","description":"Max queue size of all local Riak KV virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_kv_vnodeq_max","period":"1 minute","scope":"vnode","units":"queue size"},"riak_kv_vnodeq_mean":{"category":"load","concern":"kv","description":"Mean queue size of all local Riak KV virtual nodes in the last minute","example":"0.0","json_schema_type":"number","metric_type":"interval","name":"riak_kv_vnodeq_mean","period":"1 minute","scope":"vnode","units":"queue size"},"riak_kv_vnodeq_median":{"category":"load","concern":"kv","description":"Median queue size of all local Riak KV virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_kv_vnodeq_median","period":"1 minute","scope":"vnode","units":"queue size"},"riak_kv_vnodeq_min":{"category":"load","concern":"kv","description":"Minimum queue size of all local Riak KV virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_kv_vnodeq_min","period":"1 minute","scope":"vnode","units":"queue size"},"riak_kv_vnodeq_total":{"category":"load","concern":"kv","description":"Total queue size of all local Riak KV virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"summary","name":"riak_kv_vnodeq_total","period":"since start","scope":"vnode","units":"queue size"},"riak_kv_vnodes_running":{"category":"load","concern":"kv","description":"Number of local Riak KV virtual nodes running","example":"64","json_schema_type":"number","metric_type":"interval","name":"riak_kv_vnodes_running","period":"current","scope":"vnode","units":"queue size"},"riak_pb_version":{"category":"versions","concern":"config","description":"","example":"2.1.0.2-0-g620bc70","json_schema_type":"string","metric_type":"nominal","name":"riak_pb_version","period":"current","scope":"config","units":"n/a"},"riak_pipe_stat_ts":{"category":"meta","concern":"core","description":"The last time Riak Pipe stats were generated.","example":"","json_schema_type":"string","metric_type":"summary","name":"riak_pipe_stat_ts","period":"current","scope":"node","units":"n/a"},"riak_pipe_version":{"category":"versions","concern":"config","description":"[Riak Pipe](http://github.com/basho/riak_pipe)","example":"2.1.1-0-gb1ac2cf","json_schema_type":"string","metric_type":"nominal","name":"riak_pipe_version","period":"current","scope":"config","units":"n/a"},"riak_pipe_vnodeq_max":{"category":"load","concern":"core","description":"Max queue size of local Riak Pipe virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_pipe_vnodeq_max","period":"1 minute","scope":"vnode","units":"queue size"},"riak_pipe_vnodeq_mean":{"category":"load","concern":"core","description":"Mean queue size of local Riak Pipe virtual nodes in the last minute","example":"0.0","json_schema_type":"number","metric_type":"interval","name":"riak_pipe_vnodeq_mean","period":"1 minute","scope":"vnode","units":"queue size"},"riak_pipe_vnodeq_median":{"category":"load","concern":"core","description":"Median queue size of local Riak Pipe virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_pipe_vnodeq_median","period":"1 minute","scope":"vnode","units":"queue size"},"riak_pipe_vnodeq_min":{"category":"load","concern":"core","description":"Minimum queue size of local Riak Pipe virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_pipe_vnodeq_min","period":"1 minute","scope":"vnode","units":"queue size"},"riak_pipe_vnodeq_total":{"category":"load","concern":"core","description":"Total queue size of all local Riak Pipe virtual nodes in the last minute","example":"0","json_schema_type":"number","metric_type":"summary","name":"riak_pipe_vnodeq_total","period":"since start","scope":"vnode","units":"queue size"},"riak_pipe_vnodes_running":{"category":"load","concern":"core","description":"Number of local Riak Pipe virtual nodes running","example":"64","json_schema_type":"number","metric_type":"summary","name":"riak_pipe_vnodes_running","period":"current","scope":"vnode","units":"vnodes"},"riak_search_version":{"category":"versions","concern":"config","description":"[Riak Search](http://github.com/basho/riak_search)","example":"2.1.1-0-gffe2113","json_schema_type":"string","metric_type":"nominal","name":"riak_search_version","period":"current","scope":"config","units":"n/a"},"riak_search_vnodeq_max":{"category":"load","concern":"search","description":"Maximum number of unprocessed messages all virtual node (vnode) message queues in the Riak Search subsystem have received on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_search_vnodeq_max","period":"1 minute","scope":"vnode","units":"messages"},"riak_search_vnodeq_mean":{"category":"load","concern":"search","description":"Mean number of unprocessed messages all vnode message queues in the Riak Search subsystem have received on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_search_vnodeq_mean","period":"1 minute","scope":"vnode","units":"messages"},"riak_search_vnodeq_median":{"category":"load","concern":"search","description":"Median number of unprocessed messages all vnode message queues in the Riak Search subsystem have received on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_search_vnodeq_median","period":"1 minute","scope":"vnode","units":"messages"},"riak_search_vnodeq_min":{"category":"load","concern":"search","description":"Minimum number of unprocessed messages all vnode message queues in the Riak Search subsystem have received on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"riak_search_vnodeq_min","period":"1 minute","scope":"vnode","units":"messages"},"riak_search_vnodeq_total":{"category":"load","concern":"search","description":"Total number of unprocessed messages all vnode message queues in the Riak Search subsystem have received on this node since it was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"riak_search_vnodeq_total","period":"since start","scope":"vnode","units":"messages"},"riak_search_vnodes_running":{"category":"load","concern":"search","description":"Total number of vnodes currently running in the Riak Search subsystem","example":"0","json_schema_type":"number","metric_type":"summary","name":"riak_search_vnodes_running","period":"current","scope":"vnode","units":"vnodes"},"riak_sysmon_version":{"category":"versions","concern":"config","description":"[Riak System Monitor](http://github.com/basho/riak_sysmon)","example":"2.0.0","json_schema_type":"string","metric_type":"nominal","name":"riak_sysmon_version","period":"current","scope":"config","units":"n/a"},"ring_creation_size":{"category":"cluster state","concern":"core","description":"Ring size this cluster was created with","example":"64","json_schema_type":"number","metric_type":"nominal","name":"ring_creation_size","period":"since start","scope":"cluster","units":"n/a"},"ring_members":{"category":"cluster state","concern":"core","description":"List of nodes that are members of the ring","example":"['riak@127.0.0.1']","json_schema_type":"array","metric_type":"nominal","name":"ring_members","period":"current","scope":"cluster","units":"n/a"},"ring_num_partitions":{"category":"cluster state","concern":"core","description":"The number of partitions in the ring","example":"64","json_schema_type":"number","metric_type":"nominal","name":"ring_num_partitions","period":"current","scope":"cluster","units":"n/a"},"ring_ownership":{"category":"cluster state","concern":"core","description":"List of all nodes in the ring and their associated partition ownership","example":"[{'riak@127.0.0.1', 64}]","json_schema_type":"array","metric_type":"nominal","name":"ring_ownership","period":"current","scope":"cluster","units":"n/a"},"rings_reconciled":{"category":"ring activity","concern":"core","description":"Number of ring reconciliation operations in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"rings_reconciled","period":"1 minute","scope":"node","units":"operations"},"rings_reconciled_total":{"category":"ring activity","concern":"core","description":"Total number of ring reconciliation operations since node was started","example":"0","json_schema_type":"number","metric_type":"summary","name":"rings_reconciled_total","period":"since start","scope":"node","units":"operations"},"runtime_tools_version":{"category":"versions","concern":"config","description":"[Erlang Runtime Tools](http://erlang.org/doc/apps/runtime_tools/)","example":"1.8.12","json_schema_type":"string","metric_type":"nominal","name":"runtime_tools_version","period":"current","scope":"config","units":"n/a"},"sasl_version":{"category":"versions","concern":"config","description":"[SASL](http://erlang.org/doc/apps/sasl/)","example":"2.3.3","json_schema_type":"string","metric_type":"nominal","name":"sasl_version","period":"current","scope":"config","units":"n/a"},"search_index_fail_count":{"category":"errors","concern":"search","description":"Total number of 'Failed to index document' errors encountered by Search since node start","example":"0","json_schema_type":"number","metric_type":"summary","name":"search_index_fail_count","period":"since start","scope":"node","units":"failures"},"search_index_fail_one":{"category":"errors","concern":"search","description":"Number of 'Failed to index document' errors encountered by Search during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_fail_one","period":"1 minute","scope":"node","units":"failures"},"search_index_latency_95":{"category":"latency","concern":"search","description":"95th-percentile Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_95","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_99":{"category":"latency","concern":"search","description":"99th-percentile Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_99","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_999":{"category":"latency","concern":"search","description":"999th-percentile Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_999","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_max":{"category":"latency","concern":"search","description":"Max Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_max","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_mean":{"category":"latency","concern":"search","description":"Mean Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_mean","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_median":{"category":"latency","concern":"search","description":"Median Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_median","period":"1 minute","scope":"node","units":"microseconds"},"search_index_latency_min":{"category":"latency","concern":"search","description":"Min Search document indexing latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_latency_min","period":"1 minute","scope":"node","units":"microseconds"},"search_index_throughput_count":{"category":"throughput - search","concern":"search","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"search_index_throughput_count","period":"since start","scope":"node","units":"operations"},"search_index_throughput_one":{"category":"throughput - search","concern":"search","description":"Number of documents indexed by Search during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_index_throughput_one","period":"1 minute","scope":"node","units":"operations"},"search_query_fail_count":{"category":"errors","concern":"search","description":"Total number of failed Search queries since node start","example":"0","json_schema_type":"number","metric_type":"summary","name":"search_query_fail_count","period":"since start","scope":"node","units":"failures"},"search_query_fail_one":{"category":"errors","concern":"search","description":"Number of failed Search queries during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_fail_one","period":"1 minute","scope":"node","units":"failures"},"search_query_latency_95":{"category":"latency","concern":"search","description":"95th-percentile Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_95","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_99":{"category":"latency","concern":"search","description":"99th-percentile Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_99","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_999":{"category":"latency","concern":"search","description":"999th-percentile Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_999","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_max":{"category":"latency","concern":"search","description":"Max Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_max","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_mean":{"category":"latency","concern":"search","description":"Mean Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_mean","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_median":{"category":"latency","concern":"search","description":"Median Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_median","period":"1 minute","scope":"node","units":"microseconds"},"search_query_latency_min":{"category":"latency","concern":"search","description":"Min Search query latency during the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_latency_min","period":"1 minute","scope":"node","units":"microseconds"},"search_query_throughput_count":{"category":"throughput - search","concern":"search","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"search_query_throughput_count","period":"since start","scope":"node","units":"operations"},"search_query_throughput_one":{"category":"throughput - search","concern":"search","description":"Search queries on the node","example":"0","json_schema_type":"number","metric_type":"interval","name":"search_query_throughput_one","period":"1 minute","scope":"node","units":"operations"},"set_actor_counts_100":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"set_actor_counts_100","period":"1 minute","scope":"node","units":"counts"},"set_actor_counts_95":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"set_actor_counts_95","period":"1 minute","scope":"node","units":"counts"},"set_actor_counts_99":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"set_actor_counts_99","period":"1 minute","scope":"node","units":"counts"},"set_actor_counts_mean":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"set_actor_counts_mean","period":"1 minute","scope":"node","units":"counts"},"set_actor_counts_median":{"category":"load","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"set_actor_counts_median","period":"1 minute","scope":"node","units":"counts"},"sidejob_version":{"category":"versions","concern":"config","description":"[Sidejob](http://github.com/basho/sidejob)","example":"2.0.0-0-gc5aabba","json_schema_type":"string","metric_type":"nominal","name":"sidejob_version","period":"current","scope":"config","units":"n/a"},"skipped_read_repairs":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"skipped_read_repairs","period":"1 minute","scope":"node","units":"repairs"},"skipped_read_repairs_total":{"category":"load","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"skipped_read_repairs_total","period":"since start","scope":"node","units":"repairs"},"ssl_version":{"category":"versions","concern":"config","description":"[Erlang Secure Sockets Layer (SSL)](http://erlang.org/doc/apps/ssl/)","example":"5.3.1","json_schema_type":"string","metric_type":"nominal","name":"ssl_version","period":"current","scope":"config","units":"n/a"},"stdlib_version":{"category":"versions","concern":"config","description":"[Standard Library](http://erlang.org/doc/apps/stdlib/)","example":"1.19.3","json_schema_type":"string","metric_type":"nominal","name":"stdlib_version","period":"current","scope":"config","units":"n/a"},"storage_backend":{"category":"config","concern":"config","description":"The storage backend currently in use.","example":"riak_kv_bitcask_backend","json_schema_type":"string","metric_type":"nominal","name":"storage_backend","period":"since start","scope":"config","units":"n/a"},"syntax_tools_version":{"category":"versions","concern":"config","description":"[Erlang Syntax Tools](http://www.erlang.org/doc/apps/syntax_tools/)","example":"1.6.11","json_schema_type":"string","metric_type":"nominal","name":"syntax_tools_version","period":"current","scope":"config","units":"n/a"},"sys_driver_version":{"category":"versions","concern":"config","description":"String representing the Erlang driver version in use by the runtime system","example":"2.2","json_schema_type":"string","metric_type":"nominal","name":"sys_driver_version","period":"current","scope":"config","units":"n/a"},"sys_global_heaps_size":{"category":"config","concern":"config","description":"Current size of the shared global heap","example":"deprecated","json_schema_type":"string","metric_type":"nominal","name":"sys_global_heaps_size","period":"current","scope":"config","units":"n/a"},"sys_heap_type":{"category":"config","concern":"config","description":"String representing the heap type in use (one of private, shared, hybrid)","example":"private","json_schema_type":"string","metric_type":"nominal","name":"sys_heap_type","period":"current","scope":"config","units":"n/a"},"sys_logical_processors":{"category":"config","concern":"config","description":"Number of logical processors available on the system","example":"8","json_schema_type":"number","metric_type":"nominal","name":"sys_logical_processors","period":"current","scope":"config","units":"n/a"},"sys_monitor_count":{"category":"config","concern":"config","description":"","example":"504","json_schema_type":"number","metric_type":"nominal","name":"sys_monitor_count","period":"current","scope":"config","units":"n/a"},"sys_otp_release":{"category":"config","concern":"config","description":"Erlang OTP release version in use on the node","example":"R16B02_basho8","json_schema_type":"string","metric_type":"nominal","name":"sys_otp_release","period":"since start","scope":"config","units":"n/a"},"sys_port_count":{"category":"config","concern":"config","description":"","example":"98","json_schema_type":"number","metric_type":"nominal","name":"sys_port_count","period":"current","scope":"config","units":"n/a"},"sys_process_count":{"category":"load","concern":"resources","description":"Number of processes currently running in the Erlang VM","example":"1666","json_schema_type":"number","metric_type":"nominal","name":"sys_process_count","period":"current","scope":"config","units":"processes"},"sys_smp_support":{"category":"config","concern":"config","description":"Boolean value representing whether symmetric multi-processing (SMP) is available","example":"true","json_schema_type":"boolean","metric_type":"nominal","name":"sys_smp_support","period":"since start","scope":"config","units":"n/a"},"sys_system_architecture":{"category":"config","concern":"config","description":"The node operating system and hardware architecture","example":"x86_64-apple-darwin12.4.0","json_schema_type":"string","metric_type":"nominal","name":"sys_system_architecture","period":"since start","scope":"config","units":"n/a"},"sys_system_version":{"category":"config","concern":"config","description":"Detailed Erlang version information","example":"Erlang R16B02_basho8 (erts-5.10.3) [source] [64-bit] [smp:8:8] [async-threads:64] [kernel-poll:true] [frame-pointer] [dtrace]","json_schema_type":"string","metric_type":"nominal","name":"sys_system_version","period":"since start","scope":"config","units":"n/a"},"sys_thread_pool_size":{"category":"config","concern":"config","description":"Number of threads in the asynchronous thread pool","example":"64","json_schema_type":"number","metric_type":"nominal","name":"sys_thread_pool_size","period":"current","scope":"config","units":"threads"},"sys_threads_enabled":{"category":"config","concern":"config","description":"Boolean value representing whether threads are enabled","example":"true","json_schema_type":"boolean","metric_type":"nominal","name":"sys_threads_enabled","period":"current","scope":"config","units":"n/a"},"sys_wordsize":{"category":"config","concern":"config","description":"Size of Erlang term words in bytes as an integer, for examples, on 32-bit architectures 4 is returned and on 64-bit architectures 8 is returned","example":"8","json_schema_type":"number","metric_type":"nominal","name":"sys_wordsize","period":"since start","scope":"config","units":"bytes"},"vnode_counter_update":{"category":"config","concern":"crdt","description":"Counter Data Type update operations coordinated by local vnodes","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update","period":"1 minute","scope":"vnode","units":"operations"},"vnode_counter_update_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update_time_100","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_counter_update_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update_time_95","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_counter_update_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update_time_99","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_counter_update_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update_time_mean","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_counter_update_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_counter_update_time_median","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_counter_update_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_counter_update_total","period":"since start","scope":"vnode","units":"operations"},"vnode_get_fsm_time_100":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_get_fsm_time_100","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_get_fsm_time_95":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_get_fsm_time_95","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_get_fsm_time_99":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_get_fsm_time_99","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_get_fsm_time_mean":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_get_fsm_time_mean","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_get_fsm_time_median":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_get_fsm_time_median","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_gets":{"category":"throughput - read","concern":"kv","description":"Number of GET operations coordinated by local vnodes on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_gets","period":"1 minute","scope":"vnode","units":"operations"},"vnode_gets_total":{"category":"throughput - read","concern":"kv","description":"Total number of GETs coordinated by local vnodes","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_gets_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_deletes":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of local replicas participating in secondary index deletes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_deletes","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_deletes_postings":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of individual secondary index values deleted in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_deletes_postings","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_deletes_postings_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of individual secondary index values deleted","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_deletes_postings_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_deletes_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of local replicas participating in secondary index deletes","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_deletes_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_reads":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of local replicas participating in secondary index reads","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_reads","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_reads_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of local replicas participating in secondary index reads","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_reads_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_refreshes":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of secondary indexes refreshed on this node during secondary index anti-entropy in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_refreshes","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_refreshes_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of indexes refreshed during secondary index anti-entropy","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_refreshes_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_writes":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of local replicas participating in secondary index writes in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_writes","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_writes_postings":{"category":"throughput - 2i","concern":"secondary_index","description":"Number of individual secondary index values written in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_index_writes_postings","period":"1 minute","scope":"vnode","units":"operations"},"vnode_index_writes_postings_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of individual secondary index values written","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_writes_postings_total","period":"since start","scope":"vnode","units":"operations"},"vnode_index_writes_total":{"category":"throughput - 2i","concern":"secondary_index","description":"Total number of local replicas participating in secondary index writes","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_index_writes_total","period":"since start","scope":"vnode","units":"operations"},"vnode_map_update":{"category":"throughput - write","concern":"crdt","description":"Map Data Type update operations coordinated by local vnodes","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update","period":"1 minute","scope":"vnode","units":"operations"},"vnode_map_update_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update_time_100","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_map_update_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update_time_95","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_map_update_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update_time_99","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_map_update_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update_time_mean","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_map_update_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_map_update_time_median","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_map_update_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_map_update_total","period":"since start","scope":"vnode","units":"operations"},"vnode_put_fsm_time_100":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_put_fsm_time_100","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_put_fsm_time_95":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_put_fsm_time_95","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_put_fsm_time_99":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_put_fsm_time_99","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_put_fsm_time_mean":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_put_fsm_time_mean","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_put_fsm_time_median":{"category":"latency","concern":"kv","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_put_fsm_time_median","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_puts":{"category":"throughput - write","concern":"kv","description":"Number of PUT operations coordinated by local vnodes on this node in the last minute","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_puts","period":"1 minute","scope":"vnode","units":"operations"},"vnode_puts_total":{"category":"throughput - write","concern":"kv","description":"Total number of PUTS coordinated by local vnodes","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_puts_total","period":"since start","scope":"vnode","units":"operations"},"vnode_set_update":{"category":"throughput - write","concern":"crdt","description":"Set Data Type update operations coordinated by local vnodes","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update","period":"1 minute","scope":"vnode","units":"operations"},"vnode_set_update_time_100":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update_time_100","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_set_update_time_95":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update_time_95","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_set_update_time_99":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update_time_99","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_set_update_time_mean":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update_time_mean","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_set_update_time_median":{"category":"latency","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"vnode_set_update_time_median","period":"1 minute","scope":"vnode","units":"microseconds"},"vnode_set_update_total":{"category":"throughput - write","concern":"crdt","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"vnode_set_update_total","period":"since start","scope":"vnode","units":"operations"},"webmachine_version":{"category":"versions","concern":"config","description":"[Webmachine](http://github.com/basho/webmachine)","example":"1.10.8-0-g7677c24","json_schema_type":"string","metric_type":"nominal","name":"webmachine_version","period":"current","scope":"config","units":"n/a"},"write_once_merge":{"category":"load","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_merge","period":"1 minute","scope":"node","units":"operations"},"write_once_put_objsize_100":{"category":"object size","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_objsize_100","period":"1 minute","scope":"node","units":"bytes"},"write_once_put_objsize_95":{"category":"object size","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_objsize_95","period":"1 minute","scope":"node","units":"bytes"},"write_once_put_objsize_99":{"category":"object size","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_objsize_99","period":"1 minute","scope":"node","units":"bytes"},"write_once_put_objsize_mean":{"category":"object size","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_objsize_mean","period":"1 minute","scope":"node","units":"bytes"},"write_once_put_objsize_median":{"category":"object size","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_objsize_median","period":"1 minute","scope":"node","units":"bytes"},"write_once_put_time_100":{"category":"latency","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_time_100","period":"1 minute","scope":"node","units":"microseconds"},"write_once_put_time_95":{"category":"latency","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_time_95","period":"1 minute","scope":"node","units":"microseconds"},"write_once_put_time_99":{"category":"latency","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_time_99","period":"1 minute","scope":"node","units":"microseconds"},"write_once_put_time_mean":{"category":"latency","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_time_mean","period":"1 minute","scope":"node","units":"microseconds"},"write_once_put_time_median":{"category":"latency","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_put_time_median","period":"1 minute","scope":"node","units":"microseconds"},"write_once_puts":{"category":"throughput - write","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"interval","name":"write_once_puts","period":"1 minute","scope":"node","units":"operations"},"write_once_puts_total":{"category":"throughput - write","concern":"write_once","description":"","example":"0","json_schema_type":"number","metric_type":"summary","name":"write_once_puts_total","period":"since start","scope":"node","units":"operations"},"xmerl_version":{"category":"versions","concern":"config","description":"","example":"1.3.4","json_schema_type":"string","metric_type":"nominal","name":"xmerl_version","period":"current","scope":"config","units":"n/a"},"yokozuna_version":{"category":"versions","concern":"config","description":"","example":"2.1.2-0-g3520d11","json_schema_type":"string","metric_type":"nominal","name":"yokozuna_version","period":"current","scope":"config","units":"n/a"}};});
 /* jshint ignore:start */
 
 
@@ -36692,7 +35260,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.2.0+3e23272f"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.2.0+d3cea3a0"});
 }
 
 /* jshint ignore:end */
