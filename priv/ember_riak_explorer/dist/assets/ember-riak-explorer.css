@@ -3146,18 +3146,18 @@ button.close {
 /*** Layout ***/
 body {
   background-color: #FFF;
+  font-weight: 500;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  font-weight: 500; }
+  -webkit-font-smoothing: antialiased; }
 
 section {
   margin-bottom: 20px; }
   section .section-title {
-    font-size: 16px;
     border-bottom: 1px solid #CCC;
-    padding-bottom: 5px;
+    display: inline-block;
+    font-size: 16px;
     margin-bottom: 10px;
-    display: inline-block; }
+    padding-bottom: 5px; }
   section.form-section {
     margin-bottom: 40px; }
   section:last-child {
@@ -3178,8 +3178,8 @@ a, .bucket-type-create-container .bucket-type-create-form .add-property, .bucket
     text-decoration: none; }
   a:focus, .bucket-type-create-container .bucket-type-create-form .add-property:focus, .bucket-type-edit-container .bucket-type-edit-form .add-property:focus, .table-query-container .split-panel .right-panel .clear-statement:focus {
     color: #E67716;
-    text-decoration: none;
-    outline: none; }
+    outline: none;
+    text-decoration: none; }
 
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0; }
@@ -3215,26 +3215,26 @@ p:last-child {
 
 .btn-info {
   background-color: #fef8f3;
-  color: #dd7215;
-  border-color: #E67716; }
+  border-color: #E67716;
+  color: #dd7215; }
   .btn-info:hover, .btn-info:active, .btn-info:focus, .btn-info:active:focus, .btn-info:active:hover {
     background-color: #fae3ce;
-    color: #b75f12;
-    border-color: #cf6b14; }
+    border-color: #cf6b14;
+    color: #b75f12; }
 
 .table, #side-drawer-container .side-drawer .drawer-body table {
   border-color: #E4E4E4;
   display: inline-block;
   margin: 0; }
   .table thead tr th, #side-drawer-container .side-drawer .drawer-body table thead tr th {
-    padding: 10px 15px;
     border-bottom: 1px;
+    padding: 10px 15px;
     text-align: left; }
   .table tbody tr td, #side-drawer-container .side-drawer .drawer-body table tbody tr td {
+    border-top: 1px solid rgba(221, 221, 221, 0.2);
     padding: 10px 15px;
-    vertical-align: middle;
     text-align: left;
-    border-top: 1px solid rgba(221, 221, 221, 0.2); }
+    vertical-align: middle; }
 
 .list-inline {
   margin: 0; }
@@ -3326,9 +3326,9 @@ pre {
     -moz-flex: 1;
     -ms-flex: 1;
     flex: 1;
+    background-color: rgba(0, 0, 0, 0.03);
     height: 100%;
     overflow-y: auto;
-    background-color: rgba(0, 0, 0, 0.03);
     position: relative; }
 
 @media only screen and (max-width: 768px) {
@@ -3342,17 +3342,17 @@ pre {
   -moz-flex: none;
   -ms-flex: none;
   flex: none;
-  width: 250px;
   background-color: #4d4d4d;
   border-right: 1px solid #1a1a1a;
-  overflow-y: auto; }
+  overflow-y: auto;
+  width: 250px; }
   .sidebar-panel .cluster-selector {
-    width: 100%;
-    padding: 5px;
+    background-color: #383838;
     border: none;
     border-bottom: 1px solid #111111;
     border-top: 1px solid #4d4d4d;
-    background-color: #383838; }
+    padding: 5px;
+    width: 100%; }
     .sidebar-panel .cluster-selector .ember-power-select-trigger:focus {
       outline: none; }
     .sidebar-panel .cluster-selector .ember-power-select-status-icon {
@@ -3360,19 +3360,19 @@ pre {
   .sidebar-panel .current-cluster header {
     text-shadow: 0 1px 0 #000;
     color: #cccccc;
+    background-color: #383838;
     border-bottom: 1px solid #111111;
     border-top: 1px solid #4d4d4d;
-    background-color: #383838;
     padding: 10px;
     position: relative; }
     .sidebar-panel .current-cluster header .title {
-      font-size: 18px;
       display: block;
+      font-size: 18px;
       margin-right: 20px;
       word-break: break-all; }
     .sidebar-panel .current-cluster header .meta {
-      text-transform: uppercase;
-      font-size: 9px; }
+      font-size: 9px;
+      text-transform: uppercase; }
       .sidebar-panel .current-cluster header .meta li:after {
         content: ", "; }
       .sidebar-panel .current-cluster header .meta li:last-child:after {
@@ -3380,17 +3380,17 @@ pre {
       .sidebar-panel .current-cluster header .meta .dev-mode {
         color: #E67716; }
     .sidebar-panel .current-cluster header .cluster-status-circle {
-      position: absolute;
-      top: 50%;
-      right: 10px;
-      display: inline-block;
-      width: 16px;
-      height: 16px;
       border-radius: 8px;
-      margin-top: -8px;
-      -webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
+      box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
       -moz-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
-      box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75); }
+      -webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
+      display: inline-block;
+      height: 16px;
+      margin-top: -8px;
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      width: 16px; }
       .sidebar-panel .current-cluster header .cluster-status-circle.ok {
         background: #449d44; }
       .sidebar-panel .current-cluster header .cluster-status-circle.warning {
@@ -3398,27 +3398,27 @@ pre {
       .sidebar-panel .current-cluster header .cluster-status-circle.down {
         background: #c9302c; }
   .sidebar-panel .current-cluster .cluster-section-links.current-section-is-data .data:after, .sidebar-panel .current-cluster .cluster-section-links.current-section-is-ops .ops:after, .sidebar-panel .current-cluster .cluster-section-links.current-section-is-query .query:after {
+    background: #cccccc;
+    border-radius: 4px;
     content: "";
+    display: inline-block;
+    height: 8px;
+    left: 8px;
+    margin-top: -4px;
     position: absolute;
     top: 50%;
-    left: 8px;
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 4px;
-    margin-top: -4px;
-    background: #cccccc; }
+    width: 8px; }
   .sidebar-panel .current-cluster .cluster-section-links a, .sidebar-panel .current-cluster .cluster-section-links .bucket-type-create-container .bucket-type-create-form .add-property, .bucket-type-create-container .bucket-type-create-form .sidebar-panel .current-cluster .cluster-section-links .add-property, .sidebar-panel .current-cluster .cluster-section-links .bucket-type-edit-container .bucket-type-edit-form .add-property, .bucket-type-edit-container .bucket-type-edit-form .sidebar-panel .current-cluster .cluster-section-links .add-property, .sidebar-panel .current-cluster .cluster-section-links .table-query-container .split-panel .right-panel .clear-statement, .table-query-container .split-panel .right-panel .sidebar-panel .current-cluster .cluster-section-links .clear-statement {
     text-shadow: 0 1px 0 #000;
     color: #cccccc;
-    display: block;
+    background-color: #404040;
     border-bottom: 1px solid #111111;
     border-top: 1px solid #4d4d4d;
-    background-color: #404040;
-    padding: 10px 10px 10px 25px;
+    display: block;
     font-size: 16px;
-    text-transform: uppercase;
-    position: relative; }
+    padding: 10px 10px 10px 25px;
+    position: relative;
+    text-transform: uppercase; }
     .sidebar-panel .current-cluster .cluster-section-links a:hover, .sidebar-panel .current-cluster .cluster-section-links .bucket-type-create-container .bucket-type-create-form .add-property:hover, .bucket-type-create-container .bucket-type-create-form .sidebar-panel .current-cluster .cluster-section-links .add-property:hover, .sidebar-panel .current-cluster .cluster-section-links .bucket-type-edit-container .bucket-type-edit-form .add-property:hover, .bucket-type-edit-container .bucket-type-edit-form .sidebar-panel .current-cluster .cluster-section-links .add-property:hover, .sidebar-panel .current-cluster .cluster-section-links .table-query-container .split-panel .right-panel .clear-statement:hover, .table-query-container .split-panel .right-panel .sidebar-panel .current-cluster .cluster-section-links .clear-statement:hover {
       background-color: #333333; }
 
@@ -3459,29 +3459,29 @@ pre {
   .topbar .logo {
     display: inline-block;
     height: 30px;
-    width: 150px;
-    margin: 20px; }
+    margin: 20px;
+    width: 150px; }
   .topbar .topbar-nav {
     display: inline-block; }
     .topbar .topbar-nav .topbar-nav-item {
-      float: left;
-      border-left: 1px solid #111111; }
+      border-left: 1px solid #111111;
+      float: left; }
       .topbar .topbar-nav .topbar-nav-item a, .topbar .topbar-nav .topbar-nav-item .bucket-type-create-container .bucket-type-create-form .add-property, .bucket-type-create-container .bucket-type-create-form .topbar .topbar-nav .topbar-nav-item .add-property, .topbar .topbar-nav .topbar-nav-item .bucket-type-edit-container .bucket-type-edit-form .add-property, .bucket-type-edit-container .bucket-type-edit-form .topbar .topbar-nav .topbar-nav-item .add-property, .topbar .topbar-nav .topbar-nav-item .table-query-container .split-panel .right-panel .clear-statement, .table-query-container .split-panel .right-panel .topbar .topbar-nav .topbar-nav-item .clear-statement {
         text-shadow: 0 1px 0 #000;
         color: #cccccc;
+        border-left: 1px solid #4d4d4d;
         display: inline-block;
-        padding: 0 20px;
         line-height: 70px;
-        border-left: 1px solid #4d4d4d; }
+        padding: 0 20px; }
         .topbar .topbar-nav .topbar-nav-item a:hover, .topbar .topbar-nav .topbar-nav-item .bucket-type-create-container .bucket-type-create-form .add-property:hover, .bucket-type-create-container .bucket-type-create-form .topbar .topbar-nav .topbar-nav-item .add-property:hover, .topbar .topbar-nav .topbar-nav-item .bucket-type-edit-container .bucket-type-edit-form .add-property:hover, .bucket-type-edit-container .bucket-type-edit-form .topbar .topbar-nav .topbar-nav-item .add-property:hover, .topbar .topbar-nav .topbar-nav-item .table-query-container .split-panel .right-panel .clear-statement:hover, .table-query-container .split-panel .right-panel .topbar .topbar-nav .topbar-nav-item .clear-statement:hover {
           text-shadow: 0 1px 0 #000;
           color: #cccccc;
           background-color: #1a1a1a;
           border-left: 1px solid #333333; }
         .topbar .topbar-nav .topbar-nav-item a.selected, .topbar .topbar-nav .topbar-nav-item .bucket-type-create-container .bucket-type-create-form .selected.add-property, .bucket-type-create-container .bucket-type-create-form .topbar .topbar-nav .topbar-nav-item .selected.add-property, .topbar .topbar-nav .topbar-nav-item .bucket-type-edit-container .bucket-type-edit-form .selected.add-property, .bucket-type-edit-container .bucket-type-edit-form .topbar .topbar-nav .topbar-nav-item .selected.add-property, .topbar .topbar-nav .topbar-nav-item .table-query-container .split-panel .right-panel .selected.clear-statement, .table-query-container .split-panel .right-panel .topbar .topbar-nav .topbar-nav-item .selected.clear-statement {
-          cursor: default;
+          background-color: black;
           border-left: 1px solid black;
-          background-color: black; }
+          cursor: default; }
 
 @media only screen and (max-width: 768px) {
   .topbar {
@@ -3522,25 +3522,25 @@ pre {
     flex-direction: column; } }
 
 .action-buttons {
-  text-align: right;
-  float: right; }
+  float: right;
+  text-align: right; }
   .action-buttons .action-button {
     margin-left: 5px; }
 
 .view-body .alert {
-  border-radius: 0;
-  padding-left: 40px;
-  padding-right: 20px;
-  margin-bottom: 0;
   border-left: none;
-  border-right: none; }
+  border-radius: 0;
+  border-right: none;
+  margin-bottom: 0;
+  padding-left: 40px;
+  padding-right: 20px; }
   .view-body .alert:last-of-type {
     margin-bottom: 20px; }
 
 .view-body .dashboard-module .alert {
-  padding: 15px;
   border-radius: 4px;
-  margin-bottom: 20px; }
+  margin-bottom: 20px;
+  padding: 15px; }
 
 .alert ul {
   list-style: disc inside; }
@@ -3550,16 +3550,16 @@ pre {
   margin-bottom: 5px;
   min-height: 17px; }
   .breadcrumb-container .breadcrumb {
-    margin: 0;
-    padding: 0;
     background-color: inherit;
-    font-size: 12px; }
+    font-size: 12px;
+    margin: 0;
+    padding: 0; }
     .breadcrumb-container .breadcrumb li {
       color: #666666;
       margin-bottom: 0; }
       .breadcrumb-container .breadcrumb li:last-child a, .breadcrumb-container .breadcrumb li:last-child .bucket-type-create-container .bucket-type-create-form .add-property, .bucket-type-create-container .bucket-type-create-form .breadcrumb-container .breadcrumb li:last-child .add-property, .breadcrumb-container .breadcrumb li:last-child .bucket-type-edit-container .bucket-type-edit-form .add-property, .bucket-type-edit-container .bucket-type-edit-form .breadcrumb-container .breadcrumb li:last-child .add-property, .breadcrumb-container .breadcrumb li:last-child .table-query-container .split-panel .right-panel .clear-statement, .table-query-container .split-panel .right-panel .breadcrumb-container .breadcrumb li:last-child .clear-statement {
-        cursor: default;
-        color: #666666; }
+        color: #666666;
+        cursor: default; }
 
 @media only screen and (max-width: 768px) {
   .view-label {
@@ -3575,14 +3575,6 @@ pre {
 .cluster-status.cluster-status-label {
   text-transform: uppercase; }
 
-.code-highlighter {
-  padding: 0;
-  margin: 0;
-  border: none;
-  background: none; }
-  .code-highlighter code {
-    border-radius: 4px; }
-
 .code-list {
   margin-bottom: 20px; }
   .code-list li {
@@ -3595,7 +3587,8 @@ pre {
   border-radius: 5;
   background-clip: padding-box;
   border-radius: 5px;
-  padding: 10px 15px; }
+  padding: 10px 15px;
+  height: auto; }
 
 code .ember-content-editable {
   margin-top: -50px;
@@ -3609,10 +3602,10 @@ pre.editable {
   border-radius: 0px; }
 
 .dashboard-module {
-  margin: 20px 20px 30px 40px;
   background: #FFF;
   border: 1px solid #E4E4E4;
-  border-top: 3px solid #E4E4E4; }
+  border-top: 3px solid #E4E4E4;
+  margin: 20px 20px 30px 40px; }
   .dashboard-module.small-width {
     max-width: 600px; }
   .dashboard-module.medium-width {
@@ -3620,8 +3613,8 @@ pre.editable {
   .dashboard-module.large-width {
     max-width: 1000px; }
   .dashboard-module.no-border {
-    border: none;
-    background: none; }
+    background: none;
+    border: none; }
     .dashboard-module.no-border .module-body {
       padding: 0; }
   .dashboard-module .module-header {
@@ -3641,8 +3634,8 @@ pre.editable {
     -webkit-justify-content: space-between;
     -moz-justify-content: space-between;
     justify-content: space-between;
-    padding: 20px;
-    border-bottom: 1px solid #E4E4E4; }
+    border-bottom: 1px solid #E4E4E4;
+    padding: 20px; }
     .dashboard-module .module-header .module-label {
       font-size: 18px;
       line-height: 30px; }
@@ -3652,8 +3645,8 @@ pre.editable {
     padding: 20px;
     position: relative; }
     .dashboard-module .module-body .module-edit-group .group-header {
-      padding: 10px 0;
-      font-size: 18px; }
+      font-size: 18px;
+      padding: 10px 0; }
     .dashboard-module .module-body .module-edit-group .key {
       width: 25%; }
     .dashboard-module .module-body .module-edit-group .value {
@@ -3673,22 +3666,22 @@ pre.editable {
   .ivy-tabs .ivy-tab-list.capitalize {
     text-transform: capitalize; }
   .ivy-tabs .ivy-tab-list .ivy-tab {
-    padding: 15px 0;
-    margin: 0 30px 0 0;
-    display: inline-block;
-    cursor: pointer;
-    font-weight: bold;
-    color: #E67716;
     border: none;
-    outline: none; }
+    color: #E67716;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: bold;
+    margin: 0 30px 0 0;
+    outline: none;
+    padding: 15px 0; }
     .ivy-tabs .ivy-tab-list .ivy-tab[aria-selected=true] {
-      cursor: default;
-      color: #333333;
       border-bottom: 1px solid #4d4d4d;
+      color: #333333;
+      cursor: default;
       margin-bottom: -1px; }
 
 .ivy-tabs .ivy-tab-panel {
-  padding: 15px 0; }
+  padding-top: 15px; }
 
 .ivy-tabs.half-width {
   display: inline-block;
@@ -3714,23 +3707,23 @@ pre.editable {
     -moz-flex: none;
     -ms-flex: none;
     flex: none;
-    border-right: 1px solid #E4E4E4;
-    border-bottom: none; }
+    border-bottom: none;
+    border-right: 1px solid #E4E4E4; }
     .ivy-tabs.vertical .ivy-tab-list .ivy-tab {
-      display: block;
-      padding: 8px 20px 8px 0;
-      margin: 0;
-      cursor: pointer;
-      font-weight: bold;
-      color: #E67716;
       border: none;
-      outline: none; }
+      color: #E67716;
+      cursor: pointer;
+      display: block;
+      font-weight: bold;
+      margin: 0;
+      outline: none;
+      padding: 8px 20px 8px 0; }
       .ivy-tabs.vertical .ivy-tab-list .ivy-tab:first-child {
         padding-top: 0px; }
       .ivy-tabs.vertical .ivy-tab-list .ivy-tab[aria-selected=true] {
-        cursor: default;
-        color: #333333;
         border-right: 1px solid #4d4d4d;
+        color: #333333;
+        cursor: default;
         margin-right: -1px; }
   .ivy-tabs.vertical .ivy-tab-panel {
     -webkit-box-flex: 1;
@@ -3764,8 +3757,8 @@ pre.editable {
 .ember-application .loading-slider {
   height: 3px; }
   .ember-application .loading-slider span {
-    height: 3px;
-    background-color: #E67716; }
+    background-color: #E67716;
+    height: 3px; }
 
 .loading-background {
   display: -webkit-box;
@@ -3783,80 +3776,80 @@ pre.editable {
   -webkit-justify-content: center;
   -moz-justify-content: center;
   justify-content: center;
-  min-height: 200px;
   background: rgba(0, 0, 0, 0.03);
-  margin: -20px; }
+  margin: -20px;
+  min-height: 200px; }
   .loading-background.entire-page {
-    margin: 0;
-    position: absolute;
-    top: 0;
-    right: 0;
+    background: none;
     bottom: 0;
     left: 0;
-    background: none; }
+    margin: 0;
+    position: absolute;
+    right: 0;
+    top: 0; }
 
 .loading-container {
-  max-width: 50%;
   background: white;
   border: 1px solid #E4E4E4;
   border-radius: 3px;
+  margin: 0 auto;
+  max-width: 50%;
   padding: 30px;
-  text-align: center;
-  margin: 0 auto; }
+  text-align: center; }
   .loading-container .status-message {
     margin-bottom: 20px; }
   .loading-container .spinner {
-    font-size: 48px;
-    position: relative;
     display: inline-block;
-    width: 1em;
-    height: 1em; }
+    font-size: 48px;
+    height: 1em;
+    position: relative;
+    width: 1em; }
     .loading-container .spinner .spinner-blade {
-      position: absolute;
-      left: 0.4629em;
-      bottom: 0;
-      width: 0.074em;
-      height: 0.2777em;
-      border-radius: 0.0555em;
+      animation: spinner-fade 1s infinite linear;
       background-color: transparent;
+      border-radius: 0.0555em;
+      bottom: 0;
+      height: 0.2777em;
+      left: 0.4629em;
+      position: absolute;
       transform-origin: center -0.2222em;
-      animation: spinner-fade 1s infinite linear; }
+      width: 0.074em; }
       .loading-container .spinner .spinner-blade:nth-child(1) {
-        animation-delay: 0s;
-        transform: rotate(0deg); }
-      .loading-container .spinner .spinner-blade:nth-child(2) {
         animation-delay: 0.083s;
         transform: rotate(30deg); }
-      .loading-container .spinner .spinner-blade:nth-child(3) {
+      .loading-container .spinner .spinner-blade:nth-child(2) {
         animation-delay: 0.166s;
         transform: rotate(60deg); }
-      .loading-container .spinner .spinner-blade:nth-child(4) {
+      .loading-container .spinner .spinner-blade:nth-child(3) {
         animation-delay: 0.249s;
         transform: rotate(90deg); }
-      .loading-container .spinner .spinner-blade:nth-child(5) {
+      .loading-container .spinner .spinner-blade:nth-child(4) {
         animation-delay: 0.332s;
         transform: rotate(120deg); }
-      .loading-container .spinner .spinner-blade:nth-child(6) {
+      .loading-container .spinner .spinner-blade:nth-child(5) {
         animation-delay: 0.415s;
         transform: rotate(150deg); }
-      .loading-container .spinner .spinner-blade:nth-child(7) {
+      .loading-container .spinner .spinner-blade:nth-child(6) {
         animation-delay: 0.498s;
         transform: rotate(180deg); }
-      .loading-container .spinner .spinner-blade:nth-child(8) {
+      .loading-container .spinner .spinner-blade:nth-child(7) {
         animation-delay: 0.581s;
         transform: rotate(210deg); }
-      .loading-container .spinner .spinner-blade:nth-child(9) {
+      .loading-container .spinner .spinner-blade:nth-child(8) {
         animation-delay: 0.664s;
         transform: rotate(240deg); }
-      .loading-container .spinner .spinner-blade:nth-child(10) {
+      .loading-container .spinner .spinner-blade:nth-child(9) {
         animation-delay: 0.747s;
         transform: rotate(270deg); }
-      .loading-container .spinner .spinner-blade:nth-child(11) {
+      .loading-container .spinner .spinner-blade:nth-child(10) {
         animation-delay: 0.83s;
         transform: rotate(300deg); }
-      .loading-container .spinner .spinner-blade:nth-child(12) {
+      .loading-container .spinner .spinner-blade:nth-child(11) {
         animation-delay: 0.913s;
         transform: rotate(330deg); }
+      .loading-container .spinner .spinner-blade:nth-child(12) {
+        animation-delay: 0.996s;
+        transform: rotate(360deg); }
 
 @keyframes spinner-fade {
   0% {
@@ -3869,8 +3862,8 @@ pre.editable {
   .map-section code {
     font-size: 16px; }
   .map-section .map-section-title {
-    text-transform: uppercase;
-    margin-bottom: 10px; }
+    margin-bottom: 10px;
+    text-transform: uppercase; }
   .map-section .item-instance button {
     visibility: hidden; }
   .map-section .item-instance:hover button {
@@ -3884,15 +3877,15 @@ pre.editable {
   font-weight: bold;
   margin-bottom: 10px; }
   .map-section.maps-list .map-name .expand-contents {
-    margin-left: 15px;
+    cursor: pointer;
     font-weight: normal;
-    cursor: pointer; }
+    margin-left: 15px; }
 
 .map-section.maps-list .sub-map-contents {
+  background: rgba(0, 0, 0, 0.05);
   display: none;
-  padding: 10px;
   margin-bottom: 10px;
-  background: rgba(0, 0, 0, 0.05); }
+  padding: 10px; }
   .map-section.maps-list .sub-map-contents.expanded {
     display: block; }
 
@@ -3907,6 +3900,15 @@ pre.editable {
     .object-content-list li .input-add-item {
       display: inline;
       width: 60%; }
+
+.paginated-table .pagination-content {
+  min-height: 310px; }
+  .paginated-table .pagination-content table td:first-child {
+    min-width: 160px; }
+
+.paginated-table .pagination-links-container {
+  min-height: 30px;
+  padding: 0 15px; }
 
 .pagination-component-container .pagination-links .text-link.invisible {
   visibility: hidden; }
@@ -3924,14 +3926,14 @@ pre.editable {
   white-space: nowrap; }
 
 .legacy-map-styling .loading {
-  padding-top: 3em;
-  padding-bottom: 3em; }
+  padding-bottom: 3em;
+  padding-top: 3em; }
 
 .legacy-map-styling .cluster-resource-header {
-  border: 1px solid #CCC;
   background-color: #3c948b;
-  color: white;
+  border: 1px solid #CCC;
   border-radius: 4px;
+  color: white;
   display: inline-block;
   font-size: 14px;
   font-weight: normal;
@@ -3958,24 +3960,24 @@ pre.editable {
   color: red; }
 
 .legacy-map-styling .key {
-  padding-top: 3em;
-  padding-bottom: 3em; }
+  padding-bottom: 3em;
+  padding-top: 3em; }
 
 .legacy-map-styling .spinner {
   padding: 3em 0px; }
 
 .legacy-map-styling .property-header {
   background-color: #DDD;
-  padding: 0.5em 3px;
-  margin-bottom: 1em; }
+  margin-bottom: 1em;
+  padding: 0.5em 3px; }
 
 .legacy-map-styling .bucket-properties {
-  margin-top: 2em;
+  border: 1px solid gray;
+  box-sizing: border-box;
   margin-bottom: 2em;
   margin-left: 0px auto;
   margin-right: 0px auto;
-  border: 1px solid gray;
-  box-sizing: border-box; }
+  margin-top: 2em; }
 
 .legacy-map-styling .property-row {
   padding: 0.5em 1em; }
@@ -3985,16 +3987,16 @@ pre.editable {
   border-radius: 3px;
   margin-bottom: 15px;
   margin-top: 20px;
-  width: 95%;
-  position: relative; }
+  position: relative;
+  width: 95%; }
 
 .legacy-map-styling .object-contents-header {
   background-color: #e7ecee;
   border-bottom: 1px solid #d8d8d8;
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
-  padding: 5px 10px;
-  line-height: 30px; }
+  line-height: 30px;
+  padding: 5px 10px; }
 
 .legacy-map-styling .object-contents-header::before {
   content: "";
@@ -4020,23 +4022,23 @@ pre.editable {
 
 .legacy-map-styling .object-contents-footer {
   background-color: #e7ecee;
-  border-top: 1px solid #d8d8d8;
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
-  padding: 5px 10px;
-  line-height: 30px;
+  border-top: 1px solid #d8d8d8;
   font-family: Consolas, "Liberation Mono", Courier, monospace;
-  font-size: 11px; }
+  font-size: 11px;
+  line-height: 30px;
+  padding: 5px 10px; }
 
 .legacy-map-styling .value-counter {
   font-size: 200%; }
 
 .legacy-map-styling .set-contents-list {
-  width: 100%;
   border-left: 1px solid #ddd;
-  border-top: 1px solid #ddd;
   border-right: 1px solid #ddd;
-  margin-bottom: 1.5em; }
+  border-top: 1px solid #ddd;
+  margin-bottom: 1.5em;
+  width: 100%; }
 
 .legacy-map-styling .set-contents-list div.set-element-row:nth-child(even) {
   background-color: #eee; }
@@ -4049,15 +4051,15 @@ pre.editable {
   font-size: 110%; }
 
 .legacy-map-styling .field-label {
-  text-align: right;
-  font-weight: bold; }
+  font-weight: bold;
+  text-align: right; }
 
 .legacy-map-styling .map-composite-field-name {
   padding: 0.5em 0px; }
 
 .legacy-map-styling .form-inline .input-increment {
-  width: 5em;
-  vertical-align: middle; }
+  vertical-align: middle;
+  width: 5em; }
 
 .legacy-map-styling .divider {
   font-size: 150%;
@@ -4076,35 +4078,44 @@ pre.editable {
   #side-drawer-container.drawer-closed {
     border-left: none; }
   #side-drawer-container .side-drawer {
-    width: 400px;
     background: #FFF;
-    overflow: scroll; }
+    overflow: scroll;
+    width: 400px; }
     #side-drawer-container .side-drawer.open {
       display: block; }
     #side-drawer-container .side-drawer.closed {
       display: none; }
     #side-drawer-container .side-drawer .drawer-header {
+      border-bottom: 1px solid #E4E4E4;
       font-size: 24px;
-      font-weight: 500;
-      border-bottom: 1px solid #E4E4E4; }
+      font-weight: 500; }
       #side-drawer-container .side-drawer .drawer-header .drawer-label {
-        width: 340px;
         display: inline-block;
-        padding: 43px 20px 19px 20px; }
+        padding: 43px 20px 19px 20px;
+        width: 340px; }
       #side-drawer-container .side-drawer .drawer-header .close-container {
-        float: right;
         cursor: pointer;
+        float: right;
         padding: 43px 20px 19px 20px; }
     #side-drawer-container .side-drawer .drawer-body {
       padding: 20px; }
+      #side-drawer-container .side-drawer .drawer-body h2 {
+        font-size: 24px;
+        border-bottom: 1px solid #E4E4E4;
+        padding: 10px 0; }
+      #side-drawer-container .side-drawer .drawer-body h3 {
+        font-size: 20px; }
+      #side-drawer-container .side-drawer .drawer-body h4 {
+        font-size: 16px; }
       #side-drawer-container .side-drawer .drawer-body p {
         margin-bottom: 20px; }
       #side-drawer-container .side-drawer .drawer-body pre {
-        margin-bottom: 20px; }
-      #side-drawer-container .side-drawer .drawer-body ul {
-        margin-left: 20px;
         margin-bottom: 20px;
-        list-style: disc; }
+        font-size: 11px; }
+      #side-drawer-container .side-drawer .drawer-body ul {
+        list-style: disc;
+        margin-bottom: 20px;
+        margin-left: 20px; }
       #side-drawer-container .side-drawer .drawer-body table {
         margin-bottom: 20px; }
         #side-drawer-container .side-drawer .drawer-body table code {
@@ -4140,9 +4151,9 @@ pre.editable {
   min-width: 125px; }
 
 .ember-application .tooltip-icon {
-  font-size: 10px;
   color: #777;
-  cursor: help; }
+  cursor: help;
+  font-size: 10px; }
 
 .ember-application .tooltip.in {
   opacity: 1; }
@@ -4163,8 +4174,8 @@ pre.editable {
       display: inline-block;
       word-break: break-word; }
   .ember-application .tooltip .tooltip-content-wrapper .small {
-    font-style: italic;
     font-size: 12px;
+    font-style: italic;
     word-break: break-word; }
 
 .view-label {
@@ -4222,6 +4233,22 @@ pre.editable {
 .object-counter-container .form-control, .object-counter-container .map-section .add-instance .add-instance-input, .map-section .add-instance .object-counter-container .add-instance-input, .object-counter-container .object-content-list li .input-add-item, .object-content-list li .object-counter-container .input-add-item {
   width: 50px; }
 
+.search-schema-container .schema-name {
+  max-width: 350px; }
+
+.search-schema-container .CodeMirror {
+  height: 300px; }
+
+.search-schema-container .submit-button-container:before, .search-schema-container .submit-button-container:after {
+  content: " ";
+  display: table; }
+
+.search-schema-container .submit-button-container:after {
+  clear: both; }
+
+.search-schema-container .submit-button-container .btn, .search-schema-container .submit-button-container .action-buttons .action-button, .action-buttons .search-schema-container .submit-button-container .action-button, .search-schema-container .submit-button-container .button-list li a, .button-list li .search-schema-container .submit-button-container a, .search-schema-container .submit-button-container .button-list li .bucket-type-create-container .bucket-type-create-form .add-property, .button-list li .bucket-type-create-container .bucket-type-create-form .search-schema-container .submit-button-container .add-property, .search-schema-container .submit-button-container .bucket-type-create-container .bucket-type-create-form .button-list li .add-property, .bucket-type-create-container .bucket-type-create-form .button-list li .search-schema-container .submit-button-container .add-property, .search-schema-container .submit-button-container .button-list li .bucket-type-edit-container .bucket-type-edit-form .add-property, .button-list li .bucket-type-edit-container .bucket-type-edit-form .search-schema-container .submit-button-container .add-property, .search-schema-container .submit-button-container .bucket-type-edit-container .bucket-type-edit-form .button-list li .add-property, .bucket-type-edit-container .bucket-type-edit-form .button-list li .search-schema-container .submit-button-container .add-property, .search-schema-container .submit-button-container .button-list li .table-query-container .split-panel .right-panel .clear-statement, .button-list li .table-query-container .split-panel .right-panel .search-schema-container .submit-button-container .clear-statement, .search-schema-container .submit-button-container .table-query-container .split-panel .right-panel .button-list li .clear-statement, .table-query-container .split-panel .right-panel .button-list li .search-schema-container .submit-button-container .clear-statement, .search-schema-container .submit-button-container .cluster-resource-link, .search-schema-container .submit-button-container .dashboard-module .module-header .module-actions .action-button, .dashboard-module .module-header .module-actions .search-schema-container .submit-button-container .action-button, .search-schema-container .submit-button-container .map-section .item-instance button, .map-section .item-instance .search-schema-container .submit-button-container button, .search-schema-container .submit-button-container .map-section .add-instance .add-instance-button, .map-section .add-instance .search-schema-container .submit-button-container .add-instance-button, .search-schema-container .submit-button-container .object-content-list li .remove-item, .object-content-list li .search-schema-container .submit-button-container .remove-item, .search-schema-container .submit-button-container .object-content-list li .button-add-item, .object-content-list li .search-schema-container .submit-button-container .button-add-item, .search-schema-container .submit-button-container .pagination-component-container .pagination-links .pagination-link, .pagination-component-container .pagination-links .search-schema-container .submit-button-container .pagination-link {
+  margin-top: 10px; }
+
 .ts-table-container label {
   margin-bottom: 10px; }
 
@@ -4238,6 +4265,9 @@ pre.editable {
 .ts-table-container .submit-button-container .btn, .ts-table-container .submit-button-container .action-buttons .action-button, .action-buttons .ts-table-container .submit-button-container .action-button, .ts-table-container .submit-button-container .button-list li a, .button-list li .ts-table-container .submit-button-container a, .ts-table-container .submit-button-container .button-list li .bucket-type-create-container .bucket-type-create-form .add-property, .button-list li .bucket-type-create-container .bucket-type-create-form .ts-table-container .submit-button-container .add-property, .ts-table-container .submit-button-container .bucket-type-create-container .bucket-type-create-form .button-list li .add-property, .bucket-type-create-container .bucket-type-create-form .button-list li .ts-table-container .submit-button-container .add-property, .ts-table-container .submit-button-container .button-list li .bucket-type-edit-container .bucket-type-edit-form .add-property, .button-list li .bucket-type-edit-container .bucket-type-edit-form .ts-table-container .submit-button-container .add-property, .ts-table-container .submit-button-container .bucket-type-edit-container .bucket-type-edit-form .button-list li .add-property, .bucket-type-edit-container .bucket-type-edit-form .button-list li .ts-table-container .submit-button-container .add-property, .ts-table-container .submit-button-container .button-list li .table-query-container .split-panel .right-panel .clear-statement, .button-list li .table-query-container .split-panel .right-panel .ts-table-container .submit-button-container .clear-statement, .ts-table-container .submit-button-container .table-query-container .split-panel .right-panel .button-list li .clear-statement, .table-query-container .split-panel .right-panel .button-list li .ts-table-container .submit-button-container .clear-statement, .ts-table-container .submit-button-container .cluster-resource-link, .ts-table-container .submit-button-container .dashboard-module .module-header .module-actions .action-button, .dashboard-module .module-header .module-actions .ts-table-container .submit-button-container .action-button, .ts-table-container .submit-button-container .map-section .item-instance button, .map-section .item-instance .ts-table-container .submit-button-container button, .ts-table-container .submit-button-container .map-section .add-instance .add-instance-button, .map-section .add-instance .ts-table-container .submit-button-container .add-instance-button, .ts-table-container .submit-button-container .object-content-list li .remove-item, .object-content-list li .ts-table-container .submit-button-container .remove-item, .ts-table-container .submit-button-container .object-content-list li .button-add-item, .object-content-list li .ts-table-container .submit-button-container .button-add-item, .ts-table-container .submit-button-container .pagination-component-container .pagination-links .pagination-link, .pagination-component-container .pagination-links .ts-table-container .submit-button-container .pagination-link {
   float: right;
   margin-top: 10px; }
+
+.ts-table-reference .key {
+  min-width: 125px; }
 
 .table-query-container .split-panel {
   display: -webkit-box;

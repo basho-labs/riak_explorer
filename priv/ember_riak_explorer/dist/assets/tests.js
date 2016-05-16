@@ -224,15 +224,6 @@ define('ember-riak-explorer/tests/components/cluster-status-indicator.jshint', [
     assert.ok(true, 'components/cluster-status-indicator.js should pass jshint.');
   });
 });
-define('ember-riak-explorer/tests/components/code-highlighter.jshint', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('JSHint - components/code-highlighter.js');
-  QUnit.test('should pass jshint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'components/code-highlighter.js should pass jshint.');
-  });
-});
 define('ember-riak-explorer/tests/components/dashboard-module/body.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -736,7 +727,7 @@ define('ember-riak-explorer/tests/integration/components/cluster-status-indicato
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.2',
+          'revision': 'Ember@2.5.1',
           'loc': {
             'source': null,
             'start': {
@@ -780,7 +771,7 @@ define('ember-riak-explorer/tests/integration/components/cluster-status-indicato
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.3.2',
+            'revision': 'Ember@2.5.1',
             'loc': {
               'source': null,
               'start': {
@@ -818,7 +809,7 @@ define('ember-riak-explorer/tests/integration/components/cluster-status-indicato
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.2',
+          'revision': 'Ember@2.5.1',
           'loc': {
             'source': null,
             'start': {
@@ -885,7 +876,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-config-tes
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.2',
+          'revision': 'Ember@2.5.1',
           'loc': {
             'source': null,
             'start': {
@@ -929,7 +920,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-config-tes
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.3.2',
+            'revision': 'Ember@2.5.1',
             'loc': {
               'source': null,
               'start': {
@@ -967,7 +958,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-config-tes
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.2',
+          'revision': 'Ember@2.5.1',
           'loc': {
             'source': null,
             'start': {
@@ -1034,7 +1025,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-stats-test
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.2',
+          'revision': 'Ember@2.5.1',
           'loc': {
             'source': null,
             'start': {
@@ -1078,7 +1069,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-stats-test
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.3.2',
+            'revision': 'Ember@2.5.1',
             'loc': {
               'source': null,
               'start': {
@@ -1116,7 +1107,7 @@ define('ember-riak-explorer/tests/integration/components/tooltip/node-stats-test
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.3.2',
+          'revision': 'Ember@2.5.1',
           'loc': {
             'source': null,
             'start': {
@@ -1355,6 +1346,15 @@ define('ember-riak-explorer/tests/pods/bucket-type/route.jshint', ['exports'], f
     assert.ok(true, 'pods/bucket-type/route.js should pass jshint.');
   });
 });
+define('ember-riak-explorer/tests/pods/cluster/controller.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - pods/cluster/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/cluster/controller.js should pass jshint.');
+  });
+});
 define('ember-riak-explorer/tests/pods/cluster/data/route.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -1571,15 +1571,6 @@ define('ember-riak-explorer/tests/pods/search-index/route.jshint', ['exports'], 
     assert.ok(true, 'pods/search-index/route.js should pass jshint.');
   });
 });
-define('ember-riak-explorer/tests/pods/search-schema/create/controller.jshint', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('JSHint - pods/search-schema/create/controller.js');
-  QUnit.test('should pass jshint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'pods/search-schema/create/controller.js should pass jshint.');
-  });
-});
 define('ember-riak-explorer/tests/pods/search-schema/create/route.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -1587,15 +1578,6 @@ define('ember-riak-explorer/tests/pods/search-schema/create/route.jshint', ['exp
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'pods/search-schema/create/route.js should pass jshint.');
-  });
-});
-define('ember-riak-explorer/tests/pods/search-schema/edit/controller.jshint', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('JSHint - pods/search-schema/edit/controller.js');
-  QUnit.test('should pass jshint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'pods/search-schema/edit/controller.js should pass jshint.');
   });
 });
 define('ember-riak-explorer/tests/pods/search-schema/edit/route.jshint', ['exports'], function (exports) {
