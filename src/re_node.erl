@@ -152,8 +152,13 @@ get_ts(Node, Table, Key) ->
 -spec put_ts(re_node(), ts_table(), [term()]) ->
                     {error, term()} | ok.
 put_ts(Node, Table, Rows) ->
+    lager:info("Putting Rows: ~p into table ~p", [Rows, Table]),
     C = client(Node),
-    case riakc_ts:put(C, Table, Rows) of
+    Rows1 = [ [ case V of
+                    null -> undefined;
+                    _ -> V
+                end || V <- Vs ] || Vs <- Rows ],
+    case riakc_ts:put(C, Table, Rows1) of
         ok -> 
             ok;
         {error, Reason} ->
@@ -537,6 +542,8 @@ create_bucket_type(Node, BucketType, RawValue) ->
                 Props = proplists:get_value(props, Type),
                 {true, proplists:get_value(active, Props, false)}
         end,
+
+    lager:info("Creating bucket type ~p with props ~p", [BucketType, RawValue]),
 
     case {Created, Active} of
         {false, _} ->
