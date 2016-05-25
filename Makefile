@@ -2,7 +2,7 @@ REPO            ?= riak_explorer
 PKG_VERSION	    ?= $(shell git describe --tags --abbrev=0 | tr - .)
 ARCH            ?= amd64
 OS_FAMILY          ?= ubuntu
-OS_VERSION       ?= trusty
+OS_VERSION       ?= 14.04
 PKGNAME         ?= $(REPO)-$(PKG_VERSION)-$(OS_FAMILY)-$(OS_VERSION)-$(ARCH).tar.gz
 OAUTH_TOKEN     ?= $(shell cat oauth.txt)
 RELEASE_ID      ?= $(shell curl --silent https://api.github.com/repos/basho-labs/$(REPO)/releases/tags/$(PKG_VERSION)?access_token=$(OAUTH_TOKEN) | python -c 'import sys, json; print json.load(sys.stdin)["id"]')
