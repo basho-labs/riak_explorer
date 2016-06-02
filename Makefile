@@ -74,7 +74,7 @@ tarball-standalone: rel
 	cd packages && echo "$(BASE_DIR)/packages/$(PKGNAME)" > local.txt
 sync-standalone:
 	echo "Uploading to "$(DOWNLOAD_BASE)
-	cd packages && \
+	@cd packages && \
 		curl -XPOST -sS -H 'Content-Type: application/gzip' $(DEPLOY_BASE) --data-binary @$(PKGNAME) && \
 		curl -XPOST -sS -H 'Content-Type: application/octet-stream' $(DEPLOY_BASE).sha --data-binary @$(PKGNAME).sha
 
@@ -110,7 +110,7 @@ tarball: compile
 	cd packages && echo "$(BASE_DIR)/packages/$(PATCH_PKGNAME)" > local.txt
 sync:
 	echo "Uploading to "$(PATCH_DOWNLOAD_BASE)
-	cd packages && \
+	@cd packages && \
 		curl -XPOST -sS -H 'Content-Type: application/gzip' $(PATCH_DEPLOY_BASE) --data-binary @$(PATCH_PKGNAME) && \
 		curl -XPOST -sS -H 'Content-Type: application/octet-stream' $(PATCH_DEPLOY_BASE).sha --data-binary @$(PATCH_PKGNAME).sha
 
