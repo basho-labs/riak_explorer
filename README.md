@@ -3,7 +3,7 @@
 [![Join the chat at https://gitter.im/basho-labs/riak_explorer](https://badges.gitter.im/basho-labs/riak_explorer.svg)](https://gitter.im/basho-labs/riak_explorer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Riak Explorer provides browsing and admin capabilities for [Riak
-KV](http://basho.com/products/riak-kv/), a distributed NoSQL key-value data
+KV](http://basho.com/products/riak-kv/) and [Riak TS](http://basho.com/products/riak-ts/), a distributed NoSQL data
 store that offers high availability, fault tolerance, operational simplicity,
 and scalability.
 
@@ -13,15 +13,11 @@ Objects, and more. To prevent heavy I/O requests from key listings, be sure to
 edit the config file to reflect the environment as [explained in Using Riak
 Explorer](#using-riak-explorer).
 
-* [Screenshots](#screenshots)
+* [Demo](http://104.236.156.86/)
 * [Installation](#installation)
-* [System Architecture](#architecture)
+* [System Architecture](#system-architecture)
 * [Using Riak Explorer](#using-riak-explorer)
 * [Development / Contributing](#development--contributing)
-
-## Screenshots
-
-<img width="700" alt="Cluster View" src="https://cloud.githubusercontent.com/assets/947005/11791541/9ccdf11e-a26f-11e5-9f65-17ec5a6e4015.png">
 
 ## Installation
 
@@ -45,8 +41,7 @@ the pre-compiled packages below. These include both the Erlang backend API code
 3. Run `./riak_explorer/bin/riak_explorer start` to start the `riak_explorer`
     application
 
-4. Navigate to [http://localhost:9000/](http://localhost:9000/) to see the
-    interface
+4. Navigate to [http://localhost:9000/](http://localhost:9000/)
 
 #### Riak Patch Version
 
@@ -56,7 +51,7 @@ the pre-compiled packages below. These include both the Erlang backend API code
 
 3. Run `riak/bin/riak start`
 
-4. Navigate to [http://localhost:8098/admin](http://localhost:8098/admin) to see the interface
+4. Navigate to [http://localhost:8098/admin](http://localhost:8098/admin)
 
 ### Installing the Dev Environment
 
@@ -72,6 +67,8 @@ For developer install instructions (and contribution guidelines), see the
 *Back-end:* [Erlang](http://www.erlang.org/) is the primary development language
     and [WebMachine](http://webmachine.github.io/) is used to serve a RESTful
     API (and, optionally, to serve the Ember.js GUI app).
+    
+## Using Riak Explorer
 
 ### Development Mode
 
@@ -98,42 +95,12 @@ a. Not point Explorer at production clusters, or
 b. If used with production clusters, be sure to set `development_mode = off` for
     that cluster.
 
-### Key and Bucket List Caches (in Dev Mode only)
+### Table Row, Key, and Bucket List Caches (in Dev Mode only)
 
-Even in Dev Mode, Explorer tries not to run Key and Bucket listing operations
-more than necessary. To that end, the API runs the List command once (per bucket
-type, and per bucket, the first time it encounters them) and then *caches* the
-result in a text file, on disk. The GUI app user, when browsing buckets, only
+Even in Dev Mode, Explorer tries not to run listing operations
+more than necessary. To that end, the API runs the List command once requested by the user and then *caches* the
+result in a text file, on disk. The GUI app user, when browsing a list, only
 interacts with those caches.
-
-The interaction with the API goes like this (omitting the `localhost:9000` part
-from the URLs, for brevity):
-
-```bash
-# The first time you try to list buckets in the 'default' bucket type
-# (cache is empty)
-curl /explore/clusters/default/bucket_types/default/buckets
-# -> HTTP 404 Not Found
-
-# The app then *refreshes* the cache from a Streaming List Buckets operation
-# by issuing an HTTP POST request to the `refresh_buckets` endpoint
-# As expected, this operation may take some time, depending on how much data
-# is in a cluster.
-curl -XPOST \
-  /explore/clusters/default/bucket_types/default/refresh_buckets/source/riak_kv
-# -> HTTP 202 Accepted
-
-# While the cache refresh runs, apps can poll the `jobs` endpoint to see when
-# it's completed
-curl /explore/clusters/default/bucket_types/default/jobs
-
-# The app can then re-try the bucket list
-curl /explore/clusters/default/bucket_types/default/buckets
-# -> HTTP 200 OK
-# ['bucket1', 'bucket2', etc...]
-
-# To Refresh the cache, POST to the appropriate refresh endpoint as above
-```
 
 ### Explorer API endpoints
 
@@ -342,7 +309,31 @@ Explanation:
 * `$*`: Wildcard with deep paths. Example: `assets/ember-riak-explorer.js` for the static route, or `ping` for the riak_proxy route
 * `$resource`: A list of valid `resources` for a given module can be found in `explore.resources`
 
-## Seed Data (For developers and testers)
+## Development / Contributing
+
+For developer installation instructions and environment setup, visit
+[DEVELOPMENT.md](DEVELOPMENT.md).
+
+* Whether your contribution is for a bug fix or a feature request, **create an [Issue](https://github.com/basho/riak_explorer/issues)** and let us know what you are thinking.
+* **For bugs**, if you have already found a fix, feel free to submit a Pull Request referencing the Issue you created.
+* **For feature requests**, we want to improve upon the library incrementally which means small changes at a time. In order ensure your PR can be reviewed in a timely manner, please keep PRs small, e.g. <10 files and <500 lines changed. If you think this is unrealistic, then mention that within the Issue and we can discuss it.
+
+Once you're ready to contribute code back to this repo, start with these steps:
+
+* Fork the appropriate sub-projects that are affected by your change
+* Create a topic branch for your change and checkout that branch
+     `git checkout -b some-topic-branch`
+* Make your changes and run the test suite if one is provided (see below)
+* Commit your changes and push them to your fork
+* Open a pull request for the appropriate project
+* Contributors will review your pull request, suggest changes, and merge it when it’s ready and/or offer feedback
+* To report a bug or issue, please open a new issue against this repository
+
+You can [read the full guidelines for bug reporting and code contributions](http://docs.basho.com/riak/latest/community/bugs/) on the Riak Docs.
+
+And **thank you!** Your contribution is incredibly important to us. It'd be great for you to add it to a current or past community release note [here](https://github.com/basho-labs/the-riak-community/tree/master/release-notes).
+
+### Seeding Data (For developers and testers)
 
 Some suggestions on how to create some sample data, to try out the Explorer GUI.
 
@@ -435,31 +426,7 @@ Some suggestions on how to create some sample data, to try out the Explorer GUI.
     -d '{"name":"User One", "id":"user123"}'
   ```
 
-## Development / Contributing
-
-For developer installation instructions and environment setup, visit
-[DEVELOPMENT.md](DEVELOPMENT.md).
-
-* Whether your contribution is for a bug fix or a feature request, **create an [Issue](https://github.com/basho/riak_explorer/issues)** and let us know what you are thinking.
-* **For bugs**, if you have already found a fix, feel free to submit a Pull Request referencing the Issue you created.
-* **For feature requests**, we want to improve upon the library incrementally which means small changes at a time. In order ensure your PR can be reviewed in a timely manner, please keep PRs small, e.g. <10 files and <500 lines changed. If you think this is unrealistic, then mention that within the Issue and we can discuss it.
-
-Once you're ready to contribute code back to this repo, start with these steps:
-
-* Fork the appropriate sub-projects that are affected by your change
-* Create a topic branch for your change and checkout that branch
-     `git checkout -b some-topic-branch`
-* Make your changes and run the test suite if one is provided (see below)
-* Commit your changes and push them to your fork
-* Open a pull request for the appropriate project
-* Contributors will review your pull request, suggest changes, and merge it when it’s ready and/or offer feedback
-* To report a bug or issue, please open a new issue against this repository
-
-You can [read the full guidelines for bug reporting and code contributions](http://docs.basho.com/riak/latest/community/bugs/) on the Riak Docs.
-
-And **thank you!** Your contribution is incredibly important to us. It'd be great for you to add it to a current or past community release note [here](https://github.com/basho-labs/the-riak-community/tree/master/release-notes).
-
-#### Related Projects
+### Related Projects
 - [riak-explorer-gui](https://github.com/basho-labs/riak-explorer-gui) - the
     front-end Ember.js GUI code to go along with the Explorer API.
 - [riak_control](https://github.com/basho/riak_control) - legacy official Riak
