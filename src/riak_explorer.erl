@@ -142,15 +142,19 @@ stop(_State) ->
 
 -spec should_clean_default_cluster() -> boolean().
 should_clean_default_cluster() ->
-    {ok, EtcDir} = application:get_env(riak_explorer, platform_etc_dir),
-    EtcFile = filename:join([EtcDir, "riak_explorer.conf"]),
-    Proc = fun(Entry, Accum) ->
-                   case re:run(Entry, "^clusters.default.*$", []) of
-                       {match, _} -> false;
-                       _ -> Accum
-                   end
-           end,
-    re_file_util:for_each_line_in_file(EtcFile, Proc, read, true).
+    case application:get_env(riak_explorer, platform_etc_dir) of
+        {ok, EtcDir} ->
+            EtcFile = filename:join([EtcDir, "riak_explorer.conf"]),
+            Proc = fun(Entry, Accum) ->
+                           case re:run(Entry, "^clusters.default.*$", []) of
+                               {match, _} -> false;
+                               _ -> Accum
+                           end
+                   end,
+            re_file_util:for_each_line_in_file(EtcFile, Proc, read, true);
+        _ ->
+            false
+    end.
 
 -spec props_to_bin([{atom(), term()}], [{atom(), atom() | binary()}]) -> [{atom(), atom() | binary()}].
 props_to_bin([], Accum) -> lists:reverse(Accum);
