@@ -57,6 +57,8 @@ riak-addon:
 	mkdir -p rel/riak-addon/priv
 	$(REBAR) compile
 	cp -R deps/riakc/ebin/* rel/riak-addon/ebin/
+	cp -R deps/riak_pb/ebin/* rel/riak-addon/riak/lib/basho-patches/
+	cp -R deps/protobuffs/ebin/* rel/riak-addon/riak/lib/basho-patches/
 	cp -R ebin/* rel/riak-addon/ebin/
 	cp -R priv/* rel/riak-addon/priv/
 
@@ -99,6 +101,8 @@ tarball: compile
 	mkdir -p rel/$(RIAK_BASE)/riak/lib/basho-patches
 	mkdir -p rel/$(RIAK_BASE)/riak/priv
 	cp -R deps/riakc/ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R deps/riak_pb/ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R deps/protobuffs/ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
 	cp -R ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
 	cp -R priv/* rel/$(RIAK_BASE)/riak/priv/
 	mkdir -p packages
