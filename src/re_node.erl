@@ -152,12 +152,12 @@ get_ts(Node, Table, Key) ->
 -spec put_ts(re_node(), ts_table(), [term()]) ->
                     {error, term()} | ok.
 put_ts(Node, Table, Rows) ->
-    lager:info("Putting Rows: ~p into table ~p", [Rows, Table]),
     C = client(Node),
-    Rows1 = [ [ case V of
+    Rows1 = [ list_to_tuple([ case V of
                     null -> undefined;
                     _ -> V
-                end || V <- Vs ] || Vs <- Rows ],
+                end || V <- Vs ]) || Vs <- Rows ],
+    lager:info("Putting Rows: ~p into table ~p", [Rows1, Table]),
     case riakc_ts:put(C, Table, Rows1) of
         ok -> 
             ok;
@@ -169,13 +169,17 @@ put_ts(Node, Table, Rows) ->
                       {error, term()} | ts_result().
 query_ts(Node, Query) ->
     C = client(Node),
+    QueryStr = binary_to_list(Query),
+    lager:info("Query: ~p", [QueryStr]),
+    R = riakc_ts:query(C, QueryStr),
+    lager:info("Results: ~p", [R]),
     {Fields, Rows} = 
-        case riakc_ts:query(C, Query) of
-            {[],[]} ->
+        case R of
+            {ok, {[],[]}} ->
                 {[],[]};
             {error, Reason} -> 
                 {error, Reason};
-            {Fields1, TupleRows} ->
+            {ok, {Fields1, TupleRows}} ->
                 TupleToRowFun = 
                     fun(Tuple) ->
                             [element(I,Tuple) 
