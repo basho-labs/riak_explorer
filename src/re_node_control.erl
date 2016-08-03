@@ -572,7 +572,7 @@ get_active_transfers({status_v2, Status}) ->
                 StatsPropList ->
                     ObjsS = proplists:get_value(objs_per_s, StatsPropList),
                     BytesS = proplists:get_value(bytes_per_s, StatsPropList),
-                    LastUpdate = proplists:get_value(last_update, StatsPropList),
+                    LastUpdate = datetime_str(proplists:get_value(last_update, StatsPropList)),
                     Objs = proplists:get_value(objs_total, StatsPropList),
                     Size = proplists:get_value(size, StatsPropList),
                     DonePctDecimal = proplists:get_value(pct_done_decimal, StatsPropList),
