@@ -55,7 +55,7 @@ OS_FAMILY=centos OS_VERSION=7 make sync-standalone
 
 1. Navigate to https://github.com/basho-labs/riak_explorer/releases/tag/YOUR_TAG
 2. Verify that all 3 sets of the following files are listed as downloads for the release:
-   a. riak_explorer-X.X.X-OS_FAMILY-OS_VERSION-tar.gz
-   b. riak_explorer-X.X.X-OS_FAMILY-OS_VERSION-tar.gz.sha
-   c. riak_explorer-X.X.X.patch-OS_FAMILY-OS_VERSION-tar.gz
-   d. riak_explorer-X.X.X.patch-OS_FAMILY-OS_VERSION-tar.gz.sha
+  1. riak_explorer-X.X.X-OS_FAMILY-OS_VERSION-tar.gz
+  2. riak_explorer-X.X.X-OS_FAMILY-OS_VERSION-tar.gz.sha
+  3. riak_explorer-X.X.X.patch-OS_FAMILY-OS_VERSION-tar.gz
+  4. riak_explorer-X.X.X.patch-OS_FAMILY-OS_VERSION-tar.gz.sha
