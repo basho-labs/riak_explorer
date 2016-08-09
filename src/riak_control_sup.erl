@@ -53,7 +53,7 @@ init([]) ->
                          [riak_control_session]},
     ExplorerSpec = {riak_explorer,
                     {riak_explorer, start, [[]]},
-                    permanent, 5000, worker, [riak_explorer]},
+                    temporary, 5000, worker, [riak_explorer]},
 
     %% determine if riak_control is enabled or not
     case app_helper:get_env(riak_control, enabled, false) of
