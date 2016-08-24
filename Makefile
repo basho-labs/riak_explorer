@@ -96,6 +96,10 @@ PATCH_PKGNAME         ?= $(REPO)-$(PATCH_PKG_VERSION)-$(OS_FAMILY)-$(OS_VERSION)
 PATCH_DEPLOY_BASE     ?= "https://uploads.github.com/repos/basho-labs/$(REPO)/releases/$(RELEASE_ID)/assets?access_token=$(OAUTH_TOKEN)&name=$(PATCH_PKGNAME)"
 PATCH_DOWNLOAD_BASE   ?= https://github.com/basho-labs/$(REPO)/releases/download/$(GIT_TAG)/$(PATCH_PKGNAME)
 
+reltarball: RIAK_BASE = rel
+reltarball: PATCH_PKG_VERSION = $(PKG_VERSION).relpatch
+reltarball: tarball
+
 tarball: compile
 	echo "Creating packages/"$(PATCH_PKGNAME)
 	-rm -rf rel/sandbox/$(RIAK_BASE)
