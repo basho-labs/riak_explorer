@@ -32,6 +32,7 @@ deps:
 	$(REBAR) get-deps
 clean: cleantest relclean
 	-rm -rf packages
+	-rm -rf rel/sandbox
 cleantest:
 	rm -rf .eunit/*
 test: cleantest
@@ -97,16 +98,16 @@ PATCH_DOWNLOAD_BASE   ?= https://github.com/basho-labs/$(REPO)/releases/download
 
 tarball: compile
 	echo "Creating packages/"$(PATCH_PKGNAME)
-	-rm -rf rel/$(RIAK_BASE)
-	mkdir -p rel/$(RIAK_BASE)/riak/lib/basho-patches
-	mkdir -p rel/$(RIAK_BASE)/riak/priv
-	cp -R deps/riakc/ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
-	cp -R deps/riak_pb/ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
-	cp -R deps/protobuffs/ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
-	cp -R ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
-	cp -R priv/* rel/$(RIAK_BASE)/riak/priv/
+	-rm -rf rel/sandbox/$(RIAK_BASE)
+	mkdir -p rel/sandbox/$(RIAK_BASE)/riak/lib/basho-patches
+	mkdir -p rel/sandbox/$(RIAK_BASE)/riak/priv
+	cp -R deps/riakc/ebin/* rel/sandbox/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R deps/riak_pb/ebin/* rel/sandbox/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R deps/protobuffs/ebin/* rel/sandbox/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R ebin/* rel/sandbox/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R priv/* rel/sandbox/$(RIAK_BASE)/riak/priv/
 	mkdir -p packages
-	tar -C rel -czf $(PATCH_PKGNAME) root
+	tar -C rel/sandbox -czf $(PATCH_PKGNAME) $(RIAK_BASE)
 	mv $(PATCH_PKGNAME) packages/
 	cd packages && $(SHASUM) $(PATCH_PKGNAME) > $(PATCH_PKGNAME).sha
 	cd packages && echo "$(PATCH_DOWNLOAD_BASE)" > remote.txt

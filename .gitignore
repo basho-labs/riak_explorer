@@ -19,3 +19,4 @@ configure.sh
 .vagrant
 packages
 oauth.txt
+rel/sandbox
