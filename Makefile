@@ -30,7 +30,7 @@ recompile:
 	$(REBAR) compile skip_deps=true
 deps:
 	$(REBAR) get-deps
-clean: cleantest relclean
+clean: cleantest relclean clean-sandbox
 	-rm -rf packages
 clean-sandbox:
 	-rm -rf rel/sandbox
