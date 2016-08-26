@@ -28,8 +28,10 @@ echo "YOUR_OAUTH_TOKEN" > oauth.txt
 
 ```
 OS_FAMILY=osx OS_VERSION=10.11 make tarball
+OS_FAMILY=osx OS_VERSION=10.11 make reltarball
 OS_FAMILY=osx OS_VERSION=10.11 make tarball-standalone
 OS_FAMILY=osx OS_VERSION=10.11 make sync
+OS_FAMILY=osx OS_VERSION=10.11 make relsync
 OS_FAMILY=osx OS_VERSION=10.11 make sync-standalone
 ```
 
@@ -37,8 +39,10 @@ OS_FAMILY=osx OS_VERSION=10.11 make sync-standalone
 
 ```
 OS_FAMILY=ubuntu OS_VERSION=14.04 make tarball
+OS_FAMILY=ubuntu OS_VERSION=14.04 make reltarball
 OS_FAMILY=ubuntu OS_VERSION=14.04 make tarball-standalone
 OS_FAMILY=ubuntu OS_VERSION=14.04 make sync
+OS_FAMILY=ubuntu OS_VERSION=14.04 make relsync
 OS_FAMILY=ubuntu OS_VERSION=14.04 make sync-standalone
 ```
 
@@ -46,8 +50,10 @@ OS_FAMILY=ubuntu OS_VERSION=14.04 make sync-standalone
 
 ```
 OS_FAMILY=centos OS_VERSION=7 make tarball
+OS_FAMILY=centos OS_VERSION=7 make reltarball
 OS_FAMILY=centos OS_VERSION=7 make tarball-standalone
 OS_FAMILY=centos OS_VERSION=7 make sync
+OS_FAMILY=centos OS_VERSION=7 make relsync
 OS_FAMILY=centos OS_VERSION=7 make sync-standalone
 ```
 
@@ -59,3 +65,5 @@ OS_FAMILY=centos OS_VERSION=7 make sync-standalone
   2. riak_explorer-X.X.X-OS_FAMILY-OS_VERSION-tar.gz.sha
   3. riak_explorer-X.X.X.patch-OS_FAMILY-OS_VERSION-tar.gz
   4. riak_explorer-X.X.X.patch-OS_FAMILY-OS_VERSION-tar.gz.sha
+  5. riak_explorer-X.X.X.relpatch-OS_FAMILY-OS_VERSION-tar.gz
+  6. riak_explorer-X.X.X.relpatch-OS_FAMILY-OS_VERSION-tar.gz.sha
