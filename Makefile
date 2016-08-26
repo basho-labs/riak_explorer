@@ -30,8 +30,10 @@ recompile:
 	$(REBAR) compile skip_deps=true
 deps:
 	$(REBAR) get-deps
-clean: cleantest relclean
+clean: cleantest relclean clean-sandbox
 	-rm -rf packages
+clean-sandbox:
+	-rm -rf rel/sandbox
 cleantest:
 	rm -rf .eunit/*
 test: cleantest
@@ -95,27 +97,48 @@ PATCH_PKGNAME         ?= $(REPO)-$(PATCH_PKG_VERSION)-$(OS_FAMILY)-$(OS_VERSION)
 PATCH_DEPLOY_BASE     ?= "https://uploads.github.com/repos/basho-labs/$(REPO)/releases/$(RELEASE_ID)/assets?access_token=$(OAUTH_TOKEN)&name=$(PATCH_PKGNAME)"
 PATCH_DOWNLOAD_BASE   ?= https://github.com/basho-labs/$(REPO)/releases/download/$(GIT_TAG)/$(PATCH_PKGNAME)
 
-tarball: compile
+reltarball: RIAK_BASE = .
+reltarball: PATCH_PKG_VERSION = $(PKG_VERSION).relpatch
+reltarball: compile clean-sandbox
+reltarball:
+	$(call build-tarball)
+
+relsync: RIAK_BASE = .
+relsync: PATCH_PKG_VERSION = $(PKG_VERSION).relpatch
+relsync:
+	$(call do-sync)
+
+tarball: compile clean-sandbox
+tarball:
+	$(call build-tarball)
+
+sync:
+	$(call do-sync)
+
+define build-tarball
 	echo "Creating packages/"$(PATCH_PKGNAME)
-	-rm -rf rel/$(RIAK_BASE)
-	mkdir -p rel/$(RIAK_BASE)/riak/lib/basho-patches
-	mkdir -p rel/$(RIAK_BASE)/riak/priv
-	cp -R deps/riakc/ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
-	cp -R deps/riak_pb/ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
-	cp -R deps/protobuffs/ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
-	cp -R ebin/* rel/$(RIAK_BASE)/riak/lib/basho-patches/
-	cp -R priv/* rel/$(RIAK_BASE)/riak/priv/
+	-rm -rf rel/sandbox/$(RIAK_BASE)
+	mkdir -p rel/sandbox/$(RIAK_BASE)/riak/lib/basho-patches
+	mkdir -p rel/sandbox/$(RIAK_BASE)/riak/priv
+	cp -R deps/riakc/ebin/* rel/sandbox/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R deps/riak_pb/ebin/* rel/sandbox/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R deps/protobuffs/ebin/* rel/sandbox/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R ebin/* rel/sandbox/$(RIAK_BASE)/riak/lib/basho-patches/
+	cp -R priv/* rel/sandbox/$(RIAK_BASE)/riak/priv/
 	mkdir -p packages
-	tar -C rel -czf $(PATCH_PKGNAME) root
+	tar -C rel/sandbox -czf $(PATCH_PKGNAME) $(RIAK_BASE)
 	mv $(PATCH_PKGNAME) packages/
 	cd packages && $(SHASUM) $(PATCH_PKGNAME) > $(PATCH_PKGNAME).sha
 	cd packages && echo "$(PATCH_DOWNLOAD_BASE)" > remote.txt
 	cd packages && echo "$(BASE_DIR)/packages/$(PATCH_PKGNAME)" > local.txt
-sync:
+endef
+
+define do-sync
 	echo "Uploading to "$(PATCH_DOWNLOAD_BASE)
 	@cd packages && \
 		curl -XPOST -sS -H 'Content-Type: application/gzip' $(PATCH_DEPLOY_BASE) --data-binary @$(PATCH_PKGNAME) && \
 		curl -XPOST -sS -H 'Content-Type: application/octet-stream' $(PATCH_DEPLOY_BASE).sha --data-binary @$(PATCH_PKGNAME).sha
+endef
 
 PATCH_ASSET_ID        ?= $(shell curl -sS https://api.github.com/repos/basho-labs/$(REPO)/releases/$(RELEASE_ID)/assets?access_token=$(OAUTH_TOKEN) | python -c 'import sys, json; print "".join([str(asset["id"]) if asset["name"] == "$(PATCH_PKGNAME)" else "" for asset in json.load(sys.stdin)])')
 PATCH_ASSET_SHA_ID    ?= $(shell curl -sS https://api.github.com/repos/basho-labs/$(REPO)/releases/$(RELEASE_ID)/assets?access_token=$(OAUTH_TOKEN) | python -c 'import sys, json; print "".join([str(asset["id"]) if asset["name"] == "$(PATCH_PKGNAME).sha" else "" for asset in json.load(sys.stdin)])')
