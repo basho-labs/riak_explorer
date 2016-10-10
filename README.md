@@ -7,7 +7,7 @@ KV](http://basho.com/products/riak-kv/) and [Riak TS](http://basho.com/products/
 store that offers high availability, fault tolerance, operational simplicity,
 and scalability.
 
-Riak Explorer is useful while in a development or production. It includes
+Riak Explorer is useful while in a development or production environment. It includes
 convenient methods to browse Bucket Types, Buckets, Keys, view and edit Riak
 Objects, and more. To prevent heavy I/O requests from key listings, be sure to
 edit the config file to reflect the environment as [explained in Using Riak
