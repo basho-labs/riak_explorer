@@ -11,7 +11,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 re_wm_explore_test_() ->
     {setup,
-     fun () -> 
+     fun () ->
              {ok, "204", _} = ret:http(put, "http://localhost:8098/types/mytype/buckets/test/keys/test", <<"testing">>)
      end,
      fun (_) -> ok end,
@@ -26,17 +26,25 @@ re_wm_explore_test_() ->
 
 all_routes() ->
     Routes = re_wm:routes(),
-    lists:flatten([ [ assert_paths(Method, Base, Paths, []) 
+    RiakType = riak_type(),
+    lists:flatten([ [ assert_paths(Method, Base, Paths, RiakType, [])
         || Method <- Methods ]
       || #route{base=[Base|_],path=Paths,methods=Methods} <- Routes ]).
 
-assert_paths(_, _, [], Accum) -> lists:reverse(Accum);
-assert_paths(Method, Base, [Path|Paths], Accum) ->
-    Url = ret:url(to_path_str(Base) ++ "/" ++ to_path_str(Path)),
-    Body = path_body(Method, Path),
-    {ok, Code, Content} = ret:http(Method, Url, Body),
-    ExpectedCode = path_code(Method, Path),
-    assert_paths(Method, Base, Paths, [?_assertEqual({ExpectedCode, Method, Url, Content}, {Code, Method, Url, Content})|Accum]).
+assert_paths(_, _, [], _, Accum) -> lists:reverse(Accum);
+assert_paths(Method, Base, [Path|Paths], RiakType, Accum) ->
+    case is_testable_path(Path, RiakType) of
+        true ->
+            Url = ret:url(to_path_str(Base) ++ "/" ++ to_path_str(Path)),
+            Body = path_body(Method, Path),
+            {ok, Code, Content} = ret:http(Method, Url, Body),
+            ExpectedCode = path_code(Method, Path),
+            assert_paths(Method, Base, Paths, RiakType, [?_assertEqual({ExpectedCode, Method, Url, Content}, {Code, Method, Url, Content})|Accum]);
+        false ->
+            ?debugFmt("Skipping ~p because we are on Riak OSS.~n", [Path]),
+            assert_paths(Method, Base, Paths, RiakType, Accum)
+    end.
+
 
 to_path_str(["config", "files", file]) ->
     string:join(["config", "files", "riak.conf"], "/");
@@ -104,5 +112,23 @@ ping() ->
 render_json(Data) ->
     Body = binary_to_list(list_to_binary(mochijson2:encode(Data))),
     Body.
+
+riak_type() ->
+    {_, _, Data} = ret:http(get, "http://localhost:9000/explore/clusters/default"),
+    {struct, JsonData} = mochijson2:decode(Data),
+    {struct, Cluster} = proplists:get_value(<<"default">>, JsonData),
+    RiakType = binary_to_list(proplists:get_value(<<"riak_type">>, Cluster)),
+    case {lists:prefix("ts", RiakType),
+          lists:suffix("ee", RiakType)} of
+        {false, false} -> {kv, oss};
+        {false, true} -> {kv, ee};
+        {true, false} -> {ts, oss};
+        {true, true} -> {ts, ee}
+    end.
+
+%% The '*repl*' paths are not testable when Riak OSS is being used
+is_testable_path(_, {_, ee}) -> true;
+is_testable_path([Path|_], {_, oss}) ->
+    not lists:prefix("repl", Path).
 
 -endif.
