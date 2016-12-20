@@ -41,7 +41,6 @@ assert_paths(Method, Base, [Path|Paths], RiakType, Accum) ->
             ExpectedCode = path_code(Method, Path),
             assert_paths(Method, Base, Paths, RiakType, [?_assertEqual({ExpectedCode, Method, Url, Content}, {Code, Method, Url, Content})|Accum]);
         false ->
-            ?debugFmt("Skipping ~p because we are on Riak OSS.~n", [Path]),
             assert_paths(Method, Base, Paths, RiakType, Accum)
     end.
 
@@ -127,8 +126,17 @@ riak_type() ->
     end.
 
 %% The '*repl*' paths are not testable when Riak OSS is being used
-is_testable_path(_, {_, ee}) -> true;
-is_testable_path([Path|_], {_, oss}) ->
-    not lists:prefix("repl", Path).
+is_testable_path([Path|_], RiakType) ->
+    case {lists:prefix("repl", Path),
+          lists:prefix("tables", Path),
+          RiakType} of
+        {true, _, {_, oss}} ->
+            ?debugFmt("Skipping ~p because we are on Riak OSS.~n", [Path]),
+            false;
+        {_, true, {kv, _}} ->
+            ?debugFmt("Skipping ~p because we are on Riak KV.~n", [Path]),
+            false;
+        _ -> true
+    end.
 
 -endif.
