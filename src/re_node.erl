@@ -480,10 +480,10 @@ config(Node) ->
 http_listener(Node) ->
     NodeStr = atom_to_list(Node),
     [_,Addr] = string:tokens(NodeStr, "@"),
-    case command(Node, application, get_env, [riak_api, http]) of
+    case command(Node, riak_api_web, get_listeners, []) of
         {error, Reason} ->
             {error, Reason};
-        {ok,[{_,Port}]} ->
+        [{http,{_,Port}}|_] ->
             list_to_binary(Addr ++ ":" ++ integer_to_list(Port))
     end.
 

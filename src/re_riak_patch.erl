@@ -40,7 +40,7 @@
 %%%===================================================================
 
 %% Increment this when code changes
-version() -> 13.
+version() -> 14.
 
 is_enterprise() ->
     case code:ensure_loaded(riak_repl_console) of
@@ -341,7 +341,13 @@ format_ddl({ddl_v1, Name, Fields, {key_v1, PartitionKey}, {key_v1, LocalKey}}) -
     [{name, Name},
      {fields, format_ddl_fields(Fields, [])},
      {partition_key, format_ddl_key(PartitionKey, [])},
-     {local_key, format_ddl_key(LocalKey, [])}].
+     {local_key, format_ddl_key(LocalKey, [])}];
+format_ddl({ddl_v2, Name, Fields, {key_v1, PartitionKey}, {key_v1, LocalKey}, DDLVersion}) ->
+    [{name, Name},
+     {fields, format_ddl_fields(Fields, [])},
+     {partition_key, format_ddl_key(PartitionKey, [])},
+     {local_key, format_ddl_key(LocalKey, [])},
+     {minimum_capability, DDLVersion}].
 
 format_ddl_fields([], Accum) ->
     lists:reverse(Accum);
@@ -355,12 +361,21 @@ format_ddl_key([], Accum) ->
     lists:reverse(Accum);
 format_ddl_key([{param_v1,[Name]}|Keys], Accum) ->
     format_ddl_key(Keys, [Name | Accum]);
+format_ddl_key([{param_v2,[Name], Ordering}|Keys], Accum) ->
+    Key = {Name, [{ordering, Ordering}]},
+    format_ddl_key(Keys, [Key | Accum]);
 format_ddl_key([{hash_fn_v1,riak_ql_quanta,
                  Fn,[{param_v1,[Name]},N,Unit],_Type}|Keys], Accum) ->
     format_ddl_key(Keys, [list_to_binary(
-                            atom_to_list(Fn) ++ "(" ++ binary_to_list(Name) ++ "," ++ 
-                                integer_to_list(N) ++ "," ++ 
-                                atom_to_list(Unit) ++ ")")|Accum]).
+                            atom_to_list(Fn) ++ "(" ++ binary_to_list(Name) ++ "," ++
+                                integer_to_list(N) ++ "," ++
+                                atom_to_list(Unit) ++ ")")|Accum]);
+format_ddl_key([{hash_fn_v1,riak_ql_quanta,
+                 Fn,[{param_v2,[Name],Ordering},N,Unit],_Type}|Keys], Accum) ->
+    format_ddl_key(Keys, [{list_to_binary(
+                            atom_to_list(Fn) ++ "(" ++ binary_to_list(Name) ++ "," ++
+                                integer_to_list(N) ++ "," ++
+                                atom_to_list(Unit) ++ ")"), [{ordering, Ordering}]}|Accum]).
 
 %% @doc Wait for `Check' for the given number of `Seconds'.
 wait_for(_, 0) ->
