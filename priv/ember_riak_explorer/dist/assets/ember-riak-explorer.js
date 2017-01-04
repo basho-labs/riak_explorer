@@ -29609,22 +29609,24 @@ define('ember-riak-explorer/serializers/table', ['exports', 'ember-riak-explorer
 
         // Assign partition key
         table.partition_key = [];
-        ddl.partition_key.forEach(function (pk) {
-          var isQuanta = pk.indexOf('quantum') > -1;
-
-          // Reformat quantum to have spaces after commas
-          if (isQuanta) {
-            pk = pk.split(',').join(', ');
-          }
+        Object.keys(ddl.partition_key).forEach(function (pk_field) {
+          var isQuanta = pk_field.indexOf('quantum') !== -1;
+          var name = isQuanta ? pk_field.split(',').join(', ') : pk_field;
 
           table.partition_key.push({
-            name: pk,
+            name: name,
             quantum: isQuanta
           });
         });
 
         // Assign local key
-        table.local_key = ddl.local_key;
+        table.local_key = [];
+        Object.keys(ddl.local_key).forEach(function (lk_field) {
+          table.local_key.push({
+            name: lk_field,
+            ordering: ddl.local_key[lk_field].ordering
+          });
+        });
 
         delete table.props.ddl;
       });
@@ -38790,7 +38792,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
             },
             "end": {
               "line": 27,
-              "column": 96
+              "column": 101
             }
           },
           "moduleName": "ember-riak-explorer/templates/components/table/table-overview.hbs"
@@ -38813,7 +38815,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
           morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 0, 0);
           return morphs;
         },
-        statements: [["content", "key", ["loc", [null, [27, 82], [27, 89]]]]],
+        statements: [["content", "key.name", ["loc", [null, [27, 82], [27, 94]]]]],
         locals: ["key"],
         templates: []
       };
@@ -39114,7 +39116,7 @@ define("ember-riak-explorer/templates/components/table/table-overview", ["export
         morphs[4] = dom.createMorphAt(dom.childAt(fragment, [8, 3, 1, 3]), 1, 1);
         return morphs;
       },
-      statements: [["content", "table.name", ["loc", [null, [3, 20], [3, 34]]]], ["block", "if", [["get", "table.isActive", ["loc", [null, [9, 10], [9, 24]]]]], [], 0, 1, ["loc", [null, [9, 4], [13, 11]]]], ["block", "each", [["get", "table.partitionKey", ["loc", [null, [20, 38], [20, 56]]]]], [], 2, null, ["loc", [null, [20, 30], [20, 114]]]], ["block", "each", [["get", "table.localKey", ["loc", [null, [27, 38], [27, 52]]]]], [], 3, null, ["loc", [null, [27, 30], [27, 105]]]], ["block", "each", [["get", "table.columns", ["loc", [null, [44, 14], [44, 27]]]]], [], 4, null, ["loc", [null, [44, 6], [51, 15]]]]],
+      statements: [["content", "table.name", ["loc", [null, [3, 20], [3, 34]]]], ["block", "if", [["get", "table.isActive", ["loc", [null, [9, 10], [9, 24]]]]], [], 0, 1, ["loc", [null, [9, 4], [13, 11]]]], ["block", "each", [["get", "table.partitionKey", ["loc", [null, [20, 38], [20, 56]]]]], [], 2, null, ["loc", [null, [20, 30], [20, 114]]]], ["block", "each", [["get", "table.localKey", ["loc", [null, [27, 38], [27, 52]]]]], [], 3, null, ["loc", [null, [27, 30], [27, 110]]]], ["block", "each", [["get", "table.columns", ["loc", [null, [44, 14], [44, 27]]]]], [], 4, null, ["loc", [null, [44, 6], [51, 15]]]]],
       locals: [],
       templates: [child0, child1, child2, child3, child4]
     };
@@ -43666,7 +43668,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.2.0+e5fff7ee"});
+  require("ember-riak-explorer/app")["default"].create({"name":"ember-riak-explorer","version":"0.2.0+a0e7168e"});
 }
 
 /* jshint ignore:end */
