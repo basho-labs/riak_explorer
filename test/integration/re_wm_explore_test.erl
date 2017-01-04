@@ -11,14 +11,25 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 re_wm_explore_test_() ->
     {setup,
+     %% Setup
      fun () ->
-             {ok, "204", _} = ret:http(put, "http://localhost:8098/types/mytype/buckets/test/keys/test", <<"testing">>)
+             {RiakType, _} = riak_type(),
+             if RiakType == ts ->
+                     ?debugFmt("On TS, so creating bucket", []),
+                     {ok, _, _} = ret:http(put,
+                                           "http://localhost:9000/explore/clusters/default/bucket_types/GeoCheckin",
+                                           <<"{\"props\":{\"table_def\": \"CREATE TABLE GeoCheckin (myfamily varchar not null, myseries varchar not null, time timestamp not null, myint sint64 not null, mytext varchar not null, myfloat double not null, mybool boolean not null, PRIMARY KEY ((myfamily, myseries, quantum(time, 15, 'm')), myfamily, myseries, time))\"}}">>);
+                true -> ?debugFmt("On KV, skipping bucket creation", [])
+             end
      end,
+     %% No cleanup
      fun (_) -> ok end,
-     {timeout, 60, [
-                    all_routes()
-                   ]}
-    }.
+     %% Tests
+     fun (_) ->
+             {timeout, 60, [
+                            all_routes()
+                           ]}
+     end}.
 
 %%%%%%%%%%%%%%%%%%%%
 %%% ACTUAL TESTS %%%
@@ -33,7 +44,7 @@ all_routes() ->
 
 assert_paths(_, _, [], _, Accum) -> lists:reverse(Accum);
 assert_paths(Method, Base, [Path|Paths], RiakType, Accum) ->
-    case is_testable_path(Path, RiakType) of
+    case is_testable_path(Base, Path, RiakType) of
         true ->
             Url = ret:url(to_path_str(Base) ++ "/" ++ to_path_str(Path)),
             Body = path_body(Method, Path),
@@ -126,15 +137,16 @@ riak_type() ->
     end.
 
 %% The '*repl*' paths are not testable when Riak OSS is being used
-is_testable_path([Path|_], RiakType) ->
+%% The '*tables*' paths are not testable when Riak KV is being used
+is_testable_path(Base, [Path|_], RiakType) ->
     case {lists:prefix("repl", Path),
           lists:prefix("tables", Path),
           RiakType} of
         {true, _, {_, oss}} ->
-            ?debugFmt("Skipping ~p because we are on Riak OSS.~n", [Path]),
+            ?debugFmt("Skipping ~p/~p because we are on Riak OSS.~n", [Base, Path]),
             false;
         {_, true, {kv, _}} ->
-            ?debugFmt("Skipping ~p because we are on Riak KV.~n", [Path]),
+            ?debugFmt("Skipping ~p/~p because we are on Riak KV.~n", [Base, Path]),
             false;
         _ -> true
     end.
