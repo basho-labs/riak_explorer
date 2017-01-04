@@ -2,9 +2,12 @@
 
 ## Requirements
 
-1. MacOSX machine
-2. Ubuntu 14.04 machine
-3. CentOS 7 machine
+1. macOS machine
+2. Either:
+   a. Docker on macOS or
+   b. Ubuntu 14.04 machine
+      CentOS 7 machine
+      Debian 8 machine
 4. Github oauth token
 
 ## Tag
@@ -22,7 +25,38 @@ cd riak_explorer
 echo "YOUR_OAUTH_TOKEN" > oauth.txt
 ```
 
+If you are working from a local copy, make sure you have run the following after
+creating the release on Github to get the tag:
+
+```
+git pull --tags --all
+```
+
 ## Build and Upload
+
+We have release automation scripts in the [admin](../admin) directory. If you
+run the main `build-release.sh` script in that directory, it will build and
+upload the release for each of the following platforms:
+
+ * OS X
+ * CentOS 7
+ * Debian 8
+ * Ubuntu 14.04
+ 
+The Linux releases will be done in Docker, using
+the [basho/build-essential](https://hub.docker.com/r/basho/build-essential/)
+Docker image.
+
+This assumes Erlang is installed on OS X
+via [kerl](https://github.com/kerl/kerl) and is found in `~/erlang/R16B02`.
+
+Kick off the build by doing the following:
+
+```
+./admin/build-release.sh
+```
+ 
+If you wish to do this by hand on each machine, do the following:
 
 * OSX
 
@@ -55,6 +89,17 @@ OS_FAMILY=centos OS_VERSION=7 make tarball-standalone
 OS_FAMILY=centos OS_VERSION=7 make sync
 OS_FAMILY=centos OS_VERSION=7 make relsync
 OS_FAMILY=centos OS_VERSION=7 make sync-standalone
+```
+
+* Debian
+
+```
+OS_FAMILY=debian OS_VERSION=8 make tarball
+OS_FAMILY=debian OS_VERSION=8 make reltarball
+OS_FAMILY=debian OS_VERSION=8 make tarball-standalone
+OS_FAMILY=debian OS_VERSION=8 make sync
+OS_FAMILY=debian OS_VERSION=8 make relsync
+OS_FAMILY=debian OS_VERSION=8 make sync-standalone
 ```
 
 ## Verify
