@@ -13,7 +13,8 @@
                   mochiweb,
                   webmachine,
                   lager,
-                  ibrowse
+                  ibrowse,
+                  gpb
                  ]},
   {mod, { riak_explorer, []}},
   {env, [

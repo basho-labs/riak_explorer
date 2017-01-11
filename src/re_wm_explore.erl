@@ -71,6 +71,8 @@
          keys_delete/1,
          keys_put/1]).
 
+-export([pb_messages_create/1]).
+
 -define(BASE, "explore").
 -define(EXPLORE_BASE, [?BASE]).
 
@@ -88,6 +90,8 @@
 -define(CLUSTER_NODE_BUCKET, ?CLUSTER_NODE_TYPE ++ ["buckets", bucket]).
 -define(BASE_BUCKET, ?BASE_TYPE ++ ["buckets", bucket]).
 -define(BUCKET_BASE, [?CLUSTER_BUCKET, ?CLUSTER_NODE_BUCKET, ?BASE_BUCKET]).
+
+-define(PB_MESSAGES_BASE, [?CLUSTER_BASE ++ ["pb-messages"]]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("re_wm.hrl").
@@ -235,7 +239,14 @@ routes() ->
             content={?MODULE,keys},
             accepts=?ACCEPT_TEXT,
             accept={?MODULE,keys_put},
-            delete={?MODULE,keys_delete}}
+            delete={?MODULE,keys_delete}},
+     %% ProtoBuf Schema Generator
+     #route{base=?PB_MESSAGES_BASE,
+            path=[["create"]],
+            methods=['POST'],
+            exists={re_wm,rd_node_exists},
+            accepts=?FORM_TYPE,
+            accept={?MODULE,pb_messages_create}}
     ].
 
 %%%===================================================================
@@ -621,6 +632,21 @@ keys_put(ReqData) ->
     Response = re_node:put_keys_cache(C, T, B, Keys),
     re_wm:add_content(Response, ReqData).
 
+-spec pb_messages_create(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
+pb_messages_create(ReqData) ->
+    N = re_wm:rd_node(ReqData),
+    case wrq:req_body(ReqData) of
+        <<"">> ->
+            re_wm:add_content([{error, <<"No file uploaded">>}]);
+        Body ->
+            Boundary = webmachine_multipart:find_boundary(ReqData),
+            Parts = webmachine_multipart:get_all_parts(Body, Boundary),
+            {FileName, Contents} = get_file(Parts),
+            lager:info("On node: ~p, Received file: ~p,~nContents: ~p", [N, FileName, Contents]),
+            Result = re_node:pb_messages_create(N, Contents),
+            re_wm:add_content(Result, ReqData)
+    end.
+
 %% ====================================================================
 %% Private
 %% ====================================================================
@@ -637,3 +663,13 @@ set_jobs_response({error, developer_mode_off}, _, ReqData) ->
     {{halt, 403}, ReqData};
 set_jobs_response({error, Reason}, _, ReqData) ->
     {{halt, 500}, re_wm:add_error(Reason, ReqData)}.
+
+%% TODO: Add dialyzer spec
+get_file(Parts) ->
+    {_, {Params, _}, FileData} = lists:keyfind("file", 1, Parts),
+    {_, FileName} = proplists:lookup(<<"filename">>, Params),
+    Contents = case is_binary(FileData) of
+                   true -> binary_to_list(FileData);
+                   false -> FileData
+               end,
+    {FileName, Contents}.

@@ -85,6 +85,9 @@
 -export([command/4,
          client/1]).
 
+-export([pb_messages_create/2]).
+
+-include_lib("gpb/include/gpb.hrl").
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -618,6 +621,30 @@ client(Node) ->
                     Pid
             end
     end.
+
+%% ProtoBuf Messages Schema Generation
+-spec pb_messages_create(re_node(), string()) -> {error, term()} | term().
+pb_messages_create(Node, Messages) ->
+    %% TODO: Using Node later
+    lager:info("Creating messages on ~p", [Node]),
+    case gpb_scan:string(Messages) of
+        {ok, Tokens, _} ->
+            case gpb_parse:parse(Tokens ++ [{'$end', length(Messages) + 1}]) of
+                {ok, Result} ->
+                    lager:info("Parsed messages: ~p", [Result]),
+                    Hash = list_to_binary(mochihex:to_hex(binary_to_list(crypto:hash(sha, Messages)))),
+                    %% TODO: Process Result
+                    Hash;
+                {error, {LNum, _Module, EMsg} = Reason} ->
+                    lager:info("Parse error on line ~w:~n  ~p~n",
+                               [LNum, {Tokens, EMsg}]),
+                    {error, {Messages, Reason}}
+            end;
+        {error, Reason} ->
+            lager:info("Scan error:~n  ~p~n", [Reason]),
+            {error,Reason}
+    end.
+
 
 %%%===================================================================
 %%% Private
