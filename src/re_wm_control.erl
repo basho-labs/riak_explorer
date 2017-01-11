@@ -31,14 +31,14 @@
 
 -define(BASE, "control").
 -define(
-   CONTROL_BASE, 
+   CONTROL_BASE,
    [
     [?BASE, "clusters", cluster],
     [?BASE, "nodes", node]
    ]).
-                   
+
 -define(
-   COMMAND0_ROUTES, 
+   COMMAND0_ROUTES,
    [
     ["repair"],
     ["staged-leave"],
@@ -63,7 +63,7 @@
     ["repl-fullsync-stop"]]).
 
 -define(
-   COMMAND1_ROUTES, 
+   COMMAND1_ROUTES,
    [
     ["join", arg1],
     ["leave", arg1],
@@ -82,7 +82,7 @@
     ["repl-fullsync-stop", arg1]]).
 
 -define(
-   COMMAND2_ROUTES, 
+   COMMAND2_ROUTES,
    [
     ["replace", arg1, arg2],
     ["staged-replace", arg1, arg2],
@@ -99,16 +99,16 @@
 
 routes() ->
     [%% Base
-     #route{base=?CONTROL_BASE, 
+     #route{base=?CONTROL_BASE,
             path=?COMMAND0_ROUTES,
             exists={?MODULE, command0_exists},
             content={?MODULE,command0}},
-     #route{base=?CONTROL_BASE, 
-            path=?COMMAND1_ROUTES, 
+     #route{base=?CONTROL_BASE,
+            path=?COMMAND1_ROUTES,
             exists={?MODULE, command1_exists},
             content={?MODULE,command1}},
-     #route{base=?CONTROL_BASE, 
-            path=?COMMAND0_ROUTES, 
+     #route{base=?CONTROL_BASE,
+            path=?COMMAND0_ROUTES,
             exists={?MODULE, command2_exists},
             content={?MODULE,command2}}
     ].
@@ -125,12 +125,12 @@ command0_exists(ReqData) ->
         _ ->
             {false, ReqData}
     end.
-    
+
 
 command0(ReqData) ->
     Node = re_wm:rd_node(ReqData),
     Command = rd_command(ReqData),
-    Response = 
+    Response =
         case Command of
             "repair" -> re_node_control:repair(Node);
             "staged-leave" -> re_node_control:staged_leave(Node);
@@ -170,7 +170,7 @@ command1(ReqData) ->
     Node = re_wm:rd_node(ReqData),
     Arg1 = rd_arg1(ReqData),
     Command = rd_command(ReqData),
-    Response = 
+    Response =
         case Command of
             "join" -> re_node_control:join(Node, Arg1);
             "staged-join" -> re_node_control:staged_join(Node, Arg1);
@@ -205,7 +205,7 @@ command2(ReqData) ->
     Arg1 = rd_arg1(ReqData),
     Arg2 = rd_arg2(ReqData),
     Command = rd_command(ReqData),
-    Response = 
+    Response =
         case Command of
             "staged-replace" -> re_node_control:staged_replace(Node, Arg1, Arg2);
             "replace" -> re_node_control:replace(Node, Arg1, Arg2);

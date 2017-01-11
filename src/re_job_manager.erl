@@ -44,7 +44,7 @@ add_job(Id, MFA) ->
         {ok, Pid} ->
             re_job:start_job(Pid, MFA);
         {error, not_found} ->
-            JobSpec = 
+            JobSpec =
                 {Id,
                  {re_job, start_link, []},
                  transient, 5000, worker, [re_job]},
@@ -69,7 +69,7 @@ get_job(Id) ->
 
 -spec get_jobs() -> [{atom(), term()}].
 get_jobs() ->
-    [ {Id, re_job:get_info(Pid)} 
+    [ {Id, re_job:get_info(Pid)}
       || {Id, Pid} <- get_job_pids() ].
 
 -spec get_job_pid(rms_node:key()) -> {error, not_found} | {ok, pid()}.

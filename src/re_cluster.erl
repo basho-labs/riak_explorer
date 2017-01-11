@@ -41,7 +41,7 @@
 
 -type(re_cluster_props() :: [re_cluster_prop()]).
 -export_type([re_cluster_props/0]).
-        
+
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -56,7 +56,7 @@ props(C) ->
         {error, not_found} -> {error, not_found};
         Props -> from_props(C, Props)
     end.
-    
+
 -spec from_props(re_cluster(), re_cluster_props()) -> re_cluster_props().
 from_props(C, Props) ->
     N = case proplists:get_value(riak_node, Props, default_riak_node()) of
@@ -83,7 +83,7 @@ riak_node(C) ->
 -spec development_mode(re_cluster()) -> boolean().
 development_mode(C) ->
     case riak_explorer:cluster_config(C) of
-        {error, not_found} -> 
+        {error, not_found} ->
             true;
         Props ->
             proplists:get_value(development_mode, Props, true)

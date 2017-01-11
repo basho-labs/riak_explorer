@@ -32,18 +32,18 @@
 
 -export([ready/2,
          ready/3,
-         started/2, 
+         started/2,
          started/3,
          failed/2,
          failed/3,
          finished/2,
          finished/3]).
 
--export([init/1, 
+-export([init/1,
          handle_event/3,
-         handle_sync_event/4, 
-         handle_info/3, 
-         terminate/3, 
+         handle_sync_event/4,
+         handle_info/3,
+         terminate/3,
          code_change/4]).
 
 -record(state, {
@@ -154,7 +154,7 @@ handle_event(_Event, _StateName, State) ->
 
 -spec handle_sync_event(term(), pid(), state_name(), #state{}) ->
                                sync_reply().
-handle_sync_event(get_info, _From, StateName, 
+handle_sync_event(get_info, _From, StateName,
                   State=#state{meta=Meta, error=Error}) ->
     Info = [{state, StateName},
             {meta, Meta},

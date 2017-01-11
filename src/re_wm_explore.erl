@@ -105,28 +105,28 @@ routes() ->
      #route{base=[?EXPLORE_BASE], path=[["props"]], content={?MODULE,props}},
      #route{base=[?EXPLORE_BASE], path=[["jobs"]], content={?MODULE,jobs}},
      %% Cluster
-     #route{base=[?EXPLORE_BASE], 
+     #route{base=[?EXPLORE_BASE],
             path=[["clusters"]],
             content={?MODULE,clusters}},
-     #route{base=[?EXPLORE_BASE], 
-            path=[["clusters",cluster]], 
+     #route{base=[?EXPLORE_BASE],
+            path=[["clusters",cluster]],
             exists={re_wm,rd_cluster_exists},
             content={?MODULE,cluster}},
      %% Node
      #route{base=[?EXPLORE_BASE,?CLUSTER_BASE],
-            path=[["nodes"]], 
+            path=[["nodes"]],
             exists={re_wm,rd_cluster_exists},
             content={?MODULE,nodes}},
      #route{base=?NODE_BASE,
-            path=[], 
+            path=[],
             exists={re_wm,rd_node_exists},
             content={?MODULE,node}},
      #route{base=?NODE_BASE,
-            path=[["config"]], 
+            path=[["config"]],
             exists={re_wm,rd_node_exists},
             content={?MODULE,node_config}},
      #route{base=?NODE_BASE,
-            path=[["config", "files"]], 
+            path=[["config", "files"]],
             exists={re_wm,rd_node_exists},
             content={?MODULE,node_config_files}},
      #route{base=?NODE_BASE,
@@ -135,26 +135,26 @@ routes() ->
             exists={?MODULE,node_config_file_exists},
             content={?MODULE,node_config_file}},
      #route{base=?NODE_BASE,
-            path=[["log", "files"]], 
+            path=[["log", "files"]],
             exists={re_wm,rd_node_exists},
             content={?MODULE,node_log_files}},
      #route{base=?NODE_BASE,
-            path=[["log", "files", file]], 
+            path=[["log", "files", file]],
             provides=?PROVIDE_TEXT ++ [?PROVIDE(?JSON_TYPE)],
             exists={?MODULE,node_log_file_exists},
             content={?MODULE,node_log_file}},
      #route{base=?NODE_BASE,
-            path=[["tables"]], 
+            path=[["tables"]],
             exists={re_wm,rd_node_exists},
             content={?MODULE,tables}},
      #route{base=?NODE_BASE,
-            path=[["tables", "query"]], 
+            path=[["tables", "query"]],
             methods=['POST'],
             exists={re_wm,rd_node_exists},
             accepts=?ACCEPT_TEXT,
             accept={?MODULE,tables_query}},
      #route{base=?NODE_BASE,
-            path=[["tables", table]], 
+            path=[["tables", table]],
             methods=['PUT','GET'],
             exists={?MODULE,table_exists},
             content={?MODULE,table},
@@ -175,25 +175,25 @@ routes() ->
             accept={?MODULE,keys_ts_put},
             delete={?MODULE,keys_ts_delete}},
      #route{base=?NODE_BASE,
-            path=[["tables", table, "query"]], 
+            path=[["tables", table, "query"]],
             methods=['POST'],
             exists={?MODULE,table_exists},
             accepts=?ACCEPT_TEXT,
             accept={?MODULE,table_query}},
      %% Bucket Type
      #route{base=?NODE_BASE,
-            path=[["bucket_types"]], 
+            path=[["bucket_types"]],
             exists={re_wm,rd_node_exists},
             content={?MODULE,bucket_types}},
      #route{base=?NODE_BASE,
-            path=[["bucket_types", bucket_type]], 
+            path=[["bucket_types", bucket_type]],
             methods=['PUT','GET'],
             exists={?MODULE,bucket_type_exists},
             content={?MODULE,bucket_type},
             accepts=?ACCEPT_TEXT,
             accept={?MODULE,bucket_type_put}},
      #route{base=?BUCKET_TYPE_BASE,
-            path=[["jobs"]], 
+            path=[["jobs"]],
             exists={?MODULE,bucket_type_exists},
             content={?MODULE,bucket_type_jobs}},
      %% Bucket
@@ -218,7 +218,7 @@ routes() ->
             content={?MODULE,bucket},
             delete={?MODULE,bucket_delete}},
      #route{base=?BUCKET_TYPE_BASE,
-            path=[["buckets",bucket,"jobs"]], 
+            path=[["buckets",bucket,"jobs"]],
             exists={?MODULE,bucket_exists},
             content={?MODULE,bucket_jobs}},
      %% Key
@@ -254,16 +254,16 @@ ping(ReqData) ->
 
 -spec routes(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 routes(ReqData) ->
-    Formatted = 
+    Formatted =
         [  [{methods, Methods},
             {base, [  [ case is_atom(Part) of
                             true -> Part;
-                            false -> list_to_binary(Part) 
+                            false -> list_to_binary(Part)
                         end|| Part <- Base]
                       || Base <- Bases]},
             {path, [  [ case is_atom(Part) of
                             true -> Part;
-                            false -> list_to_binary(Part) 
+                            false -> list_to_binary(Part)
                         end|| Part <- Path]
                       || Path <- Paths]}]
            || #route{base=Bases,path=Paths,methods=Methods} <- re_wm:routes()],
@@ -368,7 +368,7 @@ tables_query(ReqData) ->
     Response = re_node:query_ts(N, Query),
     re_wm:add_content(Response, ReqData).
 
--spec table_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.    
+-spec table_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
 table_exists(ReqData) ->
     N = re_wm:rd_node(ReqData),
     Table = list_to_binary(wrq:path_info(table, ReqData)),
@@ -415,7 +415,7 @@ refresh_keys_ts(ReqData) ->
     Sort = list_to_atom(wrq:get_qs_value("sort","true",ReqData)),
     Options = [{sort, Sort}],
     JobsPath = string:substr(wrq:path(ReqData),1,
-                             string:str(wrq:path(ReqData), 
+                             string:str(wrq:path(ReqData),
                                         "refresh_keys") - 1) ++ "jobs",
     JobResponse = re_node:list_keys_ts(C, N, T, Options),
     set_jobs_response(JobResponse, JobsPath, ReqData).
@@ -470,7 +470,7 @@ bucket_type_exists(ReqData) ->
             {false, ReqData}
     end.
 
--spec bucket_type(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.    
+-spec bucket_type(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
 bucket_type(ReqData) ->
     N = re_wm:rd_node(ReqData),
     T = list_to_binary(wrq:path_info(bucket_type, ReqData)),
@@ -502,7 +502,7 @@ refresh_buckets(ReqData) ->
     Sort = list_to_atom(wrq:get_qs_value("sort","true",ReqData)),
     Options = [{sort, Sort}],
     JobsPath = string:substr(wrq:path(ReqData),1,
-                             string:str(wrq:path(ReqData), 
+                             string:str(wrq:path(ReqData),
                                         "refresh_buckets") - 1) ++ "jobs",
     JobResponse = re_node:list_buckets(C, N, T, Options),
     set_jobs_response(JobResponse, JobsPath, ReqData).
@@ -581,7 +581,7 @@ refresh_keys(ReqData) ->
     Sort = list_to_atom(wrq:get_qs_value("sort","true",ReqData)),
     Options = [{sort, Sort}],
     JobsPath = string:substr(wrq:path(ReqData),1,
-                             string:str(wrq:path(ReqData), 
+                             string:str(wrq:path(ReqData),
                                         "refresh_keys") - 1) ++ "jobs",
     JobResponse = re_node:list_keys(C, N, T, B, Options),
     set_jobs_response(JobResponse, JobsPath, ReqData).
@@ -625,7 +625,7 @@ keys_put(ReqData) ->
 %% Private
 %% ====================================================================
 
--spec set_jobs_response(term(), string(), #wm_reqdata{}) -> 
+-spec set_jobs_response(term(), string(), #wm_reqdata{}) ->
                                {{halt, 202|102|403}, #wm_reqdata{}}.
 set_jobs_response(ok, JobsPath, ReqData) ->
     ReqData1 = wrq:set_resp_headers([{"Location",JobsPath}], ReqData),

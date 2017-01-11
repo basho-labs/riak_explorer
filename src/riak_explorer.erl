@@ -25,7 +25,7 @@
 -behaviour(application).
 
 -export([start/1,
-         start/2, 
+         start/2,
          stop/1]).
 
 -export([cluster_config/1,
@@ -38,7 +38,7 @@
          props/0,
          host_port/0,
          data_dir/0]).
-        
+
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -48,7 +48,7 @@ cluster_config(undefined) ->
     cluster_config(default);
 cluster_config(C) ->
     proplists:get_value(C, cluster_configs(), {error, not_found}).
-    
+
 -spec cluster_configs() -> [{re_cluster:re_cluster(), re_cluster:re_cluster_props()}].
 cluster_configs() ->
     case application:get_env(riak_explorer, clusters) of
@@ -56,7 +56,7 @@ cluster_configs() ->
             [{default, []}];
         {ok, Clusters} ->
             Clusters1 = lists:keysort(1, Clusters),
-            Clusters2 = 
+            Clusters2 =
                 case should_clean_default_cluster() of
                     true ->
                         proplists:delete(default, Clusters1);
@@ -87,7 +87,7 @@ url() ->
 
 -spec url(string(), integer()) -> string().
 url(Ip, Port) ->
-    Base = 
+    Base =
         case is_riak() of
             true ->
                 case re_node:http_listener(node()) of

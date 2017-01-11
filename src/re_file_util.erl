@@ -39,9 +39,9 @@ find_single_file(Dir) ->
     case file:list_dir(Dir) of
         {ok, [File|_]} ->
             File;
-        {ok, []} -> 
+        {ok, []} ->
             {error, not_found};
-        {error, Reason} -> 
+        {error, Reason} ->
             {error, Reason}
     end.
 
@@ -55,9 +55,9 @@ clean_dir(Dir) ->
             {error, Reason}
     end.
 
--spec partial_file(string(), non_neg_integer(), non_neg_integer()) -> 
-                          {non_neg_integer(), non_neg_integer(), 
-                           non_neg_integer(), non_neg_integer(), 
+-spec partial_file(string(), non_neg_integer(), non_neg_integer()) ->
+                          {non_neg_integer(), non_neg_integer(),
+                           non_neg_integer(), non_neg_integer(),
                            [string()]}.
 partial_file(File, Start, Rows) ->
    {T, RC, S, E, LinesR} = for_each_line_in_file(File,
@@ -112,16 +112,16 @@ ensure_data_dir(Path) ->
 for_each_line_in_file(Name, Proc, Mode, Accum0) ->
     {ok, Device} = file:open(Name, Mode),
     for_each_line(Device, Proc, Accum0).
- 
+
 %%%===================================================================
 %%% Private
 %%%===================================================================
 
 for_each_line(Device, Proc, Accum) ->
     case io:get_line(Device, "") of
-        eof  -> 
+        eof  ->
             file:close(Device), Accum;
-        Line -> 
+        Line ->
             NewAccum = Proc(Line, Accum),
             for_each_line(Device, Proc, NewAccum)
     end.

@@ -94,8 +94,8 @@ repair(Node) ->
                      lists:foldl(F2, [{success, 0},{failure, 0}], Results)
              end
     end.
-    
--spec force_replace(re_node:re_node(), re_node:re_node(), re_node:re_node()) -> 
+
+-spec force_replace(re_node:re_node(), re_node:re_node(), re_node:re_node()) ->
                            {error, term()} | [{atom(), term()}].
 force_replace(Node, Node1, Node2) ->
     handle_error(fun () ->
@@ -108,7 +108,7 @@ force_replace(Node, Node1, Node2) ->
                          end
                  end).
 
--spec replace(re_node:re_node(), re_node:re_node(), re_node:re_node()) -> 
+-spec replace(re_node:re_node(), re_node:re_node(), re_node:re_node()) ->
                      {error, term()} | [{atom(), term()}].
 replace(Node, Node1, Node2) ->
     case force_replace(Node, Node1, Node2) of
@@ -122,8 +122,8 @@ replace(Node, Node1, Node2) ->
                     commit(Node)
             end
     end.
-                            
--spec staged_replace(re_node:re_node(), re_node:re_node(), re_node:re_node()) -> 
+
+-spec staged_replace(re_node:re_node(), re_node:re_node(), re_node:re_node()) ->
                             {error, term()} | [{atom(), term()}].
 staged_replace(Node, Node1, Node2) ->
     handle_error(fun () ->
@@ -136,7 +136,7 @@ staged_replace(Node, Node1, Node2) ->
                          end
                  end).
 
--spec join(re_node:re_node(), re_node:re_node()) -> 
+-spec join(re_node:re_node(), re_node:re_node()) ->
                   {error, term()} | [{atom(), term()}].
 join(Node, Node1) ->
     Response = re_node:command(Node, riak_core, join, [Node1]),
@@ -145,7 +145,7 @@ join(Node, Node1) ->
         ok -> [{success, true}]
     end.
 
--spec staged_join(re_node:re_node(), re_node:re_node()) -> 
+-spec staged_join(re_node:re_node(), re_node:re_node()) ->
                   {error, term()} | [{atom(), term()}].
 staged_join(Node, Node1) ->
     Response = re_node:command(Node, riak_core, staged_join, [Node1]),
@@ -154,12 +154,12 @@ staged_join(Node, Node1) ->
         ok -> [{success, true}]
     end.
 
--spec force_remove(re_node:re_node(), re_node:re_node()) -> 
+-spec force_remove(re_node:re_node(), re_node:re_node()) ->
                           {error, term()} | [{atom(), term()}].
 force_remove(Node, Node1) ->
     leave(Node, Node1).
 
--spec leave(re_node:re_node(), re_node:re_node()) -> 
+-spec leave(re_node:re_node(), re_node:re_node()) ->
                    {error, term()} | [{atom(), term()}].
 leave(Node, Node1) ->
     handle_error(fun () ->
@@ -172,12 +172,12 @@ leave(Node, Node1) ->
                          end
                  end).
 
--spec staged_leave(re_node:re_node()) -> 
+-spec staged_leave(re_node:re_node()) ->
                           {error, term()} | [{atom(), term()}].
 staged_leave(Node) ->
     staged_leave(Node, Node).
 
--spec staged_leave(re_node:re_node(), re_node:re_node()) -> 
+-spec staged_leave(re_node:re_node(), re_node:re_node()) ->
                           {error, term()} | [{atom(), term()}].
 staged_leave(Node, Node1) ->
     handle_error(fun () ->
@@ -190,7 +190,7 @@ staged_leave(Node, Node1) ->
                          end
                  end).
 
--spec plan(re_node:re_node()) -> 
+-spec plan(re_node:re_node()) ->
                   {error, term()} | [{atom(), term()}].
 plan(Node) ->
     Response = re_node:command(Node, riak_core_claimant, plan, []),
@@ -198,7 +198,7 @@ plan(Node) ->
         {error, Reason} ->
             {error, Reason};
         {ok, Changes, _} ->
-            [{changes, 
+            [{changes,
               lists:map(
                 fun({N, {Action, Target}}) ->
                         [{node, N},{action, Action},{target, Target}];
@@ -207,7 +207,7 @@ plan(Node) ->
                 end, Changes)}]
     end.
 
--spec commit(re_node:re_node()) -> 
+-spec commit(re_node:re_node()) ->
                     {error, term()} | [{atom(), term()}].
 commit(Node) ->
     Response = re_node:command(Node, riak_core_claimant, commit, []),
@@ -217,7 +217,7 @@ commit(Node) ->
         _ -> {error, retry_plan}
     end.
 
--spec clear(re_node:re_node()) -> 
+-spec clear(re_node:re_node()) ->
                    {error, term()} | [{atom(), term()}].
 clear(Node) ->
     handle_error(fun () ->
@@ -229,7 +229,7 @@ clear(Node) ->
                          end
                  end).
 
--spec status(re_node:re_node()) -> 
+-spec status(re_node:re_node()) ->
                     {error, term()} | [{atom(), term()}].
 status(Node) ->
     case re_node:command(Node, riak_core_ring_manager, get_my_ring, []) of
@@ -245,13 +245,13 @@ status(Node) ->
                     {Nodes, Joining, Valid, Down, Leaving, Exiting} =
                         lists:foldl(
                           fun({N, Status}, {Nodes0, Joining0, Valid0, Down0, Leaving0, Exiting0}) ->
-                                  {RingPercent, NextPercent} = 
+                                  {RingPercent, NextPercent} =
                                       case re_node:command(Node, riak_core_console, pending_claim_percentage, [Ring, N]) of
                                           {error, _} -> {null, null};
                                           {RP, NP} -> {RP, NP};
                                           _ -> {null, null}
                                       end,
-                                  NodeObj = 
+                                  NodeObj =
                                       case IsPending of
                                           true ->
                                               [{id, N},
@@ -287,7 +287,7 @@ status(Node) ->
             end
     end.
 
--spec ringready(re_node:re_node()) -> 
+-spec ringready(re_node:re_node()) ->
                        {error, term()} | [{atom(), term()}].
 ringready(Node) ->
     handle_error(fun () ->
@@ -304,7 +304,7 @@ ringready(Node) ->
                          end
                  end).
 
--spec transfers(re_node:re_node()) -> 
+-spec transfers(re_node:re_node()) ->
                        {error, term()} | [{atom(), term()}].
 transfers(Node) ->
     handle_error(fun () ->
@@ -331,7 +331,7 @@ transfers(Node) ->
                          end
                  end).
 
--spec aae_status(re_node:re_node()) -> 
+-spec aae_status(re_node:re_node()) ->
                         {error, term()} | [{atom(), term()}].
 aae_status(Node) ->
     handle_error(fun () ->
@@ -339,22 +339,22 @@ aae_status(Node) ->
                              {error, Reason} ->
                                  {error, Reason};
                              ExchangeInfo ->
-                                 Exchanges = 
+                                 Exchanges =
                                      [[{index, Index},
                                        {last_ts, datetime_str(LastTS)},
-                                       {all_ts, datetime_str(AllTS)}] 
+                                       {all_ts, datetime_str(AllTS)}]
                                       || {Index, LastTS, AllTS, _Repairs} <- ExchangeInfo],
                                  case re_node:command(Node, riak_kv_entropy_info, compute_tree_info, []) of
                                      {error, Reason} ->
                                          {error, Reason};
                                      TreeInfo ->
                                          Trees = [[{index, Index},
-                                                   {built_ts, datetime_str(BuiltTS)}] 
+                                                   {built_ts, datetime_str(BuiltTS)}]
                                                   || {Index, BuiltTS} <- TreeInfo],
                                          KeysRepaired = [[{index, Index},
                                                           {last, Last},
                                                           {max, Max},
-                                                          {mean, Mean}] 
+                                                          {mean, Mean}]
                                                          || {Index, _, _, {Last,_Min,Max,Mean}} <- ExchangeInfo],
                                          [{exchanges, Exchanges},
                                           {entropy_trees, Trees},
@@ -542,9 +542,9 @@ handle_error(Action) ->
             {error, Error}
     end.
 
--spec datetime_str(undefined | 
-                   {integer(), integer(), integer()} | 
-                   {{integer(), integer(), integer()},{integer(), integer(), integer()}}) -> 
+-spec datetime_str(undefined |
+                   {integer(), integer(), integer()} |
+                   {{integer(), integer(), integer()},{integer(), integer(), integer()}}) ->
                           null | binary().
 datetime_str(undefined) ->
     null;

@@ -38,14 +38,14 @@
 
 -spec routes() -> [route()].
 routes() ->
-    [#route{base=[?PROXY_BASE], 
-            path=[["clusters", cluster, '*']], 
+    [#route{base=[?PROXY_BASE],
+            path=[["clusters", cluster, '*']],
             available={?MODULE,proxy_available}},
-     #route{base=[?PROXY_BASE], 
-            path=[["nodes", node, '*']], 
+     #route{base=[?PROXY_BASE],
+            path=[["nodes", node, '*']],
             available={?MODULE,proxy_available}}
     ].
-    
+
 send_proxy_request(Location, RelPath, NewLocation, ReqData) ->
     Path = lists:append(
              [Location,
@@ -65,14 +65,14 @@ send_proxy_request(Location, RelPath, NewLocation, ReqData) ->
                   undefined -> [];
                   B -> B
               end,
-    
+
     case ibrowse:send_req(Path, Headers, Method, ReqBody) of
         {ok, Status, RiakHeaders, RespBody} ->
             RespHeaders = fix_location(RiakHeaders, NewLocation),
             {{halt, list_to_integer(Status)},
              wrq:set_resp_headers(RespHeaders,
                                   wrq:set_resp_body(RespBody, ReqData))};
-        {error, Reason} -> 
+        {error, Reason} ->
             re_wm:add_content({error, Reason}, ReqData);
         _ ->
             {false, ReqData}

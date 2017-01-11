@@ -80,23 +80,23 @@ init_delete_bucket([From, Cluster, Node, BucketType, Bucket, Options]) ->
                     ["keys", atom_to_list(Cluster), binary_to_list(BucketType),
                      binary_to_list(Bucket)]),
     case re_file_util:find_single_file(Dir) of
-        {error, Reason} -> 
+        {error, Reason} ->
             {error, Reason};
         File ->
             DirFile = filename:join([Dir, File]),
             C = re_node:client(Node),
-            Fun = 
+            Fun =
                 fun(Entry0, {Oks0, Errors0}) ->
                         RT = BucketType,
                         RB = Bucket,
                         RK = list_to_binary(re:replace(Entry0, "(^\\s+)|(\\s+$)", "", [global,{return,list}])),
-                        {Oks1,Errors1} = 
+                        {Oks1,Errors1} =
                             case riakc_pb_socket:delete(C, {RT,RB}, RK) of
                                 ok ->
                                     riakc_pb_socket:get(C, {RT,RB}, RK),
                                     {Oks0+1, Errors0};
                                 {error, Reason} ->
-                                    lager:warning("Failed to delete types/~p/buckets/~p/keys/~p with reason ~p", 
+                                    lager:warning("Failed to delete types/~p/buckets/~p/keys/~p with reason ~p",
                                                   [RT, RB, RK, Reason]),
                                     {Oks0, Errors0+1}
                             end,
@@ -104,7 +104,7 @@ init_delete_bucket([From, Cluster, Node, BucketType, Bucket, Options]) ->
                         {Oks1,Errors1}
                 end,
             {Os,Es} = re_file_util:for_each_line_in_file(DirFile, Fun, [read], {0, 0}),
-            lager:info("Completed deletion of types/~p/buckets/~p with ~p successful deletes and ~p errors", 
+            lager:info("Completed deletion of types/~p/buckets/~p with ~p successful deletes and ~p errors",
                        [BucketType, Bucket, Os, Es]),
             re_job:set_finish(From),
             case proplists:get_value(refresh_cache, Options, false) of
@@ -137,11 +137,11 @@ do_list(From, {ok, ReqId}, Dir, Options) ->
     lager:info("List started for file: ~p.", [Filename]),
     {ok, Device} = file:open(Filename, [append]),
     case write_loop(From, ReqId, Device, []) of
-        ok -> 
+        ok ->
             case proplists:get_value(sort, Options, true) of
-                true -> 
+                true ->
                     re_file_util:sort_file(Filename);
-                _ -> 
+                _ ->
                     ok
             end,
             lager:info("File ~p written.", [Filename]),
@@ -177,7 +177,7 @@ write_loop(From, ReqId, Device, Meta) ->
                                              {_,_,_} ->
                                                  ts_entry_to_list(E);
                                              _ ->
-                                                 binary_to_list(E) 
+                                                 binary_to_list(E)
                                          end
                                          || E <- Entries ],
                             io:fwrite(Device, string:join(Entries1, io_lib:nl()) ++ io_lib:nl(), []);
@@ -189,7 +189,7 @@ write_loop(From, ReqId, Device, Meta) ->
                 Reason ->
                     {error, Reason}
             end
-                
+
     end.
 
 ts_entry_to_list({F1, F2, F3}) ->

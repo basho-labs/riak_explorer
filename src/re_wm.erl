@@ -142,7 +142,7 @@ add_content(Content, ReqData) ->
 add_error(Error, ReqData) ->
     wrq:append_to_response_body(mochijson2:encode([{error, list_to_binary(io_lib:format("~p", [Error]))}]), ReqData).
 
--spec rd_content(term(), #wm_reqdata{}) -> 
+-spec rd_content(term(), #wm_reqdata{}) ->
                         {[{binary(), term()}], #wm_reqdata{}}.
 rd_content({error, not_found}, ReqData) ->
     {{halt, 404}, ReqData};
@@ -180,7 +180,7 @@ rd_node_exists(ReqData) ->
 rd_node(ReqData) ->
     N = url_decode(wrq:path_info(node, ReqData)),
     N1 = maybe_atomize(N),
-    
+
     case N1 of
         undefined ->
             C = rd_cluster(ReqData),
@@ -203,7 +203,7 @@ url_decode(Data) ->
 %%%===================================================================
 
 init(Args) ->
-    Ctx = 
+    Ctx =
         case proplists:get_value(proxy, Args) of
             undefined ->
                 #ctx{};
@@ -220,7 +220,7 @@ service_available(ReqData, Ctx) ->
                     [R] = re_wm_static:routes(),
                     R
             end,
-    {Available, ReqData1} = 
+    {Available, ReqData1} =
         case Route#route.available of
             {M, F} -> maybe_proxy_request(M, F, ReqData, Ctx);
             Bool -> {Bool, ReqData}
@@ -275,17 +275,17 @@ provide_text_content(ReqData, Ctx = #ctx{route = #route{content = {M, F}}}) ->
                   proplists:get_value(buckets, Props)} of
                 {undefined, undefined, undefined} ->
                     {mochijson2:encode(B), ReqData1, Ctx};
-                {Values, undefined, undefined} -> 
+                {Values, undefined, undefined} ->
                     Lines = [binary_to_list(L) || L <- Values],
                     {string:join(Lines, io_lib:nl()), ReqData1, Ctx};
-                {undefined, Values, undefined} -> 
+                {undefined, Values, undefined} ->
                     Lines = [binary_to_list(L) || L <- Values],
                     {string:join(Lines, io_lib:nl()), ReqData1, Ctx};
-                {undefined, undefined, Values} -> 
+                {undefined, undefined, Values} ->
                     Lines = [binary_to_list(L) || L <- Values],
                     {string:join(Lines, io_lib:nl()), ReqData1, Ctx}
             end
-    end.    
+    end.
 
 provide_static_content(ReqData, Ctx = #ctx{route = #route{content = {M, F}}}) ->
     {Body, ReqData1} = maybe_proxy_request(M, F, ReqData, Ctx),

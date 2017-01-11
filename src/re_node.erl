@@ -127,7 +127,7 @@ available(N) ->
 -spec ring_members(re_node()) -> {error, term()} | [re_node()].
 ring_members(N) ->
     case command(N, riak_core_ring_manager, get_my_ring, []) of
-        {error, Reason} -> 
+        {error, Reason} ->
             {error, Reason};
         {ok, MyRing} ->
             case command(N, riak_core_ring, all_members, [MyRing]) of
@@ -143,7 +143,7 @@ ring_members(N) ->
 get_ts(Node, Table, Key) ->
     C = client(Node),
     case riakc_ts:get(C, Table, Key, []) of
-        {ok, {Fields, Rows}} -> 
+        {ok, {Fields, Rows}} ->
             [{fields, Fields},{rows, Rows}];
         {error, Reason} ->
             {error, Reason}
@@ -159,7 +159,7 @@ put_ts(Node, Table, Rows) ->
                 end || V <- Vs ]) || Vs <- Rows ],
     lager:info("Putting Rows: ~p into table ~p", [Rows1, Table]),
     case riakc_ts:put(C, Table, Rows1) of
-        ok -> 
+        ok ->
             ok;
         {error, Reason} ->
             {error, Reason}
@@ -173,16 +173,16 @@ query_ts(Node, Query) ->
     lager:info("Query: ~p", [QueryStr]),
     R = riakc_ts:query(C, QueryStr),
     lager:info("Results: ~p", [R]),
-    {Fields, Rows} = 
+    {Fields, Rows} =
         case R of
             {ok, {[],[]}} ->
                 {[],[]};
-            {error, Reason} -> 
+            {error, Reason} ->
                 {error, Reason};
             {ok, {Fields1, TupleRows}} ->
-                TupleToRowFun = 
+                TupleToRowFun =
                     fun(Tuple) ->
-                            [element(I,Tuple) 
+                            [element(I,Tuple)
                              || I <- lists:seq(1,tuple_size(Tuple))]
                     end,
                 Rows1 = lists:map(TupleToRowFun, TupleRows),
@@ -200,8 +200,8 @@ list_keys_ts(Cluster, Node, Table, Options) ->
     case re_cluster:development_mode(Cluster) of
         true ->
             re_job_manager:add_job(
-              list_keys_ts, 
-              {re_node_job, 
+              list_keys_ts,
+              {re_node_job,
                start_list_keys_ts,
                [Cluster, Node, Table, Options]});
         false ->
@@ -219,8 +219,8 @@ delete_bucket(Cluster, Node, BucketType, Bucket, Options) ->
     case re_cluster:development_mode(Cluster) of
         true ->
             re_job_manager:add_job(
-              delete_bucket, 
-              {re_node_job, 
+              delete_bucket,
+              {re_node_job,
                start_delete_bucket,
                [Cluster, Node, BucketType, Bucket, Options]});
         false ->
@@ -234,21 +234,21 @@ list_buckets(Cluster, Node, BucketType, Options) ->
     case re_cluster:development_mode(Cluster) of
         true ->
             re_job_manager:add_job(
-              list_buckets, 
-              {re_node_job, 
+              list_buckets,
+              {re_node_job,
                start_list_buckets,
                [Cluster, Node, BucketType, Options]});
         false ->
             {error, developer_mode_off}
     end.
 
--spec list_buckets_cache(re_cluster:re_cluster(), 
+-spec list_buckets_cache(re_cluster:re_cluster(),
                          binary(), non_neg_integer(), non_neg_integer()) ->
                           {error, term()} | ok.
 list_buckets_cache(Cluster, BucketType, Start, Rows) ->
     Dir = re_file_util:ensure_data_dir(["buckets", atom_to_list(Cluster), binary_to_list(BucketType)]),
     case re_file_util:find_single_file(Dir) of
-        {error, Reason} -> 
+        {error, Reason} ->
             {error, Reason};
         File ->
             DirFile = filename:join([Dir, File]),
@@ -269,9 +269,9 @@ clean_buckets_cache(Cluster, BucketType) ->
                                {error, term()} | ok.
 put_buckets_cache(Cluster, BucketType, Buckets) ->
     Dir = re_file_util:ensure_data_dir(["buckets", atom_to_list(Cluster), binary_to_list(BucketType)]),
-    DirFile = 
+    DirFile =
         case re_file_util:find_single_file(Dir) of
-            {error, not_found} -> 
+            {error, not_found} ->
                 filename:join([Dir, re_file_util:timestamp_string()]);
             {error, Reason} ->
                 {error, Reason};
@@ -295,22 +295,22 @@ list_keys(Cluster, Node, BucketType, Bucket, Options) ->
     case re_cluster:development_mode(Cluster) of
         true ->
             re_job_manager:add_job(
-              list_keys, 
-              {re_node_job, 
+              list_keys,
+              {re_node_job,
                start_list_keys,
                [Cluster, Node, BucketType, Bucket, Options]});
         false ->
             {error, developer_mode_off}
     end.
 
--spec list_keys_cache(re_cluster:re_cluster(), 
+-spec list_keys_cache(re_cluster:re_cluster(),
                          binary(), binary(), non_neg_integer(), non_neg_integer()) ->
                           {error, term()} | ok.
 list_keys_cache(Cluster, BucketType, Bucket, Start, Rows) ->
     Dir = re_file_util:ensure_data_dir(["keys", atom_to_list(Cluster), binary_to_list(BucketType),
                                         binary_to_list(Bucket)]),
     case re_file_util:find_single_file(Dir) of
-        {error, Reason} -> 
+        {error, Reason} ->
             {error, Reason};
         File ->
             DirFile = filename:join([Dir, File]),
@@ -321,13 +321,13 @@ list_keys_cache(Cluster, BucketType, Bucket, Start, Rows) ->
              {keys, Entries}]
     end.
 
--spec list_keys_ts_cache(re_cluster:re_cluster(), 
+-spec list_keys_ts_cache(re_cluster:re_cluster(),
                          binary(), non_neg_integer(), non_neg_integer()) ->
                           {error, term()} | ok.
 list_keys_ts_cache(Cluster, Table, Start, Rows) ->
     Dir = re_file_util:ensure_data_dir(["keys_ts", atom_to_list(Cluster), binary_to_list(Table)]),
     case re_file_util:find_single_file(Dir) of
-        {error, Reason} -> 
+        {error, Reason} ->
             {error, Reason};
         File ->
             DirFile = filename:join([Dir, File]),
@@ -342,9 +342,9 @@ list_keys_ts_cache(Cluster, Table, Start, Rows) ->
                                {error, term()} | ok.
 put_keys_ts_cache(Cluster, Table, Keys) ->
     Dir = re_file_util:ensure_data_dir(["keys_ts", atom_to_list(Cluster), binary_to_list(Table)]),
-    DirFile = 
+    DirFile =
         case re_file_util:find_single_file(Dir) of
-            {error, not_found} -> 
+            {error, not_found} ->
                 filename:join([Dir, re_file_util:timestamp_string()]);
             {error, Reason} ->
                 {error, Reason};
@@ -380,9 +380,9 @@ clean_keys_cache(Cluster, BucketType, Bucket) ->
 put_keys_cache(Cluster, BucketType, Bucket, Keys) ->
     Dir = re_file_util:ensure_data_dir(["keys", atom_to_list(Cluster), binary_to_list(BucketType),
                                         binary_to_list(Bucket)]),
-    DirFile = 
+    DirFile =
         case re_file_util:find_single_file(Dir) of
-            {error, not_found} -> 
+            {error, not_found} ->
                 filename:join([Dir, re_file_util:timestamp_string()]);
             {error, Reason} ->
                 {error, Reason};
@@ -407,7 +407,7 @@ log_files(Node) ->
             {error, Reason};
         Files ->
             lists:map(fun(N) -> [{id, list_to_binary(N)}] end, Files)
-    end.    
+    end.
 
 -spec log_file_exists(re_node(), string()) -> boolean().
 log_file_exists(Node, File) ->
@@ -531,15 +531,15 @@ bucket_types(Node) ->
         {error, Reason} ->
             {error, Reason};
         List ->
-            List1 = [ [{id, Name},{props, Props}] 
+            List1 = [ [{id, Name},{props, Props}]
                       || [{name, Name},{props, Props}] <- List ],
-            lists:sort(fun([{id, N1}|_], [{id, N2}|_]) -> 
+            lists:sort(fun([{id, N1}|_], [{id, N2}|_]) ->
                                string:to_lower(binary_to_list(N1)) < string:to_lower(binary_to_list(N2)) end, List1)
     end.
 
 -spec create_bucket_type(re_node(), binary(), binary()) -> {error, term()} | [{atom(), term()}].
 create_bucket_type(Node, BucketType, RawValue) ->
-    {Created, Active} = 
+    {Created, Active} =
         case bucket_type(Node, BucketType) of
             {error, _} -> {false, false};
             Type ->
@@ -557,7 +557,7 @@ create_bucket_type(Node, BucketType, RawValue) ->
         {true, true} ->
             bucket_type_action(Node, BucketType, RawValue, [update], [])
     end.
-            
+
 -spec table_exists(re_node(), binary()) -> boolean().
 table_exists(Node, Table) ->
     case table(Node, Table) of
@@ -608,9 +608,9 @@ command(N, M, F, A) ->
 -spec client(re_node()) -> {error, term()} | pid().
 client(Node) ->
     case command(Node, application, get_env, [riak_api, pb]) of
-        {error, Reason} -> 
+        {error, Reason} ->
             {error, Reason};
-        {ok,[{Ip,Port}]} -> 
+        {ok,[{Ip,Port}]} ->
             case riakc_pb_socket:start_link(Ip, Port) of
                 {error, Reason} ->
                     {error, Reason};
@@ -626,7 +626,7 @@ client(Node) ->
 -spec remote_command(re_node(), module(), atom(), [term()]) -> {error, term()} | term().
 remote_command(N, re_riak_patch, F, A) ->
     case ensure_patch_loaded(N) of
-        {error, Reason} -> 
+        {error, Reason} ->
             {error, Reason};
         {module, re_riak_patch} ->
             safe_rpc(N, re_riak_patch, F, A, 60000)
