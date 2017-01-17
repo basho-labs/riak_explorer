@@ -635,14 +635,16 @@ pb_messages_create(Node, Messages) ->
                     Hash = list_to_binary(mochihex:to_hex(binary_to_list(crypto:hash(sha, Messages)))),
                     %% TODO: Process Result
                     Hash;
-                {error, {LNum, _Module, EMsg} = Reason} ->
+                {error, {LNum, _Module, EMsg}} ->
                     lager:info("Parse error on line ~w:~n  ~p~n",
                                [LNum, {Tokens, EMsg}]),
-                    {error, {Messages, Reason}}
+                    Error = lists:flatten(io_lib:format("Error parsing \"~s\" on line ~p. Reason: ~s.",
+                                                        [Messages, LNum, lists:flatten(EMsg)])),
+                    {error, Error}
             end;
         {error, Reason} ->
             lager:info("Scan error:~n  ~p~n", [Reason]),
-            {error,Reason}
+            {error, Reason}
     end.
 
 

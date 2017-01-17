@@ -637,7 +637,7 @@ pb_messages_create(ReqData) ->
     N = re_wm:rd_node(ReqData),
     case wrq:req_body(ReqData) of
         <<"">> ->
-            re_wm:add_content([{error, <<"No file uploaded">>}]);
+            re_wm:add_content({error, no_file_uploaded}, ReqData);
         Body ->
             Boundary = webmachine_multipart:find_boundary(ReqData),
             Parts = webmachine_multipart:get_all_parts(Body, Boundary),
