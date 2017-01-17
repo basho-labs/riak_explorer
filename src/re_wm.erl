@@ -140,7 +140,13 @@ add_content(Content, ReqData) ->
 
 -spec add_error(term(), #wm_reqdata{}) -> #wm_reqdata{}.
 add_error(Error, ReqData) ->
-    wrq:append_to_response_body(mochijson2:encode([{error, list_to_binary(io_lib:format("~p", [Error]))}]), ReqData).
+    wrq:append_to_response_body(mochijson2:encode([{error, format_error(Error)}]), ReqData).
+
+-spec format_error(term()) -> binary().
+format_error(Error) when is_list(Error) ->
+    list_to_binary(io_lib:format("~s", [Error]));
+format_error(Error) ->
+    list_to_binary(io_lib:format("~p", [Error])).
 
 -spec rd_content(term(), #wm_reqdata{}) ->
                         {[{binary(), term()}], #wm_reqdata{}}.
