@@ -623,6 +623,22 @@ client(Node) ->
     end.
 
 %% ProtoBuf Messages Schema Generation
+%% TODO: Put this in the appropriate place
+-define(PB_MESSAGES_BUCKET, <<"_basho_riak_explorer">>).
+-define(PB_MESSAGES_FILES_BUCKET, <<"pb_files">>).
+
+%% Check if bucket type exists PB_MESSAGES_BUCKET type exists
+ensure_messages_bucket_type_exists(Node) ->
+    case bucket_type_exists(Node, ?PB_MESSAGES_BUCKET) of
+        false ->
+            %% RawValue is the Props, I think, so what's appropriate here?
+            case create_bucket_type(Node, ?PB_MESSAGES_BUCKET, <<"">>) of
+                [{success, true}, _] -> ok;
+                [Error, _]-> Error
+            end;
+        true -> ok
+    end.
+
 -spec pb_messages_create(re_node(), string()) -> {error, term()} | term().
 pb_messages_create(Node, Messages) ->
     %% TODO: Using Node later
@@ -631,9 +647,15 @@ pb_messages_create(Node, Messages) ->
         {ok, Tokens, _} ->
             case gpb_parse:parse(Tokens ++ [{'$end', length(Messages) + 1}]) of
                 {ok, Result} ->
-                    lager:info("Parsed messages: ~p", [Result]),
                     Hash = list_to_binary(mochihex:to_hex(binary_to_list(crypto:hash(sha, Messages)))),
-                    %% TODO: Process Result
+                    case ensure_messages_bucket_type_exists(Node) of
+                        ok -> lager:info("Bucket Type now exists");
+                        _ -> lager:info("Error creating bucket type")
+                    end,
+                    ResultObj = riakc_obj:new({?PB_MESSAGES_BUCKET, ?PB_MESSAGES_FILES_BUCKET},
+                                              Hash,
+                                              term_to_binary(Result)),
+                    riakc_pb_socket:put(client(Node), ResultObj),
                     Hash;
                 {error, {LNum, _Module, EMsg}} ->
                     lager:info("Parse error on line ~w:~n  ~p~n",
