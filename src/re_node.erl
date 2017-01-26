@@ -649,15 +649,17 @@ pb_messages_create(Node, Messages) ->
                 {ok, Result} ->
                     Hash = list_to_binary(mochihex:to_hex(binary_to_list(crypto:hash(sha, Messages)))),
                     case ensure_messages_bucket_type_exists(Node) of
-                        ok -> lager:info("Bucket Type now exists");
-                        _ -> lager:info("Error creating bucket type")
-                    end,
-                    ResultObj = riakc_obj:new({?PB_MESSAGES_BUCKET, ?PB_MESSAGES_FILES_BUCKET},
-                                              Hash,
-                                              term_to_binary(Result)),
-                    riakc_pb_socket:put(client(Node), ResultObj),
-                    Hash;
-                {error, {LNum, _Module, EMsg}} ->
+                        ok ->
+                            ResultObj = riakc_obj:new({?PB_MESSAGES_BUCKET, ?PB_MESSAGES_FILES_BUCKET},
+                                                      Hash,
+                                                      term_to_binary(Result)),
+                            riakc_pb_socket:put(client(Node), ResultObj),
+                            Hash;
+                        Error ->
+                            lager:info("Error creating bucket type"),
+                            {error, Error}
+                    end;
+               {error, {LNum, _Module, EMsg}} ->
                     lager:info("Parse error on line ~w:~n  ~p~n",
                                [LNum, {Tokens, EMsg}]),
                     Error = lists:flatten(io_lib:format("Error parsing \"~s\" on line ~p. Reason: ~s.",
