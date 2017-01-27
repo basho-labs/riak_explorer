@@ -71,7 +71,9 @@
          keys_delete/1,
          keys_put/1]).
 
--export([pb_messages_create/1]).
+-export([pb_messages_create/1,
+         pb_messages_exists/1,
+         pb_messages/1]).
 
 -define(BASE, "explore").
 -define(EXPLORE_BASE, [?BASE]).
@@ -246,7 +248,12 @@ routes() ->
             methods=['POST'],
             exists={re_wm,rd_node_exists},
             accepts=?FORM_TYPE,
-            accept={?MODULE,pb_messages_create}}
+            accept={?MODULE,pb_messages_create}},
+     #route{base=?PB_MESSAGES_BASE,
+            path=[["messages", pb_file]],
+            methods=['GET'],
+            exists={?MODULE,pb_messages_exists},
+            content={?MODULE,pb_messages}}
     ].
 
 %%%===================================================================
@@ -646,6 +653,23 @@ pb_messages_create(ReqData) ->
             Result = re_node:pb_messages_create(N, Contents),
             re_wm:add_content(Result, ReqData)
     end.
+
+-spec pb_messages_exists(#wm_reqdata{}) -> {boolean(), #wm_reqdata{}}.
+pb_messages_exists(ReqData) ->
+    N = re_wm:rd_node(ReqData),
+    F = list_to_binary(wrq:path_info(pb_file, ReqData)),
+    case re_wm:rd_node_exists(ReqData) of
+        {true,_} ->
+            {re_node:pb_messages_exists(N, F), ReqData};
+        _ ->
+            {false, ReqData}
+    end.
+
+-spec pb_messages(#wm_reqdata{}) -> {term(), #wm_reqdata{}}.
+pb_messages(ReqData) ->
+    N = re_wm:rd_node(ReqData),
+    F = list_to_binary(wrq:path_info(pb_file, ReqData)),
+    re_wm:rd_content(re_node:pb_messages(N, F), ReqData).
 
 %% ====================================================================
 %% Private

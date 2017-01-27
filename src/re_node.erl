@@ -85,7 +85,9 @@
 -export([command/4,
          client/1]).
 
--export([pb_messages_create/2]).
+-export([pb_messages_create/2,
+         pb_messages_exists/2,
+         pb_messages/2]).
 
 -include_lib("gpb/include/gpb.hrl").
 %%%===================================================================
@@ -650,10 +652,7 @@ pb_messages_create(Node, Messages) ->
                     Hash = list_to_binary(mochihex:to_hex(binary_to_list(crypto:hash(sha, Messages)))),
                     case ensure_messages_bucket_type_exists(Node) of
                         ok ->
-                            ResultObj = riakc_obj:new({?PB_MESSAGES_BUCKET, ?PB_MESSAGES_FILES_BUCKET},
-                                                      Hash,
-                                                      term_to_binary(Result)),
-                            riakc_pb_socket:put(client(Node), ResultObj),
+                            pb_message_store(Node, Hash, Result),
                             Hash;
                         Error ->
                             lager:info("Error creating bucket type"),
@@ -671,6 +670,74 @@ pb_messages_create(Node, Messages) ->
             {error, Reason}
     end.
 
+pb_message_store(Node, Hash, Messages) ->
+    case pb_messages_exists(Node, Hash) of
+        true ->
+            ok;
+        false ->
+            ResultObj = riakc_obj:new({?PB_MESSAGES_BUCKET, ?PB_MESSAGES_FILES_BUCKET},
+                                      Hash,
+                                      term_to_binary(Messages)),
+            riakc_pb_socket:put(client(Node), ResultObj)
+    end.
+
+-spec pb_messages_exists(re_node(), binary()) -> boolean().
+pb_messages_exists(Node, Hash) ->
+    case pb_messages(Node, Hash) of
+        {error, _} ->
+            false;
+        _ ->
+            true
+    end.
+
+-spec pb_messages(re_node(), binary()) -> {error, term()} | [{atom(), term()}].
+pb_messages(Node, Hash) ->
+    case riakc_pb_socket:get(client(Node),
+                             {?PB_MESSAGES_BUCKET, ?PB_MESSAGES_FILES_BUCKET},
+                             Hash) of
+        {ok, Obj} ->
+            Messages = binary_to_term(riakc_obj:get_value(Obj)),
+            Formatted = format_messages(Messages),
+            Formatted;
+        {error, Error} ->
+            {error, Error}
+    end.
+
+format_field(Field) ->
+    format_field(Field, []).
+format_field([], Accum) ->
+    lists:reverse(Accum);
+format_field([{type, {ref, [Ref]}}|Rest], Accum) ->
+    format_field(Rest, [{type, [{ref, [Ref]}]}|Accum]);
+format_field([Prop|Rest], Accum) ->
+    format_field(Rest, [Prop|Accum]).
+
+format_field_proplist(Fields) ->
+    format_field_proplist(Fields, []).
+format_field_proplist([], Accum) ->
+    lists:reverse(Accum);
+format_field_proplist([Field|Rest], Accum) ->
+    Formatted = format_field(Field),
+    format_field_proplist(Rest, [Formatted|Accum]).
+
+format_messages(Messages) ->
+    format_messages(Messages, [], [], []).
+format_messages([], MsgsAccum, EnumAccum, MetaAccum) ->
+    [{messages, lists:reverse(MsgsAccum)},
+     {enums, lists:reverse(EnumAccum)},
+     {metadata, lists:reverse(MetaAccum)}];
+format_messages([Element|Rest], MsgsAccum, EnumAccum, MetaAccum) ->
+    case Element of
+        {{msg, MsgName}, Fields} ->
+            FieldProps = gpb:field_records_to_proplists(Fields),
+            Message = [{name, MsgName}, {fields, format_field_proplist(FieldProps)}],
+            format_messages(Rest, [Message|MsgsAccum], EnumAccum, MetaAccum);
+        {{enum, EnumName}, Values} ->
+            Enum = [{name, EnumName}, {values, Values}],
+            format_messages(Rest, MsgsAccum, [Enum|EnumAccum], MetaAccum);
+        MetaData ->
+            format_messages(Rest, MsgsAccum, EnumAccum, [MetaData|MetaAccum])
+    end.
 
 %%%===================================================================
 %%% Private
