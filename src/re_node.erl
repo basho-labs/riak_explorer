@@ -643,8 +643,6 @@ ensure_messages_bucket_type_exists(Node) ->
 
 -spec pb_messages_create(re_node(), string()) -> {error, term()} | term().
 pb_messages_create(Node, Messages) ->
-    %% TODO: Using Node later
-    lager:info("Creating messages on ~p", [Node]),
     case gpb_scan:string(Messages) of
         {ok, Tokens, _} ->
             case gpb_parse:parse(Tokens ++ [{'$end', length(Messages) + 1}]) of
@@ -652,8 +650,7 @@ pb_messages_create(Node, Messages) ->
                     Hash = list_to_binary(mochihex:to_hex(binary_to_list(crypto:hash(sha, Messages)))),
                     case ensure_messages_bucket_type_exists(Node) of
                         ok ->
-                            pb_message_store(Node, Hash, Result),
-                            Hash;
+                            pb_message_store(Node, Hash, Result);
                         Error ->
                             lager:info("Error creating bucket type"),
                             {error, Error}
@@ -678,7 +675,12 @@ pb_message_store(Node, Hash, Messages) ->
             ResultObj = riakc_obj:new({?PB_MESSAGES_BUCKET, ?PB_MESSAGES_FILES_BUCKET},
                                       Hash,
                                       term_to_binary(Messages)),
-            riakc_pb_socket:put(client(Node), ResultObj)
+            case riakc_pb_socket:put(client(Node), ResultObj) of
+                {error, Error} ->
+                    {error, Error};
+                _ ->
+                    Hash
+            end
     end.
 
 -spec pb_messages_exists(re_node(), binary()) -> boolean().
@@ -735,8 +737,10 @@ format_messages([Element|Rest], MsgsAccum, EnumAccum, MetaAccum) ->
         {{enum, EnumName}, Values} ->
             Enum = [{name, EnumName}, {values, Values}],
             format_messages(Rest, MsgsAccum, [Enum|EnumAccum], MetaAccum);
-        MetaData ->
-            format_messages(Rest, MsgsAccum, EnumAccum, [MetaData|MetaAccum])
+        {_Key, [_Value]} = MetaData ->
+            format_messages(Rest, MsgsAccum, EnumAccum, [MetaData|MetaAccum]);
+        {Key, Value} ->
+            format_messages(Rest, MsgsAccum, EnumAccum, [{Key, list_to_binary(Value)}|MetaAccum])
     end.
 
 %%%===================================================================
