@@ -31,14 +31,13 @@ ensure_ibrowse() ->
         Any when is_pid(Any)-> ok
     end.
 
-http(Method, URL, Body, H0, ReturnHeader) ->
+http(Method, URL, Body, [], ReturnHeader) ->
+    Headers = [{"Content-Type", "application/json"}],
+    http(Method, URL, Body, Headers, ReturnHeader);
+http(Method, URL, Body, Headers, ReturnHeader) ->
     Method1 = list_to_atom(string:to_lower(atom_to_list(Method))),
     ensure_ibrowse(),
     Opts = [],
-
-    Headers = H0 ++ [
-                     {"Content-Type", "application/json"}
-                    ],
 
     Res = ibrowse:send_req(URL, Headers, Method1, Body, Opts),
 

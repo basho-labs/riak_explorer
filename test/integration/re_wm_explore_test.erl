@@ -20,14 +20,19 @@ re_wm_explore_test_() ->
                                            "http://localhost:9000/explore/clusters/default/bucket_types/GeoCheckin",
                                            <<"{\"props\":{\"table_def\": \"CREATE TABLE GeoCheckin (myfamily varchar not null, myseries varchar not null, time timestamp not null, myint sint64 not null, mytext varchar not null, myfloat double not null, mybool boolean not null, PRIMARY KEY ((myfamily, myseries, quantum(time, 15, 'm')), myfamily, myseries, time))\"}}">>);
                 true -> ?debugFmt("On KV, skipping bucket creation", [])
+             end,
+             {ok, Code, _} = ret:http(get, "http://localhost:9000/explore/clusters/default/pb-messages/messages/4200c1fb013c0db5a5722d3c791ec43a1d997640"),
+             case Code of
+                 "404" -> false;
+                 _ -> true
              end
      end,
      %% No cleanup
      fun (_) -> ok end,
      %% Tests
-     fun (_) ->
+     fun (State) ->
              {timeout, 60, [
-                            all_routes()
+                            all_routes(State)
                            ]}
      end}.
 
@@ -35,24 +40,25 @@ re_wm_explore_test_() ->
 %%% ACTUAL TESTS %%%
 %%%%%%%%%%%%%%%%%%%%
 
-all_routes() ->
+all_routes(State) ->
     Routes = re_wm:routes(),
     RiakType = riak_type(),
-    lists:flatten([ [ assert_paths(Method, Base, Paths, RiakType, [])
+    lists:flatten([ [ assert_paths(State, Method, Base, Paths, RiakType, [])
         || Method <- Methods ]
       || #route{base=[Base|_],path=Paths,methods=Methods} <- Routes ]).
 
-assert_paths(_, _, [], _, Accum) -> lists:reverse(Accum);
-assert_paths(Method, Base, [Path|Paths], RiakType, Accum) ->
+assert_paths(_, _, _, [], _, Accum) -> lists:reverse(Accum);
+assert_paths(State, Method, Base, [Path|Paths], RiakType, Accum) ->
     case is_testable_path(Base, Path, RiakType) of
         true ->
             Url = ret:url(to_path_str(Base) ++ "/" ++ to_path_str(Path)),
             Body = path_body(Method, Path),
-            {ok, Code, Content} = ret:http(Method, Url, Body),
-            ExpectedCode = path_code(Method, Path),
-            assert_paths(Method, Base, Paths, RiakType, [?_assertEqual({ExpectedCode, Method, Url, Content}, {Code, Method, Url, Content})|Accum]);
+            Headers = path_headers(Method, Path),
+            {ok, Code, Content} = ret:http(Method, Url, Body, Headers),
+            ExpectedCode = path_code(State, Method, Path),
+            assert_paths(State, Method, Base, Paths, RiakType, [?_assertEqual({ExpectedCode, Method, Url, Content}, {Code, Method, Url, Content})|Accum]);
         false ->
-            assert_paths(Method, Base, Paths, RiakType, Accum)
+            assert_paths(State, Method, Base, Paths, RiakType, Accum)
     end.
 
 
@@ -73,6 +79,7 @@ path_part(arg1, _) -> "riak@127.0.0.1";
 path_part(arg2, _) -> "riak@127.0.0.1";
 path_part('*',["clusters",cluster,'*']) -> "ping";
 path_part('*',["nodes",node,'*']) -> "ping";
+path_part(pb_file,["messages",pb_file]) -> "4200c1fb013c0db5a5722d3c791ec43a1d997640";
 path_part('*',['*']) -> "index.html".
 
 path_body('PUT', ["keys"]) ->
@@ -89,25 +96,37 @@ path_body('POST', ["tables", "query"]) ->
     <<"select * from GeoCheckin where time > 24 and time < 26 and myfamily = 'family1' and myseries = 'series1'">>;
 path_body('POST', ["tables", table, "query"]) ->
    <<"[\"family2\", \"series99\", 26]">>;
+path_body('POST', ["create"]) ->
+    <<"------------------------RiakExplorerTest\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.proto\"\r\nContent-Type: application/octet-stream\r\n\r\nmessage m1 {\n  repeated uint32 i   = 1;\n  required bool   b   = 2;\n  required eee    e   = 3;\n  required submsg sub = 4;\n}\nmessage submsg {\n  required string s = 1;\n  required bytes  b = 2;\n}\nenum eee {\n  INACTIVE = 0;\n  ACTIVE   = 1;\n}\n\r\n------------------------RiakExplorerTest--\r\n">>;
 path_body(_, _) ->
    <<>>.
 
-path_code('POST', ["tables", "query"]) -> "200";
-path_code('POST', ["tables", table, "query"]) -> "200";
-path_code('POST', _) -> "202";
-path_code('GET', ["staged-leave"]) -> "500";
-path_code('GET', ["commit"]) -> "500";
-path_code('GET', ["join", arg1]) -> "500";
-path_code('GET', ["leave", arg1]) -> "500";
-path_code('GET', ["staged-join", arg1]) -> "500";
-path_code('GET', ["staged-leave", arg1]) -> "500";
-path_code('GET', ["force-remove", arg1]) -> "500";
-path_code('GET', ["repl-fullsync-start", arg1]) -> "500";
-path_code('GET', _) -> "200";
-path_code('DELETE', ["buckets",bucket]) -> "202";
-path_code('DELETE', _) -> "204";
-path_code('PUT', ["bucket_types", bucket_type]) -> "200";
-path_code('PUT', _) -> "204".
+path_code(_, 'POST', ["tables", "query"]) -> "200";
+path_code(_, 'POST', ["tables", table, "query"]) -> "200";
+%% If the file has already been uploaded
+path_code(true, 'POST', ["create"]) -> "204";
+path_code(false, 'POST', ["create"]) -> "200";
+path_code(_, 'POST', _) -> "202";
+path_code(_, 'GET', ["staged-leave"]) -> "500";
+path_code(_, 'GET', ["commit"]) -> "500";
+path_code(_, 'GET', ["join", arg1]) -> "500";
+path_code(_, 'GET', ["leave", arg1]) -> "500";
+path_code(_, 'GET', ["staged-join", arg1]) -> "500";
+path_code(_, 'GET', ["staged-leave", arg1]) -> "500";
+path_code(_, 'GET', ["force-remove", arg1]) -> "500";
+path_code(_, 'GET', ["repl-fullsync-start", arg1]) -> "500";
+path_code(_, 'GET', _) -> "200";
+path_code(_, 'DELETE', ["buckets",bucket]) -> "202";
+path_code(_, 'DELETE', _) -> "204";
+path_code(_, 'PUT', ["bucket_types", bucket_type]) -> "200";
+path_code(_, 'PUT', _) -> "204".
+
+path_headers('POST', ["create"]) ->
+    [{"Content-Length", integer_to_list(byte_size(path_body('POST', ["create"])))},
+     {"Content-Type", "multipart/form-data; boundary=----------------------RiakExplorerTest"}];
+path_headers(_, _) ->
+    [].
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%% HELPER FUNCTIONS %%%
