@@ -13,7 +13,6 @@ Objects, and more. To prevent heavy I/O requests from key listings, be sure to
 edit the config file to reflect the environment as [explained in Using Riak
 Explorer](#using-riak-explorer).
 
-* [Demo](http://104.236.156.86/)
 * [Installation](#installation)
 * [System Architecture](#system-architecture)
 * [Using Riak Explorer](#using-riak-explorer)
